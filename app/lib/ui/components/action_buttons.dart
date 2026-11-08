@@ -33,9 +33,9 @@ class PillButton extends StatelessWidget {
   final Color? backgroundColor;
 
   static const _textStyle = TextStyle(
-    fontSize: 17,
-    fontWeight: FontWeight.w500,
-    letterSpacing: -0.4,
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0,
   );
 
   @override

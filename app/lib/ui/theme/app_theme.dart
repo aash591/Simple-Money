@@ -3,6 +3,14 @@ import 'package:flutter/material.dart';
 import 'surface_style.dart';
 import 'app_typography.dart';
 
+enum AppStyle { glassy, simple, aurora }
+
+bool usesAurora(BuildContext context) =>
+    Theme.of(context).extension<AppChrome>()?.style == AppStyle.aurora;
+
+bool usesGlass(BuildContext context) =>
+    Theme.of(context).extension<AppChrome>()?.style != AppStyle.simple;
+
 const accent = Color(0xff8055e8);
 const green = Color(0xff16b97c);
 const coral = Color(0xffff6575);
@@ -21,21 +29,40 @@ const blackSurface = Color(0xff0e0e0e);
 const blackControl = Color(0xff181818);
 const blackCardBorder = Color(0x18ffffff);
 
+/// Aurora's dark page: a deep navy the accent pools glow over.
+const auroraDarkPage = Color(0xff0b1020);
+
 /// Chrome that only some themes have.
 @immutable
 class AppChrome extends ThemeExtension<AppChrome> {
-  const AppChrome({this.cardBorder});
+  const AppChrome({
+    this.cardBorder,
+    this.style = AppStyle.glassy,
+    this.pageTop,
+  });
+  final AppStyle style;
 
   /// A hairline around every card; none in the other themes.
   final Color? cardBorder;
 
-  @override
-  AppChrome copyWith({Color? cardBorder}) =>
-      AppChrome(cardBorder: cardBorder ?? this.cardBorder);
+  /// The page backdrop's colour along the top edge, so the status bar scrim
+  /// blends into the page instead of laying a grey band over it.
+  final Color? pageTop;
 
   @override
-  AppChrome lerp(AppChrome? other, double t) =>
-      AppChrome(cardBorder: Color.lerp(cardBorder, other?.cardBorder, t));
+  AppChrome copyWith({Color? cardBorder, AppStyle? style, Color? pageTop}) =>
+      AppChrome(
+        cardBorder: cardBorder ?? this.cardBorder,
+        style: style ?? this.style,
+        pageTop: pageTop ?? this.pageTop,
+      );
+
+  @override
+  AppChrome lerp(AppChrome? other, double t) => AppChrome(
+    cardBorder: Color.lerp(cardBorder, other?.cardBorder, t),
+    style: t < .5 ? style : other?.style ?? style,
+    pageTop: Color.lerp(pageTop, other?.pageTop, t),
+  );
 }
 
 /// [black] only applies to [Brightness.dark]: the dark theme with true-black
@@ -44,11 +71,48 @@ ThemeData appTheme(
   Brightness brightness, {
   Color accentColor = accent,
   bool black = false,
+  AppStyle style = AppStyle.glassy,
 }) {
   final accent = accentColor;
   final dark = brightness == Brightness.dark;
-  final surface = dark && black ? blackSurface : darkSurface;
-  final control = dark && black ? blackControl : darkControl;
+  final simple = style == AppStyle.simple;
+  // Aurora's dark surfaces lean navy with a breath of the accent, so sheets,
+  // pills and discs belong to the same page as the glowing backdrop instead
+  // of sitting on it as neutral charcoal.
+  final aurora = style == AppStyle.aurora && dark && !black;
+  final surface = dark && black
+      ? blackSurface
+      : simple
+      ? const Color(0xff1c1c1e)
+      : aurora
+      ? Color.alphaBlend(accent.withValues(alpha: .06), const Color(0xff161b2b))
+      : darkSurface;
+  final control = dark && black
+      ? blackControl
+      : aurora
+      ? Color.alphaBlend(accent.withValues(alpha: .08), const Color(0xff20263a))
+      : darkControl;
+  final scaffold = simple
+      ? (dark
+            ? (black ? Colors.black : const Color(0xff111214))
+            : const Color(0xfff2f2f7))
+      : (dark ? darkBackground : lightPageBackground);
+  final pageTop = switch (style) {
+    AppStyle.simple => scaffold,
+    AppStyle.aurora =>
+      dark
+          ? (black
+                ? Colors.black
+                : Color.alphaBlend(
+                    accent.withValues(alpha: .14),
+                    auroraDarkPage,
+                  ))
+          : const Color(0xfff6f7fa),
+    AppStyle.glassy =>
+      dark
+          ? (black ? Colors.black : const Color(0xff131315))
+          : const Color(0xfff6f5f3),
+  };
   final scheme = ColorScheme.fromSeed(seedColor: accent, brightness: brightness)
       .copyWith(
         primary: accent,
@@ -63,25 +127,32 @@ ThemeData appTheme(
         surfaceContainerHigh: dark ? control : Colors.white,
         surfaceContainerHighest: dark ? control : Colors.white,
         surfaceTint: Colors.transparent,
-        onSurface: dark ? const Color(0xfff2f4fa) : const Color(0xff141c30),
+        onSurface: dark ? const Color(0xfff2f2f4) : const Color(0xff1c1c1f),
         onSurfaceVariant: dark
-            ? const Color(0xffa1abc0)
-            : const Color(0xff616d82),
+            ? (aurora ? const Color(0xffa1a6bb) : const Color(0xff9a9aa2))
+            : const Color(0xff686870),
       );
   return ThemeData(
     useMaterial3: true,
+    fontFamily: AppTypography.fontFamily,
     colorScheme: scheme,
     brightness: brightness,
-    extensions: [AppChrome(cardBorder: dark && black ? blackCardBorder : null)],
+    extensions: [
+      AppChrome(
+        cardBorder: dark && black ? blackCardBorder : null,
+        style: style,
+        pageTop: pageTop,
+      ),
+    ],
     scrollbarTheme: const ScrollbarThemeData(
       thickness: WidgetStatePropertyAll(2),
       radius: Radius.circular(1),
       thumbVisibility: WidgetStatePropertyAll(false),
       trackVisibility: WidgetStatePropertyAll(false),
     ),
-    scaffoldBackgroundColor: dark ? darkBackground : lightPageBackground,
+    scaffoldBackgroundColor: scaffold,
     appBarTheme: AppBarTheme(
-      backgroundColor: dark ? darkBackground : lightPageBackground,
+      backgroundColor: scaffold,
       surfaceTintColor: Colors.transparent,
       centerTitle: false,
     ),
@@ -125,7 +196,7 @@ ThemeData appTheme(
       minVerticalPadding: 12,
       horizontalTitleGap: 12,
       titleTextStyle: AppTypography.body.copyWith(
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w500,
         color: scheme.onSurface,
       ),
       subtitleTextStyle: AppTypography.caption.copyWith(

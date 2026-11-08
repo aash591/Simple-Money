@@ -89,7 +89,7 @@ class ChartFrame extends StatelessWidget {
 /// the series colour, which is illegible at label sizes in half the palette.
 TextStyle chartLabelStyle(BuildContext context) =>
     (Theme.of(context).textTheme.bodySmall ?? const TextStyle()).copyWith(
-      fontSize: 11,
+      fontSize: 12,
       color: ChartPalette.of(context).label,
     );
 

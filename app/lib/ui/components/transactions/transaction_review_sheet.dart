@@ -188,8 +188,7 @@ class _TransactionReviewSheetState extends State<TransactionReviewSheet> {
           ? d.toAccountId != null && d.toAccountId != d.accountId
           : d.categoryId != null || d.loanId != null);
 
-  Loan? get _loan =>
-      widget.loans.where((l) => l.id == d.loanId).firstOrNull;
+  Loan? get _loan => widget.loans.where((l) => l.id == d.loanId).firstOrNull;
 
   List<Account> get _cards =>
       repayableCards(widget.accounts.accounts, d.currency, d.digits);

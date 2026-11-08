@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../components/app_back_button.dart';
 import '../../components/app_toast.dart';
 
 ThemeMode _nextThemeMode(ThemeMode mode) => switch (mode) {
@@ -77,7 +78,7 @@ class HomeHeader extends StatelessWidget {
                       style: Theme.of(context).textTheme.headlineMedium
                           ?.copyWith(
                             fontSize: 24,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                             letterSpacing: -0.5,
                             height: 1.2,
                           ),
@@ -96,29 +97,33 @@ class HomeHeader extends StatelessWidget {
             ),
           ),
         ),
-        IconButton(
-          tooltip: 'View month transactions',
-          onPressed: onOpenTransactions,
-          icon: const Icon(Icons.format_list_bulleted_rounded),
-          constraints: buttonSize,
-          padding: EdgeInsets.zero,
+        GlassActionSlot(
+          child: IconButton(
+            tooltip: 'View month transactions',
+            onPressed: onOpenTransactions,
+            icon: const Icon(Icons.format_list_bulleted_rounded),
+            constraints: buttonSize,
+            padding: EdgeInsets.zero,
+          ),
         ),
         ValueListenableBuilder<ThemeMode>(
           valueListenable: themeMode,
-          builder: (context, mode, _) => IconButton(
-            tooltip: 'Theme: ${_themeModeLabel(mode)}',
-            onPressed: () {
-              final next = _nextThemeMode(mode);
-              onChangeThemeMode(next);
-              showAppToast(
-                context,
-                _themeModeLabel(next),
-                icon: _themeModeIcon(next),
-              );
-            },
-            icon: Icon(_themeModeIcon(mode)),
-            constraints: buttonSize,
-            padding: EdgeInsets.zero,
+          builder: (context, mode, _) => GlassActionSlot(
+            child: IconButton(
+              tooltip: 'Theme: ${_themeModeLabel(mode)}',
+              onPressed: () {
+                final next = _nextThemeMode(mode);
+                onChangeThemeMode(next);
+                showAppToast(
+                  context,
+                  _themeModeLabel(next),
+                  icon: _themeModeIcon(next),
+                );
+              },
+              icon: Icon(_themeModeIcon(mode)),
+              constraints: buttonSize,
+              padding: EdgeInsets.zero,
+            ),
           ),
         ),
       ],

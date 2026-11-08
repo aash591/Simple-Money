@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_back_button.dart';
+import 'glass_surface.dart';
 
 import 'secondary_header.dart';
 
@@ -55,7 +56,9 @@ class FeaturePage extends StatelessWidget {
   final PreferredSizeWidget? bottom;
   final Widget? floatingActionButton;
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => GlassPage(child: _scaffold(context));
+
+  Widget _scaffold(BuildContext context) => Scaffold(
     appBar: !showHeader
         ? null
         : PreferredSize(

@@ -18,8 +18,13 @@ class ChoiceItem<T> {
     this.enabled = true,
     this.showSelectedIndicator = false,
     this.chevron = false,
+    this.searchOnly = false,
   });
   final T value;
+
+  /// Hidden until the user types a search; then it can match (shown indented
+  /// under its parent). Lets a top-level list also find its subcategories.
+  final bool searchOnly;
 
   /// Drawn inside the row's circular icon tile.
   final Widget icon;
@@ -199,7 +204,12 @@ class _ChoicePickerPageState<T> extends State<ChoicePickerPage<T>> {
   /// children show, under their parent for context.
   List<ChoiceItem<T>> get _visibleItems {
     final query = _search.text.trim().toLowerCase();
-    if (query.isEmpty) return widget.items;
+    if (query.isEmpty) {
+      return [
+        for (final item in widget.items)
+          if (!item.searchOnly) item,
+      ];
+    }
     bool matches(ChoiceItem<T> item) =>
         item.label.toLowerCase().contains(query);
     final visible = <ChoiceItem<T>>[];

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_theme.dart' show AppChrome;
+import '../theme/app_theme.dart' show AppChrome, usesGlass, usesAurora;
 import '../theme/surface_style.dart';
+import 'glass_surface.dart';
 
 export '../theme/surface_style.dart'
     show appCardGap, appCardRadius, homeCardGap;
@@ -11,34 +12,88 @@ class MoneyCard extends StatelessWidget {
     super.key,
     required this.child,
     this.color,
+    this.featured = false,
     this.padding = const EdgeInsets.all(20),
   });
   final Widget child;
   final Color? color;
+  final bool featured;
   final EdgeInsets padding;
   @override
   Widget build(BuildContext context) {
-    final fill = color ?? Theme.of(context).colorScheme.surface;
-    final glass = GlassCards.of(context);
-    final border = Theme.of(context).extension<AppChrome>()?.cardBorder;
+    final theme = Theme.of(context);
+    final border = theme.extension<AppChrome>()?.cardBorder;
     const radius = BorderRadius.all(Radius.circular(appCardRadius));
+    final dark = theme.brightness == Brightness.dark;
+    // On glass the featured card stays as see-through as its neighbours;
+    // an opaque wash made it look like a different kind of card.
+    final washBase = usesGlass(context) && dark && border == null
+        ? theme.colorScheme.surface.withValues(alpha: .82)
+        : theme.colorScheme.surface;
+    final wash = featured && !usesAurora(context)
+        ? LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color.alphaBlend(
+                theme.colorScheme.primary.withValues(alpha: dark ? .12 : .14),
+                washBase,
+              ),
+              washBase,
+              Color.alphaBlend(
+                theme.colorScheme.primary.withValues(alpha: dark ? .05 : .045),
+                washBase,
+              ),
+            ],
+          )
+        : null;
+    if (!usesGlass(context)) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: wash == null ? color ?? theme.colorScheme.surface : null,
+          gradient: wash,
+          borderRadius: radius,
+          border: border == null ? null : Border.all(color: border),
+        ),
+        child: _clipped(radius),
+      );
+    }
+    final body = color != null
+        ? _clipped(radius)
+        : GlassCardWash(radius: radius, child: _clipped(radius));
     return DecoratedBox(
+      // Glass: a see-through, top-lit fill over the page's soft backdrop.
+      // The true-black theme keeps its plain hairline instead of the glass
+      // edge, which would glow too brightly against black.
       decoration: BoxDecoration(
-        color: glass ? fill.withValues(alpha: glassCardOpacity) : fill,
+        gradient: wash ?? glassCardFill(context, color: color),
         borderRadius: radius,
         border: border == null ? null : Border.all(color: border),
-        // A shadow would show through a see-through card as a dark smudge.
-        boxShadow: glass ? null : appCardShadows(Theme.of(context).brightness),
+        boxShadow: glassCardShadows(theme.brightness),
       ),
-      // A selected ListTile paints its selection colour with a rectangular
-      // Material. Clip it to the card so it cannot show through the rounded
-      // corners (most visible on the first selected item in a sheet). A
-      // rounded-rect clip, not the path clip a clipping Container makes:
-      // every card on screen pays for it on every frame of a scroll.
-      child: ClipRRect(
-        borderRadius: radius,
-        child: Padding(padding: padding, child: child),
-      ),
+      child: border != null
+          ? body
+          : DecoratedBox(
+              position: DecorationPosition.foreground,
+              decoration: GlassCardRim(
+                dark: theme.brightness == Brightness.dark,
+                radius: radius,
+                accent: usesAurora(context) ? theme.colorScheme.primary : null,
+              ),
+              child: body,
+            ),
+    );
+  }
+
+  Widget _clipped(BorderRadius radius) {
+    // A selected ListTile paints its selection colour with a rectangular
+    // Material. Clip it to the card so it cannot show through the rounded
+    // corners (most visible on the first selected item in a sheet). A
+    // rounded-rect clip, not the path clip a clipping Container makes:
+    // every card on screen pays for it on every frame of a scroll.
+    return ClipRRect(
+      borderRadius: radius,
+      child: Padding(padding: padding, child: child),
     );
   }
 }
@@ -81,12 +136,12 @@ class AddFab extends StatelessWidget {
     backgroundColor: Theme.of(context).colorScheme.primary,
     foregroundColor: Colors.white,
     shape: const CircleBorder(),
-    elevation: 4,
+    elevation: 2,
     child: const Icon(Icons.add_rounded, size: 32),
   );
 }
 
-/// Plain leading icon for settings and menu rows.
+/// Leading glass icon tile for settings and menu rows.
 class MenuRowIcon extends StatelessWidget {
   const MenuRowIcon(this.icon, {super.key, this.color, this.size = 42});
 
@@ -95,13 +150,10 @@ class MenuRowIcon extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) => SizedBox.square(
-    dimension: size,
-    child: Icon(
-      icon,
-      color: color ?? Theme.of(context).colorScheme.onSurfaceVariant,
-      size: 24,
-    ),
+  Widget build(BuildContext context) => GlassIconTile(
+    icon,
+    tint: color ?? Theme.of(context).colorScheme.primary,
+    size: size * .95,
   );
 }
 
@@ -111,19 +163,6 @@ class IconTile extends StatelessWidget {
   final Color? color;
   final double size;
   @override
-  Widget build(BuildContext context) => Container(
-    width: size,
-    height: size,
-    decoration: BoxDecoration(
-      color: (color ?? Theme.of(context).colorScheme.primary).withValues(
-        alpha: .11,
-      ),
-      borderRadius: BorderRadius.circular(size * .4),
-    ),
-    child: Icon(
-      icon,
-      color: color ?? Theme.of(context).colorScheme.primary,
-      size: size * .5,
-    ),
-  );
+  Widget build(BuildContext context) =>
+      GlassIconTile(icon, tint: color, size: size);
 }

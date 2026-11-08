@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../components/glass_surface.dart';
+
 import '../../components/app_back_button.dart';
 
 import '../../../domain/category.dart';
@@ -74,78 +76,80 @@ class _CategoriesScreenState extends State<CategoriesScreen>
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) _cancelSearch();
       },
-      child: Scaffold(
-        floatingActionButton: _searching
-            ? null
-            : AddFab(
-                onPressed: () => _open(context, type),
-                tooltip: 'Add category',
-              ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              SearchableHeader(
-                searching: _searching,
-                controller: _search,
-                focusNode: _searchFocus,
-                fieldKey: const Key('category-search'),
-                hintText: 'Search categories',
-                onChanged: (_) => setState(() {}),
-                onCancel: _cancelSearch,
-                header: Column(
-                  children: [
-                    SecondaryHeader(
-                      title: 'Categories',
-                      leading: Navigator.of(context).canPop()
-                          ? const AppBackButton()
-                          : null,
-                      actions: [
-                        AppSearchButton(
-                          tooltip: 'Search categories',
-                          onPressed: _openSearch,
-                        ),
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                      child: SegmentedPillTabBar(
-                        controller: _tabs,
-                        labels: [for (final t in _tabTypes) t.label],
-                      ),
-                    ),
-                  ],
+      child: GlassPage(
+        child: Scaffold(
+          floatingActionButton: _searching
+              ? null
+              : AddFab(
+                  onPressed: () => _open(context, type),
+                  tooltip: 'Add category',
                 ),
-              ),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 620),
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: TabBarView(
-                            controller: _tabs,
-                            children: _tabTypes
-                                .map(
-                                  (t) => _CategoryList(
-                                    store: widget.store,
-                                    type: t,
-                                    query: _search.text.trim().toLowerCase(),
-                                    onTap: (category) =>
-                                        _open(context, t, category),
-                                    onAdd: () => _open(context, t),
-                                  ),
-                                )
-                                .toList(),
+          body: SafeArea(
+            child: Column(
+              children: [
+                SearchableHeader(
+                  searching: _searching,
+                  controller: _search,
+                  focusNode: _searchFocus,
+                  fieldKey: const Key('category-search'),
+                  hintText: 'Search categories',
+                  onChanged: (_) => setState(() {}),
+                  onCancel: _cancelSearch,
+                  header: Column(
+                    children: [
+                      SecondaryHeader(
+                        title: 'Categories',
+                        leading: Navigator.of(context).canPop()
+                            ? const AppBackButton()
+                            : null,
+                        actions: [
+                          AppSearchButton(
+                            tooltip: 'Search categories',
+                            onPressed: _openSearch,
                           ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                        child: SegmentedPillTabBar(
+                          controller: _tabs,
+                          labels: [for (final t in _tabTypes) t.label],
                         ),
-                      ],
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 620),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: TabBarView(
+                              controller: _tabs,
+                              children: _tabTypes
+                                  .map(
+                                    (t) => _CategoryList(
+                                      store: widget.store,
+                                      type: t,
+                                      query: _search.text.trim().toLowerCase(),
+                                      onTap: (category) =>
+                                          _open(context, t, category),
+                                      onAdd: () => _open(context, t),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

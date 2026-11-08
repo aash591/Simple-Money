@@ -273,8 +273,7 @@ class _CategoryPickerState extends State<_CategoryPicker> {
             fillHeight: true,
             items: [for (final loan in shortcuts.loans) loanChoiceItem(loan)],
             selected: null,
-            onSelected: (id) =>
-                Navigator.pop(context, CategoryPick.loan(id)),
+            onSelected: (id) => Navigator.pop(context, CategoryPick.loan(id)),
             searchHint: 'Search loans',
           )
         : parent == null
@@ -285,13 +284,26 @@ class _CategoryPickerState extends State<_CategoryPicker> {
             fillHeight: true,
             items: [
               ...shortcuts.items,
-              for (final category in shortcuts.topLevel(categories))
+              for (final category in shortcuts.topLevel(categories)) ...[
                 ChoiceItem(
                   value: category.id,
                   icon: AppIcon(category.icon, size: 28),
                   label: category.name,
                   chevron: true,
                 ),
+                // Subcategories show only while searching (e.g. "fuel").
+                for (final sub in categories.where(
+                  (c) => c.parentId == category.id,
+                ))
+                  ChoiceItem(
+                    value: sub.id,
+                    icon: AppIcon(sub.icon, size: 28),
+                    label: sub.name,
+                    indent: true,
+                    searchOnly: true,
+                    chevron: true,
+                  ),
+              ],
             ],
             selected: null,
             onSelected: choose,

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'inner_glow.dart';
+import '../theme/app_theme.dart' show usesGlass;
 
 /// The app's glass pill button, shared by sheet/alert actions and the number
 /// keypad. Neutral by default: a translucent grey body with a light-catching
@@ -110,7 +111,8 @@ class _GlassButtonState extends State<GlassButton>
     super.dispose();
   }
 
-  Widget _blurred(BorderRadius radius, Widget body) => widget.blur == 0
+  Widget _blurred(BorderRadius radius, Widget body) =>
+      widget.blur == 0 || !usesGlass(context)
       ? body
       : ClipRRect(
           borderRadius: radius,
@@ -122,6 +124,7 @@ class _GlassButtonState extends State<GlassButton>
 
   @override
   Widget build(BuildContext context) {
+    final glass = usesGlass(context);
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final brightness = Theme.of(context).brightness;
     final dark = brightness == Brightness.dark;
@@ -130,7 +133,12 @@ class _GlassButtonState extends State<GlassButton>
     final solid = widget.color != null && _active;
     final baseFill = solid
         ? widget.color!
-        : widget.fill ?? GlassButton.neutralFill(brightness);
+        : glass
+        ? widget.fill ?? GlassButton.neutralFill(brightness)
+        : Color.alphaBlend(
+            onSurface.withValues(alpha: .07),
+            Theme.of(context).colorScheme.surface,
+          );
     // Pressed: neutral glass brightens in dark mode and dims in light mode;
     // a solid fill always deepens a little.
     final pressedTint = !solid && dark
@@ -156,7 +164,7 @@ class _GlassButtonState extends State<GlassButton>
             scale: 1 - .05 * t,
             child: Container(
               height: widget.height,
-              decoration: widget.shadow
+              decoration: widget.shadow && glass
                   ? BoxDecoration(
                       borderRadius: radius,
                       boxShadow: [
@@ -177,11 +185,9 @@ class _GlassButtonState extends State<GlassButton>
                       ],
                     )
                   : null,
-              foregroundDecoration: GlassRim(
-                dark: dark,
-                solid: solid,
-                radius: radius,
-              ),
+              foregroundDecoration: !glass
+                  ? null
+                  : GlassRim(dark: dark, solid: solid, radius: radius),
               // No clip unless blurring: the rounded fill already gives the
               // shape, and a clip per key adds up across a full keypad.
               child: Material(
@@ -198,7 +204,11 @@ class _GlassButtonState extends State<GlassButton>
                         colors: [
                           Color.alphaBlend(
                             Colors.white.withValues(
-                              alpha: solid ? .12 : (dark ? .04 : .3),
+                              alpha: !glass
+                                  ? 0
+                                  : solid
+                                  ? .04
+                                  : (dark ? .02 : .08),
                             ),
                             fill,
                           ),
@@ -272,10 +282,10 @@ class _GlassRimPainter extends BoxPainter {
     final rect = offset & configuration.size!;
     final shape = rim.radius.toRRect(rect);
     final (glow, top, middle, bottom) = rim.solid
-        ? (.12, .45, .12, .2)
+        ? (.015, .12, .03, .05)
         : rim.dark
         ? (.05, .16, .06, .04)
-        : (.4, .95, .5, .5);
+        : (.08, .6, .18, .22);
     // The falloff of an 8dp stroke blurred by sigma 4, clipped to the pill.
     paintInnerGlow(
       canvas,

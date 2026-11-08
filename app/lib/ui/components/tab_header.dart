@@ -12,9 +12,14 @@ class TabHeader extends StatelessWidget {
     required this.title,
     this.actions = const [],
     this.roundActions = false,
+    this.trailing,
   });
   final String title;
   final List<Widget> actions;
+
+  /// A wider control at the end, such as a [GlassPillButton] month picker,
+  /// laid out as is rather than in an action's square.
+  final Widget? trailing;
 
   /// The [actions] are [GlassCircleButton]s: the last disc, rather than its
   /// tap square, ends on the page margin.
@@ -61,7 +66,15 @@ class TabHeader extends StatelessWidget {
               child: Row(mainAxisSize: MainAxisSize.min, children: actions),
             )
           else
-            ...actions,
+            for (final a in actions) GlassActionSlot(child: a),
+          if (trailing != null)
+            Transform.translate(
+              offset: const Offset(GlassCircleButton.edgeInset, 0),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: trailing,
+              ),
+            ),
         ],
       ),
     ),

@@ -63,8 +63,7 @@ class SecondaryHeader extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                for (final action in actions)
-                  SizedBox(width: 48, height: 48, child: action),
+                for (final action in actions) GlassActionSlot(child: action),
                 if (actions.isEmpty) const SizedBox(width: 8),
               ],
             ),

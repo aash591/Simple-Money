@@ -37,7 +37,11 @@ class SettingsScreen extends StatelessWidget {
 
   /// Turning it on says what is read, then asks Android. Turning it off stops
   /// reading at once, including new messages.
-  Future<void> _setSms(BuildContext context, SmsImportStore sms, bool on) async {
+  Future<void> _setSms(
+    BuildContext context,
+    SmsImportStore sms,
+    bool on,
+  ) async {
     if (!on) {
       await sms.disable();
       return;

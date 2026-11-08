@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../components/glass_surface.dart';
+
 import '../../components/app_back_button.dart';
 
 import 'package:intl/intl.dart';
@@ -90,47 +92,49 @@ class _DebtsScreenState extends State<DebtsScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _cancelSearch();
       },
-      child: Scaffold(
-        floatingActionButton: _searching
-            ? null
-            : AddFab(onPressed: _add, tooltip: 'Add debt'),
-        body: SafeArea(
-          child: Column(
-            children: [
-              SearchableHeader(
-                searching: _searching,
-                controller: _search,
-                focusNode: _searchFocus,
-                fieldKey: const Key('debt-search'),
-                hintText: 'Search people or notes',
-                onChanged: (_) => setState(() {}),
-                onCancel: _cancelSearch,
-                header: SecondaryHeader(
-                  title: 'Debts',
-                  leading: Navigator.of(context).canPop()
-                      ? const AppBackButton()
-                      : null,
-                  actions: [
-                    AppSearchButton(
-                      tooltip: 'Search debts',
-                      onPressed: _openSearch,
-                    ),
-                  ],
+      child: GlassPage(
+        child: Scaffold(
+          floatingActionButton: _searching
+              ? null
+              : AddFab(onPressed: _add, tooltip: 'Add debt'),
+          body: SafeArea(
+            child: Column(
+              children: [
+                SearchableHeader(
+                  searching: _searching,
+                  controller: _search,
+                  focusNode: _searchFocus,
+                  fieldKey: const Key('debt-search'),
+                  hintText: 'Search people or notes',
+                  onChanged: (_) => setState(() {}),
+                  onCancel: _cancelSearch,
+                  header: SecondaryHeader(
+                    title: 'Debts',
+                    leading: Navigator.of(context).canPop()
+                        ? const AppBackButton()
+                        : null,
+                    actions: [
+                      AppSearchButton(
+                        tooltip: 'Search debts',
+                        onPressed: _openSearch,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 620),
-                    child: ListenableBuilder(
-                      listenable: _store,
-                      builder: (context, _) => _body(context),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 620),
+                      child: ListenableBuilder(
+                        listenable: _store,
+                        builder: (context, _) => _body(context),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

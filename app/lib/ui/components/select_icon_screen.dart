@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'glass_surface.dart';
+
 import 'app_back_button.dart';
 
 import '../../domain/app_icons.dart';
@@ -153,87 +155,90 @@ class _SelectIconScreenState extends State<SelectIconScreen>
     onPopInvokedWithResult: (didPop, result) {
       if (!didPop) _cancelSearch();
     },
-    child: Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            SearchableHeader(
-              searching: _searching,
-              controller: _search,
-              focusNode: _searchFocus,
-              fieldKey: const Key('icon-search'),
-              hintText: 'Search icons',
-              onChanged: (_) => setState(() {}),
-              onCancel: _cancelSearch,
-              header: Column(
-                children: [
-                  SecondaryHeader(
-                    title: 'Choose an icon',
-                    leading: Navigator.of(context).canPop()
-                        ? const AppBackButton()
-                        : null,
-                    actions: [
-                      AppSearchButton(
-                        tooltip: 'Search icons',
-                        onPressed: _openSearch,
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                    child: SegmentedPillTabBar(
-                      controller: _tabs,
-                      labels: const ['3D', 'Services', 'Banks'],
+    child: GlassPage(
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              SearchableHeader(
+                searching: _searching,
+                controller: _search,
+                focusNode: _searchFocus,
+                fieldKey: const Key('icon-search'),
+                hintText: 'Search icons',
+                onChanged: (_) => setState(() {}),
+                onCancel: _cancelSearch,
+                header: Column(
+                  children: [
+                    SecondaryHeader(
+                      title: 'Choose an icon',
+                      leading: Navigator.of(context).canPop()
+                          ? const AppBackButton()
+                          : null,
+                      actions: [
+                        AppSearchButton(
+                          tooltip: 'Search icons',
+                          onPressed: _openSearch,
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                      child: SegmentedPillTabBar(
+                        controller: _tabs,
+                        labels: const ['3D', 'Services', 'Banks'],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 620),
-                  child: TabBarView(
-                    controller: _tabs,
-                    children: [
-                      _IconTab(
-                        storageKey: '3d',
-                        sections: [(title: null, keys: appIconKeys)],
-                        selectedKey: widget.selectedKey,
-                        query: _search.text.trim().toLowerCase(),
-                      ),
-                      _IconTab(
-                        storageKey: 'brands',
-                        sections: [
-                          (
-                            title: 'Services & subscriptions',
-                            keys: _serviceKeys,
-                          ),
-                          (
-                            title: 'Payments, cards & shopping',
-                            keys: _paymentKeys,
-                          ),
-                        ],
-                        selectedKey: widget.selectedKey,
-                        query: _search.text.trim().toLowerCase(),
-                      ),
-                      _IconTab(
-                        storageKey: 'banks',
-                        sections: _bankSections
-                            .map(
-                              (s) => (title: s.title as String?, keys: s.keys),
-                            )
-                            .toList(),
-                        selectedKey: widget.selectedKey,
-                        query: _search.text.trim().toLowerCase(),
-                      ),
-                    ],
+              Expanded(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 620),
+                    child: TabBarView(
+                      controller: _tabs,
+                      children: [
+                        _IconTab(
+                          storageKey: '3d',
+                          sections: [(title: null, keys: appIconKeys)],
+                          selectedKey: widget.selectedKey,
+                          query: _search.text.trim().toLowerCase(),
+                        ),
+                        _IconTab(
+                          storageKey: 'brands',
+                          sections: [
+                            (
+                              title: 'Services & subscriptions',
+                              keys: _serviceKeys,
+                            ),
+                            (
+                              title: 'Payments, cards & shopping',
+                              keys: _paymentKeys,
+                            ),
+                          ],
+                          selectedKey: widget.selectedKey,
+                          query: _search.text.trim().toLowerCase(),
+                        ),
+                        _IconTab(
+                          storageKey: 'banks',
+                          sections: _bankSections
+                              .map(
+                                (s) =>
+                                    (title: s.title as String?, keys: s.keys),
+                              )
+                              .toList(),
+                          selectedKey: widget.selectedKey,
+                          query: _search.text.trim().toLowerCase(),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     ),

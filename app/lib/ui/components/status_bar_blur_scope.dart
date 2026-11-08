@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../theme/app_theme.dart' show AppChrome;
+
 /// Wraps a screen whose main content is a scroll view that starts right at
 /// the top of the screen (no fixed app bar above it) so it would otherwise
 /// slide straight up under the status bar with a hard "cut" edge once
@@ -95,7 +97,11 @@ class _StatusBarScrim extends StatelessWidget {
       // A near-opaque tint rather than a blur: under this much colour a blur
       // can't be seen, but it costs a full-screen backdrop pass (and the
       // fade, a whole extra layer) on every frame the page scrolls.
-      final tint = Theme.of(context).colorScheme.surface;
+      // The page's own top colour, so the scrim reads as more page rather
+      // than a grey band laid over the backdrop.
+      final theme = Theme.of(context);
+      final tint =
+          theme.extension<AppChrome>()?.pageTop ?? theme.colorScheme.surface;
       return IgnorePointer(
         child: SizedBox(
           height: totalHeight,

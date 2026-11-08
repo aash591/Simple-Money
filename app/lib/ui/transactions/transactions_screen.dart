@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import '../components/empty_art.dart';
 import '../components/app_back_button.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -2205,20 +2206,14 @@ class _EmptyState extends StatelessWidget {
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: .09),
-            borderRadius: BorderRadius.circular(26),
-          ),
-          child: Icon(
-            filtered ? Icons.search_off_rounded : Icons.receipt_long_outlined,
-            size: 34,
-            color: Theme.of(context).colorScheme.primary,
+        GlassLens(
+          size: 104,
+          child: EmptyArtwork(
+            filtered ? EmptyArt.search : EmptyArt.transfer,
+            size: 56,
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 22),
         Text(
           filtered
               ? 'No matching transactions'

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'common.dart';
+import 'glass_surface.dart';
 
 const _tileSize = 40.0;
 const _rowPadding = 16.0;
@@ -59,8 +60,8 @@ class _MenuDivider extends StatelessWidget {
   );
 }
 
-/// The rounded tile every menu icon sits in: tinted with the accent so it
-/// follows the theme, or [filled] with it to stand out.
+/// The glass tile every menu icon sits in: tinted with the accent so it
+/// follows the theme, or [filled] with solid accent glass to stand out.
 class MenuIconTile extends StatelessWidget {
   const MenuIconTile(this.icon, {super.key, this.filled = false, this.tint});
   final IconData icon;
@@ -71,17 +72,11 @@ class MenuIconTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final dark = scheme.brightness == Brightness.dark;
-    final color = tint ?? scheme.primary;
-    return Container(
-      width: _tileSize,
-      height: _tileSize,
-      decoration: BoxDecoration(
-        color: filled ? color : color.withValues(alpha: dark ? .18 : .11),
-        borderRadius: BorderRadius.circular(13),
-      ),
-      child: Icon(icon, size: 22, color: filled ? scheme.onPrimary : color),
+    return GlassIconTile(
+      icon,
+      size: _tileSize,
+      tint: tint ?? Theme.of(context).colorScheme.primary,
+      filled: filled,
     );
   }
 }
@@ -135,8 +130,8 @@ class MenuRow extends StatelessWidget {
                     Text(
                       title,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     if (subtitle != null) ...[

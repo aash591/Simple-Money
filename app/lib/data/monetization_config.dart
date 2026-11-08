@@ -43,6 +43,11 @@ abstract final class MonetizationConfig {
   /// open to everyone; set AI_NEEDS_PRO=true in `.env` to hold it back.
   static const aiNeedsPro = bool.fromEnvironment('AI_NEEDS_PRO');
 
+  /// Treats a debug build as if Pro were bought, so every Pro feature can be
+  /// tried without buying. Off unless DEBUG_PRO=true is given, and ignored
+  /// in release builds.
+  static const debugPro = bool.fromEnvironment('DEBUG_PRO');
+
   static const freeUses = int.fromEnvironment('AD_FREE_USES', defaultValue: 2);
   static const minGap = Duration(
     minutes: int.fromEnvironment('AD_MIN_GAP_MINUTES', defaultValue: 3),

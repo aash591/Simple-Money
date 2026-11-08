@@ -76,14 +76,17 @@ class SheetColors {
     // In dark mode the sheet's frost is about the app's surface colour, so
     // cards drawn in that colour vanish into it. A touch of white lifts
     // them to a light grey that reads as a surface of its own.
-    final card = dark ? _lift(theme.colorScheme.surface, .08) : base.card;
+    final glass = usesGlass(context);
+    final card = dark
+        ? _lift(theme.colorScheme.surface, glass ? .08 : .025)
+        : base.card;
     return SheetColors._(
       background: dark ? theme.scaffoldBackgroundColor : base.background,
       card: card,
       text: base.text,
       muted: base.muted,
       control: dark
-          ? _lift(theme.inputDecorationTheme.fillColor!, .08)
+          ? _lift(theme.inputDecorationTheme.fillColor!, glass ? .08 : 0)
           : base.control,
       // Drawn on the lifted card, so it is lifted from the card itself
       // rather than from a fixed grey, which would match the card exactly.

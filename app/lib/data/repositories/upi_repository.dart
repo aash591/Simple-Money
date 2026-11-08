@@ -45,9 +45,20 @@ class UpiRepository {
           ],
         )
         .getSingleOrNull();
+    var accountId = row?.readNullable<int>('account_id');
+    if (accountId == null) {
+      // A first payment to this address starts from the account last used
+      // for a UPI payment.
+      final last = await database
+          .customSelect(
+            "SELECT t.account_id FROM transactions t JOIN accounts a ON a.id = t.account_id WHERE t.type = 'expense' AND t.note LIKE 'UPI • %' AND a.currency = 'INR' ORDER BY t.created_at DESC, t.id DESC LIMIT 1",
+          )
+          .getSingleOrNull();
+      accountId = last?.readNullable<int>('account_id');
+    }
     return (
       categoryId: row?.readNullable<int>('category_id'),
-      accountId: row?.readNullable<int>('account_id'),
+      accountId: accountId,
       title: row?.readNullable<String>('title'),
     );
   }

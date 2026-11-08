@@ -8,6 +8,7 @@ import '../../state/account_store.dart';
 import '../../state/budget_store.dart';
 import '../../state/category_store.dart';
 import '../../state/transaction_store.dart';
+import '../components/app_back_button.dart' show GlassPillButton;
 import '../components/choice_list_sheet.dart';
 import '../components/common.dart';
 import '../components/empty_state.dart';
@@ -287,50 +288,35 @@ class BudgetsScreenState extends State<BudgetsScreen> {
                     children: [
                       TabHeader(
                         title: 'Budgets',
-                        actions: [
-                          // Fixed-width at most, so the title takes the rest and the
-                          // picker sits at the far right.
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 200),
-                            child: TextButton(
-                              key: _monthAnchor,
-                              onPressed: _pickMonth,
-                              style: TextButton.styleFrom(
-                                foregroundColor: scheme.onSurface,
-                                alignment: Alignment.centerRight,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 10,
+                        // A glass pill at the far right, matching the header
+                        // discs; an action's square cut the month off.
+                        trailing: GlassPillButton(
+                          key: _monthAnchor,
+                          onPressed: _pickMonth,
+                          semanticLabel:
+                              'Month: ${DateFormat.yMMMM().format(month)}',
+                          label: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                DateFormat.yMMM().format(month),
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      DateFormat.yMMMM().format(month),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    _pickingMonth
-                                        ? Icons.keyboard_arrow_up_rounded
-                                        : Icons.keyboard_arrow_down_rounded,
-                                    size: 18,
-                                    color: scheme.onSurfaceVariant,
-                                  ),
-                                ],
+                              const SizedBox(width: 4),
+                              Icon(
+                                _pickingMonth
+                                    ? Icons.keyboard_arrow_up_rounded
+                                    : Icons.keyboard_arrow_down_rounded,
+                                size: 18,
+                                color: scheme.onSurfaceVariant,
                               ),
-                            ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                       if (currencies.length > 1)
                         Align(

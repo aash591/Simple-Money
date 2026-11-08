@@ -24,6 +24,7 @@ import '../components/app_toast.dart';
 import '../components/choice_list_sheet.dart';
 import '../theme/surface_style.dart';
 import '../theme/sheet_colors.dart';
+import '../transactions/amount_calculator.dart';
 import '../transactions/amount_typing.dart';
 import '../transactions/quick_add_helpers.dart';
 import '../transactions/transaction_pages.dart';
@@ -85,6 +86,7 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
   String? _error;
   UpiRecipient? _recipient;
   String _amount = '';
+  final _calculator = AmountCalculator();
   String _title = '';
   String _note = '';
   int? _categoryId, _accountId, _toAccountId;
@@ -231,6 +233,7 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
   Future<void> _selectRecipient(UpiRecipient recipient) async {
     _recipient = recipient;
     _amount = recipient.amount;
+    _calculator.clear();
     _title = '';
     _note = '';
     _draft = null;
@@ -698,31 +701,75 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
     return DateFormat('d MMM yyyy').format(date);
   }
 
+  /// The amount keypad page, identical to add-transaction's (calculator
+  /// included). [onContinue] receives the final, calculated amount.
+  Widget _amountPage({
+    required AmountCalculator calculator,
+    required String amount,
+    required void Function(VoidCallback) update,
+    required void Function(String) setAmount,
+    required VoidCallback onBack,
+    required VoidCallback onCancel,
+    required void Function(String amount)? onContinue,
+  }) {
+    void edit(String Function(String) change) =>
+        update(() => setAmount(change(amount)));
+    VoidCallback? continueAction;
+    if (onContinue != null &&
+        (upiAmountMinor(amount) != null || calculator.operation != null)) {
+      continueAction = () {
+        var result = amount;
+        update(() {
+          result = calculator.press('=', amount, 2);
+          setAmount(result);
+        });
+        if (calculator.error == null && upiAmountMinor(result) != null) {
+          onContinue(result);
+        }
+      };
+    }
+    return AmountPage(
+      headerTitle: 'Payment amount',
+      recipientLabel: _recipient!.name,
+      type: TransactionType.expense,
+      amountText: amount,
+      calculatedAmount: calculator.resultFor(amount, 2),
+      digits: 2,
+      currency: 'INR',
+      onDigit: (d) => edit((a) => calculator.digit(a, d, 2)),
+      onDecimalPoint: () => edit((a) => calculator.point(a, 2)),
+      onBackspace: () => edit((a) => calculator.backspace(a, 2)),
+      onClear: () => update(() {
+        calculator.clear();
+        setAmount('');
+      }),
+      onOperation: (k) => edit((a) => calculator.press(k, a, 2)),
+      replaceAmount: calculator.replace,
+      decimalAllowed: calculator.enteringPercent
+          ? calculator.percentDecimalEnabled
+          : null,
+      calculatorStatus: calculator.error ?? calculator.expressionFor(amount),
+      onBack: onBack,
+      onCancel: onCancel,
+      onContinue: continueAction,
+    );
+  }
+
   Future<void> _editAmount() async {
     if (_busy) return;
     var amount = _amount;
+    final calculator = AmountCalculator();
     final edited = await showAdaptiveSheet<String>(
       context,
       builder: (sheetContext) => StatefulBuilder(
-        builder: (context, update) => AmountPage(
-          headerTitle: 'Payment amount',
-          recipientLabel: _recipient!.name,
-          type: TransactionType.expense,
-          amountText: amount,
-          digits: 2,
-          currency: 'INR',
-          onDigit: (digit) =>
-              update(() => amount = AmountTyping.digit(amount, digit, 2)),
-          onDecimalPoint: () =>
-              update(() => amount = AmountTyping.point(amount, 2)),
-          onBackspace: () =>
-              update(() => amount = AmountTyping.backspace(amount)),
-          onClear: () => update(() => amount = ''),
+        builder: (context, update) => _amountPage(
+          calculator: calculator,
+          amount: amount,
+          update: update,
+          setAmount: (v) => amount = v,
           onBack: () => Navigator.pop(sheetContext),
           onCancel: () => Navigator.pop(sheetContext),
-          onContinue: upiAmountMinor(amount) == null
-              ? null
-              : () => Navigator.pop(sheetContext, amount),
+          onContinue: (value) => Navigator.pop(sheetContext, value),
         ),
       ),
     );
@@ -986,27 +1033,22 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
         _loadPending();
       },
     ),
-    _Step.amount => AmountPage(
-      headerTitle: 'Payment amount',
-      recipientLabel: _recipient!.name,
-      type: TransactionType.expense,
-      amountText: _amount,
-      digits: 2,
-      currency: 'INR',
-      onDigit: (digit) =>
-          setState(() => _amount = AmountTyping.digit(_amount, digit, 2)),
-      onDecimalPoint: () =>
-          setState(() => _amount = AmountTyping.point(_amount, 2)),
-      onBackspace: () =>
-          setState(() => _amount = AmountTyping.backspace(_amount)),
-      onClear: () => setState(() => _amount = ''),
+    _Step.amount => _amountPage(
+      calculator: _calculator,
+      amount: _amount,
+      update: setState,
+      setAmount: (v) => _amount = v,
       onBack: _back,
       onCancel: _back,
-      onContinue: _busy || upiAmountMinor(_amount) == null
+      onContinue: _busy
           ? null
-          : () => _draft == null
-                ? _loadApps()
-                : _edited(_Step.categoryReview, forward: true),
+          : (amount) {
+              if (_draft == null) {
+                _loadApps();
+              } else {
+                _edited(_Step.categoryReview, forward: true);
+              }
+            },
     ),
     _Step.categoryReview => _simple(
       'Expense category',
@@ -1489,7 +1531,8 @@ class _ScanPageState extends State<_ScanPage> {
                       : ColoredBox(
                           color: Colors.black87,
                           child: Center(
-                            child: !widget.isActive() ||
+                            child:
+                                !widget.isActive() ||
                                     widget.cameraAllowed == null
                                 ? const SizedBox.shrink()
                                 : widget.cameraAllowed == false
@@ -1506,7 +1549,9 @@ class _ScanPageState extends State<_ScanPage> {
                                         const SizedBox(height: 16),
                                         FilledButton(
                                           onPressed: widget.onAllowCamera,
-                                          child: const Text('Allow permissions'),
+                                          child: const Text(
+                                            'Allow permissions',
+                                          ),
                                         ),
                                       ],
                                     ),

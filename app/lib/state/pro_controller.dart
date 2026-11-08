@@ -59,7 +59,13 @@ class ProController extends ChangeNotifier {
 
   bool ownsLifetime = false;
   bool subscribed = false;
-  bool get isPro => ownsLifetime || subscribed;
+
+  ///
+  /// A debug build may opt in to Pro with `--dart-define=DEBUG_PRO=true`
+  /// ([MonetizationConfig.debugPro]), which also turns ads off as Pro does.
+  /// It does nothing in release builds.
+  bool get isPro =>
+      ownsLifetime || subscribed || (kDebugMode && MonetizationConfig.debugPro);
 
   /// Whether the free plan's limits (budgets, accent colours) are open: for
   /// Pro, and for everyone while [enforceLimits] is off. [isPro] stays the

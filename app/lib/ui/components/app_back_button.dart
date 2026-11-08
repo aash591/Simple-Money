@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'glass_button.dart';
+import '../theme/app_theme.dart' show usesGlass;
+import 'more_popup_button.dart';
 import 'search_field.dart';
 
 /// A round glass disc holding a thin, drawn glyph, as in the system's own
@@ -49,61 +51,8 @@ class _GlassCircleButtonState extends State<GlassCircleButton> {
     }
   }
 
-  /// [SearchField]'s glass, in a circle. A press dims it a touch.
-  Widget _disc(
-    ThemeData theme, {
-    required bool pressed,
-    required Widget child,
-  }) {
-    final dark = theme.brightness == Brightness.dark;
-    final radius = BorderRadius.circular(GlassCircleButton.size / 2);
-    final body = Color.alphaBlend(
-      pressed
-          ? (dark ? Colors.white : Colors.black).withValues(
-              alpha: dark ? .1 : .06,
-            )
-          : Colors.transparent,
-      SearchField.fill(context),
-    );
-    return Container(
-      width: GlassCircleButton.size,
-      height: GlassCircleButton.size,
-      decoration: BoxDecoration(borderRadius: radius),
-      foregroundDecoration: GlassRim(dark: dark, solid: false, radius: radius),
-      child: ClipRRect(
-        borderRadius: radius,
-        child: BackdropFilter.grouped(
-          filter: ImageFilter.blur(
-            sigmaX: SearchField.blurSigma,
-            sigmaY: SearchField.blurSigma,
-          ),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 120),
-            decoration: BoxDecoration(
-              // The same faint sheen over the top half as the search field.
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color.alphaBlend(
-                    Colors.white.withValues(alpha: dark ? .04 : .3),
-                    body,
-                  ),
-                  body,
-                ],
-                stops: const [0, .5],
-              ),
-            ),
-            child: child,
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final pressed = _pressed && !MediaQuery.disableAnimationsOf(context);
     final button = Semantics(
       button: true,
@@ -124,8 +73,7 @@ class _GlassCircleButtonState extends State<GlassCircleButton> {
               scale: pressed ? .9 : 1,
               duration: const Duration(milliseconds: 120),
               curve: Curves.easeOutCubic,
-              child: _disc(
-                theme,
+              child: GlassDisc(
                 pressed: pressed,
                 child: Opacity(
                   opacity: widget.onPressed == null ? .4 : 1,
@@ -143,6 +91,152 @@ class _GlassCircleButtonState extends State<GlassCircleButton> {
       // else.
       triggerMode: widget.showTooltip ? null : TooltipTriggerMode.manual,
       child: button,
+    );
+  }
+}
+
+/// [SearchField]'s glass, in a [GlassCircleButton.size] circle: the disc
+/// behind the back button and every header action. A press dims it a touch.
+class GlassDisc extends StatelessWidget {
+  const GlassDisc({
+    super.key,
+    this.pressed = false,
+    this.wide = false,
+    this.child,
+  });
+  final bool pressed;
+
+  /// Grows to fit [child] as a pill of the same height, for a header
+  /// control that carries a label.
+  final bool wide;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final dark = theme.brightness == Brightness.dark;
+    final radius = BorderRadius.circular(GlassCircleButton.size / 2);
+    final body = Color.alphaBlend(
+      pressed
+          ? (dark ? Colors.white : Colors.black).withValues(
+              alpha: dark ? .1 : .06,
+            )
+          : Colors.transparent,
+      SearchField.fill(context),
+    );
+    return Container(
+      width: wide ? null : GlassCircleButton.size,
+      height: GlassCircleButton.size,
+      decoration: BoxDecoration(borderRadius: radius),
+      foregroundDecoration: !usesGlass(context)
+          ? null
+          : GlassRim(dark: dark, solid: false, radius: radius),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: BackdropFilter.grouped(
+          enabled: usesGlass(context),
+          filter: ImageFilter.blur(
+            sigmaX: SearchField.blurSigma,
+            sigmaY: SearchField.blurSigma,
+          ),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            decoration: BoxDecoration(
+              // The same faint sheen over the top half as the search field.
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color.alphaBlend(
+                    Colors.white.withValues(
+                      alpha: !usesGlass(context)
+                          ? 0
+                          : dark
+                          ? .02
+                          : .08,
+                    ),
+                    body,
+                  ),
+                  body,
+                ],
+                stops: const [0, .5],
+              ),
+            ),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A labelled header control in the same glass as the header discs, such as
+/// a month picker: a pill of [GlassCircleButton.size] height that grows to
+/// fit its [label]. Pressing shrinks it a little instead of an ink ripple.
+class GlassPillButton extends StatefulWidget {
+  const GlassPillButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.semanticLabel,
+  });
+  final Widget label;
+  final VoidCallback? onPressed;
+  final String? semanticLabel;
+
+  @override
+  State<GlassPillButton> createState() => _GlassPillButtonState();
+}
+
+class _GlassPillButtonState extends State<GlassPillButton> {
+  bool _pressed = false;
+
+  void _press(bool value) {
+    if (widget.onPressed != null && _pressed != value) {
+      setState(() => _pressed = value);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pressed = _pressed && !MediaQuery.disableAnimationsOf(context);
+    return Semantics(
+      button: true,
+      enabled: widget.onPressed != null,
+      label: widget.semanticLabel,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => _press(true),
+        onTapCancel: () => _press(false),
+        onTapUp: (_) => _press(false),
+        onTap: widget.onPressed,
+        child: SizedBox(
+          height: GlassCircleButton.tapSize,
+          child: Center(
+            child: AnimatedScale(
+              scale: pressed ? .95 : 1,
+              duration: const Duration(milliseconds: 120),
+              curve: Curves.easeOutCubic,
+              child: GlassDisc(
+                pressed: pressed,
+                wide: true,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 10),
+                  child: Center(
+                    widthFactor: 1,
+                    child: DefaultTextStyle.merge(
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      child: widget.label,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -251,4 +345,43 @@ class _Glyph extends CustomPainter {
   @override
   bool shouldRepaint(_Glyph oldDelegate) =>
       kind != oldDelegate.kind || color != oldDelegate.color;
+}
+
+/// A header action's square with a [GlassDisc] behind it, so plain icon
+/// buttons wear the same glass as the back button beside them. An action
+/// that already draws its own disc (back, search, a header's more menu)
+/// passes through untouched, so there is never a second disc behind it.
+class GlassActionSlot extends StatelessWidget {
+  const GlassActionSlot({super.key, required this.child});
+  final Widget child;
+
+  static bool _hasOwnDisc(Widget action) =>
+      action is GlassCircleButton ||
+      action is AppBackButton ||
+      action is AppSearchButton ||
+      (action is MorePopupButton && action.icon == null);
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    dimension: GlassCircleButton.tapSize,
+    child: _hasOwnDisc(child)
+        ? child
+        : Stack(
+            alignment: Alignment.center,
+            children: [
+              const IgnorePointer(child: GlassDisc()),
+              IconButtonTheme(
+                data: IconButtonThemeData(
+                  style: IconButton.styleFrom(
+                    fixedSize: const Size.square(GlassCircleButton.size),
+                    minimumSize: const Size.square(GlassCircleButton.size),
+                    padding: EdgeInsets.zero,
+                    iconSize: 20,
+                  ),
+                ),
+                child: Center(child: child),
+              ),
+            ],
+          ),
+  );
 }

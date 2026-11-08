@@ -33,7 +33,7 @@ class LineChart extends StatefulWidget {
     this.formatValue,
     this.formatAxis,
     this.height = 160,
-    this.divisions = 4,
+    this.divisions = 3,
     this.referenceLines = const [],
     this.showAxis = true,
     this.showLegend = true,
@@ -233,20 +233,28 @@ class _LinePainter extends CustomPainter {
           path.lineTo(point.dx, point.dy);
         }
       }
-      if (filled) {
+      if (filled && !s.dashed) {
         final base = y(math.max(bounds.min, 0));
         canvas.drawPath(
           Path.from(path)
             ..lineTo(x(s.values.length - 1), base)
             ..lineTo(x(0), base)
             ..close(),
-          Paint()..color = s.color.withValues(alpha: .1),
+          Paint()
+            ..shader = LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                s.color.withValues(alpha: .23),
+                s.color.withValues(alpha: .015),
+              ],
+            ).createShader(Offset.zero & size),
         );
       }
       final stroke = Paint()
         ..color = s.color
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2
+        ..strokeWidth = 2.5
         ..strokeJoin = StrokeJoin.round
         ..strokeCap = StrokeCap.round;
       if (s.dashed) {

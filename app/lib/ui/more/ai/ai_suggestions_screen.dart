@@ -423,87 +423,87 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
             value: _tab,
             onChanged: (tab) => setState(() => _tab = tab),
             child: RefreshIndicator(
-            onRefresh: _load,
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(18, 4, 18, 40),
-              children: [
-                if (_tab == _Tab.pending && pending.length > 1)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 0, 4),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '${pending.length} waiting for you',
-                            style: muted,
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(18, 4, 18, 40),
+                children: [
+                  if (_tab == _Tab.pending && pending.length > 1)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 0, 4),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${pending.length} waiting for you',
+                              style: muted,
+                            ),
                           ),
-                        ),
-                        TextButton(
-                          onPressed: _busy ? null : _rejectAll,
-                          child: const Text('Reject all'),
-                        ),
-                        TextButton(
-                          onPressed: _busy ? null : _approveAll,
-                          child: const Text('Approve all'),
-                        ),
-                      ],
+                          TextButton(
+                            onPressed: _busy ? null : _rejectAll,
+                            child: const Text('Reject all'),
+                          ),
+                          TextButton(
+                            onPressed: _busy ? null : _approveAll,
+                            child: const Text('Approve all'),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                if (_error != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-                    child: Semantics(
-                      liveRegion: true,
+                  if (_error != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+                      child: Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          _error!,
+                          style: TextStyle(color: theme.colorScheme.error),
+                        ),
+                      ),
+                    ),
+                  if (shown.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 48),
                       child: Text(
-                        _error!,
-                        style: TextStyle(color: theme.colorScheme.error),
+                        switch (_tab) {
+                          _Tab.pending =>
+                            'Nothing waiting. Fixes from Claude or ChatGPT '
+                                'show up here, and nothing changes until you '
+                                'approve.',
+                          _Tab.applied => 'Nothing approved yet.',
+                          _Tab.rejected => 'Nothing rejected.',
+                        },
+                        textAlign: TextAlign.center,
+                        style: muted,
+                      ),
+                    ),
+                  for (final s in shown)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: appCardGap),
+                      child: _SuggestionCard(
+                        key: ValueKey(s.id),
+                        suggestion: s,
+                        preview: _preview(s),
+                        // Rejected ones can still be applied, from their tab.
+                        onApprove: _busy ? null : () => _approve(s),
+                        onReject: _busy || _tab != _Tab.pending
+                            ? null
+                            : () => _reject(s),
+                        onUndo: s.canUndo && !_busy ? () => _undo(s) : null,
+                      ),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+                    child: Text(
+                      'Suggestions are kept for 30 days after you decide.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
-                if (shown.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 48),
-                    child: Text(
-                      switch (_tab) {
-                        _Tab.pending =>
-                          'Nothing waiting. Fixes from Claude or ChatGPT '
-                              'show up here, and nothing changes until you '
-                              'approve.',
-                        _Tab.applied => 'Nothing approved yet.',
-                        _Tab.rejected => 'Nothing rejected.',
-                      },
-                      textAlign: TextAlign.center,
-                      style: muted,
-                    ),
-                  ),
-                for (final s in shown)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: appCardGap),
-                    child: _SuggestionCard(
-                      key: ValueKey(s.id),
-                      suggestion: s,
-                      preview: _preview(s),
-                      // Rejected ones can still be applied, from their tab.
-                      onApprove: _busy ? null : () => _approve(s),
-                      onReject: _busy || _tab != _Tab.pending
-                          ? null
-                          : () => _reject(s),
-                      onUndo: s.canUndo && !_busy ? () => _undo(s) : null,
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
-                  child: Text(
-                    'Suggestions are kept for 30 days after you decide.',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           ),
         ),
       ],
@@ -537,6 +537,7 @@ class _SuggestionCard extends StatelessWidget {
     AgentSuggestionKind.statementLayout => Icons.table_chart_outlined,
     AgentSuggestionKind.newLoan => Icons.account_balance_outlined,
     AgentSuggestionKind.debtEntry => Icons.handshake_outlined,
+    AgentSuggestionKind.transactionAdd => Icons.add_card_rounded,
   };
 
   @override

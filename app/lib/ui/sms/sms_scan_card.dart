@@ -84,11 +84,7 @@ class SmsScanCard extends StatelessWidget {
       _ => [
         _Figure(scan == null ? '–' : number.format(scan.saved), 'Saved'),
         _Figure(number.format(toCheck), 'To check', attention: toCheck > 0),
-        _Figure(
-          number.format(unlinked),
-          'Need account',
-          attention: unlinked > 0,
-        ),
+        _Figure(number.format(unlinked), 'Unlinked', attention: unlinked > 0),
       ],
     };
 
@@ -204,7 +200,7 @@ class _Header extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 2),
@@ -270,7 +266,9 @@ class _FigureTile extends StatelessWidget {
       duration: const Duration(milliseconds: 250),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
       decoration: BoxDecoration(
-        color: tint.withValues(alpha: figure.attention ? .12 : .07),
+        color: figure.attention
+            ? tint.withValues(alpha: .08)
+            : colors.onSurface.withValues(alpha: .035),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -285,7 +283,7 @@ class _FigureTile extends StatelessWidget {
                       figure.value!,
                       maxLines: 1,
                       style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                         color: figure.attention ? orange : null,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),

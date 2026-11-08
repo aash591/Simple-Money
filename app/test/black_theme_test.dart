@@ -111,18 +111,27 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Black'), findsOneWidget);
 
+    await Scrollable.ensureVisible(
+      tester.element(find.text('Dark')),
+      alignment: .5,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Dark'));
     await tester.pumpAndSettle();
     expect(controller.black, isFalse);
 
+    await Scrollable.ensureVisible(
+      tester.element(find.text('Black')),
+      alignment: .5,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Black'));
     await tester.pumpAndSettle();
     expect(controller.value, ThemeMode.dark);
     expect(controller.black, isTrue);
     final context = tester.element(find.byType(CustomizationScreen));
     expect(Theme.of(context).colorScheme.surface, blackSurface);
-    // One tick only: Black is selected, and plain Dark is not.
-    expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
+    // Check the brightness selection within its row; style is independent.
     final blackRow = find.ancestor(
       of: find.text('Black'),
       matching: find.byType(MenuRow),
@@ -135,6 +144,11 @@ void main() {
       findsOneWidget,
     );
 
+    await Scrollable.ensureVisible(
+      tester.element(find.text('Dark')),
+      alignment: .5,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Dark'));
     await tester.pumpAndSettle();
     expect(controller.black, isFalse);

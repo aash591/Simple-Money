@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../components/glass_surface.dart';
+
 import '../../components/app_back_button.dart';
 
 import '../../../domain/account.dart';
@@ -668,70 +670,72 @@ class _LoanFlowScreenState extends State<LoanFlowScreen> {
     onPopInvokedWithResult: (didPop, _) {
       if (!didPop) _back();
     },
-    child: Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            SecondaryHeader(
-              title: _returnToReview
-                  ? 'Edit ${_stepNames[_step]!.toLowerCase()}'
-                  : _editing
-                  ? 'Edit loan'
-                  : 'Add a loan',
-              leading: AppBackButton(onPressed: _saving ? null : _back),
-            ),
-            if (!_returnToReview && !_editing) _progress(),
-            Expanded(
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 620),
-                  child: AbsorbPointer(
-                    absorbing: _saving || _loadingReceivedAccount,
-                    child: PageSlider(
-                      // Review editors live after review in the navigation
-                      // stack: push forward to edit, pop backward to review.
-                      index: _returnToReview
-                          ? _Step.values.length + _step.index
-                          : _step.index,
-                      pages: [
-                        for (final step in _Step.values)
-                          Builder(builder: (_) => _page(step)),
-                        for (final step in _Step.values)
-                          Builder(builder: (_) => _page(step)),
-                      ],
+    child: GlassPage(
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              SecondaryHeader(
+                title: _returnToReview
+                    ? 'Edit ${_stepNames[_step]!.toLowerCase()}'
+                    : _editing
+                    ? 'Edit loan'
+                    : 'Add a loan',
+                leading: AppBackButton(onPressed: _saving ? null : _back),
+              ),
+              if (!_returnToReview && !_editing) _progress(),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 620),
+                    child: AbsorbPointer(
+                      absorbing: _saving || _loadingReceivedAccount,
+                      child: PageSlider(
+                        // Review editors live after review in the navigation
+                        // stack: push forward to edit, pop backward to review.
+                        index: _returnToReview
+                            ? _Step.values.length + _step.index
+                            : _step.index,
+                        pages: [
+                          for (final step in _Step.values)
+                            Builder(builder: (_) => _page(step)),
+                          for (final step in _Step.values)
+                            Builder(builder: (_) => _page(step)),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 620),
-              child: ActionButtonBar(
-                secondaryLabel: 'Cancel',
-                onSecondary: _saving ? null : _cancel,
-                primaryLabel: _loadingReceivedAccount
-                    ? 'Loading…'
-                    : _saving
-                    ? 'Saving…'
-                    : _step == _steps.last
-                    ? (_editing ? 'Save changes' : 'Add loan')
-                    : _returnToReview
-                    ? 'Save'
-                    : 'Continue',
-                // Continue stays tappable: an early tap says what's missing
-                // rather than leaving a dead button to puzzle over.
-                onPrimary:
-                    _saving ||
-                        _loadingReceivedAccount ||
-                        _receivedAccountError != null
-                    ? null
-                    : _step == _steps.last
-                    ? _save
-                    : _advance,
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 620),
+                child: ActionButtonBar(
+                  secondaryLabel: 'Cancel',
+                  onSecondary: _saving ? null : _cancel,
+                  primaryLabel: _loadingReceivedAccount
+                      ? 'Loading…'
+                      : _saving
+                      ? 'Saving…'
+                      : _step == _steps.last
+                      ? (_editing ? 'Save changes' : 'Add loan')
+                      : _returnToReview
+                      ? 'Save'
+                      : 'Continue',
+                  // Continue stays tappable: an early tap says what's missing
+                  // rather than leaving a dead button to puzzle over.
+                  onPrimary:
+                      _saving ||
+                          _loadingReceivedAccount ||
+                          _receivedAccountError != null
+                      ? null
+                      : _step == _steps.last
+                      ? _save
+                      : _advance,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     ),

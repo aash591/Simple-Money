@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-const lightPageBackground = Color(0xfff3f2f8);
-const appCardRadius = 28.0;
+const lightPageBackground = Color(0xffececef);
+const appCardRadius = 24.0;
 const appCardGap = 28.0;
 
 /// Home packs more onto one screen than the other pages, so its cards sit

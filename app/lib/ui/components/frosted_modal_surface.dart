@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/device_performance.dart';
 import 'inner_glow.dart';
+import '../theme/app_theme.dart' show usesAurora, usesGlass;
 import 'native_modal_blur.dart';
 import 'popup_zoom.dart';
 
@@ -39,11 +40,29 @@ class FrostedModalSurface extends StatelessWidget {
   }
 
   Widget _surface(BuildContext context, double visibility, Widget content) {
+    if (!usesGlass(context)) {
+      return Opacity(
+        opacity: visibility,
+        child: ClipRRect(
+          borderRadius: borderRadius,
+          child: ColoredBox(
+            color: Theme.of(context).colorScheme.surface,
+            child: content,
+          ),
+        ),
+      );
+    }
     final dark = Theme.of(context).brightness == Brightness.dark;
     // The native blur behind Quick Entry still needs a see-through tint.
     final solid = DevicePerformance.lowEnd && !NativeModalBlur.enabled;
+    // The frost is about the app's surface colour, so the sheet's cards
+    // (that surface, lifted) sit on it as one family: charcoal for Glassy,
+    // navy for Aurora.
     final tint = dark
-        ? const Color(0xff2a2a2a).withValues(alpha: solid ? .97 : .78)
+        ? (usesAurora(context)
+                  ? Theme.of(context).colorScheme.surface
+                  : const Color(0xff2a2a2a))
+              .withValues(alpha: solid ? .97 : .78)
         : Colors.white.withValues(alpha: solid ? .96 : .66);
     Widget surface = CustomPaint(
       foregroundPainter: _GlassRim(borderRadius, dark, visibility),

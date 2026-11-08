@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'glass_button.dart';
+import '../theme/app_theme.dart' show AppChrome, usesAurora, usesGlass;
 
 /// A pill-shaped glass search field: a semi-transparent body over a light
 /// blur of whatever scrolls behind it, with a faint sheen and the
@@ -44,9 +45,20 @@ class SearchField extends StatelessWidget {
   /// surface colour, see-through enough to show the blur behind it.
   static Color fill(BuildContext context) {
     final theme = Theme.of(context);
-    return theme.colorScheme.surface.withValues(
-      alpha: theme.brightness == Brightness.dark ? .55 : .62,
-    );
+    if (!usesGlass(context)) {
+      return Color.alphaBlend(
+        theme.colorScheme.onSurface.withValues(alpha: .05),
+        theme.colorScheme.surface,
+      );
+    }
+    final dark = theme.brightness == Brightness.dark;
+    // Aurora's discs and fields are clear frosted glass, like its cards.
+    if (dark &&
+        usesAurora(context) &&
+        theme.extension<AppChrome>()?.cardBorder == null) {
+      return Colors.white.withValues(alpha: .085);
+    }
+    return theme.colorScheme.surface.withValues(alpha: dark ? .55 : .62);
   }
 
   /// A small sigma: just enough to soften what shows through, and cheap.
@@ -64,10 +76,13 @@ class SearchField extends StatelessWidget {
     return Container(
       constraints: const BoxConstraints(minHeight: height),
       decoration: const BoxDecoration(borderRadius: radius),
-      foregroundDecoration: GlassRim(dark: dark, solid: false, radius: radius),
+      foregroundDecoration: !usesGlass(context)
+          ? null
+          : GlassRim(dark: dark, solid: false, radius: radius),
       child: ClipRRect(
         borderRadius: radius,
         child: BackdropFilter.grouped(
+          enabled: usesGlass(context),
           filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
           child: Container(
             alignment: Alignment.center,
@@ -78,7 +93,13 @@ class SearchField extends StatelessWidget {
                 end: Alignment.bottomCenter,
                 colors: [
                   Color.alphaBlend(
-                    Colors.white.withValues(alpha: dark ? .04 : .3),
+                    Colors.white.withValues(
+                      alpha: !usesGlass(context)
+                          ? 0
+                          : dark
+                          ? .02
+                          : .08,
+                    ),
                     body,
                   ),
                   body,

@@ -6,6 +6,17 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../../data/device_performance.dart';
+import '../theme/app_theme.dart' show AppChrome, usesAurora, usesGlass;
+import 'glass_button.dart' show GlassRim;
+
+/// Aurora in dark mode, but not the true-black variant, which keeps the
+/// plain black pill.
+bool _auroraDark(BuildContext context) {
+  final theme = Theme.of(context);
+  return usesAurora(context) &&
+      theme.brightness == Brightness.dark &&
+      theme.extension<AppChrome>()?.cardBorder == null;
+}
 
 /// One tab of a [LiquidGlassNavBar].
 class LiquidGlassDestination {
@@ -265,8 +276,42 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
 
   Widget _bar(BuildContext context, double tabWidth) {
     final scheme = Theme.of(context).colorScheme;
+    // Every style shares the same liquid pill: it springs between tabs,
+    // stretches as it is dragged and turns into a droplet under a press.
+    // Simple only swaps the glass bar for a solid one.
+    final simple = !usesGlass(context);
     final dark = scheme.brightness == Brightness.dark;
-    final barTint = dark ? const Color(0xff484848) : const Color(0xfff1f2f0);
+    final aurora = _auroraDark(context);
+    // Simple's bar is a step up from the cards it floats over, so it never
+    // dissolves into the card behind it.
+    final simpleBar = dark ? scheme.surfaceContainerHigh : scheme.surface;
+    final barTint = aurora
+        ? Color.alphaBlend(
+            scheme.primary.withValues(alpha: .12),
+            const Color(0xff353c55),
+          )
+        : dark
+        ? const Color(0xff484848)
+        : const Color(0xfff1f2f0);
+    // Aurora's selected pill is a raised pane of frosted glass, a step
+    // lighter than the bar, rather than a black hole in it. Opaque, like the
+    // black one, so it hides the plain tab beneath it.
+    // Simple's is a soft accent wash, opaque over its bar for the same reason.
+    final pillColor = simple
+        ? Color.alphaBlend(
+            scheme.primary.withValues(alpha: dark ? .18 : .12),
+            simpleBar,
+          )
+        : aurora
+        ? Color.alphaBlend(
+            scheme.primary.withValues(alpha: .14),
+            const Color(0xff3b4260),
+          )
+        : const Color(0xff080808);
+    final pillTop = Color.alphaBlend(
+      scheme.primary.withValues(alpha: .1),
+      const Color(0xff4f5678),
+    );
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
     final barShader = _barShader;
     final pillShader = _pillShader;
@@ -342,7 +387,20 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
             Positioned.fill(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(_height / 2),
-                child: barShader == null
+                child: simple
+                    ? DecoratedBox(
+                        decoration: ShapeDecoration(
+                          color: simpleBar,
+                          shape: StadiumBorder(
+                            side: BorderSide(
+                              color: scheme.onSurface.withValues(
+                                alpha: dark ? .08 : .06,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : barShader == null
                     ? _FrostedGlass(color: barTint, dark: dark)
                     // The lens goes over its own blur layer, so it bends pixels
                     // that are already soft. Composing the two into one filter
@@ -461,10 +519,21 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                 final handle = pill(
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: dark
-                          ? const Color(0xff080808).withValues(alpha: 1 - press)
+                      color: simple || (dark && !aurora)
+                          ? pillColor.withValues(alpha: 1 - press)
                           : null,
-                      gradient: dark
+                      gradient: simple
+                          ? null
+                          : aurora
+                          ? LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                pillTop.withValues(alpha: 1 - press),
+                                pillColor.withValues(alpha: 1 - press),
+                              ],
+                            )
+                          : dark
                           ? null
                           : LinearGradient(
                               begin: Alignment.topCenter,
@@ -477,8 +546,24 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                               ],
                             ),
                     ),
+                    // A lit hairline, brightest along the top, like the
+                    // glass discs; it fades with the pill under a press.
+                    child: aurora && press < 1
+                        ? Opacity(
+                            opacity: 1 - press,
+                            child: DecoratedBox(
+                              position: DecorationPosition.foreground,
+                              decoration: GlassRim(
+                                dark: true,
+                                solid: false,
+                                radius: BorderRadius.circular(_pillRadius),
+                              ),
+                              child: const SizedBox.expand(),
+                            ),
+                          )
+                        : null,
                   ),
-                  shadow: !dark,
+                  shadow: !simple && (!dark || aurora),
                 );
                 return Stack(
                   clipBehavior: Clip.none,
@@ -587,10 +672,17 @@ class _Tab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final color = scheme.brightness == Brightness.light
+    final simple = !usesGlass(context);
+    final color = simple
+        // Simple marks the selected tab in the accent, on its accent wash.
+        ? (lit ? scheme.primary : scheme.onSurfaceVariant)
+        : scheme.brightness == Brightness.light
         ? const Color(0xff171817)
         : lit
-        ? scheme.primary
+        // On Aurora's accent pill the plain accent would vanish; lift it.
+        ? (_auroraDark(context)
+              ? Color.lerp(scheme.primary, Colors.white, .62)!
+              : scheme.primary)
         : scheme.onSurfaceVariant;
     return Semantics(
       container: true,

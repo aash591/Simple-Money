@@ -101,9 +101,8 @@ class _PrivacyCover extends StatelessWidget {
   Widget build(BuildContext context) => ColoredBox(
     key: const Key('app-privacy-cover'),
     // A veil over the blur, so nothing underneath stands out.
-    color: Theme.of(
-      context,
-    ).scaffoldBackgroundColor.withValues(alpha: blurred ? .4 : 1),
+    color: Theme.of(context).scaffoldBackgroundColor
+        .withValues(alpha: blurred ? .4 : 1),
     child: Center(
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),

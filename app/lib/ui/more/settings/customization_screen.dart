@@ -47,6 +47,48 @@ class CustomizationScreen extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(18, 20, 18, 32),
             children: [
               const _SectionHeader(
+                'Style',
+                'Every style works in light and dark.',
+              ),
+              MenuGroup(
+                children: [
+                  for (final style in AppStyle.values)
+                    Semantics(
+                      selected: settings.style == style,
+                      button: true,
+                      child: MenuRow(
+                        icon: switch (style) {
+                          AppStyle.glassy => Icons.blur_on_rounded,
+                          AppStyle.simple => Icons.layers_outlined,
+                          AppStyle.aurora => Icons.auto_awesome_outlined,
+                        },
+                        title: switch (style) {
+                          AppStyle.glassy => 'Glassy',
+                          AppStyle.simple => 'Simple',
+                          AppStyle.aurora => 'Aurora Glass',
+                        },
+                        subtitle: switch (style) {
+                          AppStyle.glassy =>
+                            'Subtle frost and translucent surfaces',
+                          AppStyle.simple => 'Solid surfaces and clean details',
+                          AppStyle.aurora =>
+                            'Luminous edges and pools of your accent color',
+                        },
+                        onTap: () => _pickStyle(context, settings, style),
+                        trailing: Icon(
+                          settings.style == style
+                              ? Icons.check_circle_rounded
+                              : Icons.circle_outlined,
+                          color: settings.style == style
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: appCardGap),
+              const _SectionHeader(
                 'Theme',
                 'Pick how SimpleMoney looks, or follow your device.',
               ),
@@ -125,6 +167,35 @@ class CustomizationScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  /// A style other than the default (Glassy) takes a short ad each time it is
+  /// picked, like a first-row colour; Pro never sees one.
+  static Future<void> _pickStyle(
+    BuildContext context,
+    AppearanceController settings,
+    AppStyle style,
+  ) async {
+    if (settings.style == style) return;
+    if (style != AppStyle.glassy && !ProController.instance.isPro) {
+      void openPro() =>
+          Navigator.of(context).push(FeatureRoute<void>(const ProScreen()));
+      final watch = await showConfirmationAlert(
+        context,
+        title: 'Watch a short ad to switch style',
+        message:
+            'Styles other than Glassy show a short ad each time you switch. '
+            'With Pro, use every style, with no ads.',
+        confirmLabel: 'Watch ad',
+        extraActionLabel: 'Get Pro instead',
+        onExtraAction: openPro,
+        destructive: false,
+      );
+      if (!watch || !context.mounted) return;
+      // Offline, or the user declined: the style stays as it was.
+      if (!await watchAd(context)) return;
+    }
+    await settings.setStyle(style);
   }
 
   /// A first-row colour: free, after a short ad unless it's the default or

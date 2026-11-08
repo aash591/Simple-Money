@@ -13,15 +13,34 @@ class HomeCard extends StatelessWidget {
   const HomeCard({
     super.key,
     required this.child,
+    this.featured = false,
     this.padding = const EdgeInsets.all(20),
   });
   final Widget child;
+  final bool featured;
   final EdgeInsets padding;
   @override
-  Widget build(BuildContext context) => MoneyCard(
-    padding: padding,
-    child: Material(type: MaterialType.transparency, child: child),
-  );
+  Widget build(BuildContext context) {
+    final card = MoneyCard(
+      padding: padding,
+      featured: featured,
+      child: Material(type: MaterialType.transparency, child: child),
+    );
+    if (MediaQuery.disableAnimationsOf(context)) return card;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+      child: card,
+      builder: (context, progress, child) => Opacity(
+        opacity: progress,
+        child: Transform.translate(
+          offset: Offset(0, 6 * (1 - progress)),
+          child: child,
+        ),
+      ),
+    );
+  }
 }
 
 /// [minor] in the currency Home is currently showing.

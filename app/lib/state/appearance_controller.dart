@@ -7,6 +7,7 @@ class AppearanceController extends ValueNotifier<ThemeMode> {
   AppearanceController() : super(ThemeMode.system);
 
   Color accentColor = accent;
+  AppStyle style = AppStyle.glassy;
 
   /// Dark with true-black cards; only ever on while the mode is dark.
   bool black = false;
@@ -17,6 +18,10 @@ class AppearanceController extends ValueNotifier<ThemeMode> {
     final revision = _revision;
     final prefs = await SharedPreferences.getInstance();
     if (_disposed || revision != _revision) return;
+    style = AppStyle.values.firstWhere(
+      (style) => style.name == prefs.getString('ui_style'),
+      orElse: () => AppStyle.glassy,
+    );
     final savedColor = prefs.getInt('accent_color');
     if (savedColor != null &&
         savedColor >= 0xff000000 &&
@@ -43,6 +48,14 @@ class AppearanceController extends ValueNotifier<ThemeMode> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('theme_mode', mode.name);
     await prefs.setBool('black_theme', this.black);
+  }
+
+  Future<void> setStyle(AppStyle style) async {
+    _revision++;
+    this.style = style;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('ui_style', style.name);
   }
 
   Future<void> setAccent(Color color) async {

@@ -33,7 +33,7 @@ class ChartPalette {
       other: scheme.onSurfaceVariant,
       income: green,
       expense: coral,
-      grid: scheme.onSurface.withValues(alpha: .08),
+      grid: scheme.onSurface.withValues(alpha: .045),
       track: scheme.surfaceContainerHighest,
       // What the 2px gaps between touching marks are painted in, so it has to
       // match whatever the chart is sitting on — a card by default.

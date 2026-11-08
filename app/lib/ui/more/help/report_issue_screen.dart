@@ -118,7 +118,8 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
       await showNoticeAlert(
         context,
         title: 'Thank you!',
-        message: 'Your feedback was sent. It helps us make Simple Money better.',
+        message:
+            'Your feedback was sent. It helps us make Simple Money better.',
       );
       if (mounted) Navigator.of(context).pop();
     } on IssueReportException catch (e) {
@@ -143,117 +144,120 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
         if (!didPop) _confirmLeave();
       },
       child: FeaturePage(
-      title: 'Send feedback',
-      child: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(18, 4, 18, 16),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 14),
-                  child: Text(
-                    'Tell us what went wrong or what you’d like improved. A screenshot or recording helps.',
-                    style: hint?.copyWith(height: 1.4),
-                  ),
-                ),
-                MoneyCard(
-                  padding: const EdgeInsets.fromLTRB(18, 8, 18, 14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextField(
-                        controller: _text,
-                        enabled: !_sending,
-                        minLines: 6,
-                        maxLines: 12,
-                        maxLength: 4000,
-                        textCapitalization: TextCapitalization.sentences,
-                        onChanged: (_) => setState(() {}),
-                        decoration: const InputDecoration(
-                          hintText: 'Describe your issue',
-                          border: InputBorder.none,
-                          counterText: '',
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      for (final (i, file) in _files.indexed)
-                        _fileRow(theme, i, file),
-                      if (_files.length < maxReportFiles)
-                        _attachRow(theme, muted),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 14),
-                MoneyCard(
-                  padding: const EdgeInsets.fromLTRB(18, 14, 18, 6),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Contact info', style: theme.textTheme.titleMedium),
-                      TextField(
-                        controller: _contact,
-                        enabled: !_sending,
-                        onChanged: (_) => setState(() {}),
-                        keyboardType: TextInputType.emailAddress,
-                        maxLength: 120,
-                        decoration: const InputDecoration(
-                          hintText: 'Phone number or email (optional)',
-                          border: InputBorder.none,
-                          counterText: '',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 4, 18, 18),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (_sending) ...[
-                  const SizedBox(height: 4),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      minHeight: 6,
-                      // A file has a known length; text alone is too quick to track.
-                      value: _files.isEmpty ? null : _progress,
+        title: 'Send feedback',
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(18, 4, 18, 16),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 14),
+                    child: Text(
+                      'Tell us what went wrong or what you’d like improved. A screenshot or recording helps.',
+                      style: hint?.copyWith(height: 1.4),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _files.isEmpty
-                        ? 'Sending…'
-                        : _progress == null
-                        ? 'Starting…'
-                        : _progress! >= 1
-                        ? 'Almost done…'
-                        : 'Sending… ${(_progress! * 100).floor()}%',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall?.copyWith(color: muted),
+                  MoneyCard(
+                    padding: const EdgeInsets.fromLTRB(18, 8, 18, 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextField(
+                          controller: _text,
+                          enabled: !_sending,
+                          minLines: 6,
+                          maxLines: 12,
+                          maxLength: 4000,
+                          textCapitalization: TextCapitalization.sentences,
+                          onChanged: (_) => setState(() {}),
+                          decoration: const InputDecoration(
+                            hintText: 'Describe your issue',
+                            border: InputBorder.none,
+                            counterText: '',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        for (final (i, file) in _files.indexed)
+                          _fileRow(theme, i, file),
+                        if (_files.length < maxReportFiles)
+                          _attachRow(theme, muted),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  MoneyCard(
+                    padding: const EdgeInsets.fromLTRB(18, 14, 18, 6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Contact info',
+                          style: theme.textTheme.titleMedium,
+                        ),
+                        TextField(
+                          controller: _contact,
+                          enabled: !_sending,
+                          onChanged: (_) => setState(() {}),
+                          keyboardType: TextInputType.emailAddress,
+                          maxLength: 120,
+                          decoration: const InputDecoration(
+                            hintText: 'Phone number or email (optional)',
+                            border: InputBorder.none,
+                            counterText: '',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
-                if (_error != null) ...[
-                  const SizedBox(height: 4),
-                  ErrorBanner(_error!),
-                ],
-                const SizedBox(height: 12),
-                PillButton(
-                  label: 'Submit',
-                  loading: _sending,
-                  onPressed: _canSend ? _send : null,
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 4, 18, 18),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_sending) ...[
+                    const SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        minHeight: 6,
+                        // A file has a known length; text alone is too quick to track.
+                        value: _files.isEmpty ? null : _progress,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _files.isEmpty
+                          ? 'Sending…'
+                          : _progress == null
+                          ? 'Starting…'
+                          : _progress! >= 1
+                          ? 'Almost done…'
+                          : 'Sending… ${(_progress! * 100).floor()}%',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(color: muted),
+                    ),
+                  ],
+                  if (_error != null) ...[
+                    const SizedBox(height: 4),
+                    ErrorBanner(_error!),
+                  ],
+                  const SizedBox(height: 12),
+                  PillButton(
+                    label: 'Submit',
+                    loading: _sending,
+                    onPressed: _canSend ? _send : null,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -274,9 +278,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
             ),
           ),
           Text(
-            _files.isEmpty
-                ? 'Up to 30 MB'
-                : '${_size(_totalSize)} of 30 MB',
+            _files.isEmpty ? 'Up to 30 MB' : '${_size(_totalSize)} of 30 MB',
             style: theme.textTheme.bodySmall?.copyWith(color: muted),
           ),
         ],

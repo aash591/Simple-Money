@@ -140,7 +140,8 @@ class AgentTools {
       'letter: read it, then suggest_loan with what it says and every payment '
       'from the start; the app finds those payments in the ledger so nothing '
       'is recorded twice. Money lent to or borrowed from a person: '
-      'suggest_debt_entries. '
+      'suggest_debt_entries. To add a new expense or income the user tells '
+      'you about or shows you: suggest_transactions. '
       'Work these out yourself rather than asking the user '
       'which value or column is which: they approve the result in the app. '
       'Each reply\'s next says what usually comes next; follow it, or take '
@@ -355,6 +356,41 @@ class AgentTools {
       ),
       handler: _suggestTransactionEdits,
     ),
+    AgentTool(
+      name: 'suggest_transactions',
+      title: 'Suggest new transactions',
+      description:
+          'Proposes new expenses or income to add (from a receipt, a '
+          'statement line, or what the user tells you). Give the account '
+          '(list_accounts), the amount in that account\'s currency, and a '
+          'category by id or name. The date defaults to today. Refuses one '
+          'that looks already saved. Changes nothing until approved.',
+      readOnly: false,
+      inputSchema: _items(
+        {
+          'type': {
+            'type': 'string',
+            'enum': ['expense', 'income'],
+            'default': 'expense',
+          },
+          'amount': {
+            'type': 'string',
+            'description': 'Decimal amount, e.g. 250.00',
+          },
+          'account_id': {'type': 'integer'},
+          'category_id': {'type': 'integer'},
+          'category_name': {'type': 'string'},
+          'title': {'type': 'string', 'maxLength': 80},
+          'note': {'type': 'string'},
+          'date': _date,
+          'ignore_duplicates': {'type': 'boolean', 'default': false},
+          'reason': _reasonField,
+        },
+        required: ['amount', 'account_id'],
+      ),
+      handler: _suggestTransactions,
+    ),
+
     AgentTool(
       name: 'list_payees_to_categorize',
       title: 'List payees to categorize',
@@ -1255,6 +1291,26 @@ class AgentTools {
           reason: _string(item, 'reason'),
         ),
       );
+
+  Future<Object?> _suggestTransactions(Map<String, Object?> args) => _suggest(
+    args,
+    (item) => suggestions.prepareTransactionAdd(
+      type: TransactionTypeStorage.fromStorage(
+        _enum(item, 'type', ['expense', 'income']) ?? 'expense',
+      ),
+      amount: _money(item, 'amount') ?? (throw const _BadInput('Give amount.')),
+      accountId:
+          _int(item, 'account_id') ??
+          (throw const _BadInput('Give account_id.')),
+      categoryId: _int(item, 'category_id'),
+      categoryName: _string(item, 'category_name'),
+      title: _rawString(item, 'title'),
+      note: _rawString(item, 'note'),
+      date: _optionalDay(item, 'date'),
+      ignoreDuplicates: _bool(item, 'ignore_duplicates') ?? false,
+      reason: _string(item, 'reason'),
+    ),
+  );
 
   // ── Loans and debts. ──
 

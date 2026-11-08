@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'common.dart';
+import 'empty_art.dart';
 
 /// The one "nothing here yet" page for list screens (Accounts, Categories,
-/// Debts, Loans, Subscriptions): a haloed icon, a short title, one line on
-/// what the page is for, and an optional button to add the first item —
-/// or, through [actions], a few buttons of the page's own.
+/// Debts, Loans, Subscriptions): hand-drawn 3D artwork resting in a glass
+/// lens that overlaps a dashed panel, a short title, one line on what the
+/// page is for, and an optional button to add the first item — or, through
+/// [actions], a few buttons of the page's own.
+///
+/// [icon] picks the artwork (see [emptyArtFor]); [art] names it directly.
 ///
 /// Fills the space it's given and sits a little above centre, scrolling
 /// only when large text or a short screen needs it.
@@ -15,17 +18,21 @@ class EmptyState extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.message,
+    this.art,
     this.actionLabel,
     this.onAction,
     this.actions = const [],
   });
   final IconData icon;
+  final EmptyArt? art;
   final String title, message;
   final String? actionLabel;
   final VoidCallback? onAction;
 
-  /// Full-width buttons under the message, in place of the add button.
+  /// Full-width buttons under the panel, in place of the add button.
   final List<Widget> actions;
+
+  static const _lens = 124.0;
 
   @override
   Widget build(BuildContext context) {
@@ -42,58 +49,85 @@ class EmptyState extends StatelessWidget {
           ),
           child: Align(
             alignment: const Alignment(0, -.35),
-            child: MoneyCard(
-              padding: const EdgeInsets.fromLTRB(24, 36, 24, 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _Halo(icon),
-                  const SizedBox(height: 24),
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ConstrainedBox(
-                    // Keeps lines a comfortable length on wide screens so the
-                    // message wraps evenly instead of leaving one orphan word.
-                    constraints: const BoxConstraints(maxWidth: 300),
-                    child: Text(
-                      message,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        height: 1.55,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                  if (actionLabel != null && onAction != null) ...[
-                    const SizedBox(height: 28),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: onAction,
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(52),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.topCenter,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: _lens * .45),
+                      child: DashedNotchPanel(
+                        padding: const EdgeInsets.fromLTRB(
+                          24,
+                          _lens * .55 + 24,
+                          24,
+                          34,
                         ),
-                        icon: const Icon(Icons.add_rounded),
-                        label: Text(actionLabel!),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Column(
+                            children: [
+                              Text(
+                                title,
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              ConstrainedBox(
+                                // Keeps lines a comfortable length on wide
+                                // screens so the message wraps evenly.
+                                constraints: const BoxConstraints(
+                                  maxWidth: 300,
+                                ),
+                                child: Text(
+                                  message,
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    height: 1.55,
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ] else if (actions.isNotEmpty) ...[
-                    const SizedBox(height: 28),
-                    for (final (n, action) in actions.indexed) ...[
-                      if (n > 0) const SizedBox(height: 10),
-                      SizedBox(width: double.infinity, child: action),
-                    ],
-                  ] else
-                    const SizedBox(height: 12),
+                    GlassLens(
+                      size: _lens,
+                      child: EmptyArtwork(
+                        art ?? emptyArtFor(icon),
+                        size: _lens * .54,
+                      ),
+                    ),
+                  ],
+                ),
+                if (actionLabel != null && onAction != null) ...[
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: onAction,
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(52),
+                      ),
+                      icon: const Icon(Icons.add_rounded),
+                      label: Text(actionLabel!),
+                    ),
+                  ),
+                ] else if (actions.isNotEmpty) ...[
+                  const SizedBox(height: 32),
+                  for (final (n, action) in actions.indexed) ...[
+                    if (n > 0) const SizedBox(height: 10),
+                    SizedBox(width: double.infinity, child: action),
+                  ],
                 ],
-              ),
+              ],
             ),
           ),
         ),
@@ -112,12 +146,15 @@ class NoResultsState extends StatelessWidget {
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.search_off_rounded, size: 42, color: muted),
-          const SizedBox(height: 16),
+          const GlassLens(
+            size: 96,
+            child: EmptyArtwork(EmptyArt.search, size: 52),
+          ),
+          const SizedBox(height: 22),
           Text(
             message,
             textAlign: TextAlign.center,
@@ -130,36 +167,6 @@ class NoResultsState extends StatelessWidget {
             style: theme.textTheme.bodySmall?.copyWith(color: muted),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// A soft double ring behind the icon, tinted with the primary colour.
-class _Halo extends StatelessWidget {
-  const _Halo(this.icon);
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
-    return Container(
-      width: 108,
-      height: 108,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: primary.withValues(alpha: .05),
-      ),
-      child: Container(
-        width: 76,
-        height: 76,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: primary.withValues(alpha: .12),
-        ),
-        child: Icon(icon, size: 36, color: primary),
       ),
     );
   }

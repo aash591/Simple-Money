@@ -919,13 +919,28 @@ class _TransactionSheetState extends State<TransactionSheet> {
       fillHeight: true,
       items: [
         ..._shortcuts.items,
-        for (final category in _shortcuts.topLevel(_categoriesOf(_categoryType)))
+        for (final category in _shortcuts.topLevel(
+          _categoriesOf(_categoryType),
+        )) ...[
           ChoiceItem(
             value: category.id,
             icon: AppIcon(category.icon, size: 28),
             label: category.name,
             chevron: true,
           ),
+          // Subcategories show only while searching (e.g. "fuel").
+          for (final sub in _categoriesOf(
+            _categoryType,
+          ).where((c) => c.parentId == category.id))
+            ChoiceItem(
+              value: sub.id,
+              icon: AppIcon(sub.icon, size: 28),
+              label: sub.name,
+              indent: true,
+              searchOnly: true,
+              chevron: true,
+            ),
+        ],
         ..._debtItems,
       ],
       selected: null,

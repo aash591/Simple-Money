@@ -286,11 +286,16 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
                       ),
               ),
             ],
-      theme: appTheme(Brightness.light, accentColor: _themeMode.accentColor),
+      theme: appTheme(
+        Brightness.light,
+        accentColor: _themeMode.accentColor,
+        style: _themeMode.style,
+      ),
       darkTheme: appTheme(
         Brightness.dark,
         accentColor: _themeMode.accentColor,
         black: _themeMode.black,
+        style: _themeMode.style,
       ),
       themeMode: mode,
       builder: (context, child) => AppearanceScope(

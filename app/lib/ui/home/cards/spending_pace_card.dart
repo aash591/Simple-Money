@@ -7,6 +7,7 @@ import '../../../domain/budget.dart';
 import '../../../domain/currency_scope.dart';
 import '../../components/charts/charts.dart';
 import 'home_card.dart';
+import '../../theme/app_theme.dart' show usesAurora;
 
 /// The month's running spend against the month before, so overspending
 /// shows while there's still time to act on it.
@@ -74,6 +75,7 @@ class SpendingPaceCard extends StatelessWidget {
           LineChart(
             height: 150,
             cumulative: true,
+            filled: usesAurora(context),
             series: [
               ChartSeries(
                 label: DateFormat.MMM().format(month),

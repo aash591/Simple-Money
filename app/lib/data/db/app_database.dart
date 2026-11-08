@@ -28,7 +28,7 @@ class AppDatabase extends GeneratedDatabase {
   /// solely so the profile-seed behavior can be verified in tests.
   final bool _seedProfileData;
   @override
-  int get schemaVersion => 39;
+  int get schemaVersion => 40;
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => const [];
   @override
@@ -238,7 +238,7 @@ class AppDatabase extends GeneratedDatabase {
         await customStatement(_createAgentSuggestionsTable);
         await customStatement(_createUserSmsRulesTable);
       }
-      if (from >= 34 && from < 39) {
+      if (from >= 34 && from < 40) {
         // New suggestion kinds: SQLite can't change a CHECK, so the table
         // is rebuilt with its rows.
         await customStatement(
@@ -2288,7 +2288,8 @@ CREATE TABLE IF NOT EXISTS agent_suggestions (
   batch_id TEXT NOT NULL,
   kind TEXT NOT NULL
     CHECK(kind IN ('new_category', 'sms_correction', 'transaction_edit',
-      'parser_rule', 'statement_layout', 'new_loan', 'debt_entry')),
+      'parser_rule', 'statement_layout', 'new_loan', 'debt_entry',
+      'transaction_add')),
   target TEXT NOT NULL,
   payload TEXT NOT NULL,
   before TEXT,

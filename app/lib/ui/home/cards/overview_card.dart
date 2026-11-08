@@ -8,6 +8,7 @@ import '../../theme/app_theme.dart';
 import '../../theme/app_typography.dart';
 import 'home_card.dart';
 import '../../components/private_amount.dart';
+import '../../components/animated_amount.dart';
 
 /// The month at a glance: what was saved, the money in and out behind it,
 /// and how much of the budget is left.
@@ -35,6 +36,7 @@ class OverviewCard extends StatelessWidget {
     final net = data.income - data.spent;
     final budget = this.budget;
     return HomeCard(
+      featured: true,
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -53,7 +55,8 @@ class OverviewCard extends StatelessWidget {
                           'Net savings',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             fontSize: 15,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
+                            color: colors.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -70,9 +73,11 @@ class OverviewCard extends StatelessWidget {
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
-                      child: Text(
-                        '${net < 0 ? '-' : ''}${_amount(net.abs())}',
-                        style: AppTypography.amount.copyWith(
+                      child: AnimatedAmount(
+                        value: net,
+                        format: (value) =>
+                            '${value < 0 ? '-' : ''}${_amount(value.abs())}',
+                        style: AppTypography.heroAmount.copyWith(
                           color: colors.onSurface,
                         ),
                       ),
@@ -84,7 +89,8 @@ class OverviewCard extends StatelessWidget {
                       Expanded(
                         child: _Flow(
                           label: 'Money in',
-                          value: _amount(data.income),
+                          value: data.income,
+                          format: _amount,
                           icon: Icons.south_west_rounded,
                           color: green,
                         ),
@@ -93,7 +99,8 @@ class OverviewCard extends StatelessWidget {
                       Expanded(
                         child: _Flow(
                           label: 'Money out',
-                          value: _amount(data.spent),
+                          value: data.spent,
+                          format: _amount,
                           icon: Icons.north_east_rounded,
                           color: coral,
                         ),
@@ -195,10 +202,13 @@ class _Flow extends StatelessWidget {
   const _Flow({
     required this.label,
     required this.value,
+    required this.format,
     required this.icon,
     required this.color,
   });
-  final String label, value;
+  final String label;
+  final int value;
+  final String Function(int) format;
   final IconData icon;
   final Color color;
 
@@ -208,7 +218,25 @@ class _Flow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: .08),
+        color: usesAurora(context)
+            ? null
+            : theme.colorScheme.onSurface.withValues(alpha: .035),
+        gradient: usesAurora(context)
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                // A hint of the flow's colour, quieter than the accent glow
+                // around it, so green and red don't fight the page.
+                colors: [
+                  color.withValues(alpha: .09),
+                  color.withValues(alpha: .03),
+                  color.withValues(alpha: .07),
+                ],
+              )
+            : null,
+        border: usesAurora(context)
+            ? Border.all(color: color.withValues(alpha: .14))
+            : null,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -232,9 +260,9 @@ class _Flow extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
-            child: Text(
-              value,
-              maxLines: 1,
+            child: AnimatedAmount(
+              value: value,
+              format: format,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,

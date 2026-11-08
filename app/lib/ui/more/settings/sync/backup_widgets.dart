@@ -298,7 +298,6 @@ const backupBenefits = [
     icon: Icons.phonelink_setup_rounded,
     title: 'Lost your phone?',
     subtitle: 'Sign in on the new one and everything comes back.',
-    color: Color(0xff8b5cf6),
   ),
 ];
 

@@ -27,8 +27,8 @@ class BarChart extends StatefulWidget {
     this.formatValue,
     this.formatAxis,
     this.height = 180,
-    this.divisions = 4,
-    this.maxBarThickness = 24,
+    this.divisions = 3,
+    this.maxBarThickness = 28,
     this.showAxis = true,
     this.showLegend = true,
     this.onSelect,
@@ -285,7 +285,9 @@ class _BarPainter extends CustomPainter {
     required bool up,
     bool rounded = true,
   }) {
-    final radius = rounded ? const Radius.circular(4) : Radius.zero;
+    final radius = rounded
+        ? Radius.circular(math.min(8, rect.width / 2))
+        : Radius.zero;
     canvas.drawRRect(
       RRect.fromRectAndCorners(
         rect,

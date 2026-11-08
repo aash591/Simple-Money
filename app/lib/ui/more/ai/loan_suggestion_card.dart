@@ -153,8 +153,7 @@ class _LoanSuggestionPreviewState extends State<LoanSuggestionPreview> {
     return [
       for (var i = payments.length - 1; i >= 0; i--) payment(i),
       for (final key in ['adoptCharges', 'adoptDisbursal'])
-        if (widget.payload[key] case final int id)
-          ?widget.rowFor(id),
+        if (widget.payload[key] case final int id) ?widget.rowFor(id),
     ];
   }
 
@@ -163,10 +162,7 @@ class _LoanSuggestionPreviewState extends State<LoanSuggestionPreview> {
     final moves = _moves;
     if (moves.isEmpty) {
       return [
-        LoanValue(
-          '${_paidFrom?.name ?? 'Account'} balance',
-          'Stays the same',
-        ),
+        LoanValue('${_paidFrom?.name ?? 'Account'} balance', 'Stays the same'),
       ];
     }
     return [
@@ -240,7 +236,10 @@ class _LoanSuggestionPreviewState extends State<LoanSuggestionPreview> {
           ),
         ),
         const SizedBox(height: 16),
-        Padding(padding: inset, child: _Progress(loan: loan)),
+        Padding(
+          padding: inset,
+          child: _Progress(loan: loan),
+        ),
         const SizedBox(height: 8),
         Padding(
           padding: inset,
@@ -318,7 +317,9 @@ class _LoanSuggestionPreviewState extends State<LoanSuggestionPreview> {
             Center(
               child: TextButton(
                 onPressed: () => setState(() => _expanded = !_expanded),
-                child: Text(_expanded ? 'Show less' : 'Show all ${rows.length}'),
+                child: Text(
+                  _expanded ? 'Show less' : 'Show all ${rows.length}',
+                ),
               ),
             ),
         ],
@@ -363,8 +364,7 @@ class _Progress extends StatelessWidget {
           spacing: 16,
           children: [
             amount('Left to repay', left, CrossAxisAlignment.start),
-            if (repaid > 0)
-              amount('Repaid', repaid, CrossAxisAlignment.end),
+            if (repaid > 0) amount('Repaid', repaid, CrossAxisAlignment.end),
           ],
         ),
         if (repaid > 0) ...[

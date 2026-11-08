@@ -27,7 +27,8 @@ enum AgentSuggestionKind {
   parserRule('parser_rule'),
   statementLayout('statement_layout'),
   newLoan('new_loan'),
-  debtEntry('debt_entry');
+  debtEntry('debt_entry'),
+  transactionAdd('transaction_add');
 
   const AgentSuggestionKind(this.storageValue);
   final String storageValue;
@@ -93,7 +94,8 @@ class AgentSuggestion {
           kind == AgentSuggestionKind.parserRule ||
           kind == AgentSuggestionKind.statementLayout ||
           kind == AgentSuggestionKind.newLoan ||
-          kind == AgentSuggestionKind.debtEntry);
+          kind == AgentSuggestionKind.debtEntry ||
+          kind == AgentSuggestionKind.transactionAdd);
 }
 
 class AgentSuggestionDraft {
@@ -366,6 +368,146 @@ class AgentSuggestionRepository {
     );
   }
 
+  /// A new expense or income. [categoryId] or [categoryName] is required;
+  /// the date defaults to today and can't be in the future.
+  Future<AgentSuggestionDraft> prepareTransactionAdd({
+    required TransactionType type,
+    required String amount,
+    required int accountId,
+    int? categoryId,
+    String? categoryName,
+    String? title,
+    String? note,
+    DateTime? date,
+    bool ignoreDuplicates = false,
+    String? reason,
+  }) async {
+    if (type == TransactionType.transfer) {
+      throw ArgumentError('Only expenses and income can be added this way.');
+    }
+    final accounts = await AccountRepository(database).load();
+    final account = accounts.where((a) => a.id == accountId).firstOrNull;
+    if (account == null || account.isArchived) {
+      throw ArgumentError('Account $accountId isn’t an active account.');
+    }
+    final minor = parseAccountAmount(amount.replaceAll(',', ''), account.digits);
+    if (minor == null || minor <= 0) {
+      throw ArgumentError('amount must be an amount like 250.00.');
+    }
+    if (categoryId == null && categoryName == null) {
+      throw ArgumentError('Give category_id or category_name.');
+    }
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = date == null
+        ? today
+        : DateTime(date.year, date.month, date.day);
+    if (day.isAfter(today)) {
+      throw ArgumentError('The date can’t be in the future.');
+    }
+    final cleanTitle = title?.trim() ?? '';
+    if (cleanTitle.length > 80) {
+      throw ArgumentError('Keep the title to 80 characters.');
+    }
+    final cleanNote = note?.trim() ?? '';
+    final categories = await CategoryRepository(database).load();
+    final choice = await _categoryChoice(
+      categories,
+      type == TransactionType.income
+          ? CategoryType.income
+          : CategoryType.expense,
+      categoryId,
+      categoryName,
+    );
+    if (!ignoreDuplicates) {
+      final same = await database
+          .customSelect(
+            'SELECT id FROM transactions WHERE type = ? AND account_id = ? AND amount_minor = ? AND date >= ? AND date < ? LIMIT 1',
+            variables: [
+              Variable(type.storageValue),
+              Variable(accountId),
+              Variable(minor),
+              Variable(day.millisecondsSinceEpoch),
+              Variable(
+                DateTime(day.year, day.month, day.day + 1).millisecondsSinceEpoch,
+              ),
+            ],
+          )
+          .getSingleOrNull();
+      if (same != null) {
+        throw ArgumentError(
+          'A transaction with this type, account, amount and date is already '
+          'saved (id ${same.read<int>('id')}). Send ignore_duplicates true if '
+          'this is a different one.',
+        );
+      }
+    }
+    final shown = formatAccountMoney(
+      minor,
+      digits: account.digits,
+      currency: account.currency,
+    );
+    final income = type == TransactionType.income;
+    return AgentSuggestionDraft(
+      kind: AgentSuggestionKind.transactionAdd,
+      target: jsonEncode([
+        type.storageValue,
+        accountId,
+        minor,
+        day.toIso8601String(),
+        cleanTitle.toLowerCase(),
+        cleanNote.toLowerCase(),
+      ]),
+      payload: {
+        'type': type.storageValue,
+        'amount': minor,
+        'accountId': accountId,
+        ...choice.payload,
+        'title': cleanTitle.isEmpty ? null : cleanTitle,
+        'note': cleanNote.isEmpty ? null : cleanNote,
+        'date': day.toIso8601String(),
+      },
+      summary:
+          '${income ? 'Add income' : 'Add expense'} · $shown'
+          ' · ${cleanTitle.isEmpty ? choice.label : cleanTitle}'
+          ' · ${_day(day)}',
+      detail: [
+        'Category: ${choice.label}',
+        '${income ? 'Adds to' : 'Takes out of'} ${account.name}',
+        if (cleanNote.isNotEmpty) 'Note: $cleanNote',
+      ],
+      reason: _reason(reason),
+    );
+  }
+
+  /// Adds the transaction. Returns what undoing needs.
+  Future<Map<String, Object?>> _applyTransactionAdd(
+    Map<String, Object?> payload,
+  ) async {
+    final type = TransactionTypeStorage.fromStorage(payload['type'] as String);
+    final category = await _resolveCategory(
+      type == TransactionType.income
+          ? CategoryType.income
+          : CategoryType.expense,
+      payload,
+    );
+    final accountId = payload['accountId'] as int;
+    final account = (await AccountRepository(database).load())
+        .where((a) => a.id == accountId && !a.isArchived)
+        .firstOrNull;
+    if (account == null) throw StateError('That account is no longer active.');
+    final id = await TransactionRepository(database).addExpenseOrIncome(
+      type: type,
+      amountMinor: payload['amount'] as int,
+      accountId: accountId,
+      categoryId: category.id,
+      title: payload['title'] as String?,
+      note: payload['note'] as String?,
+      date: DateTime.parse(payload['date'] as String),
+    );
+    return {'transactionId': id};
+  }
+
   // ── Storing and reading. ──
 
   /// Stores [drafts] as one batch and returns its id. Each replaces any
@@ -533,6 +675,11 @@ class AgentSuggestionRepository {
               id,
               await _loans.applyDebtEntry(suggestion.payload),
             );
+          case AgentSuggestionKind.transactionAdd:
+            await _keepForUndo(
+              id,
+              await _applyTransactionAdd(suggestion.payload),
+            );
         }
         await _decide(id, AgentSuggestionStatus.applied);
       });
@@ -613,7 +760,7 @@ class AgentSuggestionRepository {
       await database.transaction(() async {
         final row = await database
             .customSelect(
-              "SELECT kind, target, before FROM agent_suggestions WHERE id = ? AND status = 'applied' AND kind IN ('transaction_edit', 'parser_rule', 'statement_layout', 'new_loan', 'debt_entry')",
+              "SELECT kind, target, before FROM agent_suggestions WHERE id = ? AND status = 'applied' AND kind IN ('transaction_edit', 'parser_rule', 'statement_layout', 'new_loan', 'debt_entry', 'transaction_add')",
               variables: [Variable(id)],
             )
             .getSingleOrNull();
@@ -625,6 +772,10 @@ class AgentSuggestionRepository {
           await _loans.undoLoan(before);
         } else if (row.read<String>('kind') == 'debt_entry') {
           await _loans.undoDebtEntry(before);
+        } else if (row.read<String>('kind') == 'transaction_add') {
+          await TransactionRepository(
+            database,
+          ).delete(before['transactionId'] as int);
         } else if (row.read<String>('kind') == 'parser_rule') {
           await UserSmsRuleRepository(database).delete(before['ruleId'] as int);
         } else if (row.read<String>('kind') == 'statement_layout') {
