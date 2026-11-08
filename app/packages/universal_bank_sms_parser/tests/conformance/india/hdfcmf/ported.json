@@ -1,0 +1,44 @@
+[
+  {
+    "id": "hdfcmf-ported-001",
+    "country": "IN",
+    "bankId": "in.hdfcmf",
+    "provenance": "Legacy Dart regression: india_special_parsers_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-HDFCMF-AC",
+      "body": "Your SIP Purchase in Folio 38822412/82 under HDFC Mid Cap Fund-DG for Rs. 7,000.65 has been processed at the NAV of 224.603 for 31.169 units and 24-Feb-2026. Your smart statement https://shrtsms.in/HDFCMF/xYSrbW. Enter your PAN as the password. Sincerely, HDFCMF",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfcmf.template001",
+      "candidate": {
+        "amountMinor": 700065,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "HDFC Mutual Fund",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "38822412/82",
+        "counterparty": "HDFC Mid Cap Fund-DG",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

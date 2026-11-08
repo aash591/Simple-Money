@@ -1,0 +1,513 @@
+{
+  "schemaVersion": "0.3",
+  "minEngineVersion": "0.3.0",
+  "packVersion": 1,
+  "status": "development",
+  "signature": null,
+  "packs": [
+    {
+      "id": "in.airtel",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/airtel.json",
+      "sha256": "ac697e469bca3bf09fc8ac86353518b589558ed66f47c417711820577ea68fc2",
+      "sizeBytes": 49847
+    },
+    {
+      "id": "in.amazonpay",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/amazonpay.json",
+      "sha256": "98baa084c79b3bec838458dbf1123e9b820932e81db20f2ca638287f236f02ee",
+      "sizeBytes": 53223
+    },
+    {
+      "id": "in.amex",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/amex.json",
+      "sha256": "92e44be96273a064d53eddea123e177db7fcc4857f038e134cb0ddc73f50190e",
+      "sizeBytes": 50292
+    },
+    {
+      "id": "in.au",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/au.json",
+      "sha256": "b74a4119479281900a9a2b7e4a554dbe5dbb298fcc862ee7f210e062272fa14c",
+      "sizeBytes": 71335
+    },
+    {
+      "id": "in.axis",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/axis.json",
+      "sha256": "5bcf04261d1c24e6778aca3ab56e0dfea2493e45b099ed3bda965d9756ef37f3",
+      "sizeBytes": 72733
+    },
+    {
+      "id": "in.bandhan",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/bandhan.json",
+      "sha256": "033a0a8f4d8667418a7e0a5c5056e43728f3bbeec74d3956d4bfca634a6c1a75",
+      "sizeBytes": 65824
+    },
+    {
+      "id": "in.baroda",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/baroda.json",
+      "sha256": "39f0c4a09766170b43c748d4cb77de7f19085ca29b8523c804aaf3251095894a",
+      "sizeBytes": 91147
+    },
+    {
+      "id": "in.boi",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/boi.json",
+      "sha256": "79599ee473b27d5a24b17f8087a63dc9b451c709a444604c4b4baadecd5c7b40",
+      "sizeBytes": 62415
+    },
+    {
+      "id": "in.canara",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/canara.json",
+      "sha256": "66104601929afb3cf1c2ba7907277f3f82429dc345c1863cc6d2db4f634f173e",
+      "sizeBytes": 87466
+    },
+    {
+      "id": "in.cashfree",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/cashfree.json",
+      "sha256": "1fe789d3a74b66a44b80667ec370442c2b16865d2f53f66287d2cf49fded488d",
+      "sizeBytes": 53275
+    },
+    {
+      "id": "in.central",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/central.json",
+      "sha256": "a9288231e7824073345d56f6d98296f54c26144c54deeb119251caa5fff1297b",
+      "sizeBytes": 50472
+    },
+    {
+      "id": "in.cityunion",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/cityunion.json",
+      "sha256": "140f6cb70ca6b8a4c3258f3fae75c3e4ef86727c56f1e5f246d1b0ccd648a1d2",
+      "sizeBytes": 50163
+    },
+    {
+      "id": "in.cred",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/cred.json",
+      "sha256": "33fc8896596d80d293164cf109a79a6a3d78862c936c0cc4790a5f8c3c2d810b",
+      "sizeBytes": 53004
+    },
+    {
+      "id": "in.dbs",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/dbs.json",
+      "sha256": "78067ca7dda41b59526a46f6cd3ebc453fb659911b5e8106168e9206f2c13102",
+      "sizeBytes": 50087
+    },
+    {
+      "id": "in.dhanlaxmi",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/dhanlaxmi.json",
+      "sha256": "9a7fb6949704cc790ce335ed6c86622052c8bff7e24512a6e44a75453c86267f",
+      "sizeBytes": 69386
+    },
+    {
+      "id": "in.equitas",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/equitas.json",
+      "sha256": "9f4eb22c5aab62e5b83cee4aed1d8cc797a36cb0ad93575f6a79db0b6b1f4ebc",
+      "sizeBytes": 59935
+    },
+    {
+      "id": "in.federal",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/federal.json",
+      "sha256": "e55f1e645fdb6d0e3e5f464c2e3580a8eed230e1f95521564be20fa6ec923c48",
+      "sizeBytes": 223027
+    },
+    {
+      "id": "in.greater",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/greater.json",
+      "sha256": "be9a3e115f568bec3e34b6b193e491cd82d28775f8b7fbfb8d6505cf4a819b6c",
+      "sizeBytes": 54968
+    },
+    {
+      "id": "in.hdfc",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/hdfc.json",
+      "sha256": "4006a7b9c1f629d3221aa78efd9c9670a3126b357f37155f804a41be1f03515a",
+      "sizeBytes": 96783
+    },
+    {
+      "id": "in.hdfcmf",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/hdfcmf.json",
+      "sha256": "6711fa815be30a838225abb2b380486785810601ce841a4d5334a10a58d3fc18",
+      "sizeBytes": 50838
+    },
+    {
+      "id": "in.hsbc",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/hsbc.json",
+      "sha256": "a0bae51f7005f502efffeaede14c09df0f95d912b923ff465cdd535b743b07c5",
+      "sizeBytes": 61364
+    },
+    {
+      "id": "in.icici",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/icici.json",
+      "sha256": "ea086b3f8b5a85ff4d380fca895c5e3fc19ca22ae903145deb337c21becf67b1",
+      "sizeBytes": 119678
+    },
+    {
+      "id": "in.idbi",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/idbi.json",
+      "sha256": "8676cd3811c41695db08cc1a5c4619f03891a123dad670682de8c597929b1641",
+      "sizeBytes": 49698
+    },
+    {
+      "id": "in.idfc",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/idfc.json",
+      "sha256": "2b09c4d4b928b8e78299da340f9478b3fdaa53d4708ef4792c29cf2469b43258",
+      "sizeBytes": 84646
+    },
+    {
+      "id": "in.indian",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/indian.json",
+      "sha256": "f47afd24865706c5c5d93ef22560a9f9272f52102982c20c6d9bbbe18e1852f8",
+      "sizeBytes": 76459
+    },
+    {
+      "id": "in.indusind",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/indusind.json",
+      "sha256": "43a640a3bb292711c81aa23c38d9832cadc16dace36fa59ad4903f813d70c568",
+      "sizeBytes": 97610
+    },
+    {
+      "id": "in.iob",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/iob.json",
+      "sha256": "8eb781a158f32cf364cee543690c6bc22c4ed68fe4f101f521eef4150eb599be",
+      "sizeBytes": 50529
+    },
+    {
+      "id": "in.ippb",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/ippb.json",
+      "sha256": "1dbcf3bbe98ae03e216f4200abc94be70565e7593d40a8a0d5cc9c340e568eb9",
+      "sizeBytes": 50189
+    },
+    {
+      "id": "in.jana",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/jana.json",
+      "sha256": "3c3e73079155c1547410e5f7def158b110af632e707e85caa6c2d22eaaff4348",
+      "sizeBytes": 54682
+    },
+    {
+      "id": "in.jiopay",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/jiopay.json",
+      "sha256": "c4a4e8b34e8c367c9bf95bca0b0a1207520c0795bd5fdaab562168a01e12d00d",
+      "sizeBytes": 61467
+    },
+    {
+      "id": "in.jiopayments",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/jiopayments.json",
+      "sha256": "c23d950dc57ff6728edf7e9225deac9e973dd9987329d67d58d22140be8bce4d",
+      "sizeBytes": 61441
+    },
+    {
+      "id": "in.jk",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/jk.json",
+      "sha256": "782aed88c83d1c78591ccda837a8b937054169974808ba832d1db4dd5b08629e",
+      "sizeBytes": 50409
+    },
+    {
+      "id": "in.jupiter",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/jupiter.json",
+      "sha256": "aa3249e71023c4b83d7663c524e3b3b2f569f42695e7f08e74dfa0e475cdfa3c",
+      "sizeBytes": 50556
+    },
+    {
+      "id": "in.karnataka",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/karnataka.json",
+      "sha256": "86d1fa968fc1e266222a41269eee445340a2c0461ec7a619efed9d71aefb0c6c",
+      "sizeBytes": 50300
+    },
+    {
+      "id": "in.kerala",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/kerala.json",
+      "sha256": "739bb7388d03fe50359c3403e306e186295b5bd962a466b4b54954822e2a2550",
+      "sizeBytes": 57154
+    },
+    {
+      "id": "in.keralagramin",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/keralagramin.json",
+      "sha256": "dbeead7a5140642cfbd3120ccc17a7752785367b24565943f64ac174c9b2bc78",
+      "sizeBytes": 58807
+    },
+    {
+      "id": "in.kotak",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/kotak.json",
+      "sha256": "54ea66418a5e00aa4e6e217926d6fc58c8c4ca8bc7e9b237ac386552244e580f",
+      "sizeBytes": 90304
+    },
+    {
+      "id": "in.lazypay",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/lazypay.json",
+      "sha256": "2365e943dd9b8e364c7721800a091b4fe04cc1b334005c79e9ec14961c2b64d3",
+      "sizeBytes": 49847
+    },
+    {
+      "id": "in.navi",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/navi.json",
+      "sha256": "ee46fd827badc07be8da4f65a1fa5186a21b980b18b2600cb255f32a444a3073",
+      "sizeBytes": 53692
+    },
+    {
+      "id": "in.nsdl",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/nsdl.json",
+      "sha256": "339845cde617884eb973093be71ed275712087b36c1e29c2a88abf79aee838e0",
+      "sizeBytes": 54178
+    },
+    {
+      "id": "in.onecard",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/onecard.json",
+      "sha256": "9a69c0dea453391de6ce448b69ffcfa0a0a002f051c5e50ae42e3fd4af803208",
+      "sizeBytes": 69174
+    },
+    {
+      "id": "in.pluxee",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/pluxee.json",
+      "sha256": "b4d20d8bdf750f0f8b2d40961b6a7c1d7d93872d83bb7d1d379b194ff797e19d",
+      "sizeBytes": 50448
+    },
+    {
+      "id": "in.pnb",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/pnb.json",
+      "sha256": "c53350ca2f0ba953f2bd4458d8e8ad164598ee2d8347cc4686d13777b17f7a8c",
+      "sizeBytes": 76281
+    },
+    {
+      "id": "in.post",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/post.json",
+      "sha256": "f1665c7ecfd596dbf7feccf338091fb25f180403eda2319d9ab0fb275ca40b9f",
+      "sizeBytes": 54480
+    },
+    {
+      "id": "in.psb",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/psb.json",
+      "sha256": "ac8f92468a1720cbd6110816ca233b781e3e8ea685ce907303cb063b280af167",
+      "sizeBytes": 63397
+    },
+    {
+      "id": "in.saraswat",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/saraswat.json",
+      "sha256": "5eaab1867c4cf4931b05bcfaf1c258147f037fd3edcd4f65e77502796690bb6d",
+      "sizeBytes": 69753
+    },
+    {
+      "id": "in.sbi",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/sbi.json",
+      "sha256": "ebdac12d64609542ca2c51b1c863df3b35c869eeefabf384c4408de63193a3c8",
+      "sizeBytes": 131715
+    },
+    {
+      "id": "in.slice",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/slice.json",
+      "sha256": "d20c5e8fa8a3eeb5d10a7d0159ba2ccbe1abc37502884a18d71d077f3c2d23b7",
+      "sizeBytes": 92271
+    },
+    {
+      "id": "in.southindian",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/southindian.json",
+      "sha256": "bcf7f1282df1b76e23a17675dd0011835bca4c174d6e973a5253c1939d089d61",
+      "sizeBytes": 76709
+    },
+    {
+      "id": "in.standardchartered",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/standardchartered.json",
+      "sha256": "4a85ec932346918a81bd240a5eed36800e2b658bd71a67e016ba398eccafef69",
+      "sizeBytes": 62212
+    },
+    {
+      "id": "in.uco",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/uco.json",
+      "sha256": "2ea9b8b55310cbcefb23edaa5c74ad2a0c7747ba7bb7b845989261eaae06b145",
+      "sizeBytes": 65008
+    },
+    {
+      "id": "in.union",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/union.json",
+      "sha256": "9fffcaa487d21945e895301b0a016dc4ebb477d57e6da5accb28ebba522bf4d6",
+      "sizeBytes": 60787
+    },
+    {
+      "id": "in.utkarsh",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/utkarsh.json",
+      "sha256": "5f3fff66024ad411b0f2e95b7844c648ec297728bcc87f1595d46d60373510ba",
+      "sizeBytes": 49980
+    },
+    {
+      "id": "in.yes",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/yes.json",
+      "sha256": "db43bac73dc0dcc3b9ffc278ac1086ab905ef68337cc6e7c786e909a6422ad07",
+      "sizeBytes": 73239
+    },
+    {
+      "id": "ir.parsian",
+      "countries": [
+        "IR"
+      ],
+      "path": "packs/iran/parsian.json",
+      "sha256": "6fdc3b4100923f4e70df8df2c6ebdd12be796abd2b122deff1da9ac75cb60a16",
+      "sizeBytes": 8796
+    },
+    {
+      "id": "th.bangkok",
+      "countries": [
+        "TH"
+      ],
+      "path": "packs/thailand/bangkok.json",
+      "sha256": "defb9f238b953874655f6a81baeec9ab6d3b8e46d59e82e5786b576045544509",
+      "sizeBytes": 3056
+    }
+  ]
+}

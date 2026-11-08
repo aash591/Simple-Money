@@ -1,0 +1,71 @@
+{
+  "id": "in.cityunion",
+  "name": "City Union Bank",
+  "senders": [
+    "CUB",
+    "CUBANK",
+    "CUBLTD"
+  ],
+  "formats": [
+    {
+      "id": "in.cityunion.template001",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "upi",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Your a/c no. "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " debited for Rs."
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " (UPI Ref no "
+        },
+        {
+          "op": "capture_reference",
+          "name": "reference",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "). Avl Bal "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "reference": {
+          "capture": "reference"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+[
+  {
+    "id": "navi-reject-security",
+    "country": "IN",
+    "bankId": "in.navi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "AD-NAVAMC-S",
+      "body": "Your OTP is 123456. Unit Allotment Update: Your SIP purchase of Rs.499.98 in Navi Nifty Next 50 Index Fund DG has been processed at applicable NAV. The units will be alloted in 1-2 working days. For further queries, please visit the Navi app. Team Navi Mutual Fund",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navi-reject-promotional",
+    "country": "IN",
+    "bankId": "in.navi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "AD-NAVAMC-S",
+      "body": "Exclusive offer: apply now. Unit Allotment Update: Your SIP purchase of Rs.499.98 in Navi Nifty Next 50 Index Fund DG has been processed at applicable NAV. The units will be alloted in 1-2 working days. For further queries, please visit the Navi app. Team Navi Mutual Fund",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navi-reject-failed",
+    "country": "IN",
+    "bankId": "in.navi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "AD-NAVAMC-S",
+      "body": "Payment failed. Unit Allotment Update: Your SIP purchase of Rs.499.98 in Navi Nifty Next 50 Index Fund DG has been processed at applicable NAV. The units will be alloted in 1-2 working days. For further queries, please visit the Navi app. Team Navi Mutual Fund",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navi-reject-pending",
+    "country": "IN",
+    "bankId": "in.navi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "AD-NAVAMC-S",
+      "body": "Payment pending. Unit Allotment Update: Your SIP purchase of Rs.499.98 in Navi Nifty Next 50 Index Fund DG has been processed at applicable NAV. The units will be alloted in 1-2 working days. For further queries, please visit the Navi app. Team Navi Mutual Fund",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navi-reject-future",
+    "country": "IN",
+    "bankId": "in.navi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "AD-NAVAMC-S",
+      "body": "Will be debited. Unit Allotment Update: Your SIP purchase of Rs.499.98 in Navi Nifty Next 50 Index Fund DG has been processed at applicable NAV. The units will be alloted in 1-2 working days. For further queries, please visit the Navi app. Team Navi Mutual Fund",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navi-reject-notice",
+    "country": "IN",
+    "bankId": "in.navi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "AD-NAVAMC-S",
+      "body": "Statement generated. Unit Allotment Update: Your SIP purchase of Rs.499.98 in Navi Nifty Next 50 Index Fund DG has been processed at applicable NAV. The units will be alloted in 1-2 working days. For further queries, please visit the Navi app. Team Navi Mutual Fund",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navi-reject-unknown-sender",
+    "country": "IN",
+    "bankId": "in.navi",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTERED",
+      "body": "Unit Allotment Update: Your SIP purchase of Rs.499.98 in Navi Nifty Next 50 Index Fund DG has been processed at applicable NAV. The units will be alloted in 1-2 working days. For further queries, please visit the Navi app. Team Navi Mutual Fund",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navi-reject-promotion-sender",
+    "country": "IN",
+    "bankId": "in.navi",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "VM-NAVAMC-P",
+      "body": "Unit Allotment Update: Your SIP purchase of Rs.499.98 in Navi Nifty Next 50 Index Fund DG has been processed at applicable NAV. The units will be alloted in 1-2 working days. For further queries, please visit the Navi app. Team Navi Mutual Fund",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navi-reject-balance-only",
+    "country": "IN",
+    "bankId": "in.navi",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "AD-NAVAMC-S",
+      "body": "Available balance INR 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

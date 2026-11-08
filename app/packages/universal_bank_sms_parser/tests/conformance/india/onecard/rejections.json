@@ -1,0 +1,242 @@
+[
+  {
+    "id": "onecard-reject-security",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ONECRD",
+      "body": "Your OTP is 123456. You've fueled up for Rs. 500.00 at FUEL STORE on card ending 1234",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-reject-promotional",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ONECRD",
+      "body": "Exclusive offer: apply now. You've fueled up for Rs. 500.00 at FUEL STORE on card ending 1234",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-reject-failed",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ONECRD",
+      "body": "Payment failed. You've fueled up for Rs. 500.00 at FUEL STORE on card ending 1234",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-reject-pending",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ONECRD",
+      "body": "Payment pending. You've fueled up for Rs. 500.00 at FUEL STORE on card ending 1234",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-reject-future",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ONECRD",
+      "body": "Will be debited. You've fueled up for Rs. 500.00 at FUEL STORE on card ending 1234",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-reject-notice",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ONECRD",
+      "body": "Statement generated. You've fueled up for Rs. 500.00 at FUEL STORE on card ending 1234",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-reject-unknown-sender",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTERED",
+      "body": "You've fueled up for Rs. 500.00 at FUEL STORE on card ending 1234",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-reject-promotion-sender",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "VM-ONECARD-P",
+      "body": "You've fueled up for Rs. 500.00 at FUEL STORE on card ending 1234",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-reject-balance-only",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "ONECRD",
+      "body": "Available balance INR 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-device6-rewards",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-ONECRD-S",
+      "body": "Hey there, you now have 500 reward points available on OneCard.",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-device6-due",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-ONECRD-S",
+      "body": "Your OneCard bill is due. Total due Rs.500.00. Pay now.",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-device6-initiated",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-ONECRD-S",
+      "body": "A payment of Rs.50.00 has been initiated towards your OneCard bill.",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

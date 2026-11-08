@@ -1,0 +1,86 @@
+[
+  {
+    "id": "greater-variables-001",
+    "country": "IN",
+    "bankId": "in.greater",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "GREATERBNK",
+      "body": "Your Account XXXX9988 had a MIGRATIONSHOP of RS. 321.09 on 02-DEC-2027 at 11:22:33.Available balance is Rs. 9876.54: GREATER BANK",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.greater.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Greater Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "greater-variables-002",
+    "country": "IN",
+    "bankId": "in.greater",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-GRTRBN-S",
+      "body": "Your a/c no. XXXXXXXX9988 is debited for Rs.321.09 on 02-DEC-2027 and credited to a/c no. META998877 (UPI Ref no MIG123456) If Not You? Call 9876.54 Greater Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.greater.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Greater Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "Bank Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

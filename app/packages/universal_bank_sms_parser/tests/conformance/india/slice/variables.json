@@ -1,0 +1,587 @@
+[
+  {
+    "id": "slice-variables-001",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JK-SLICEIT",
+      "body": "Sent Rs.321.09 to MIGRATIONSHOP (UPI transaction success). Sent from slice.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-002",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "AD-SLCEIT-S",
+      "body": "Rs.321.09 debited from your slice account via UPI. Txn ID 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-003",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "AD-SLCEIT-S",
+      "body": "Rs.321.09 paid to VARIABLEMERCHANT via slice UPI. Txn ID 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-004",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "AD-SLCEIT-S",
+      "body": "Your slice credit card transaction of RS. 321.09 on MIGRATIONSHOP is successful. If not you, call 9876.54 - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-005",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "AX-SLICEIT-S",
+      "body": "Your slice credit card transaction of RS. 321.09 on MIGRATIONSHOP is successful.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-006",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VA-SLCBNK-S",
+      "body": "Rs. 321.09 spent on your credit card xx9988 at MIGRATIONSHOP on 02-DEC-2027 (UPI Ref: MIG123456). Not you? Call 02-DEC-2027 - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-007",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "AD-SLCEIT-S",
+      "body": "Rs.321.09 spent on your slice credit card at MIGRATIONSHOP. Available limit: Rs.9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-008",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "AD-SLCEIT-S",
+      "body": "Rs.321.09 credited to your slice account as cashback.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Slice Credit",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "refunds",
+          "name": "Refunds",
+          "type": "income",
+          "ruleId": "in.category.refund",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-009",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "AD-SLCEIT-S",
+      "body": "Your slice credit card transaction of RS. 321.09 on 02-DEC-2027 is successful.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template009",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-010",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "slice",
+      "body": "Rs. 321.09 sent from a/c xx9988 on 02-DEC-2027 to MIGRATIONSHOP (UPI Ref: MIG123456). Not you? Call 9876.54 - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template010",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-011",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "slice",
+      "body": "Rs. 321.09 sent from a/c xx9988 on 02-DEC-2027 to MIGRATIONSHOP (UPI Ref: MIG123456). Not you? Call 9876.54 - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template010",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-012",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "slice",
+      "body": "Successfully paid Rs.321.09 from slice a/c XX9988 to MIGRATIONSHOP on 02-DEC-2027 via UPI AutoPay. UMN - META998877@metadatavalue - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template012",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-013",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "slice",
+      "body": "Rs. 321.09 received in slice A/c xx9988 on 02-DEC-2027 from MIGRATIONSHOP via UPI (Ref ID: MIG123456). Avl. Bal. Rs. 9876.54 - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template013",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-variables-014",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "slice",
+      "body": "Your transaction of Rs. 321.09 at MIGRATIONSHOP from a/c xx9988 is successful. If not you, call 02-DEC-2027 - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template014",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

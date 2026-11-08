@@ -1,0 +1,56 @@
+{
+  "id": "th.bangkok",
+  "name": "Bangkok Bank",
+  "senders": [
+    "BBL"
+  ],
+  "formats": [
+    {
+      "id": "th.bangkok.transfer.debit",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "BBL: โอนเงินออก "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 24
+        },
+        {
+          "op": "match_literal",
+          "value": " บาท บช "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 32
+        },
+        {
+          "op": "match_literal",
+          "value": " คงเหลือ "
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        }
+      },
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii",
+          "thai"
+        ]
+      }
+    }
+  ]
+}

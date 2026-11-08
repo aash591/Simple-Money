@@ -1,0 +1,182 @@
+[
+  {
+    "id": "jiopayments-reject-security",
+    "country": "IN",
+    "bankId": "in.jiopayments",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JIOPBS",
+      "body": "Your OTP is 123456. A/c XX1234 debited Rs 1.00 on 20-Jun-26 for linked myupihandle@oksbi. UPI Ref 122345526539 - NSDLPB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopayments-reject-promotional",
+    "country": "IN",
+    "bankId": "in.jiopayments",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JIOPBS",
+      "body": "Exclusive offer: apply now. A/c XX1234 debited Rs 1.00 on 20-Jun-26 for linked myupihandle@oksbi. UPI Ref 122345526539 - NSDLPB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopayments-reject-failed",
+    "country": "IN",
+    "bankId": "in.jiopayments",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JIOPBS",
+      "body": "Payment failed. A/c XX1234 debited Rs 1.00 on 20-Jun-26 for linked myupihandle@oksbi. UPI Ref 122345526539 - NSDLPB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopayments-reject-pending",
+    "country": "IN",
+    "bankId": "in.jiopayments",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JIOPBS",
+      "body": "Payment pending. A/c XX1234 debited Rs 1.00 on 20-Jun-26 for linked myupihandle@oksbi. UPI Ref 122345526539 - NSDLPB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopayments-reject-future",
+    "country": "IN",
+    "bankId": "in.jiopayments",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JIOPBS",
+      "body": "Will be debited. A/c XX1234 debited Rs 1.00 on 20-Jun-26 for linked myupihandle@oksbi. UPI Ref 122345526539 - NSDLPB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopayments-reject-notice",
+    "country": "IN",
+    "bankId": "in.jiopayments",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JIOPBS",
+      "body": "Statement generated. A/c XX1234 debited Rs 1.00 on 20-Jun-26 for linked myupihandle@oksbi. UPI Ref 122345526539 - NSDLPB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopayments-reject-unknown-sender",
+    "country": "IN",
+    "bankId": "in.jiopayments",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTERED",
+      "body": "A/c XX1234 debited Rs 1.00 on 20-Jun-26 for linked myupihandle@oksbi. UPI Ref 122345526539 - NSDLPB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopayments-reject-promotion-sender",
+    "country": "IN",
+    "bankId": "in.jiopayments",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "VM-JIOPBS-P",
+      "body": "A/c XX1234 debited Rs 1.00 on 20-Jun-26 for linked myupihandle@oksbi. UPI Ref 122345526539 - NSDLPB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopayments-reject-balance-only",
+    "country": "IN",
+    "bankId": "in.jiopayments",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "JIOPBS",
+      "body": "Available balance INR 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

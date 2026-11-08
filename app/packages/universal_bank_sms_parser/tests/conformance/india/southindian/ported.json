@@ -1,0 +1,295 @@
+[
+  {
+    "id": "southindian-ported-001",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Legacy Dart regression: india_south_indian_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "SIBSMS",
+      "body": "Dear Customer, Your A/c X7377 is credited with Rs.792.02 Info: IMPS/FDRL/528005821348/EPIFI ACCOUN. Final balance is Rs.793.02-South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template001",
+      "candidate": {
+        "amountMinor": 79202,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "7377",
+        "reference": "528005821348",
+        "counterparty": "EPIFI ACCOUN",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "southindian-ported-002",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Legacy Dart regression: india_south_indian_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "SIBSMS",
+      "body": "UPI debit:Rs.599.00 A/c X7477, 16-10-25 16:25:29 RRN: 565526068910 Bal:Rs.12345.89 Block A/c? Call18004251809/SMS BLK<A/c>to 9840777222-South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template002",
+      "candidate": {
+        "amountMinor": 59900,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "7477",
+        "reference": "565526068910",
+        "counterparty": "UPI Transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "southindian-ported-003",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Legacy Dart regression: india_south_indian_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-SIBSMS-S",
+      "body": "A/c X7477 DEBIT:Rs.983.75 SPICE KITCHEN MCT Bal:Rs.1234.67 Block A/c? call 18004251809/SMS BLK<full A/c>to 9840777222-South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template003",
+      "candidate": {
+        "amountMinor": 98375,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "7477",
+        "reference": null,
+        "counterparty": "SPICE KITCHEN MCT",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants_more",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "southindian-ported-004",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Legacy Dart regression: india_south_indian_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "SIBSMS",
+      "body": "UPI debit:Rs.42225.06, A/c X7477, 03-11-25 00:12:50 RRN:567304295699. Bal:Rs.35037.21 Block A/c? Cal118004251809/SMS BLK<A/c>to 9840777222-South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template004",
+      "candidate": {
+        "amountMinor": 4222506,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "7477",
+        "reference": "567304295699",
+        "counterparty": "UPI Transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "southindian-ported-005",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Legacy Dart regression: india_south_indian_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "SIBSMS",
+      "body": "UPI Credit:INR Rs.15000.00 in A/c X2468. Info: UPI/TGRB/111222333444/ Sample Payer on 26-12-25 19:02:01.Final balance is Rs.34567.67 -South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template005",
+      "candidate": {
+        "amountMinor": 1500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "2468",
+        "reference": "111222333444",
+        "counterparty": "Sample Payer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "southindian-ported-006",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Legacy Dart regression: india_south_indian_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-SIBSMS-S",
+      "body": "UPI debit:INR Rs.250.50 in A/c X2468. Info:UPI/ICIC/222333444555/Demo Merchant on 26-12-25 19:05:01. Final balance is Rs.34317.17 -South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template006",
+      "candidate": {
+        "amountMinor": 25050,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "2468",
+        "reference": "222333444555",
+        "counterparty": "Demo Merchant",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "southindian-ported-007",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Legacy Dart regression: india_south_indian_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "SIBSMS",
+      "body": "Dear Customer, Your A/c X1234 is credited with Rs.1000.00 Info: IMPS/PUNB/123456789012/ METRO TRADERS. Final balance is Rs.10000.00-South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template007",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456789012",
+        "counterparty": "METRO TRADERS",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

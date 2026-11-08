@@ -1,0 +1,15 @@
+name: drive_authorization
+description: Android Drive authorization for foreground and background sync.
+version: 0.1.0
+publish_to: 'none'
+environment:
+  sdk: ^3.13.2
+dependencies:
+  flutter:
+    sdk: flutter
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.aash591.drive_authorization
+        pluginClass: DriveAuthorizationPlugin

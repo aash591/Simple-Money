@@ -1,0 +1,296 @@
+[
+  {
+    "id": "southindian-variables-001",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SIBSMS",
+      "body": "Dear Customer, Your A/c X9988 is credited with Rs.321.09 Info: IMPS/FDRL/MIG123456/MIGRATIONSHOP. Final balance is Rs.9876.54-South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "southindian-variables-002",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SIBSMS",
+      "body": "UPI debit:Rs.321.09 A/c X9988, 02-DEC-2027 11:22:33 RRN: MIG123456 Bal:Rs.9876.54 Block A/c? META998877/SMS BLK<A/c>to 9876.54-South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "UPI Transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "southindian-variables-003",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-SIBSMS-S",
+      "body": "A/c X9988 DEBIT:Rs.321.09 MIGRATIONSHOP Bal:Rs.9876.54 Block A/c? call 9876.54/SMS BLK<full A/c>to 9876.54-South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "southindian-variables-004",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SIBSMS",
+      "body": "UPI debit:Rs.321.09, A/c X9988, 02-DEC-2027 11:22:33 RRN:MIG123456. Bal:Rs.9876.54 Block A/c? META998877/SMS BLK<A/c>to 9876.54-South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "UPI Transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "southindian-variables-005",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SIBSMS",
+      "body": "UPI Credit:INR Rs.321.09 in A/c X9988. Info: UPI/TGRB/MIG123456/ MIGRATIONSHOP on 02-DEC-2027 11:22:33.Final balance is Rs.9876.54 -South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "southindian-variables-006",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-SIBSMS-S",
+      "body": "UPI debit:INR Rs.321.09 in A/c X9988. Info:UPI/ICIC/MIG123456/MIGRATIONSHOP on 02-DEC-2027 11:22:33. Final balance is Rs.9876.54 -South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "southindian-variables-007",
+    "country": "IN",
+    "bankId": "in.southindian",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SIBSMS",
+      "body": "Dear Customer, Your A/c X9988 is credited with Rs.321.09 Info: IMPS/PUNB/MIG123456/ MIGRATIONSHOP. Final balance is Rs.9876.54-South Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.southindian.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "South Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "hdfcmf-variables-001",
+    "country": "IN",
+    "bankId": "in.hdfcmf",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "AD-HDFCMF-AC",
+      "body": "Your SIP Purchase in Folio 556677/88 under MIGRATIONSHOP for Rs. 321.09 has been processed at the NAV of 9876.54 for 9876.54 units and 02-DEC-2027. Your smart statement metadatavalue Enter your PAN as the password. Sincerely, HDFCMF",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfcmf.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "HDFC Mutual Fund",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

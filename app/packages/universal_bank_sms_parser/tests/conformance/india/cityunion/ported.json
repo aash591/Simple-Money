@@ -1,0 +1,44 @@
+[
+  {
+    "id": "cityunion-ported-001",
+    "country": "IN",
+    "bankId": "in.cityunion",
+    "provenance": "Legacy Dart regression: source-derived example; see NOTICE.md",
+    "input": {
+      "sender": "CUBANK",
+      "body": "Your a/c no. XX1234 debited for Rs.100.00 (UPI Ref no 123456789012). Avl Bal 900.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.cityunion.template001",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "City Union Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456789012",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

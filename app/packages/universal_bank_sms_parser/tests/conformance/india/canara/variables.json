@@ -1,0 +1,212 @@
+[
+  {
+    "id": "canara-variables-001",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VA-CANBNK-S",
+      "body": "An amount of INR 321.09 has been credited to META998877 on 02-DEC-2027 towards RTGS by Sender MIGRATIONSHOP, IFSC META998877, Sender A/c XXXX9988, AXIS BANK, MUMBAI BRANCH, UTR META998877, Total Avail. Bal INR 9876.54- Canara Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "canara-variables-002",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VK-CANBNK-S",
+      "body": "Dear Customer, Acct XXX988 Dr. INR 321.09 on 02-DEC-2027 to MIGRATIONSHOP; UPI: MIG123456; Bal INR 9876.54.Not you? SMS BLOCKUPI to XXXXXXXXXX-CanaraBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "canara-variables-003",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JK-CANBNK-S",
+      "body": "Dear Customer, Acct XXX988 Dr. Rs. 321.09 on 02-DEC-2027 to MIGRATIONSHOP; UPI: MIG123456; Bal INR 9876.54.Not you? SMS BLOCKUPI to XXXXXXXXXX-CanaraBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "canara-variables-004",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VK-CANBNK-S",
+      "body": "Dear Customer, Acct XXX988 Dr. ₹321.09 on 02-DEC-2027 to MIGRATIONSHOP; UPI: MIG123456; Bal INR 9876.54.Not you? SMS BLOCKUPI to XXXXXXXXXX-CanaraBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "canara-variables-005",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VK-CANBNK-S",
+      "body": "Dear Customer, Acct XXX988 Dr. INR 321.09 on 02-DEC-2027 to MIGRATIONSHOP, UPI: MIG123456; Bal INR 9876.54.Not you? SMS BLOCKUPI to XXXXXXXXXX-CanaraBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

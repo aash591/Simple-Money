@@ -1,0 +1,86 @@
+[
+  {
+    "id": "jana-ported-001",
+    "country": "IN",
+    "bankId": "in.jana",
+    "provenance": "Legacy Dart regression: india_special_parsers_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JM-JANABK-S",
+      "body": "Dear Customer, Your acct XX005 is credited with INR 8.00 on 13-Jun-26 from NPCI BHIM. UPI Ref no 103475395201 . JANA SFB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.jana.template001",
+      "candidate": {
+        "amountMinor": 800,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Jana Small Finance Bank",
+        "countryCode": "IN",
+        "accountLast4": "005",
+        "reference": "103475395201",
+        "counterparty": "NPCI BHIM",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jana-ported-002",
+    "country": "IN",
+    "bankId": "in.jana",
+    "provenance": "Legacy Dart regression: india_special_parsers_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JM-JANABK-S",
+      "body": "Dear Customer, Your acct XX005 is debited with INR 250.00 on 14-Jun-26 to merchant@okaxis. UPI Ref no 103475395202 . JANA SFB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.jana.template002",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Jana Small Finance Bank",
+        "countryCode": "IN",
+        "accountLast4": "005",
+        "reference": "103475395202",
+        "counterparty": "merchant",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

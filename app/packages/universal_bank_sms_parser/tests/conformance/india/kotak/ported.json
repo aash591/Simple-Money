@@ -1,0 +1,591 @@
+[
+  {
+    "id": "kotak-ported-001",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-KOTAKB-S",
+      "body": "Sent Rs.15.00 from Kotak Bank AC X1234 to paytmqr288005050101t74afkchmxjd@paytm on 14-10-25.UPI Ref 1234567890. Not you, https://kotak.com/KBANKT/Fraud",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template001",
+      "candidate": {
+        "amountMinor": 1500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "1234567890",
+        "counterparty": "paytmqr288005050101t74afkchmxjd@paytm",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kotak-ported-002",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-KOTAKB-S",
+      "body": "Sent Rs.100.00 from Kotak Bank AC X5678 to phonepeqr123456789xyz@ybl on 15-10-25.UPI Ref 9876543210. Not you, https://kotak.com/KBANKT/Fraud",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template001",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": "9876543210",
+        "counterparty": "phonepeqr123456789xyz@ybl",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kotak-ported-003",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-KOTAKB-S",
+      "body": "Sent Rs.500.00 from Kotak Bank AC X9999 to 9876543210@paytm on 15-10-25.UPI Ref 1111111111. Not you, https://kotak.com/KBANKT/Fraud",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template001",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "9999",
+        "reference": "1111111111",
+        "counterparty": "9876543210@paytm",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "Kotak Bank AC X9999 to 9876543210@paytm"
+    }
+  },
+  {
+    "id": "kotak-ported-004",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-KOTAKB-S",
+      "body": "Received Rs.250.00 in your Kotak Bank AC X3333 from john.doe@oksbi on 14-10-25.UPI Ref 2222222222. Not you, https://kotak.com/KBANKT/Fraud",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template004",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "3333",
+        "reference": "2222222222",
+        "counterparty": "john.doe@oksbi",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kotak-ported-005",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-KOTAKB-S",
+      "body": "Rs.1000.00 debited from your Kotak Bank AC X4444 on 15-10-25. Avl Bal Rs.10000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template005",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "4444",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kotak-ported-006",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-KOTAKB-S",
+      "body": "Received Rs. 329.00 on 15-04-26 in your Kotak Bank A/C x2451 by an A/C linked to mobile x111. IMPS Ref no 610511412340.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template006",
+      "candidate": {
+        "amountMinor": 32900,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "2451",
+        "reference": "610511412340",
+        "counterparty": "mobile x111",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kotak-ported-007",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "TX-KOTAKB-S",
+      "body": "INR 20 spent on Kotak Credit Card x5236 on 23-JAN-2026 at UPI-638903921672-CORN. Avl limit INR 73733.02 Fraud? https://www.kotak.bank.in/KBANKT/querytxn",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template007",
+      "candidate": {
+        "amountMinor": 2000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "5236",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kotak-ported-008",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VM-KOTAKD-S",
+      "body": "Sent Rs.51.00 from XXXXXX9722 to DINESHBHAI RAMJIBHAI on 30/04/2026. UPI ref no. 648604626824. Not you? Tap https://kotk.in/KOTAKD/Eg9Cu0 to report -Kotak",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template008",
+      "candidate": {
+        "amountMinor": 5100,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "9722",
+        "reference": "648604626824",
+        "counterparty": "DINESHBHAI RAMJIBHAI",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kotak-ported-009",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VM-KOTAKD-S",
+      "body": "Sent Rs.10.00 from XXXXXX9722 to Makavana Mahipatbhai on 01/05/2026. UPI ref no. 648724676562. Not you? Tap https://kotk.in/KOTAKD/EhkUKk to report -Kotak",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template008",
+      "candidate": {
+        "amountMinor": 1000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "9722",
+        "reference": "648724676562",
+        "counterparty": "Makavana Mahipatbhai",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kotak-ported-010",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-KOTAKD-S",
+      "body": "Sent Rs.205.00 from XXXXXX1234 to ANNAPOORNESWARI K M on 26/05/2026. UPI ref no. 651229267141. Not you? Tap https://kotk.in/KOTAKD/E7LzzX to report -Kotak",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template008",
+      "candidate": {
+        "amountMinor": 20500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "651229267141",
+        "counterparty": "ANNAPOORNESWARI K M",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kotak-ported-011",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-KOTAKD-S",
+      "body": "Sent Rs.90.00 from XXXXXX9886 to RAMESH on 25/05/2026. UPI ref no. 653114209367. Not you? Tap https://kotk.in/KOTAKD/S6ztop to report -Kotak",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template008",
+      "candidate": {
+        "amountMinor": 9000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "9886",
+        "reference": "653114209367",
+        "counterparty": "RAMESH",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kotak-ported-012",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-KOTAKB-S",
+      "body": "Cashback of Rs.50.00 has been sent to your Kotak Bank A/c x5555. Credited on 14-10-25. UPI Ref 9999999999",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template012",
+      "candidate": {
+        "amountMinor": 5000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "5555",
+        "reference": "9999999999",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "refunds",
+          "name": "Refunds",
+          "type": "income",
+          "ruleId": "in.category.refund",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kotak-ported-013",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JM-Kotakb-S",
+      "body": "INR 2 from Airport Lounge refunded to your Kotak Credit Card x8848 on 17-Jul-2026. Opted for EMI? Please call 18602662666 to cancel.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.template013",
+      "candidate": {
+        "amountMinor": 200,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "card",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "8848",
+        "reference": null,
+        "counterparty": "Airport Lounge",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "refunds",
+          "name": "Refunds",
+          "type": "income",
+          "ruleId": "in.category.refund",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "Airport Lounge refunded to your Kotak Credit Card x8848",
+      "reference": "unded"
+    }
+  },
+  {
+    "id": "kotak-device-1",
+    "country": "IN",
+    "bankId": "in.kotak",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "JD-KOTAKB-S",
+      "body": "Received Rs.731.29 in your Kotak Bank AC 9876 from Example Merchant on 08-10-2026.UPI Ref:123456789012",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kotak.device001",
+      "candidate": {
+        "amountMinor": 73129,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Kotak Bank",
+        "countryCode": "IN",
+        "accountLast4": "9876",
+        "reference": "123456789012",
+        "counterparty": "Example Merchant",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

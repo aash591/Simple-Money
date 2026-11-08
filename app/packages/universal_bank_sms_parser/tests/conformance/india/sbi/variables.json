@@ -1,0 +1,378 @@
+[
+  {
+    "id": "sbi-variables-001",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ATMSBI",
+      "body": "Dear Customer, transaction number 9876.54 for Rs.321.09 by SBI Debit Card 9988 done at VARIABLEMERCHANT on 02-DEC-2027 at 11:22:33. Your updated available balance is Rs.9876.54. If not done by you, forward this SMS to 9876.54/ call 9876.54/9876.54 to block card. GOI helpline for cyber fraud 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "VARIABLEMERCHANT",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-variables-002",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ATMSBI",
+      "body": "Rs.321.09 debited from A/c X9988 on 02-DEC-2027. Avl Bal Rs.9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-variables-003",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SBI CARDS AND PAYMENT SERVICES",
+      "body": "Rs.321.09 𝗌𝗉𝖾𝗇𝗍 𝗈𝗇 𝗒𝗈𝗎𝗋 𝖲𝖡𝖨 𝖢𝗋𝖾𝖽𝗂𝗍 𝖢𝖺𝗋𝖽 𝖾𝗇𝖽𝗂𝗇𝗀 9988 at MIGRATIONSHOP on 02-DEC-2027. 𝖳𝗋𝗑𝗇. 𝗇𝗈𝗍 𝖽𝗈𝗇𝖾 𝖻𝗒 𝗒𝗈𝗎? 𝖱𝖾𝗉𝗈𝗋𝗍 𝖺𝗍 metadatavalue",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-variables-004",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SBICRD",
+      "body": "Rs.321.09 spent on your SBI Credit Card ending with 9988 on 02-DEC-2027. Your available limit is Rs.9876.54. If not done by you, call 9876.54 9876.54 9876.54 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-variables-005",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SBICRD",
+      "body": "Your payment of Rs.321.09 has been credited to your SBI Credit Card ending with 9988. Your available limit is Rs.9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "card",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "credit_card_repayment",
+          "name": "Credit Card Repayment",
+          "type": "income",
+          "ruleId": "in.category.card_repayment",
+          "isFallback": false,
+          "aliases": [
+            "Credit Card Payment",
+            "Card Repayment"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-variables-006",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SBI CARDS AND PAYMENT SERVICES",
+      "body": "Rs.321.09 spent on your SBI Credit Card ending 9988 at MIGRATIONSHOP on 02-DEC-2027.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-device-2",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-CBSSBI-S",
+      "body": "Dear Customer, Your A/C XX9876 has a debit by NEFT of Rs 70.25 on 09/10/26. Avl Bal Rs 1,000.00. Contact SBI",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.device001",
+      "candidate": {
+        "amountMinor": 7025,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "9876",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-device016-salary",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Synthetic regression based on redacted device template",
+    "input": {
+      "sender": "AD-CBSSBI-S",
+      "body": "Your A/c XX1234 has credit for BY SALARY of Rs 123.45 on 02JUL2026. Avl Bal Rs 500.-SBI",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.device016.salary_credit",
+      "candidate": {
+        "amountMinor": 12345,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "salary",
+          "name": "Salary",
+          "type": "income",
+          "ruleId": "in.category.salary",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-device016-payment",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Synthetic regression based on redacted device template",
+    "input": {
+      "sender": "AD-CBSSBI-S",
+      "body": "Dear Customer, Payment of Rs. 75.00 credited to your Acc No. XX1234 on 02JUL2026-SBI",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.device016.payment_credit",
+      "candidate": {
+        "amountMinor": 7500,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,455 @@
+[
+  {
+    "id": "amazonpay-variables-001",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Your Apay Wallet balance is debited for INR 321.09 Transaction Reference Number is MIG123456 - Powered by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "Amazon Pay Transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "amazonpay-variables-002",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "APAY",
+      "body": "Payment of Rs 321.09 using Apay Balance successful at MIGRATIONSHOP. Updated Balance is Rs 9876.54 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "amazonpay-variables-003",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Payment of Rs 321.09 using Apay Balance successful at MIGRATIONSHOP. Updated Balance is Rs 9876.54 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "amazonpay-variables-004",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Your Apay Wallet balance is debited for INR 321.09 Transaction Reference Number is MIG123456 - Powered by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "Amazon Pay Transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "amazonpay-variables-005",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "APAY",
+      "body": "Payment of Rs 321.09 using Apay Balance successful at MIGRATIONSHOP. Updated Balance is Rs 9876.54 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "amazonpay-variables-006",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Payment of Rs 321.09 using Apay Balance successful at MIGRATIONSHOP. Updated Balance is Rs 9876.54 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "amazonpay-variables-007",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Your Apay Wallet balance is debited for INR 321.09 Transaction Reference Number is MIG123456 - Powered by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "Amazon Pay Transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "amazonpay-variables-008",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "AMAZON PAY",
+      "body": "Payment of Rs 321.09 using Apay Balance successful at MIGRATIONSHOP. Updated Balance is Rs 9876.54 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "amazonpay-variables-009",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Payment of Rs 321.09 using Apay Balance successful at MIGRATIONSHOP. Updated Balance is Rs 9876.54 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "amazonpay-variables-010",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Payment of Rs 321.09 using Apay Balance successful at MIGRATIONSHOP. Updated Balance is Rs 9876.54 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "amazonpay-variables-011",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "APAY",
+      "body": "Payment of Rs 321.09 using Apay Balance successful at MIGRATIONSHOP. Updated Balance is Rs 9876.54 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

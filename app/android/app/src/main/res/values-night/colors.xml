@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="launch_background">#000000</color>
+    <color name="widget_surface">#1C2030</color>
+    <color name="widget_text">#EEF0F5</color>
+    <color name="widget_expense_tint">#3A1E24</color>
+    <color name="widget_income_tint">#14301F</color>
+    <color name="widget_scan_tint">#15273F</color>
+    <color name="sms_debit">#EF5350</color>
+    <color name="sms_credit">#66BB6A</color>
+</resources>

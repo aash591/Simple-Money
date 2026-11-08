@@ -1,0 +1,209 @@
+[
+  {
+    "id": "hdfc-variables-001",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CP-HDFCBK-S",
+      "body": "Rs.321.09 debited from A/c XX9988 on 02-DEC-2027 to merchant@metadatavalue (UPI Ref No MIG123456)",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "hdfc-variables-002",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "HDFCBK",
+      "body": "Sent Rs.321.09 From HDFC Bank A/C *9988 To MIGRATIONSHOP PVT LTD On 02-DEC-2027 Ref MIG123456 Not You? Call 9876.54/SMS BLOCK UPI to 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "hdfc-variables-003",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CP-HDFCBK-S",
+      "body": "Update! INR 321.09 deposited in HDFC Bank A/c XX9988 on 02-DEC-2027 for NEFT Cr-META998877-MIGRATIONSHOP-PERSON NAME-META998877.Avl bal INR 9876.54. Cheque deposits in A/C are subject to clearing",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "hdfc-variables-004",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-HDFCBK-S",
+      "body": "Transaction Reversed!On HDFC Bank CREDIT Card xx9988 Amt: Rs.321.09 By MIGRATIONSHOP 9876.54 On 02-DEC-2027:9876.54:9876.54:9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "refunds",
+          "name": "Refunds",
+          "type": "income",
+          "ruleId": "in.category.refund",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "hdfc-variables-005",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-HDFCBK-S",
+      "body": "Payment Successful! Rs. 321.09 from A/c ****9988 to MIGRATIONSHOP via HDFC Bank NetBanking. Not you?Call 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

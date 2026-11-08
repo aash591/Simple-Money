@@ -1,0 +1,86 @@
+[
+  {
+    "id": "cashfree-variables-001",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JX-CSHfre-S",
+      "body": "Payment INR 321.09 (ID:MIG123456) confirmed for order #735571_428_1777162938185 on MIGRATIONSHOP. Powered by Cashfree",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.cashfree.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Cashfree",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cashfree-variables-002",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VK-CSHfre-S",
+      "body": "Payment INR 321.09 (ID:MIG123456) confirmed for order #order_001 on MIGRATIONSHOP. Powered by Cashfree",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.cashfree.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Cashfree",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

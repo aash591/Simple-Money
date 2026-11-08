@@ -1,0 +1,168 @@
+[
+  {
+    "id": "jiopay-variables-001",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Recharge Successful for Jio Number : 9876.54. Rs. 321.09 paid. Transaction ID : MIG123456",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.jiopay.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "JioPay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "Jio Recharge - 9876****",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "mobile_recharge",
+          "name": "Mobile Recharge",
+          "type": "expense",
+          "ruleId": "in.category.mobile_recharge",
+          "isFallback": false,
+          "aliases": [
+            "Mobile"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-variables-002",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JA-JioPay-S",
+      "body": "Payment successful to MIGRATIONSHOP. Rs. 321.09 paid. Transaction ID : MIG123456",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.jiopay.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "JioPay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-variables-003",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Bill Payment of Rs. 321.09 for MIGRATIONSHOP successful. Rs. 9876.54 paid. Transaction ID : MIG123456",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.jiopay.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "JioPay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-variables-004",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Recharge Successful for Jio Number : 9876.54. Rs. 321.09 paid",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.jiopay.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "JioPay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Jio Recharge - 9876****",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "mobile_recharge",
+          "name": "Mobile Recharge",
+          "type": "expense",
+          "ruleId": "in.category.mobile_recharge",
+          "isFallback": false,
+          "aliases": [
+            "Mobile"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

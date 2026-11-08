@@ -1,0 +1,44 @@
+[
+  {
+    "id": "jupiter-ported-001",
+    "country": "IN",
+    "bankId": "in.jupiter",
+    "provenance": "Legacy Dart regression: india_jupiter_kerala_gramin_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VK-JTEDGE-S",
+      "body": "Rs.25.00 debited to your Edge CSB Bank RuPay Credit Card ending 6788 on 3/18/26, 6:39 PM - (UPI Ref no.702711160776). To dispute, call 8655055086.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.jupiter.template001",
+      "candidate": {
+        "amountMinor": 2500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Jupiter",
+        "countryCode": "IN",
+        "accountLast4": "6788",
+        "reference": "702711160776",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

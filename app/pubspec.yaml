@@ -1,0 +1,73 @@
+name: simple_money
+description: A simple, private, offline-first money manager.
+publish_to: 'none'
+version: 0.60.11+19
+
+environment:
+  sdk: ^3.13.2
+
+dependencies:
+  universal_bank_sms_parser:
+    path: packages/universal_bank_sms_parser/engines/dart
+  archive: ^4.2.0
+  cached_network_image: ^3.4.1
+  connectivity_plus: ^7.3.1
+  crypto: ^3.0.7
+  drive_authorization:
+    path: packages/drive_authorization
+  drift: ^2.34.4
+  drift_flutter: ^0.3.1
+  flutter:
+    sdk: flutter
+  intl: ^0.20.3
+  http: ^1.6.0
+  shared_preferences: ^2.3.3
+  path_provider: ^2.1.6
+  workmanager: ^0.10.10
+  file_picker: ^12.3.0
+  local_auth: ^3.0.2
+  mobile_scanner: ^7.4.1
+  qr: ^4.0.0
+  flutter_local_notifications: ^22.3.1
+  timezone: ^0.11.1
+  package_info_plus: ^10.2.2
+  url_launcher: ^6.3.2
+  xml: ^7.0.1
+  google_mobile_ads: ^9.2.0
+  in_app_purchase: ^3.3.1
+  in_app_purchase_android: ^0.5.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - packages/universal_bank_sms_parser/distribution/manifest.json
+    - packages/universal_bank_sms_parser/distribution/packs/india/
+    # Country defaults and classifiers, compiled with the user's own SMS rules.
+    - packages/universal_bank_sms_parser/rules/india/country.json
+    - assets/images/app_icon.webp
+    - assets/images/budget_total_3d.webp
+    - assets/data/currencies.json
+    - assets/data/UNICODE-LICENSE.txt
+    - assets/flags/
+    - assets/icon_packs/3d/
+    - assets/icon_packs/brands/
+  shaders:
+    - shaders/liquid_glass.frag
+
+# The full-resolution artwork lives outside the bundled assets; the app only
+# ships a 512px copy (assets/images/app_icon.webp) for in-app use.
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: ../assets_raw/launcher_icon.png
+  # Not run any more: tool/generate_launcher_icons.py builds the launcher icon
+  # (the wallet on a white adaptive tile). This would put the bare artwork
+  # back full-bleed, which launchers stretch into a purple square.

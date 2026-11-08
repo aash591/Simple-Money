@@ -1,0 +1,125 @@
+[
+  {
+    "id": "sbi-upi-sender-completed-debit",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Synthetic regression for the SBIUPI sender family observed on an Android device; all identifiers and values replaced.",
+    "input": {
+      "sender": "AX-SBIUPI-S",
+      "body": "Rs.500 debited from A/c X1234 on 13Sep25. Avl Bal Rs.999999999",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.template002",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-upi-sender-transfer-credit",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Synthetic regression from an observed SBI incoming-transfer template; all identifiers and values replaced.",
+    "input": {
+      "sender": "AX-SBIUPI-S",
+      "body": "Dear SBI User, your A/c X1234-credited by Rs.550 on 10Oct26 transfer from SAMPLE SENDER Ref No 123456789012 -SBI",
+      "receivedAt": "2026-10-10T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.device017.transfer_credit",
+      "candidate": {
+        "amountMinor": 55000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456789012",
+        "counterparty": "SAMPLE SENDER",
+        "occurredAt": "2026-10-10T00:00:00.000Z",
+        "category": {
+          "id": "other_income",
+          "name": "Other Income",
+          "type": "income",
+          "ruleId": "in.category.incoming_transfer",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-upi-sender-transfer-debit",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Synthetic regression from an observed SBI UPI transfer template; all identifiers and values replaced.",
+    "input": {
+      "sender": "AX-SBIUPI-S",
+      "body": "Dear UPI user A/C X1234 debited by 350.90 on date 13Oct26 trf to SAMPLE SERVICES Refno 123456789012 If not u? call-1800111109 for other services-18001234-SBI",
+      "receivedAt": "2026-10-13T12:11:34.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.device018.upi_transfer_debit",
+      "candidate": {
+        "amountMinor": 35090,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456789012",
+        "counterparty": "SAMPLE SERVICES",
+        "occurredAt": "2026-10-13T12:11:34.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

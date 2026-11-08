@@ -1,0 +1,996 @@
+import 'dart:convert';
+
+import 'package:drift/drift.dart';
+import 'package:intl/intl.dart';
+
+import '../../domain/account.dart';
+import '../../domain/app_icons.dart';
+import '../../domain/category.dart';
+import '../../domain/transaction.dart';
+import '../db/app_database.dart';
+import '../repositories/account_repository.dart';
+import '../repositories/category_repository.dart';
+import '../repositories/sms_import_repository.dart';
+import '../repositories/statement_import_repository.dart';
+import '../repositories/transaction_repository.dart';
+import '../user_sms_rules.dart';
+import 'agent_loans.dart';
+import 'statement_samples.dart';
+
+/// What an AI app asked to change. Nothing here touches the ledger until the
+/// user approves it, and every change goes through the same repository the
+/// app's own screens use, so it is checked exactly like a manual edit.
+enum AgentSuggestionKind {
+  newCategory('new_category'),
+  smsCorrection('sms_correction'),
+  transactionEdit('transaction_edit'),
+  parserRule('parser_rule'),
+  statementLayout('statement_layout'),
+  newLoan('new_loan'),
+  debtEntry('debt_entry');
+
+  const AgentSuggestionKind(this.storageValue);
+  final String storageValue;
+
+  static AgentSuggestionKind fromStorage(String value) =>
+      values.firstWhere((kind) => kind.storageValue == value);
+}
+
+enum AgentSuggestionStatus { pending, applied, rejected, undone }
+
+class AgentSuggestion {
+  const AgentSuggestion({
+    required this.id,
+    required this.batchId,
+    required this.kind,
+    required this.target,
+    required this.payload,
+    required this.before,
+    required this.summary,
+    required this.detail,
+    required this.reason,
+    required this.status,
+    required this.error,
+    required this.createdAt,
+    required this.decidedAt,
+  });
+  final int id;
+
+  /// Suggestions made by one tool call share a batch.
+  final String batchId;
+  final AgentSuggestionKind kind;
+
+  /// What it changes: an SMS fingerprint, a transaction id, or a new
+  /// category's identity. A newer suggestion for the same target replaces a
+  /// pending older one.
+  final String target;
+  final Map<String, Object?> payload;
+
+  /// The fields' values when it was suggested, for display and undo.
+  final Map<String, Object?>? before;
+
+  /// One line naming what it is about, and one line per changed field.
+  final String summary;
+  final List<String> detail;
+
+  /// Why the AI app suggested it, in its own words.
+  final String? reason;
+  final AgentSuggestionStatus status;
+
+  /// Why the last attempt to apply it failed. It stays pending so the user
+  /// can try again (after approving a category it needs, say) or reject it.
+  final String? error;
+  final DateTime createdAt;
+  final DateTime? decidedAt;
+
+  /// An edit to a saved transaction can be put back, an SMS rule taken out
+  /// (what it already imported stays), and a loan or debt entry taken back.
+  /// A category may already be in use, and a reviewed SMS is already in the
+  /// ledger.
+  bool get canUndo =>
+      status == AgentSuggestionStatus.applied &&
+      (kind == AgentSuggestionKind.transactionEdit ||
+          kind == AgentSuggestionKind.parserRule ||
+          kind == AgentSuggestionKind.statementLayout ||
+          kind == AgentSuggestionKind.newLoan ||
+          kind == AgentSuggestionKind.debtEntry);
+}
+
+class AgentSuggestionDraft {
+  const AgentSuggestionDraft({
+    required this.kind,
+    required this.target,
+    required this.payload,
+    this.before,
+    required this.summary,
+    required this.detail,
+    this.reason,
+  });
+  final AgentSuggestionKind kind;
+  final String target;
+  final Map<String, Object?> payload;
+  final Map<String, Object?>? before;
+  final String summary;
+  final List<String> detail;
+  final String? reason;
+}
+
+/// The message to show for a failed suggestion or tool call. Repositories
+/// throw [StateError] and [ArgumentError] with user-facing text.
+String describeAgentError(Object error) => switch (error) {
+  StateError(:final message) => message,
+  ArgumentError(:final message) => '$message',
+  _ => 'Something went wrong. Try again.',
+};
+
+class AgentSuggestionRepository {
+  AgentSuggestionRepository(this.database);
+  final AppDatabase database;
+
+  /// How long approved and rejected suggestions stay visible.
+  static const _history = Duration(days: 30);
+
+  late final AgentLoans _loans = AgentLoans(database);
+
+  // ── Preparing: check against the ledger as it is now, and describe. ──
+
+  Future<AgentSuggestionDraft> prepareNewCategory({
+    required String name,
+    required CategoryType type,
+    int? parentId,
+    String? parentName,
+    String? icon,
+    String? reason,
+  }) async {
+    final clean = name.trim();
+    if (clean.isEmpty || clean.length > 40) {
+      throw ArgumentError('A category name must be 1–40 characters.');
+    }
+    if (type == CategoryType.debtLoan) {
+      throw ArgumentError('Only expense and income categories can be added.');
+    }
+    final categories = await CategoryRepository(database).load();
+    final parent = parentId == null && parentName == null
+        ? null
+        : _parent(categories, type, parentId, parentName);
+    if (categories.any(
+      (c) =>
+          c.type == type &&
+          c.parentId == parent?.id &&
+          c.name.toLowerCase() == clean.toLowerCase(),
+    )) {
+      throw ArgumentError('“$clean” already exists; use its id.');
+    }
+    return AgentSuggestionDraft(
+      kind: AgentSuggestionKind.newCategory,
+      target: jsonEncode([type.storageValue, parent?.id, clean.toLowerCase()]),
+      payload: {
+        'name': clean,
+        'type': type.storageValue,
+        'parentId': parent?.id,
+        'icon': appIconKeys.contains(icon) ? icon : null,
+      },
+      summary: 'New ${type.label.toLowerCase()} category',
+      detail: [parent == null ? clean : '${parent.name} › $clean'],
+      reason: _reason(reason),
+    );
+  }
+
+  /// [categoryName] may name a category that a pending suggestion adds; it
+  /// then needs approving first.
+  Future<AgentSuggestionDraft> prepareSmsCorrection({
+    required String smsId,
+    int? accountId,
+    int? categoryId,
+    String? categoryName,
+    bool dismiss = false,
+    String? reason,
+  }) async {
+    final row = await database
+        .customSelect(
+          '''SELECT i.sender, i.body, i.received_at,
+            coalesce(r.candidate, i.candidate) AS candidate,
+            coalesce(r.account_id, r.to_account_id) AS account_id,
+            r.category_id
+          FROM sms_imports i
+          LEFT JOIN sms_review r ON r.fingerprint = i.fingerprint
+          WHERE i.fingerprint = ? AND i.status = 'pending' ''',
+          variables: [Variable(smsId)],
+        )
+        .getSingleOrNull();
+    if (row == null) {
+      throw ArgumentError('No message waiting for review has id $smsId.');
+    }
+    final sms = PendingSmsImport(
+      id: smsId,
+      sender: row.read<String>('sender'),
+      body: row.readNullable<String>('body') ?? '',
+      data: Map<String, dynamic>.from(
+        jsonDecode(row.read<String>('candidate')) as Map,
+      ),
+      receivedAt: DateTime.fromMillisecondsSinceEpoch(
+        row.read<int>('received_at'),
+      ),
+    );
+    final summary =
+        '${formatAccountMoney(sms.amountMinor, digits: 2, currency: sms.currency)}'
+        ' ${sms.credit ? 'received' : 'spent'} · ${sms.title}'
+        ' · ${_day(sms.receivedAt)}';
+    if (dismiss) {
+      return AgentSuggestionDraft(
+        kind: AgentSuggestionKind.smsCorrection,
+        target: smsId,
+        payload: const {'dismiss': true},
+        summary: summary,
+        detail: const ['Dismiss: not a transaction'],
+        reason: _reason(reason),
+      );
+    }
+    if (accountId == null && categoryId == null && categoryName == null) {
+      throw ArgumentError('Give an account, a category, or dismiss.');
+    }
+    final accounts = await AccountRepository(database).load();
+    final categories = await CategoryRepository(database).load();
+    final payload = <String, Object?>{};
+    final detail = <String>[];
+    final oldAccount = row.readNullable<int>('account_id');
+    final oldCategory = row.readNullable<int>('category_id');
+    if (accountId != null) {
+      final account = _smsAccount(accounts, accountId, sms);
+      if (account.id != oldAccount) {
+        payload['accountId'] = account.id;
+        detail.add(
+          'Account: ${_accountName(accounts, oldAccount)} → ${account.name}',
+        );
+      }
+    }
+    if (categoryId != null || categoryName != null) {
+      if (sms.requiresTransfer) {
+        throw ArgumentError(
+          'This message is a transfer between accounts, so it has no category.',
+        );
+      }
+      final choice = await _categoryChoice(
+        categories,
+        sms.credit ? CategoryType.income : CategoryType.expense,
+        categoryId,
+        categoryName,
+      );
+      if (choice.id == null || choice.id != oldCategory) {
+        payload.addAll(choice.payload);
+        detail.add(
+          'Category: ${_categoryPath(categories, oldCategory)} → ${choice.label}',
+        );
+      }
+    }
+    if (payload.isEmpty) throw ArgumentError('Nothing would change.');
+    return AgentSuggestionDraft(
+      kind: AgentSuggestionKind.smsCorrection,
+      target: smsId,
+      payload: payload,
+      before: {'accountId': oldAccount, 'categoryId': oldCategory},
+      summary: summary,
+      detail: detail,
+      reason: _reason(reason),
+    );
+  }
+
+  Future<AgentSuggestionDraft> prepareTransactionEdit({
+    required int transactionId,
+    int? categoryId,
+    String? categoryName,
+    int? accountId,
+    String? title,
+    String? note,
+    String? reason,
+  }) async {
+    final current = await _transaction(transactionId);
+    final accounts = await AccountRepository(database).load();
+    final categories = await CategoryRepository(database).load();
+    final transfer = current.type == TransactionType.transfer;
+    if (transfer &&
+        (categoryId != null ||
+            categoryName != null ||
+            accountId != null ||
+            title != null)) {
+      throw ArgumentError(
+        'A transfer has no category or title, and its accounts can only be '
+        'changed in the app. Only its note can be suggested.',
+      );
+    }
+    final locks =
+        (await TransactionRepository(database).link(transactionId))?.locks ??
+        const TransactionLocks();
+    final payload = <String, Object?>{};
+    final before = <String, Object?>{};
+    final detail = <String>[];
+    if (categoryId != null || categoryName != null) {
+      final choice = await _categoryChoice(
+        categories,
+        current.type == TransactionType.income
+            ? CategoryType.income
+            : CategoryType.expense,
+        categoryId,
+        categoryName,
+      );
+      if (choice.id == null || choice.id != current.categoryId) {
+        if (locks.category) throw ArgumentError(_managed);
+        payload.addAll(choice.payload);
+        before['categoryId'] = current.categoryId;
+        detail.add(
+          'Category: ${_categoryPath(categories, current.categoryId)} → ${choice.label}',
+        );
+      }
+    }
+    if (accountId != null && accountId != current.accountId) {
+      if (locks.accounts) throw ArgumentError(_managed);
+      final account = _sameCurrencyAccount(accounts, accountId, current);
+      payload['accountId'] = account.id;
+      before['accountId'] = current.accountId;
+      detail.add(
+        'Account: ${_accountName(accounts, current.accountId)} → ${account.name}',
+      );
+    }
+    if (title != null) {
+      final clean = title.trim();
+      if (clean.length > 80) {
+        throw ArgumentError('Keep the title to 80 characters.');
+      }
+      if (clean != (current.title ?? '')) {
+        payload['title'] = clean.isEmpty ? null : clean;
+        before['title'] = current.title;
+        detail.add(
+          'Title: ${current.title ?? '—'} → ${clean.isEmpty ? '—' : clean}',
+        );
+      }
+    }
+    if (note != null && note.trim() != (current.note ?? '').trim()) {
+      final clean = note.trim();
+      payload['note'] = clean.isEmpty ? null : clean;
+      before['note'] = current.note;
+      detail.add('Note: ${clean.isEmpty ? 'removed' : 'updated'}');
+    }
+    if (payload.isEmpty) throw ArgumentError('Nothing would change.');
+    final account = accounts.firstWhere((a) => a.id == current.accountId);
+    return AgentSuggestionDraft(
+      kind: AgentSuggestionKind.transactionEdit,
+      target: '$transactionId',
+      payload: payload,
+      before: before,
+      summary:
+          '${formatAccountMoney(current.amountMinor, digits: account.digits, currency: account.currency)}'
+          ' · ${current.title ?? _categoryPath(categories, current.categoryId)}'
+          ' · ${_day(current.date)}',
+      detail: detail,
+      reason: _reason(reason),
+    );
+  }
+
+  // ── Storing and reading. ──
+
+  /// Stores [drafts] as one batch and returns its id. Each replaces any
+  /// pending suggestion for the same target.
+  Future<String> add(List<AgentSuggestionDraft> drafts) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final batchId = now.toRadixString(36);
+    await database.transaction(() async {
+      for (final draft in drafts) {
+        await database.customStatement(
+          "DELETE FROM agent_suggestions WHERE kind = ? AND target = ? AND status = 'pending'",
+          [draft.kind.storageValue, draft.target],
+        );
+        await database.customStatement(
+          '''INSERT INTO agent_suggestions
+          (batch_id, kind, target, payload, before, summary, detail, reason, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+          [
+            batchId,
+            draft.kind.storageValue,
+            draft.target,
+            jsonEncode(draft.payload),
+            draft.before == null ? null : jsonEncode(draft.before),
+            draft.summary,
+            draft.detail.join('\n'),
+            draft.reason,
+            now,
+          ],
+        );
+      }
+    });
+    return batchId;
+  }
+
+  /// Pending suggestions first (new categories ahead of what may need them),
+  /// then recent decisions, newest first.
+  Future<List<AgentSuggestion>> load({
+    Set<AgentSuggestionStatus>? statuses,
+    int limit = 200,
+  }) async {
+    await _tidy();
+    final names = (statuses ?? AgentSuggestionStatus.values.toSet())
+        .map((s) => "'${s.name}'")
+        .join(',');
+    final rows = await database
+        .customSelect(
+          '''SELECT * FROM agent_suggestions WHERE status IN ($names)
+          ORDER BY status != 'pending', kind != 'new_category',
+            coalesce(decided_at, created_at) DESC, id
+          LIMIT ?''',
+          variables: [Variable(limit)],
+        )
+        .get();
+    return [
+      for (final r in rows)
+        AgentSuggestion(
+          id: r.read<int>('id'),
+          batchId: r.read<String>('batch_id'),
+          kind: AgentSuggestionKind.fromStorage(r.read<String>('kind')),
+          target: r.read<String>('target'),
+          payload: Map<String, Object?>.from(
+            jsonDecode(r.read<String>('payload')) as Map,
+          ),
+          before: switch (r.readNullable<String>('before')) {
+            final json? => Map<String, Object?>.from(jsonDecode(json) as Map),
+            null => null,
+          },
+          summary: r.read<String>('summary'),
+          detail: r.read<String>('detail').split('\n'),
+          reason: r.readNullable<String>('reason'),
+          status: AgentSuggestionStatus.values.byName(r.read<String>('status')),
+          error: r.readNullable<String>('error'),
+          createdAt: DateTime.fromMillisecondsSinceEpoch(
+            r.read<int>('created_at'),
+          ),
+          decidedAt: switch (r.readNullable<int>('decided_at')) {
+            final at? => DateTime.fromMillisecondsSinceEpoch(at),
+            null => null,
+          },
+        ),
+    ];
+  }
+
+  Future<int> pendingCount() async {
+    await _tidy();
+    return (await database
+            .customSelect(
+              "SELECT COUNT(*) AS n FROM agent_suggestions WHERE status = 'pending'",
+            )
+            .getSingle())
+        .read<int>('n');
+  }
+
+  /// A message the user reviewed themselves no longer needs its suggestion,
+  /// and old decisions are forgotten.
+  Future<void> _tidy() async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await database.customStatement(
+      '''UPDATE agent_suggestions
+      SET status = 'rejected', decided_at = ?, error = 'You reviewed this message yourself.'
+      WHERE kind = 'sms_correction' AND status = 'pending'
+        AND target NOT IN (SELECT fingerprint FROM sms_imports WHERE status = 'pending')''',
+      [now],
+    );
+    await database.customStatement(
+      "DELETE FROM agent_suggestions WHERE status != 'pending' AND decided_at < ?",
+      [now - _history.inMilliseconds],
+    );
+  }
+
+  // ── Deciding. ──
+
+  /// Applies one pending suggestion, or a rejected or undone one the user
+  /// has come back to. Returns why it failed, or null. A failed suggestion
+  /// stays as it was, with its error.
+  Future<String?> apply(int id) async {
+    try {
+      await database.transaction(() async {
+        final suggestion = await _pending(id);
+        switch (suggestion.kind) {
+          case AgentSuggestionKind.newCategory:
+            await _applyNewCategory(suggestion.payload);
+          case AgentSuggestionKind.smsCorrection:
+            await _applySmsCorrection(suggestion.target, suggestion.payload);
+          case AgentSuggestionKind.transactionEdit:
+            await _applyTransactionEdit(
+              int.parse(suggestion.target),
+              suggestion.payload,
+            );
+          case AgentSuggestionKind.parserRule:
+            final p = suggestion.payload;
+            final ruleId = await UserSmsRuleRepository(database).add(
+              bankName: p['bankName'] as String,
+              senders: (p['senders'] as List).cast(),
+              format: Map<String, dynamic>.from(p['format'] as Map),
+              samples: (p['samples'] as List).cast(),
+            );
+            // Undo removes this rule.
+            await database.customStatement(
+              'UPDATE agent_suggestions SET before = ? WHERE id = ?',
+              [
+                jsonEncode({'ruleId': ruleId}),
+                id,
+              ],
+            );
+          case AgentSuggestionKind.statementLayout:
+            final p = suggestion.payload;
+            final signature = p['signature'] as String;
+            final layouts = StatementImportRepository(database);
+            final previous = (await layouts.columnMappings())[signature];
+            await layouts.saveColumnMapping(signature, p['mapping'] as Object);
+            await StatementSampleRepository().remove(signature);
+            // Undo puts back what this layout was read with before.
+            await database.customStatement(
+              'UPDATE agent_suggestions SET before = ? WHERE id = ?',
+              [
+                jsonEncode({'signature': signature, 'previous': previous}),
+                id,
+              ],
+            );
+          case AgentSuggestionKind.newLoan:
+            await _keepForUndo(id, await _loans.applyLoan(suggestion.payload));
+          case AgentSuggestionKind.debtEntry:
+            await _keepForUndo(
+              id,
+              await _loans.applyDebtEntry(suggestion.payload),
+            );
+        }
+        await _decide(id, AgentSuggestionStatus.applied);
+      });
+      return null;
+    } catch (error) {
+      final message = describeAgentError(error);
+      await database.customStatement(
+        "UPDATE agent_suggestions SET error = ? WHERE id = ? AND status IN ('pending', 'rejected', 'undone')",
+        [message, id],
+      );
+      return message;
+    }
+  }
+
+  /// Applies every pending suggestion, new categories first so the changes
+  /// that use them find them. Returns how many applied and how many failed.
+  Future<(int, int)> applyAll() async {
+    var applied = 0, failed = 0;
+    for (final suggestion in await load(
+      statuses: {AgentSuggestionStatus.pending},
+      limit: -1,
+    )) {
+      if (await apply(suggestion.id) == null) {
+        applied++;
+      } else {
+        failed++;
+      }
+    }
+    return (applied, failed);
+  }
+
+  /// Whether the payments a suggested loan found no transaction for come out
+  /// of its paying account, or only count towards the loan — the same choice
+  /// as "Update account balance" on a past debt. Kept on the suggestion, so
+  /// approving all follows it too.
+  Future<void> setUpdatesBalance(int id, bool on) async {
+    final row = await database
+        .customSelect(
+          "SELECT payload, detail FROM agent_suggestions WHERE id = ? AND kind = 'new_loan' AND status = 'pending'",
+          variables: [Variable(id)],
+        )
+        .getSingleOrNull();
+    if (row == null) return;
+    final payload = Map<String, Object?>.from(
+      jsonDecode(row.read<String>('payload')) as Map,
+    );
+    for (final payment in payload['payments'] as List) {
+      final p = payment as Map;
+      if (p['transactionId'] == null) p['offLedger'] = !on;
+    }
+    final adds = '→ adds to ${payload['paidFrom']}';
+    const counted = '→ counted as paid';
+    final detail = row.read<String>('detail');
+    await database.customStatement(
+      'UPDATE agent_suggestions SET payload = ?, detail = ? WHERE id = ?',
+      [
+        jsonEncode(payload),
+        on ? detail.replaceAll(counted, adds) : detail.replaceAll(adds, counted),
+        id,
+      ],
+    );
+  }
+
+  Future<void> reject(int id) => database.customStatement(
+    "UPDATE agent_suggestions SET status = 'rejected', decided_at = ? WHERE id = ? AND status = 'pending'",
+    [DateTime.now().millisecondsSinceEpoch, id],
+  );
+
+  Future<void> rejectAll() => database.customStatement(
+    "UPDATE agent_suggestions SET status = 'rejected', decided_at = ? WHERE status = 'pending'",
+    [DateTime.now().millisecondsSinceEpoch],
+  );
+
+  /// Puts back the fields an applied transaction edit changed, or takes back
+  /// an applied SMS rule, loan or debt entry.
+  Future<String?> undo(int id) async {
+    try {
+      await database.transaction(() async {
+        final row = await database
+            .customSelect(
+              "SELECT kind, target, before FROM agent_suggestions WHERE id = ? AND status = 'applied' AND kind IN ('transaction_edit', 'parser_rule', 'statement_layout', 'new_loan', 'debt_entry')",
+              variables: [Variable(id)],
+            )
+            .getSingleOrNull();
+        if (row == null) throw StateError('This change can’t be undone.');
+        final before = Map<String, Object?>.from(
+          jsonDecode(row.read<String>('before')) as Map,
+        );
+        if (row.read<String>('kind') == 'new_loan') {
+          await _loans.undoLoan(before);
+        } else if (row.read<String>('kind') == 'debt_entry') {
+          await _loans.undoDebtEntry(before);
+        } else if (row.read<String>('kind') == 'parser_rule') {
+          await UserSmsRuleRepository(database).delete(before['ruleId'] as int);
+        } else if (row.read<String>('kind') == 'statement_layout') {
+          await StatementImportRepository(database).restoreColumnMapping(
+            before['signature'] as String,
+            before['previous'],
+          );
+        } else {
+          await _applyTransactionEdit(
+            int.parse(row.read<String>('target')),
+            before,
+          );
+        }
+        await _decide(id, AgentSuggestionStatus.undone);
+      });
+      return null;
+    } catch (error) {
+      return describeAgentError(error);
+    }
+  }
+
+  Future<AgentSuggestion> _pending(int id) async {
+    final match = (await load(
+      statuses: {
+        AgentSuggestionStatus.pending,
+        AgentSuggestionStatus.rejected,
+        AgentSuggestionStatus.undone,
+      },
+      limit: -1,
+    )).where((s) => s.id == id).firstOrNull;
+    if (match == null) throw StateError('This suggestion was already decided.');
+    return match;
+  }
+
+  Future<void> _keepForUndo(int id, Map<String, Object?> before) =>
+      database.customStatement(
+        'UPDATE agent_suggestions SET before = ? WHERE id = ?',
+        [jsonEncode(before), id],
+      );
+
+  Future<void> _decide(int id, AgentSuggestionStatus status) =>
+      database.customStatement(
+        'UPDATE agent_suggestions SET status = ?, decided_at = ?, error = NULL WHERE id = ?',
+        [status.name, DateTime.now().millisecondsSinceEpoch, id],
+      );
+
+  Future<void> _applyNewCategory(Map<String, Object?> payload) async {
+    final type = CategoryTypeStorage.fromStorage(payload['type'] as String);
+    final name = payload['name'] as String;
+    final parentId = payload['parentId'] as int?;
+    final repository = CategoryRepository(database);
+    // Added by hand since: nothing left to do.
+    if ((await repository.load()).any(
+      (c) =>
+          c.type == type &&
+          c.parentId == parentId &&
+          c.name.toLowerCase() == name.toLowerCase(),
+    )) {
+      return;
+    }
+    await repository.save(
+      name: name,
+      type: type,
+      parentId: parentId,
+      icon: payload['icon'] as String?,
+    );
+  }
+
+  Future<void> _applySmsCorrection(
+    String smsId,
+    Map<String, Object?> payload,
+  ) async {
+    final imports = SmsImportRepository(database);
+    final row = await database
+        .customSelect(
+          "SELECT candidate FROM sms_imports WHERE fingerprint = ? AND status = 'pending'",
+          variables: [Variable(smsId)],
+        )
+        .getSingleOrNull();
+    if (row == null) {
+      throw StateError('This message has already been reviewed.');
+    }
+    if (payload['dismiss'] == true) {
+      await imports.dismiss(smsId);
+      return;
+    }
+    if (payload['accountId'] case final int accountId) {
+      await imports.assignAccounts({smsId}, accountId);
+    }
+    if (payload.containsKey('categoryId') ||
+        payload.containsKey('categoryName')) {
+      final sms = PendingSmsImport(
+        id: smsId,
+        sender: '',
+        body: '',
+        data: Map<String, dynamic>.from(
+          jsonDecode(row.read<String>('candidate')) as Map,
+        ),
+        receivedAt: DateTime.now(),
+      );
+      if (sms.requiresTransfer) {
+        throw StateError('This message is a transfer, so it has no category.');
+      }
+      final category = await _resolveCategory(
+        sms.credit ? CategoryType.income : CategoryType.expense,
+        payload,
+      );
+      await database.customStatement(
+        "UPDATE sms_imports SET candidate = json_set(candidate, '\$.assignedCategoryId', ?) WHERE fingerprint = ?",
+        [category.id, smsId],
+      );
+    }
+    // The review index rebuilds this row from the saved choices.
+    await database.customStatement(
+      'DELETE FROM sms_review WHERE fingerprint = ?',
+      [smsId],
+    );
+  }
+
+  Future<void> _applyTransactionEdit(
+    int id,
+    Map<String, Object?> payload,
+  ) async {
+    final current = await _transaction(id);
+    var categoryId = current.categoryId;
+    if (payload.containsKey('categoryId') ||
+        payload.containsKey('categoryName')) {
+      categoryId = (await _resolveCategory(
+        current.type == TransactionType.income
+            ? CategoryType.income
+            : CategoryType.expense,
+        payload,
+      )).id;
+    }
+    var accountId = current.accountId;
+    if (payload['accountId'] case final int next when next != accountId) {
+      accountId = _sameCurrencyAccount(
+        await AccountRepository(database).load(),
+        next,
+        current,
+      ).id;
+    }
+    await TransactionRepository(database).edit(
+      id: id,
+      type: current.type,
+      amountMinor: current.amountMinor,
+      accountId: accountId,
+      toAccountId: current.toAccountId,
+      categoryId: categoryId,
+      title: payload.containsKey('title')
+          ? payload['title'] as String?
+          : current.title,
+      note: payload.containsKey('note')
+          ? payload['note'] as String?
+          : current.note,
+      date: current.date,
+    );
+  }
+
+  // ── Shared checks. ──
+
+  static const _managed =
+      'Part of this transaction is managed by its loan, debt or subscription. '
+      'Change it from there.';
+
+  Future<MoneyTransaction> _transaction(int id) async {
+    final r = await database
+        .customSelect(
+          'SELECT * FROM transactions WHERE id = ?',
+          variables: [Variable(id)],
+        )
+        .getSingleOrNull();
+    if (r == null) throw ArgumentError('No transaction has id $id.');
+    return MoneyTransaction(
+      id: id,
+      type: TransactionTypeStorage.fromStorage(r.read<String>('type')),
+      amountMinor: r.read<int>('amount_minor'),
+      accountId: r.read<int>('account_id'),
+      toAccountId: r.readNullable<int>('to_account_id'),
+      toAmountMinor: r.readNullable<int>('to_amount_minor'),
+      categoryId: r.readNullable<int>('category_id'),
+      title: r.readNullable<String>('title'),
+      note: r.readNullable<String>('note'),
+      date: DateTime.fromMillisecondsSinceEpoch(r.read<int>('date')),
+    );
+  }
+
+  /// The same rules as assigning a message's account by hand.
+  Account _smsAccount(List<Account> accounts, int id, PendingSmsImport sms) {
+    final account = accounts.where((a) => a.id == id).firstOrNull;
+    if (account == null ||
+        account.isArchived ||
+        account.type == AccountType.cash) {
+      throw ArgumentError('Account $id isn’t an active bank account or card.');
+    }
+    if (account.currency != sms.currency ||
+        account.digits != 2 ||
+        (sms.creditCard && account.type != AccountType.creditCard)) {
+      throw ArgumentError(
+        '${account.name} doesn’t match this message’s currency or account type.',
+      );
+    }
+    return account;
+  }
+
+  /// A transaction stores no currency of its own, so moving it to an account
+  /// in another currency would change what its amount means.
+  Account _sameCurrencyAccount(
+    List<Account> accounts,
+    int id,
+    MoneyTransaction transaction,
+  ) {
+    final from = accounts.firstWhere((a) => a.id == transaction.accountId);
+    final account = accounts.where((a) => a.id == id).firstOrNull;
+    if (account == null || account.isArchived) {
+      throw ArgumentError('Account $id isn’t an active account.');
+    }
+    if (account.currency != from.currency || account.digits != from.digits) {
+      throw ArgumentError(
+        '${account.name} uses a different currency from ${from.name}.',
+      );
+    }
+    return account;
+  }
+
+  Category _parent(
+    List<Category> categories,
+    CategoryType type,
+    int? id,
+    String? name,
+  ) {
+    final matches = categories.where(
+      (c) =>
+          c.type == type &&
+          c.parentId == null &&
+          (id != null
+              ? c.id == id
+              : c.name.toLowerCase() == name!.trim().toLowerCase()),
+    );
+    if (matches.isEmpty) {
+      throw ArgumentError(
+        'The parent must be a top-level ${type.label.toLowerCase()} category.',
+      );
+    }
+    return matches.first;
+  }
+
+  /// A category by id, or by name ("Swiggy" or "Food › Swiggy"). A name no
+  /// category has yet may belong to a pending new-category suggestion.
+  Future<({int? id, String label, Map<String, Object?> payload})>
+  _categoryChoice(
+    List<Category> categories,
+    CategoryType type,
+    int? id,
+    String? name,
+  ) async {
+    if (id != null) {
+      final category = categories.where((c) => c.id == id).firstOrNull;
+      if (category == null || category.type != type) {
+        throw ArgumentError(
+          'Category $id isn’t ${type == CategoryType.income ? 'an income' : 'an expense'} category.',
+        );
+      }
+      return (
+        id: id,
+        label: _categoryPath(categories, id),
+        payload: <String, Object?>{'categoryId': id},
+      );
+    }
+    final found = _byName(categories, type, name!);
+    if (found != null) {
+      return (
+        id: found.id,
+        label: _categoryPath(categories, found.id),
+        payload: <String, Object?>{'categoryId': found.id},
+      );
+    }
+    final pending = await database
+        .customSelect(
+          "SELECT payload FROM agent_suggestions WHERE kind = 'new_category' AND status = 'pending'",
+        )
+        .get();
+    final leaf = _leafName(name);
+    final waiting = pending.any((r) {
+      final p = jsonDecode(r.read<String>('payload')) as Map;
+      return p['type'] == type.storageValue &&
+          (p['name'] as String).toLowerCase() == leaf.toLowerCase();
+    });
+    if (!waiting) {
+      throw ArgumentError(
+        'No ${type.label.toLowerCase()} category is called “$name”. '
+        'Suggest it as a new category first.',
+      );
+    }
+    return (
+      id: null,
+      label: '$leaf (new)',
+      payload: <String, Object?>{
+        'categoryName': leaf,
+        'categoryType': type.storageValue,
+      },
+    );
+  }
+
+  Future<Category> _resolveCategory(
+    CategoryType type,
+    Map<String, Object?> payload,
+  ) async {
+    final categories = await CategoryRepository(database).load();
+    if (payload['categoryId'] case final int id) {
+      final category = categories.where((c) => c.id == id).firstOrNull;
+      if (category == null || category.type != type) {
+        throw StateError('That category no longer exists.');
+      }
+      return category;
+    }
+    final name = payload['categoryName'] as String;
+    return _byName(categories, type, name) ??
+        (throw StateError('Approve the new category “$name” first.'));
+  }
+
+  static Category? _byName(
+    List<Category> categories,
+    CategoryType type,
+    String name,
+  ) {
+    final parts = name
+        .split(RegExp(r'\s*[›>/]\s*'))
+        .map((p) => p.trim().toLowerCase())
+        .where((p) => p.isNotEmpty)
+        .toList();
+    if (parts.isEmpty) return null;
+    final matches = categories.where((c) {
+      if (c.type != type || c.name.toLowerCase() != parts.last) return false;
+      if (parts.length == 1) return true;
+      final parent = categories.where((p) => p.id == c.parentId).firstOrNull;
+      return parent?.name.toLowerCase() == parts[parts.length - 2];
+    }).toList();
+    if (matches.length > 1) {
+      throw ArgumentError(
+        'Several categories are called “$name”; use the category id.',
+      );
+    }
+    return matches.firstOrNull;
+  }
+
+  static String _leafName(String name) =>
+      name.split(RegExp(r'\s*[›>/]\s*')).last.trim();
+
+  static String _categoryPath(List<Category> categories, int? id) {
+    final category = categories.where((c) => c.id == id).firstOrNull;
+    if (category == null) return '—';
+    final parent = categories
+        .where((c) => c.id == category.parentId)
+        .firstOrNull;
+    return parent == null ? category.name : '${parent.name} › ${category.name}';
+  }
+
+  static String _accountName(List<Account> accounts, int? id) =>
+      accounts.where((a) => a.id == id).firstOrNull?.name ?? '—';
+
+  static String _day(DateTime date) => DateFormat('d MMM yyyy').format(date);
+
+  static String? _reason(String? reason) {
+    final clean = reason?.trim() ?? '';
+    if (clean.isEmpty) return null;
+    return clean.length > 280 ? '${clean.substring(0, 279)}…' : clean;
+  }
+}

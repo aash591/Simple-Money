@@ -1,0 +1,380 @@
+[
+  {
+    "id": "pnb-variables-001",
+    "country": "IN",
+    "bankId": "in.pnb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-PNBSMS-S",
+      "body": "Ac XX9988 Debited with Rs.321.09, 02-DEC-2027 11:22:33. Aval Bal Rs.9876.54 CR. Helpline 9876.54/9876.54-PNB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.pnb.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Punjab National Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "pnb-variables-002",
+    "country": "IN",
+    "bankId": "in.pnb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-PNBSMS-S",
+      "body": "A/c XX9988 debited with Rs.321.09,02-DEC-2027 11:22:33 thru MIGRATIONSHOP . Out of 9876.54 free txn on PNB ATM, you utilized 9876.54 txn. Chrgs applicable as per policy. Bal 9876.54 CR. If not done, fwd SMS to 9876.54 to block card/call 9876.54/9876.54-PNB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.pnb.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Punjab National Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "pnb-variables-003",
+    "country": "IN",
+    "bankId": "in.pnb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VA-PNBSMS-S",
+      "body": "Ac XX9988 Debited with Rs.321.09, 02-DEC-2027 11:22:33. Aval Bal Rs.9876.54 CR. Helpline 9876.54/9876.54-PNB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.pnb.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Punjab National Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "pnb-variables-004",
+    "country": "IN",
+    "bankId": "in.pnb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VK-PNBSMS-S",
+      "body": "Ac XXXXXXXX00349988 Debited with Rs.321.09, 02-DEC-2027 11:22:33. Aval Bal Rs.9876.54 CR. Helpline 9876.54/9876.54-PNB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.pnb.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Punjab National Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "pnb-variables-005",
+    "country": "IN",
+    "bankId": "in.pnb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-PNBSMS-S",
+      "body": "Dear Customer, auto pay facility has been successfully activated on your Punjab National Bank Card XX9988 for Rs. 9876.54, from MIGRATIONSHOP. An initial amount of Rs. 321.09 has been debited from your account. Google Clouds can initiate subsequent transactions for a max amount upto Rs. 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.pnb.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Punjab National Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "pnb-variables-006",
+    "country": "IN",
+    "bankId": "in.pnb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-PNBSMS-S",
+      "body": "Your a/c no XX9988 is debited for Rs 321.09 on 02-DEC-2027 11:22:33 and a/c XX456 credited (IMPS Ref no MIG123456) .If not done by you, pl. forward this SMS from registered mobile to 9876.54 to report unauthorized txn & block IBS/MBS. Download PNB ONE.-PNB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.pnb.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Punjab National Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "IMPS Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "pnb-variables-007",
+    "country": "IN",
+    "bankId": "in.pnb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-PNBSMS-S",
+      "body": "Your a/c no XX988 is debited for Rs 321.09 on 02-DEC-2027 11:22:33 and a/c XX291 credited (IMPS Ref no MIG123456) .If not done by you, pl. forward this SMS from registered mobile to 9876.54 to report unauthorized txn & block IBS/MBS. Download PNB ONE.-PNB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.pnb.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Punjab National Bank",
+        "countryCode": "IN",
+        "accountLast4": "988",
+        "reference": "MIG123456",
+        "counterparty": "IMPS Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "pnb-variables-008",
+    "country": "IN",
+    "bankId": "in.pnb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-PNBSMS-S",
+      "body": "Your a/c no XX988 is debited for Rs 321.09 on 02-DEC-2027 11:22:33 and a/c XX583 credited (IMPS Ref no MIG123456) .If not done by you, pl. forward this SMS from registered mobile to 9876.54 to report unauthorized txn & block IBS/MBS. Download PNB ONE.-PNB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.pnb.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Punjab National Bank",
+        "countryCode": "IN",
+        "accountLast4": "988",
+        "reference": "MIG123456",
+        "counterparty": "IMPS Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "pnb-variables-009",
+    "country": "IN",
+    "bankId": "in.pnb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-PNBSMS-S",
+      "body": "Ac XX9988 Credited with Rs.321.09 02-DEC-2027 11:22:33 thru UPI . Aval Bal Rs.9876.54 CR. (UPI Ref ID:MIG123456) Helpline 9876.54/9876.54-PNB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.pnb.template009",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Punjab National Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "UPI Transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

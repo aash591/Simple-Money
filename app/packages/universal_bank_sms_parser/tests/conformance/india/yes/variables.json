@@ -1,0 +1,164 @@
+[
+  {
+    "id": "yes-variables-001",
+    "country": "IN",
+    "bankId": "in.yes",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CP-YESBNK-S",
+      "body": "INR 321.09 spent on YES BANK Card X9988 @metadatavalue N S FUEL PORT 02-DEC-2027 11:22:33. Avl Lmt INR 9876.54. SMS BLKCC 9876.54 to 9876.54 if not you",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.yes.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Yes Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "C N S FUEL PORT",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "fuel",
+          "name": "Fuel",
+          "type": "expense",
+          "ruleId": "in.category.fuel",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "yes-variables-002",
+    "country": "IN",
+    "bankId": "in.yes",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-YESBNK-S",
+      "body": "INR 321.09 spent on YES BANK Card X9988 @metadatavalue B ENTERPRISES 02-DEC-2027 11:22:33. Avl Lmt INR 9876.54. SMS BLKCC 9876.54 to 9876.54 if not you",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.yes.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Yes Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "S B ENTERPRISES",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping_generic",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "yes-variables-003",
+    "country": "IN",
+    "bankId": "in.yes",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "JX-YESBNK-S",
+      "body": "INR 321.09 spent on YES BANK Card X9988 @metadatavalue AKRAM 02-DEC-2027 11:22:33. Avl Lmt INR 9876.54. SMS BLKCC 9876.54 to 9876.54 if not you",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.yes.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Yes Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MOHAMMED AKRAM",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "yes-variables-004",
+    "country": "IN",
+    "bankId": "in.yes",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CP-YESBNK-S",
+      "body": "INR 321.09 spent on YES BANK Card X9988 @metadatavalue HEALTHCA 02-DEC-2027 11:22:33. Avl Lmt INR 9876.54. SMS BLKCC 9876.54 to 9876.54 if not you",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.yes.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Yes Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "SURAKSHAA HEALTHCA",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

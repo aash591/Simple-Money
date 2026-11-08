@@ -1,0 +1,289 @@
+[
+  {
+    "id": "bandhan-ported-001",
+    "country": "IN",
+    "bankId": "in.bandhan",
+    "provenance": "Legacy Dart regression: india_bandhan_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "INR 180.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123013240123/Amazon Pa Value 16-NOV-2025 . Clear Bal is INR 9999.99. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.bandhan.template001",
+      "candidate": {
+        "amountMinor": 18000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Bandhan Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "D123013240123",
+        "counterparty": "Amazon Pa",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bandhan-ported-002",
+    "country": "IN",
+    "bankId": "in.bandhan",
+    "provenance": "Legacy Dart regression: india_bandhan_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "INR 5.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123290818021/Tanuska E Value 10-NOV-2025 . Clear Bal is INR 9999.76. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.bandhan.template001",
+      "candidate": {
+        "amountMinor": 500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Bandhan Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "D123290818021",
+        "counterparty": "Tanuska E",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bandhan-ported-003",
+    "country": "IN",
+    "bankId": "in.bandhan",
+    "provenance": "Legacy Dart regression: india_bandhan_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "INR 92.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D512361791780/Amazon In Value 10-OCT-2025 . Clear Bal is INR 9999.70. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.bandhan.template001",
+      "candidate": {
+        "amountMinor": 9200,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Bandhan Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "D512361791780",
+        "counterparty": "Amazon In",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bandhan-ported-004",
+    "country": "IN",
+    "bankId": "in.bandhan",
+    "provenance": "Legacy Dart regression: india_bandhan_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "Dear Customer, your account XXXXXXXXXX1234 is credited with INR 3.00 on 01-OCT-2025 towards interest. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.bandhan.template004",
+      "candidate": {
+        "amountMinor": 300,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "bankName": "Bandhan Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "interest",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "interest",
+          "name": "Interest",
+          "type": "income",
+          "ruleId": "in.category.interest",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "Interest"
+    }
+  },
+  {
+    "id": "bandhan-ported-005",
+    "country": "IN",
+    "bankId": "in.bandhan",
+    "provenance": "Legacy Dart regression: india_bandhan_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "INR 25,000.00 deposited to A/c XXXXXXXXXX1234 towards UPI/CR/C224513287910/JOHN DOE/u on 03-OCT-2025 . Clear Bal is INR 30,123.00 . Bandhan Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.bandhan.template005",
+      "candidate": {
+        "amountMinor": 2500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Bandhan Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "C224513287910",
+        "counterparty": "JOHN DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bandhan-ported-006",
+    "country": "IN",
+    "bankId": "in.bandhan",
+    "provenance": "Legacy Dart regression: india_bandhan_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-BDNSMS-S",
+      "body": "INR 50,000.00 debited from A/c XXXXXXXXXX5678 towards UPI/DR/D999888777666/Big Purchase Value 18-NOV-2025 . Clear Bal is INR 100,000.50. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.bandhan.template001",
+      "candidate": {
+        "amountMinor": 5000000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Bandhan Bank",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": "D999888777666",
+        "counterparty": "Big Purchase",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bandhan-ported-007",
+    "country": "IN",
+    "bankId": "in.bandhan",
+    "provenance": "Legacy Dart regression: india_bandhan_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BANDHAN",
+      "body": "INR 1000.00 debited from A/c XXXXXXXXXX9876 towards UPI/DR/D111222333444/Store XYZ Value 20-NOV-2025 . Clear Bal is INR 15000.00. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.bandhan.template001",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Bandhan Bank",
+        "countryCode": "IN",
+        "accountLast4": "9876",
+        "reference": "D111222333444",
+        "counterparty": "Store XYZ",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "groceries",
+          "name": "Groceries",
+          "type": "expense",
+          "ruleId": "in.category.groceries",
+          "isFallback": false,
+          "aliases": [
+            "Grocery"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

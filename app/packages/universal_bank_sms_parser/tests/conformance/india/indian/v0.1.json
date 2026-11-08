@@ -1,0 +1,144 @@
+[
+  {
+    "id": "shared-indian",
+    "provenance": "source-derived shared-sender conformance example",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Your A/c XXXXX1234 is credited by Rs.6600.00 on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.credit",
+      "candidate": {
+        "amountMinor": 660000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "country": "IN",
+    "bankId": "in.indian"
+  },
+  {
+    "id": "shared-indian-security",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Your OTP is 123456. Your A/c XXXXX1234 is credited by Rs.6600.00 on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.indian"
+  },
+  {
+    "id": "shared-indian-promotional",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Exclusive offer: apply now. Your A/c XXXXX1234 is credited by Rs.6600.00 on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.indian"
+  },
+  {
+    "id": "shared-indian-failed",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Payment failed. Your A/c XXXXX1234 is credited by Rs.6600.00 on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.indian"
+  },
+  {
+    "id": "shared-indian-pending",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Payment pending. Your A/c XXXXX1234 is credited by Rs.6600.00 on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.indian"
+  },
+  {
+    "id": "shared-indian-future",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Will be debited. Your A/c XXXXX1234 is credited by Rs.6600.00 on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "conservative future-rejection extension",
+    "country": "IN",
+    "bankId": "in.indian"
+  }
+]

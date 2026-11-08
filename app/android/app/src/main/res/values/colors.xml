@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- The app's own page colour (lightPageBackground / darkBackground in
+         app_theme.dart), behind the splash and until Flutter draws a frame. -->
+    <color name="launch_background">#F3F2F8</color>
+    <!-- Home screen widgets and launcher shortcuts; night overrides in values-night. -->
+    <color name="widget_surface">#FFFFFF</color>
+    <color name="widget_text">#171B27</color>
+    <color name="widget_expense_tint">#FDE8EB</color>
+    <color name="widget_income_tint">#DDF4E8</color>
+    <color name="widget_scan_tint">#E0EEFF</color>
+    <color name="sms_debit">#C62828</color>
+    <color name="sms_credit">#2E7D32</color>
+</resources>

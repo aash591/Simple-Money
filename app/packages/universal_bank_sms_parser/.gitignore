@@ -1,0 +1,5 @@
+.dart_tool/
+pubspec.lock
+__pycache__/
+tool/india-harvest.json
+tool/test-results.txt

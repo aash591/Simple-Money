@@ -1,0 +1,41 @@
+[
+  {
+    "id": "canara-cash-short-suffix",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Synthetic regression from manually inspected October 2026 device SMS deposit templates; all identifiers and values replaced.",
+    "input": {
+      "sender": "AD-CANBNK-S",
+      "body": "INR 1,250.50 has been CREDITED to your A/c XXX123 on 12/10/2026 by CASH.Total bal is INR 9,876.54.  Please Install Canara ai1 app for Mobile Banking services - Canara Bank",
+      "receivedAt": "2026-10-12T10:30:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.device013.cash_credit",
+      "candidate": {
+        "amountMinor": 125050,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "123",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "cash_deposit",
+          "name": "Cash Deposit",
+          "type": "income",
+          "ruleId": "in.category.cash_deposit",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,254 @@
+[
+  {
+    "id": "standardchartered-ported-001",
+    "country": "IN",
+    "bankId": "in.standardchartered",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VM-SCBANK-S",
+      "body": "Your a/c XX3421 is debited for Rs. 302.00 on 03-12-2025 15:49 and credited to a/c XX1465 (UPI Ref no 487597904232).Plz call 18002586465 if not done by you.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.standardchartered.template001",
+      "candidate": {
+        "amountMinor": 30200,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Standard Chartered Bank",
+        "countryCode": "IN",
+        "accountLast4": "3421",
+        "reference": "487597904232",
+        "counterparty": "you",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "standardchartered-ported-002",
+    "country": "IN",
+    "bankId": "in.standardchartered",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VD-SCBANK-S",
+      "body": "Your a/c XX1234 is debited for Rs. 30.00 on 29-11-2025 22:49 and credited to a/c XX0025 (UPI Ref no 764379954202).Plz call 18002586465 if not done by you.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.standardchartered.template001",
+      "candidate": {
+        "amountMinor": 3000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Standard Chartered Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "764379954202",
+        "counterparty": "you",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "standardchartered-ported-003",
+    "country": "IN",
+    "bankId": "in.standardchartered",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JK-SCBANK-S",
+      "body": "Dear Customer, there is an NEFT credit of INR 48,796.00 in your account 123xxxx7655 on 1/11/2025.Available Balance:INR 97,885.05 -StanChart",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.standardchartered.template003",
+      "candidate": {
+        "amountMinor": 4879600,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Chartered Bank",
+        "countryCode": "IN",
+        "accountLast4": "7655",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "standardchartered-ported-004",
+    "country": "IN",
+    "bankId": "in.standardchartered",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VM-SCBANK-S",
+      "body": "Your a/c XX5678 is debited for Rs. 1,250.00 on 01-12-2025 10:30 and credited to a/c XX9999 (UPI Ref no 123456789012).Plz call 18002586465 if not done by you.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.standardchartered.template001",
+      "candidate": {
+        "amountMinor": 125000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Standard Chartered Bank",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": "123456789012",
+        "counterparty": "you",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "standardchartered-ported-005",
+    "country": "IN",
+    "bankId": "in.standardchartered",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "SCBANK",
+      "body": "Dear Customer, there is an RTGS credit of INR 100,000.00 in your account 456xxxx1234 on 15/12/2025.Available Balance:INR 250,000.00 -StanChart",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.standardchartered.template005",
+      "candidate": {
+        "amountMinor": 10000000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Chartered Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "standardchartered-ported-006",
+    "country": "IN",
+    "bankId": "in.standardchartered",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VD-SCBANK-S",
+      "body": "Dear Customer, there is an IMPS credit of INR 5,000.00 in your account 789xxxx5555 on 10/12/2025.Available Balance:INR 15,000.00 -StanChart",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.standardchartered.template006",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Chartered Bank",
+        "countryCode": "IN",
+        "accountLast4": "5555",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

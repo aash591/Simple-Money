@@ -1,0 +1,41 @@
+[
+  {
+    "id": "utkarsh-variables-001",
+    "country": "IN",
+    "bankId": "in.utkarsh",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "UTKSPR",
+      "body": "INR 321.09 spent on your SuperCard xxxx9988 for UPI - SHOP on 02-DEC-2027.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.utkarsh.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Utkarsh Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping_generic",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

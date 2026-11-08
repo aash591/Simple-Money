@@ -1,0 +1,50 @@
+{
+  "id": "in.idbi",
+  "name": "IDBI Bank",
+  "senders": [
+    "IDBI",
+    "IDBIBANK",
+    "IDBIBK"
+  ],
+  "formats": [
+    {
+      "id": "in.idbi.template001",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "IDBI Bank Acct "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " debited for Rs "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        }
+      }
+    }
+  ]
+}

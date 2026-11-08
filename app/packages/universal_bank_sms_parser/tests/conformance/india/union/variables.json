@@ -1,0 +1,86 @@
+[
+  {
+    "id": "union-variables-001",
+    "country": "IN",
+    "bankId": "in.union",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "UNIONB",
+      "body": "A/c *9988 Debited for Rs:321.09 on 02-DEC-2027 11:22:33 by MIGRATIONSHOP ref no MIG123456 Avl Bal Rs:9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.union.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Union Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "union-device-2",
+    "country": "IN",
+    "bankId": "in.union",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-UNIONB-S",
+      "body": "A/c XX9876 Credited for Rs:1,205.50 on 09-10-2026 10:00:00 by Sample Sender ref no ABC789 Avl Bal Rs:2,000.00. Union Bank of India",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.union.device001",
+      "candidate": {
+        "amountMinor": 120550,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Union Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "9876",
+        "reference": "ABC789",
+        "counterparty": "Sample Sender",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

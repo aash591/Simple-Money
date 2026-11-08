@@ -1,0 +1,322 @@
+[
+  {
+    "id": "slice-reject-security",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JK-SLICEIT",
+      "body": "Your OTP is 123456. Sent Rs.500 to MERCHANT NAME (UPI transaction success). Sent from slice.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-reject-promotional",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JK-SLICEIT",
+      "body": "Exclusive offer: apply now. Sent Rs.500 to MERCHANT NAME (UPI transaction success). Sent from slice.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-reject-failed",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JK-SLICEIT",
+      "body": "Payment failed. Sent Rs.500 to MERCHANT NAME (UPI transaction success). Sent from slice.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-reject-pending",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JK-SLICEIT",
+      "body": "Payment pending. Sent Rs.500 to MERCHANT NAME (UPI transaction success). Sent from slice.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-reject-future",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JK-SLICEIT",
+      "body": "Will be debited. Sent Rs.500 to MERCHANT NAME (UPI transaction success). Sent from slice.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-reject-notice",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JK-SLICEIT",
+      "body": "Statement generated. Sent Rs.500 to MERCHANT NAME (UPI transaction success). Sent from slice.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-reject-unknown-sender",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTERED",
+      "body": "Sent Rs.500 to MERCHANT NAME (UPI transaction success). Sent from slice.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-reject-promotion-sender",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "VM-SLCBNK-P",
+      "body": "Sent Rs.500 to MERCHANT NAME (UPI transaction success). Sent from slice.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-reject-balance-only",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "JK-SLICEIT",
+      "body": "Available balance INR 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "slice-legacy-rejection-001",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy rejected literal: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "slice",
+      "body": "Your OTP for slice transaction is 123456. Do not share.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-legacy-rejection-002",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy rejected literal: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "slice",
+      "body": "Your slice credit card transaction of RS. 50000 on amazon.in was declined.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-legacy-rejection-003",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy rejected literal: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "slice",
+      "body": "Your slice credit card transaction of RS. 1234.56 on flipkart.com failed.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-legacy-rejection-004",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy rejected literal: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "slice",
+      "body": "Your slice credit card transaction of RS. 50000 on amazon.in was unsuccessful.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-legacy-rejection-005",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy rejected literal: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "slice",
+      "body": "5738xx is your OTP for txn of Rs. INR 2.07 at FamApp by TriO on slice card ending with 2887. Do not share OTP for security reasons. - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-legacy-rejection-006",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy rejected literal: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "slice",
+      "body": "UPI AutoPay for OpenAI from slice a/c XX2743 for Rs. 1,999 is revoked. UMN - 019e5ebb3a1679b6aee8a0000ff88d19@slc - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-legacy-rejection-007",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy rejected literal: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "slice",
+      "body": "You have received a collect request of Rs. 500 from someone@slc on slice. Approve or decline in the app. - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,1798 @@
+[
+  {
+    "id": "federal-ported-001",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Digital Gold India Private Limited has received Rs 21.00 from your A/c 7990 via NEFT on 10-Jan-2026 12:06:17. Ref no. FBBT260103879100 - Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template001",
+      "candidate": {
+        "amountMinor": 2100,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "7990",
+        "reference": "FBBT260103879100",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-002",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VM-FEDBNK-S",
+      "body": "Nippon India Mutual Fund has received Rs 1000.00 from your A/c 3363 via NEFT on 02-Jan-2026 06:50:32. Ref no. FBBT260023158681 - Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template001",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "3363",
+        "reference": "FBBT260023158681",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-003",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "CP-FEDSCP-S",
+      "body": "Yay! We've received your payment of ₹12,056.72 towards your Scapia Federal credit card. -Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template003",
+      "candidate": {
+        "amountMinor": 1205672,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "card",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "credit_card_repayment",
+          "name": "Credit Card Repayment",
+          "type": "income",
+          "ruleId": "in.category.card_repayment",
+          "isFallback": false,
+          "aliases": [
+            "Credit Card Payment",
+            "Card Repayment"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-ported-004",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "Rs 150.00 debited via UPI on 15-08-2024 10:30:25 to VPA john.doe123@okbank.Ref No 987654321098.Small txns?Use UPI Lite!-Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template004",
+      "candidate": {
+        "amountMinor": 15000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "987654321098",
+        "counterparty": "john.doe123@okbank",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-005",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "Rs 450.75 debited via UPI on 16-08-2024 14:22:10 to VPA swiggy.food@paytm.Ref No 876543210987.Small txns?Use UPI Lite!-Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template004",
+      "candidate": {
+        "amountMinor": 45075,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "876543210987",
+        "counterparty": "swiggy.food@paytm",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-006",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "Rs 3500.00 debited via UPI on 20-08-2024 12:30:45 to VPA indigo.paytm@hdfcbank.Ref No 987654321099.Small txns?Use UPI Lite!-Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template004",
+      "candidate": {
+        "amountMinor": 350000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "987654321099",
+        "counterparty": "indigo.paytm@hdfcbank",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "flights",
+          "name": "Flights",
+          "type": "expense",
+          "ruleId": "in.category.flights",
+          "isFallback": false,
+          "aliases": [
+            "Travel"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-007",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "Rs 1250.00 debited via UPI on 17-08-2024 09:15:45 to VPA merchant.store.98765@hdfcbank.Ref No 765432109876.Small txns?Use UPI Lite!-Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template004",
+      "candidate": {
+        "amountMinor": 125000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "765432109876",
+        "counterparty": "merchant.store.98765@hdfcbank",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "groceries",
+          "name": "Groceries",
+          "type": "expense",
+          "ruleId": "in.category.groceries",
+          "isFallback": false,
+          "aliases": [
+            "Grocery"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-008",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "Rs 3500.50 credited to your A/c XX4567 via IMPS on 18AUG2024 11:45:30 IMPS Ref no 654321098765 Bal:Rs 25000.75 -Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template008",
+      "candidate": {
+        "amountMinor": 350050,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "4567",
+        "reference": "654321098765",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-009",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "John, you've received INR 10,509.09 in your Account XXXXXXXX1896. Woohoo! It was sent by TESTUSER on March 19, 2025. -Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template009",
+      "candidate": {
+        "amountMinor": 1050909,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1896",
+        "reference": null,
+        "counterparty": "TESTUSER",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-010",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "Jane, you've received INR 50,000.00 in your Account XXXXXXXX1896. Woohoo! It was sent by SAMPLE PERSON on July 24, 2024. -Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template010",
+      "candidate": {
+        "amountMinor": 5000000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1896",
+        "reference": null,
+        "counterparty": "SAMPLE PERSON",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-011",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "John, you've received INR 17,179.95 in your Account XXXXXXXX1896. Woohoo! It was sent by 0000 on July 25, 2024. -Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template011",
+      "candidate": {
+        "amountMinor": 1717995,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1896",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-012",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "Rs 15000.00 credited to your A/c XX7890 via IMPS on 19AUG2024 16:20:15 IMPS Ref no 543210987654 Bal:Rs 42500.80 -Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template008",
+      "candidate": {
+        "amountMinor": 1500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "7890",
+        "reference": "543210987654",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-013",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "Hi, payment of INR 199.00 for Netflix via e-mandate ID: NX789XYZABC on Federal Bank Debit Card 3456 is processed successfully. To manage, visit: https://www.sihub.in/managesi/federal T&CA - Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template013",
+      "candidate": {
+        "amountMinor": 19900,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "3456",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "subscriptions",
+          "name": "Subscriptions",
+          "type": "expense",
+          "ruleId": "in.category.subscriptions",
+          "isFallback": false,
+          "aliases": [
+            "Entertainment"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-014",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "Hi, payment of INR 119.00 for Spotify via e-mandate ID: SP456DEF123 on Federal Bank Debit Card 7890 is processed successfully. To manage, visit: https://www.sihub.in/managesi/federal T&CA - Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template013",
+      "candidate": {
+        "amountMinor": 11900,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "7890",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "subscriptions",
+          "name": "Subscriptions",
+          "type": "expense",
+          "ruleId": "in.category.subscriptions",
+          "isFallback": false,
+          "aliases": [
+            "Entertainment"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-015",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "Hi, payment of INR 2500.00 for LifeInsurance via e-mandate ID: LI789GHI456 on Federal Bank Debit Card 1234 is processed successfully. To manage, visit: https://www.sihub.in/managesi/federal T&CA - Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template013",
+      "candidate": {
+        "amountMinor": 250000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-016",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "INR 1200.00 spent on your credit card ending with 5678 at AMAZON on 09-05-2025 15:30:15. Available limit Rs.38000.00 -Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template016",
+      "candidate": {
+        "amountMinor": 120000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "AMAZON",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-017",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VM-FEDSCP-S",
+      "body": "Hi! Your txn of ₹882.00 at Carnatic Cafe Gurgaon In on your Scapia Federal Visa credit card was successful. And you've earned 10% rewards on this spend! Not you? Go to Scapia support on the app or call 18002961199. -Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template017",
+      "candidate": {
+        "amountMinor": 88200,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Carnatic Cafe Gurgaon In",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "cafe",
+          "name": "Cafe",
+          "type": "expense",
+          "ruleId": "in.category.cafe",
+          "isFallback": false,
+          "aliases": [
+            "Restaurants",
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-018",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "TX-FEDSCP-S",
+      "body": "Your txn of ₹2,351.00 at Amazon on your Scapia Federal Visa credit card earned you 10% rewards! Not you? Call 18002961199. - Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template018",
+      "candidate": {
+        "amountMinor": 235100,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Amazon",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-019",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "Rs 1500.00 debited via card XX**3456 at MERCHANT on 14-05-2025 15:30:45. Current Bal: Rs.250.75 -Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template019",
+      "candidate": {
+        "amountMinor": 150000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "3456",
+        "reference": null,
+        "counterparty": "MERCHANT",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-020",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK",
+      "body": "Rs 5000.00 deposited to your A/c XX1234 via CDM on 19JAN2026 10:30:15. Bal:Rs 25000.00 -Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template020",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-021",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AX-FEDBNK-S",
+      "body": "Hi,Rs.1100credited in your A/c XX3223 on 15JAN2026 13:03:07 using cash deposit machine at FBL-CHANGANASSERY. Current Bal: Rs.1181.90 - Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template021",
+      "candidate": {
+        "amountMinor": 110000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "atm",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "3223",
+        "reference": null,
+        "counterparty": "FBL-CHANGANASSERY",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "atm_deposit",
+          "name": "ATM Deposit",
+          "type": "income",
+          "ruleId": "in.category.atm_deposit",
+          "isFallback": false,
+          "aliases": [
+            "Cash Deposit"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-ported-022",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK-T",
+      "body": "Debited Rs 6000 from a/c XX3343 on 24JUN2026 21:35 via NEFT to Jerry.Ref FDRLM4175007432.Bal Rs 76.82.Not you?Call 18004251199 -Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template022",
+      "candidate": {
+        "amountMinor": 600000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "3343",
+        "reference": "FDRLM4175007432",
+        "counterparty": "Jerry",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-023",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Rs 1500 withdrawn@ YBL CHAN on 21JAN26 17:59 Bal Rs 7517.94 Ref 602117126490. Not you? Call 18004251199/ SMS NO 3683 to 9895088888 -Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template023",
+      "candidate": {
+        "amountMinor": 150000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "602117126490",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "atm_withdrawal",
+          "name": "ATM Withdrawal",
+          "type": "expense",
+          "ruleId": "in.category.atm_withdrawal",
+          "isFallback": false,
+          "aliases": [
+            "Cash Withdrawal"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-ported-024",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AX-FEDSMS-S",
+      "body": "Dear Customer, Rs.123 credited to your A/c XX1234 on 01JAN2026 12:00:00. BAL-Rs.1234.56-Federal Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template024",
+      "candidate": {
+        "amountMinor": 12300,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "federal-device2-sent",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Rs 350.00 sent via UPI on 08/10/26 at 12:01 to SAMPLE.Ref:123456789012.Not you? Call 0000000000 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device002.sent",
+      "candidate": {
+        "amountMinor": 35000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SAMPLE",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device2-debit",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Debited Rs 250.00 from a/c XX1234 on 08Oct26 12:01 via UPI to SAMPLE. Ref 123456789012.Bal Rs 1000.00. Not you?Call 0000000000 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device002.debit",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "SAMPLE",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device2-card",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "INR 25.00 spent on your credit card ending with 1234 at SAMPLE STORE on 08/10/26. Available limit Rs.5000.00. Not you, call 0000000000 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device002.card",
+      "candidate": {
+        "amountMinor": 2500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "SAMPLE STORE",
+        "category": {
+          "id": "groceries",
+          "name": "Groceries",
+          "type": "expense",
+          "ruleId": "in.category.groceries",
+          "isFallback": false,
+          "aliases": [
+            "Grocery"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device3-debit",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Debited Rs 75.00 from a/c XX1234 on 08Oct26 12:01.Bal Rs 1000.00.Not you?Call 0000000000 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device003.debit",
+      "candidate": {
+        "amountMinor": 7500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device3-card-payment",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Payment of Rs 300.00 is received towards your credit card number ending with 1234 on 08/10/26 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device003.card_payment",
+      "candidate": {
+        "amountMinor": 30000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "card",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "credit_card_repayment",
+          "name": "Credit Card Repayment",
+          "type": "income",
+          "ruleId": "in.category.card_repayment",
+          "isFallback": false,
+          "aliases": [
+            "Credit Card Payment",
+            "Card Repayment"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device4-upi-debit",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Rs 150.00 debited from your A/c using UPI on 08/10/26 12:01 to SAMPLE - (UPI Ref No 123456789012)-Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device004.upi_debit",
+      "candidate": {
+        "amountMinor": 15000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "123456789012",
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device4-fib-credit",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDFIB-S",
+      "body": "Hi, you've received INR 250.00 in your Account XX1234. Woohoo! It was sent by SAMPLE PERSON on October 8, 2026. -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device004.fib_credit",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "SAMPLE PERSON",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device4-atm",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Rs 300 withdrawn@ SAMPLE ATM on 08Oct26 12:01 Bal Rs 5000 Ref 123456. Not you? Call 0000000000 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device004.atm",
+      "candidate": {
+        "amountMinor": 30000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "atm",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SAMPLE ATM",
+        "category": {
+          "id": "atm_withdrawal",
+          "name": "ATM Withdrawal",
+          "type": "expense",
+          "ruleId": "in.category.atm_withdrawal",
+          "isFallback": false,
+          "aliases": [
+            "Cash Withdrawal"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device5-upi-debit",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Rs 125.00 debited from your A/c via UPI on 08/10/26 12:01 to SAMPLE. Ref No 123456789012. Not you? -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device005.upi_debit",
+      "candidate": {
+        "amountMinor": 12500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device7-fib-sent",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDFIB-S",
+      "body": "INR 125.00 sent from your Account XX1234 Mode: UPI | To: SAMPLE Date: October 8, 2026 Not done by you? Call 00000 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device007.fib_sent",
+      "candidate": {
+        "amountMinor": 12500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device7-fib-spent",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDFIB-S",
+      "body": "You've spent INR 25.00 at SAMPLE on October 8, 2026. Balance: INR 1000.00. -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device007.fib_spent",
+      "candidate": {
+        "amountMinor": 2500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SAMPLE",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device7-fib-received",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDFIB-S",
+      "body": "SAMPLE has sent INR 500.00 to you. Mode:NEFT October 8, 2026 Ref No:TEST123. Balance: Rs.1000.00 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device007.fib_received",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device7-fib-atm",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDFIB-S",
+      "body": "Withdrawn: INR 100.00 | Balance: INR 900.00. This transaction was on October 8, 2026 at SAMPLE ATM.",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device007.fib_atm",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "atm",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "atm_withdrawal",
+          "name": "ATM Withdrawal",
+          "type": "expense",
+          "ruleId": "in.category.atm_withdrawal",
+          "isFallback": false,
+          "aliases": [
+            "Cash Withdrawal"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device8-transfer",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Your A/c no. XX1234 is debited for Rs.200.00 on 08/10/26 and A/c XX9876 credited (IMPS Ref No. 123456789012) -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device008.account_transfer",
+      "candidate": {
+        "amountMinor": 20000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device8-debit",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Rs.50.00 debited from your a/c XX1234 on 08Oct26. Bal:Rs.950.00 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device008.debit",
+      "candidate": {
+        "amountMinor": 5000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device8-card",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Rs 75.00 spent@ SAMPLE on 08Oct26 Bal Rs 925.00 Ref 123456. Not you? Call 00000 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device008.card_spent",
+      "candidate": {
+        "amountMinor": 7500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device12-card-compact",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized physical-device template; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Rs750.00 spent@EXAMPLE on 08Oct26 Bal:Rs925.00 Ref no 123456 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device012.card_spent_compact",
+      "candidate": {
+        "amountMinor": 75000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device12-atm-compact",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized physical-device template; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Rs500.00 withdrawn@EXAMPLE ATM on 08Oct26 Bal:Rs5000.00 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device012.atm_compact",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "category": {
+          "id": "atm_withdrawal",
+          "name": "ATM Withdrawal",
+          "type": "expense",
+          "ruleId": "in.category.atm_withdrawal",
+          "isFallback": false,
+          "aliases": [
+            "Cash Withdrawal"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-device14-debit-is",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Sanitized physical-device template; all identifiers synthetic",
+    "input": {
+      "sender": "AD-FEDBNK-S",
+      "body": "Thanks for banking. Rs.75.00 is debited from your a/c XX1234 on 08Oct26. Bal:Rs900.00 -Federal Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.device014.debit_is",
+      "candidate": {
+        "amountMinor": 7500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

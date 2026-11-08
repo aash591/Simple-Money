@@ -1,0 +1,170 @@
+[
+  {
+    "id": "psb-ported-001",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Legacy Dart regression: india_uco_psb_kerala_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-PSBANK-S",
+      "body": "PSB000000000000001 A/C No **1111 Credited with Rs 500--Vendor Amount (CLR BAL 1250.63CR)(18-03-2026 16:51:51) Punjab&Sind Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.psb.template001",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Punjab & Sind Bank",
+        "countryCode": "IN",
+        "accountLast4": "1111",
+        "reference": null,
+        "counterparty": "Vendor Amount",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "psb-ported-002",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Legacy Dart regression: india_uco_psb_kerala_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-PSBANK-S",
+      "body": "PSB000000000000002 A/C No **1111 Credited with Rs 500--NEFT/AXPS260760067935/ACME SCHOOL (CLR BAL 1800.63CR)(19-03-2026 06:51:51) Punjab&Sind Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.psb.template002",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Punjab & Sind Bank",
+        "countryCode": "IN",
+        "accountLast4": "1111",
+        "reference": "AXPS260760067935",
+        "counterparty": "ACME SCHOOL",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "psb-ported-003",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Legacy Dart regression: india_uco_psb_kerala_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-PSBANK-S",
+      "body": "PSB000000000000003 A/c No **2222 Credited with Rs 5500--UPI/CR/121888265852/JOHN/HDFC/00000000000000/U (CLR BAL 30987.99CR)(13-04-2026 17:22:34)-Punjab&Sind Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.psb.template003",
+      "candidate": {
+        "amountMinor": 550000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Punjab & Sind Bank",
+        "countryCode": "IN",
+        "accountLast4": "2222",
+        "reference": "121888265852",
+        "counterparty": "JOHN",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "psb-ported-004",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Legacy Dart regression: india_uco_psb_kerala_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-PSBANK-S",
+      "body": "PSB000000000000004 A/c No **3333 Credited with Rs 700--Credit of 045252 (CLR BAL 11064.24CR)(13-04-2026 19:16:15)-Punjab&Sind Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.psb.template004",
+      "candidate": {
+        "amountMinor": 70000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Punjab & Sind Bank",
+        "countryCode": "IN",
+        "accountLast4": "3333",
+        "reference": "045252",
+        "counterparty": "Cheque Credit",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

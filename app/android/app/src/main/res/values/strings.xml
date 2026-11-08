@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_notification_name">Simple Money</string>
+    <string name="widget_expense_description">Log an expense in one tap</string>
+    <string name="widget_income_description">Log income in one tap</string>
+    <string name="widget_scan_description">Scan a UPI QR code and pay</string>
+    <string name="widget_grid_label">Quick actions</string>
+    <string name="widget_grid_description">Open the app, add income or expense, or scan UPI</string>
+    <string name="shortcut_expense">Add expense</string>
+    <string name="shortcut_income">Add income</string>
+    <string name="shortcut_scan">Scan UPI</string>
+    <string name="sms_channel_name">Bank transactions</string>
+    <string name="sms_channel_description">Debits and credits detected from bank SMS</string>
+    <string name="upi_action_not_paid">Not paid</string>
+    <string name="upi_public_title">Payment pending</string>
+    <string name="sms_action_more">More…</string>
+    <string name="sms_action_add_account">Add account</string>
+    <string name="sms_action_undo">Undo</string>
+    <string name="sms_action_choose_account">Choose account</string>
+    <string name="sms_public_title">New transaction</string>
+    <string name="sms_credited">Credited</string>
+    <string name="sms_debited">Debited</string>
+    <string name="ai_session_channel">AI session</string>
+    <string name="ai_session_title">AI session on</string>
+    <string name="ai_session_until">Until %1$s</string>
+    <string name="ai_session_connected">connected</string>
+    <string name="ai_session_connecting">connecting…</string>
+    <string name="ai_session_extend">+15 min</string>
+    <string name="ai_session_stop">Stop</string>
+    <plurals name="ai_session_suggestions">
+        <item quantity="one">%d suggestion to review</item>
+        <item quantity="other">%d suggestions to review</item>
+    </plurals>
+</resources>

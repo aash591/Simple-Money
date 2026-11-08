@@ -1,0 +1,212 @@
+[
+  {
+    "id": "union-ported-001",
+    "country": "IN",
+    "bankId": "in.union",
+    "provenance": "Legacy Dart regression: source-derived example; see NOTICE.md",
+    "input": {
+      "sender": "UNIONB",
+      "body": "A/c *1234 Debited for Rs:100.00 on 11-08-2025 18:28:02 by Mob Bk ref no 123456789000 Avl Bal Rs:12345.67",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.union.template001",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Union Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456789000",
+        "counterparty": "Mob Bk",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "union-device-1",
+    "country": "IN",
+    "bankId": "in.union",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-UNIONB-S",
+      "body": "A/c *1234 Credited for Rs:45.00 on 08-10-2026 12:30:01 by Example Sender ref no 123456 Avl Bal Rs:900.00. Union Bank of India",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.union.device001",
+      "candidate": {
+        "amountMinor": 4500,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Union Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456",
+        "counterparty": "Example Sender",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "union-device11-debit",
+    "country": "IN",
+    "bankId": "in.union",
+    "provenance": "Sanitized physical-device template; all identifiers synthetic",
+    "input": {
+      "sender": "AD-UNIONB-S",
+      "body": "Union Bank of India A/c *1234 Debited Rs:75.00 on 08-10-2026 12:30:01 by UPI ref no 123456 Avl Bal Rs:900.00.",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.union.device011.debit",
+      "candidate": {
+        "amountMinor": 7500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Union Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "union-device11-debit-for-trailing-text",
+    "country": "IN",
+    "bankId": "in.union",
+    "provenance": "Sanitized physical-device template; all identifiers synthetic",
+    "input": {
+      "sender": "AD-UNIONB-S",
+      "body": "A/c *1234 Debited for Rs:80.00 on 08-10-2026 12:30:01 by UPI ref no 654321 Avl Bal Rs:900.00. Please verify. Union Bank of India",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.union.template001",
+      "candidate": {
+        "amountMinor": 8000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Union Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "654321",
+        "counterparty": "UPI",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "union-device14-credit-dot",
+    "country": "IN",
+    "bankId": "in.union",
+    "provenance": "Sanitized physical-device template; all identifiers synthetic",
+    "input": {
+      "sender": "AD-UNIONB-S",
+      "body": "Your A/c XX1234 Credited for Rs.75.00 on 08/10/26 by UPI. Avl Bal Rs:900.00. Union Bank of India",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.union.device014.credit_dot",
+      "candidate": {
+        "amountMinor": 7500,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Union Bank of India",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

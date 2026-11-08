@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+    "sender": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "body": {
+      "type": "string",
+      "maxLength": 4000
+    },
+    "receivedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "sender",
+    "body",
+    "receivedAt"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:universal-bank-sms-parser:input:0.3"
+}

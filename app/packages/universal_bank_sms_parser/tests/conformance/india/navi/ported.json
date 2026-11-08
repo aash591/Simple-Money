@@ -1,0 +1,86 @@
+[
+  {
+    "id": "navi-ported-001",
+    "country": "IN",
+    "bankId": "in.navi",
+    "provenance": "Legacy Dart regression: india_navi_saraswat_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-NAVAMC-S",
+      "body": "Unit Allotment Update: Your SIP purchase of Rs.499.98 in Navi Nifty Next 50 Index Fund DG has been processed at applicable NAV. The units will be alloted in 1-2 working days. For further queries, please visit the Navi app. Team Navi Mutual Fund",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.navi.template001",
+      "candidate": {
+        "amountMinor": 49998,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Navi Mutual Fund",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Navi Nifty Next 50 Index Fund DG",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navi-ported-002",
+    "country": "IN",
+    "bankId": "in.navi",
+    "provenance": "Legacy Dart regression: india_navi_saraswat_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VK-NAVAMC-T",
+      "body": "Unit Allotment Update: Your SIP purchase of Rs. 1,49,999.98 in Navi Largecap Fund DG has been processed at applicable NAV. The units will be alloted in 1-2 working days. Team Navi Mutual Fund",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.navi.template002",
+      "candidate": {
+        "amountMinor": 14999998,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Navi Mutual Fund",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Navi Largecap Fund DG",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

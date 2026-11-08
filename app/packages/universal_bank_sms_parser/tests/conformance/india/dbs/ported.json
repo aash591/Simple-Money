@@ -1,0 +1,44 @@
+[
+  {
+    "id": "dbs-ported-001",
+    "country": "IN",
+    "bankId": "in.dbs",
+    "provenance": "Legacy Dart regression: source-derived example; see NOTICE.md",
+    "input": {
+      "sender": "DBSBNK",
+      "body": "Your account no ********1234 debited with INR 11. Current Balance is INR37888.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.dbs.template001",
+      "candidate": {
+        "amountMinor": 1100,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "DBS Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

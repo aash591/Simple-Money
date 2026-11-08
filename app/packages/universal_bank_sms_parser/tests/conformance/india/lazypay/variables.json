@@ -1,0 +1,44 @@
+[
+  {
+    "id": "lazypay-variables-001",
+    "country": "IN",
+    "bankId": "in.lazypay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "LZYPAY",
+      "body": "Payment of Rs. 321.09 for txn META998877 on MIGRATIONSHOP was successful.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.lazypay.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "LazyPay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

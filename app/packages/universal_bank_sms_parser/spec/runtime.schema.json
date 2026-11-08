@@ -1,0 +1,1122 @@
+{
+  "type": "object",
+  "properties": {
+    "categoryRules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/resolvedCategory"
+      },
+      "maxItems": 256,
+      "minItems": 0
+    },
+    "counterpartyRules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/resolvedCounterparty"
+      },
+      "maxItems": 256,
+      "minItems": 0
+    },
+    "format": {
+      "const": "sms-rules-runtime"
+    },
+    "schemaVersion": {
+      "const": "0.3"
+    },
+    "minEngineVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "packVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/resolvedRule"
+      },
+      "maxItems": 4096,
+      "minItems": 1
+    },
+    "senderIndex": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4095
+        },
+        "maxItems": 128,
+        "minItems": 1
+      }
+    }
+  },
+  "required": [
+    "categoryRules",
+    "counterpartyRules",
+    "format",
+    "schemaVersion",
+    "minEngineVersion",
+    "packVersion",
+    "rules",
+    "senderIndex"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:universal-bank-sms-parser:runtime:0.3",
+  "$defs": {
+    "categoryRule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[a-z][a-zA-Z0-9_.-]*$"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "directions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "debit",
+              "credit"
+            ]
+          },
+          "maxItems": 2,
+          "minItems": 1
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "atm",
+              "upi",
+              "card",
+              "bankTransfer",
+              "wallet",
+              "other"
+            ]
+          },
+          "maxItems": 6,
+          "minItems": 1
+        },
+        "source": {
+          "enum": [
+            "body",
+            "merchant"
+          ]
+        },
+        "match": {
+          "enum": [
+            "substring",
+            "words",
+            "exact"
+          ]
+        },
+        "when": {
+          "$ref": "#/$defs/selector"
+        },
+        "requires": {
+          "$ref": "#/$defs/selector"
+        },
+        "categoryId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "maxItems": 16,
+          "minItems": 0
+        },
+        "isFallback": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "priority",
+        "directions",
+        "source",
+        "match",
+        "when",
+        "categoryId",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "counterpartyRule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[a-z][a-zA-Z0-9_.-]*$"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "prefix": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "suffixes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 16,
+          "minItems": 1
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "when": {
+          "$ref": "#/$defs/selector"
+        }
+      },
+      "required": [
+        "id",
+        "priority",
+        "prefix",
+        "suffixes",
+        "maxLength",
+        "when"
+      ],
+      "additionalProperties": false
+    },
+    "selector": {
+      "type": "object",
+      "properties": {
+        "all": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "maxItems": 32,
+          "minItems": 0
+        },
+        "any": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "maxItems": 32,
+          "minItems": 0
+        },
+        "none": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "maxItems": 32,
+          "minItems": 0
+        }
+      },
+      "required": [],
+      "additionalProperties": false,
+      "description": "All and any are positive predicates; none vetoes. Classifiers require at least one positive literal."
+    },
+    "classifier": {
+      "type": "object",
+      "properties": {
+        "classification": {
+          "enum": [
+            "security",
+            "promotional",
+            "failed",
+            "pending",
+            "future",
+            "notice"
+          ]
+        },
+        "when": {
+          "$ref": "#/$defs/selector"
+        }
+      },
+      "required": [
+        "classification",
+        "when"
+      ],
+      "additionalProperties": false
+    },
+    "defaults": {
+      "type": "object",
+      "properties": {
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "case": {
+          "enum": [
+            "exact",
+            "ascii_insensitive"
+          ]
+        },
+        "digits": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "ascii",
+              "persian",
+              "arabic_indic",
+              "thai"
+            ]
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "uniqueItems": true,
+          "contains": {
+            "const": "ascii"
+          }
+        },
+        "decimalMark": {
+          "enum": [
+            ".",
+            ","
+          ]
+        },
+        "grouping": {
+          "enum": [
+            "none",
+            "western",
+            "indian"
+          ]
+        },
+        "exponents": {
+          "type": "object",
+          "maxProperties": 64,
+          "patternProperties": {
+            "^[A-Z]{3}$": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            }
+          },
+          "additionalProperties": false
+        },
+        "denominations": {
+          "type": "object",
+          "maxProperties": 32,
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "multiplier": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              }
+            },
+            "required": [
+              "currency",
+              "multiplier"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "token": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "match_literal"
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          "required": [
+            "op",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "match_end"
+            }
+          },
+          "required": [
+            "op"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "enum": [
+                "capture_money",
+                "capture_reference",
+                "capture_number",
+                "capture_datetime"
+              ]
+            },
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 256
+            }
+          },
+          "required": [
+            "op",
+            "name",
+            "maxLength"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "capture_text"
+            },
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 256
+            },
+            "excludeCharacters": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "rejectDateTime": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "op",
+            "name",
+            "maxLength"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "capture_account"
+            },
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 256
+            },
+            "minDigits": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            }
+          },
+          "required": [
+            "op",
+            "name",
+            "maxLength"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "const": "capture_enum"
+            },
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 256
+            },
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "maxItems": 32,
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "op",
+            "name",
+            "maxLength",
+            "values"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "binding": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "capture": {
+              "type": "string",
+              "pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+            }
+          },
+          "required": [
+            "capture"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "textBinding": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "prefix": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          "required": [
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "capture": {
+              "type": "string",
+              "pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+            },
+            "prefix": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          "required": [
+            "capture"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "object",
+          "properties": {
+            "capture": {
+              "type": "string",
+              "pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+            },
+            "denominationCapture": {
+              "type": "string",
+              "pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+            }
+          },
+          "required": [
+            "capture"
+          ],
+          "additionalProperties": false
+        },
+        "currency": {
+          "$ref": "#/$defs/binding"
+        },
+        "accountLast4": {
+          "type": "object",
+          "properties": {
+            "capture": {
+              "type": "string",
+              "pattern": "^[a-z][a-zA-Z0-9_]{0,31}$"
+            },
+            "operation": {
+              "const": "extract_account_suffix"
+            },
+            "length": {
+              "const": 4
+            },
+            "allowShort": {
+              "type": "boolean"
+            },
+            "preserveMask": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "capture",
+            "operation",
+            "length"
+          ],
+          "additionalProperties": false
+        },
+        "reference": {
+          "$ref": "#/$defs/textBinding"
+        },
+        "counterparty": {
+          "$ref": "#/$defs/textBinding"
+        }
+      },
+      "required": [
+        "amount"
+      ],
+      "additionalProperties": false
+    },
+    "format": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[a-z][a-zA-Z0-9_.-]*$"
+        },
+        "defaults": {
+          "$ref": "#/$defs/defaults"
+        },
+        "requires": {
+          "$ref": "#/$defs/selector"
+        },
+        "classifiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/classifier"
+          },
+          "maxItems": 64,
+          "minItems": 0
+        },
+        "classification": {
+          "const": "completed"
+        },
+        "direction": {
+          "enum": [
+            "debit",
+            "credit"
+          ]
+        },
+        "channel": {
+          "enum": [
+            "atm",
+            "upi",
+            "card",
+            "bankTransfer",
+            "wallet",
+            "other"
+          ]
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/token"
+          },
+          "maxItems": 48,
+          "minItems": 3
+        },
+        "output": {
+          "$ref": "#/$defs/output"
+        },
+        "senders": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 31,
+            "pattern": "^(?:[A-Z][A-Z0-9_ -]{2,30}|[0-9]+)$"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "id",
+        "classification",
+        "direction",
+        "channel",
+        "tokens",
+        "output"
+      ],
+      "additionalProperties": false
+    },
+    "bank": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[a-z][a-zA-Z0-9_.-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "senders": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 31,
+            "pattern": "^(?:[A-Z][A-Z0-9_ -]{2,30}|[0-9]+)$"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "defaults": {
+          "$ref": "#/$defs/defaults"
+        },
+        "requires": {
+          "$ref": "#/$defs/selector"
+        },
+        "classifiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/classifier"
+          },
+          "maxItems": 64,
+          "minItems": 0
+        },
+        "formats": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/format"
+          },
+          "maxItems": 4096,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "senders",
+        "formats"
+      ],
+      "additionalProperties": false
+    },
+    "resolvedRule": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[a-z][a-zA-Z0-9_.-]*$"
+        },
+        "defaults": {
+          "type": "object",
+          "properties": {
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$"
+            },
+            "case": {
+              "enum": [
+                "exact",
+                "ascii_insensitive"
+              ]
+            },
+            "digits": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "ascii",
+                  "persian",
+                  "arabic_indic",
+                  "thai"
+                ]
+              },
+              "maxItems": 4,
+              "minItems": 1,
+              "uniqueItems": true,
+              "contains": {
+                "const": "ascii"
+              }
+            },
+            "decimalMark": {
+              "enum": [
+                ".",
+                ","
+              ]
+            },
+            "grouping": {
+              "enum": [
+                "none",
+                "western",
+                "indian"
+              ]
+            },
+            "exponents": {
+              "type": "object",
+              "maxProperties": 64,
+              "patternProperties": {
+                "^[A-Z]{3}$": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 3
+                }
+              },
+              "additionalProperties": false
+            },
+            "denominations": {
+              "type": "object",
+              "maxProperties": 32,
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "currency": {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$"
+                  },
+                  "multiplier": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000000
+                  }
+                },
+                "required": [
+                  "currency",
+                  "multiplier"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "currency",
+            "case",
+            "digits",
+            "decimalMark",
+            "grouping",
+            "exponents",
+            "denominations"
+          ],
+          "additionalProperties": false
+        },
+        "requires": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/selector"
+          },
+          "maxItems": 2,
+          "minItems": 2
+        },
+        "classifiers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/classifier"
+          },
+          "maxItems": 64,
+          "minItems": 0
+        },
+        "classification": {
+          "const": "completed"
+        },
+        "direction": {
+          "enum": [
+            "debit",
+            "credit"
+          ]
+        },
+        "channel": {
+          "enum": [
+            "atm",
+            "upi",
+            "card",
+            "bankTransfer",
+            "wallet",
+            "other"
+          ]
+        },
+        "tokens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/token"
+          },
+          "maxItems": 48,
+          "minItems": 3
+        },
+        "output": {
+          "$ref": "#/$defs/output"
+        },
+        "senders": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 31,
+            "pattern": "^(?:[A-Z][A-Z0-9_ -]{2,30}|[0-9]+)$"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "bankId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[a-z][a-zA-Z0-9_.-]*$"
+        },
+        "bankName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        }
+      },
+      "required": [
+        "id",
+        "bankId",
+        "bankName",
+        "country",
+        "senders",
+        "defaults",
+        "requires",
+        "classifiers",
+        "classification",
+        "direction",
+        "channel",
+        "tokens",
+        "output"
+      ],
+      "additionalProperties": false
+    },
+    "resolvedCategory": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[a-z][a-zA-Z0-9_.-]*$"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "directions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "debit",
+              "credit"
+            ]
+          },
+          "maxItems": 2,
+          "minItems": 1
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "atm",
+              "upi",
+              "card",
+              "bankTransfer",
+              "wallet",
+              "other"
+            ]
+          },
+          "maxItems": 6,
+          "minItems": 1
+        },
+        "source": {
+          "enum": [
+            "body",
+            "merchant"
+          ]
+        },
+        "match": {
+          "enum": [
+            "substring",
+            "words",
+            "exact"
+          ]
+        },
+        "when": {
+          "$ref": "#/$defs/selector"
+        },
+        "requires": {
+          "$ref": "#/$defs/selector"
+        },
+        "categoryId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "maxItems": 16,
+          "minItems": 0
+        },
+        "isFallback": {
+          "type": "boolean"
+        },
+        "country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        }
+      },
+      "required": [
+        "id",
+        "priority",
+        "directions",
+        "source",
+        "match",
+        "when",
+        "categoryId",
+        "name",
+        "country"
+      ],
+      "additionalProperties": false
+    },
+    "resolvedCounterparty": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[a-z][a-zA-Z0-9_.-]*$"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "prefix": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "suffixes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "maxItems": 16,
+          "minItems": 1
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "when": {
+          "$ref": "#/$defs/selector"
+        },
+        "country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        }
+      },
+      "required": [
+        "id",
+        "priority",
+        "prefix",
+        "suffixes",
+        "maxLength",
+        "when",
+        "country"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

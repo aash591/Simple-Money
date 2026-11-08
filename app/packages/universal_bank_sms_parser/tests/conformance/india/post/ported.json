@@ -1,0 +1,170 @@
+[
+  {
+    "id": "post-ported-001",
+    "country": "IN",
+    "bankId": "in.post",
+    "provenance": "Legacy Dart regression: india_dop_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-DOPBNK-G",
+      "body": "Account  No. XXXXXXXX1234 CREDIT with amount Rs. 5550.00 on 02-03-2026. Balance: Rs.40000.00. [S76543210]",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.post.template001",
+      "candidate": {
+        "amountMinor": 555000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "bankName": "Department of Post",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "S76543210",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "post-ported-002",
+    "country": "IN",
+    "bankId": "in.post",
+    "provenance": "Legacy Dart regression: india_dop_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BZ-DOPBNK-G",
+      "body": "Account  No. XXXXXXXX1234 CREDIT with amount Rs. 5550.00 on 02-02-2026. Balance: Rs.37500.00. [S33475450]",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.post.template001",
+      "candidate": {
+        "amountMinor": 555000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "bankName": "Department of Post",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "S33475450",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "post-ported-003",
+    "country": "IN",
+    "bankId": "in.post",
+    "provenance": "Legacy Dart regression: india_dop_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BV-DOPBNK-S",
+      "body": "Account  No. XXXXXXXX1234 CREDIT with amount Rs. 5550.00 on 02-01-2026. Balance: Rs.32000.00. [S92247102]",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.post.template001",
+      "candidate": {
+        "amountMinor": 555000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "bankName": "Department of Post",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "S92247102",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "post-ported-004",
+    "country": "IN",
+    "bankId": "in.post",
+    "provenance": "Legacy Dart regression: india_dop_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-DOPBNK-G",
+      "body": "Account No. XXXXXXXX5678 DEBIT with amount Rs. 2000.00 on 15-03-2026. Balance: Rs.18000.00. [D12345678]",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.post.template004",
+      "candidate": {
+        "amountMinor": 200000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Department of Post",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": "D12345678",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

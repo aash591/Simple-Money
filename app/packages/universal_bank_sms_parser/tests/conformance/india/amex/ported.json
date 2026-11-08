@@ -1,0 +1,44 @@
+[
+  {
+    "id": "amex-ported-001",
+    "country": "IN",
+    "bankId": "in.amex",
+    "provenance": "Legacy Dart regression: source-derived example; see NOTICE.md",
+    "input": {
+      "sender": "AMEXIN",
+      "body": "Alert: You've spent INR 1,017.70 on your AMEX card ** 91000 at VOUCHER PLAT on 20 August 2025",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amex.template001",
+      "candidate": {
+        "amountMinor": 101770,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "American Express",
+        "countryCode": "IN",
+        "accountLast4": "1000",
+        "reference": null,
+        "counterparty": "VOUCHER PLAT",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

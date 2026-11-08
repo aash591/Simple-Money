@@ -1,0 +1,461 @@
+[
+  {
+    "id": "hdfc-ported-001",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Legacy Dart regression: india_hdfc_upstream_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "CP-HDFCBK-S",
+      "body": "Rs.500.00 debited from A/c XX1234 on 20-Oct-25 to merchant@upi (UPI Ref No 123456789012)",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.template001",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456789012",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "hdfc-ported-002",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Legacy Dart regression: india_hdfc_upstream_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "HDFCBK",
+      "body": "Sent Rs.15000.00 From HDFC Bank A/C *1234 To TEST MERCHANT PVT LTD On 01/01/26 Ref 567890567890 Not You? Call 18005556789/SMS BLOCK UPI to 7305556789",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.template002",
+      "candidate": {
+        "amountMinor": 1500000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "567890567890",
+        "counterparty": "TEST MERCHANT",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "hdfc-ported-003",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Legacy Dart regression: india_hdfc_upstream_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "CP-HDFCBK-S",
+      "body": "Update! INR 1.00 deposited in HDFC Bank A/c XX9999 on 30-MAR-26 for NEFT Cr-CITI0100000-ACME TECHNOLOGIES-PERSON NAME-CITIN99999999999.Avl bal INR 8.00. Cheque deposits in A/C are subject to clearing",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.template003",
+      "candidate": {
+        "amountMinor": 100,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "9999",
+        "reference": null,
+        "counterparty": "ACME TECHNOLOGIES",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "hdfc-ported-004",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Legacy Dart regression: india_hdfc_upstream_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-HDFCBK-S",
+      "body": "Transaction Reversed!On HDFC Bank CREDIT Card xx5555 Amt: Rs.862.16 By AMAZON                000 On 2026-08-21:05:20:26",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.template004",
+      "candidate": {
+        "amountMinor": 86216,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "5555",
+        "reference": null,
+        "counterparty": "AMAZON",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "refunds",
+          "name": "Refunds",
+          "type": "income",
+          "ruleId": "in.category.refund",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "hdfc-ported-005",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Legacy Dart regression: india_hdfc_upstream_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-HDFCBK-S",
+      "body": "Payment Successful! Rs. 12345.67 from A/c ****4321 to ACMEPAYMENTS via HDFC Bank NetBanking. Not you?Call 18002586161",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.template005",
+      "candidate": {
+        "amountMinor": 1234567,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "4321",
+        "reference": null,
+        "counterparty": "ACMEPAYMENTS",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "hdfc-device2-sent",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-HDFCBK-S",
+      "body": "Sent Rs.125.50\nFrom HDFC Bank A/C *1234\nTo SAMPLE STORE\nOn 08/10/26\nRef 123456789012\nNot You?\nCall 0000000000/SMS BLOCK UPI to 00000",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.device002.sent",
+      "candidate": {
+        "amountMinor": 12550,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456789012",
+        "counterparty": "SAMPLE STORE",
+        "category": {
+          "id": "groceries",
+          "name": "Groceries",
+          "type": "expense",
+          "ruleId": "in.category.groceries",
+          "isFallback": false,
+          "aliases": [
+            "Grocery"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "hdfc-device2-card",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-HDFCBK-S",
+      "body": "Txn Rs.42.00\nOn HDFC Bank Card 1234\nAt SAMPLE@UPI\nby UPI 123456789012\nOn 08-10\nNot You?\nCall 0000000000/SMS BLOCK to 00000",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.device002.card",
+      "candidate": {
+        "amountMinor": 4200,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456789012",
+        "counterparty": "SAMPLE@UPI",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "hdfc-device2-credit",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-HDFCBK-S",
+      "body": "Credit Alert!\nRs.500.00 credited to HDFC Bank A/c XX1234 on 08/10/26 from SAMPLE NAME (UPI 123456789012)",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.device002.credit",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456789012",
+        "counterparty": "SAMPLE NAME",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "hdfc-device3-card-payment",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-HDFCBK-S",
+      "body": "Dear Customer, payment of Rs. 123.45 received towards your credit card ending with 1234 on 08/10/26.Your available limit is Rs. 5000.00",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.device003.card_payment",
+      "candidate": {
+        "amountMinor": 12345,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "card",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "credit_card_repayment",
+          "name": "Credit Card Repayment",
+          "type": "income",
+          "ruleId": "in.category.card_repayment",
+          "isFallback": false,
+          "aliases": [
+            "Credit Card Payment",
+            "Card Repayment"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "hdfc-device3-neft",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-HDFCBK-S",
+      "body": "Update! INR 250.00 deposited in HDFC Bank A/c XX1234 on 08-Oct-26 for NEFT Cr-REF123-SAMPLE NAME.Avl bal INR 5000.00",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.device003.neft",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "hdfc-device3-card-credit",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-HDFCBK-S",
+      "body": "HDFC Bank: Payment of Rs.50.00 with Ref# TEST123 was credited to your card ending 1234 on 08/Oct/26",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.device003.card_credit",
+      "candidate": {
+        "amountMinor": 5000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "card",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

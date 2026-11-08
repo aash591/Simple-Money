@@ -1,0 +1,242 @@
+[
+  {
+    "id": "jiopay-reject-security",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Your OTP is 123456. Recharge Successful for Jio Number : 9876543210. Rs. 249.00 paid. Transaction ID : BR000CAUBYON",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-reject-promotional",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Exclusive offer: apply now. Recharge Successful for Jio Number : 9876543210. Rs. 249.00 paid. Transaction ID : BR000CAUBYON",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-reject-failed",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Payment failed. Recharge Successful for Jio Number : 9876543210. Rs. 249.00 paid. Transaction ID : BR000CAUBYON",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-reject-pending",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Payment pending. Recharge Successful for Jio Number : 9876543210. Rs. 249.00 paid. Transaction ID : BR000CAUBYON",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-reject-future",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Will be debited. Recharge Successful for Jio Number : 9876543210. Rs. 249.00 paid. Transaction ID : BR000CAUBYON",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-reject-notice",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Statement generated. Recharge Successful for Jio Number : 9876543210. Rs. 249.00 paid. Transaction ID : BR000CAUBYON",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-reject-unknown-sender",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTERED",
+      "body": "Recharge Successful for Jio Number : 9876543210. Rs. 249.00 paid. Transaction ID : BR000CAUBYON",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-reject-promotion-sender",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "VM-JIOPAY-P",
+      "body": "Recharge Successful for Jio Number : 9876543210. Rs. 249.00 paid. Transaction ID : BR000CAUBYON",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-reject-balance-only",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Available balance INR 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-legacy-rejection-001",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Legacy rejected literal: india_cred_jiopay_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Your e-bill has been sent. Bill Summary: Amount payable Rs. 242.38. Payment due date: 23-Dec-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jiopay-device3-data-alert",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Sanitized Android 16 carrier-notice regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-JIOPAY-S",
+      "body": "Data Usage Alert! 90% of your daily data used. Jio number: 9000000000. Check your data balance.",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jiopay-device3-data-alert-ml",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Sanitized Android 16 carrier-notice regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-JIOPAY-S",
+      "body": "\u0d21\u0d3e\u0d31\u0d4d\u0d31 \u0d09\u0d2a\u0d2f\u0d4b\u0d17 \u0d05\u0d32\u0d47\u0d7c\u0d1f\u0d4d\u0d1f\u0d4d! Jio number: 9000000000.",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

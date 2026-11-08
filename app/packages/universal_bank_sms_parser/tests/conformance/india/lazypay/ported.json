@@ -1,0 +1,43 @@
+[
+  {
+    "id": "lazypay-ported-001",
+    "country": "IN",
+    "bankId": "in.lazypay",
+    "provenance": "Legacy Dart regression: source-derived example; see NOTICE.md",
+    "input": {
+      "sender": "LZYPAY",
+      "body": "Payment of Rs. 235.76 for txn TXN512924131 on Zepto Marketplace was successful.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.lazypay.template001",
+      "candidate": {
+        "amountMinor": 23576,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "LazyPay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Zepto Marketplace",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "groceries",
+          "name": "Groceries",
+          "type": "expense",
+          "ruleId": "in.category.groceries_more",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

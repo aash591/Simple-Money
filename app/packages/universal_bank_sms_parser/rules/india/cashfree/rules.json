@@ -1,0 +1,115 @@
+{
+  "id": "in.cashfree",
+  "name": "Cashfree",
+  "senders": [
+    "CSHFRE"
+  ],
+  "formats": [
+    {
+      "id": "in.cashfree.template001",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "other",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Payment INR "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " (ID:"
+        },
+        {
+          "op": "capture_reference",
+          "name": "reference",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ") confirmed for order #735571_428_1777162938185 on "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": ". Powered by Cashfree"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "in.cashfree.template002",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "other",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Payment INR "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " (ID:"
+        },
+        {
+          "op": "capture_reference",
+          "name": "reference",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ") confirmed for order #order_001 on "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": ". Powered by Cashfree"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    }
+  ]
+}

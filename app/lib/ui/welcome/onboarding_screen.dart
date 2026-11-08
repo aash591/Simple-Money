@@ -1,0 +1,762 @@
+import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+
+import '../../data/db/app_database.dart';
+import '../../data/repositories/account_repository.dart';
+import '../../data/repositories/sms_import_repository.dart';
+import '../../data/repositories/transaction_repository.dart';
+import '../../domain/account.dart';
+import '../../state/onboarding.dart';
+import '../../state/sms_import_store.dart';
+import '../../state/sync_controller.dart';
+import '../components/action_buttons.dart';
+import '../components/common.dart';
+import '../components/menu_list.dart';
+import '../more/accounts/account_card.dart';
+import '../more/settings/sync/backup_widgets.dart';
+import '../more/settings/sync/sync_flow.dart';
+import 'backup_welcome_screen.dart';
+import 'privacy_card.dart';
+
+enum _Step { welcome, backup, sms, accounts }
+
+/// The first-open setup, one step at a time with its buttons at the bottom:
+/// a welcome that lists what comes next, Drive backup, then bank SMS (one
+/// prompt for SMS and alerts), then the accounts the first scan found, with
+/// their balances to check.
+class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({
+    super.key,
+    required this.database,
+    required this.onDone,
+    this.sync,
+    this.sms,
+  });
+  final AppDatabase database;
+  final SyncController? sync;
+
+  /// Called once, after the choices are saved.
+  final VoidCallback onDone;
+
+  /// The SMS store to use instead of a new one, for tests.
+  final SmsImportStore? sms;
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  late final SmsImportStore _sms =
+      widget.sms ?? SmsImportStore(SmsImportRepository(widget.database));
+  List<_Step>? _steps;
+  int _index = 0;
+
+  /// SMS import was on before: nothing to ask or scan.
+  bool _smsWasOn = false;
+  bool _asking = false, _saving = false, _done = false;
+
+  /// The SMS prompt was refused or dismissed: the page stays, with a note.
+  bool _smsDenied = false;
+  List<_BalanceRow>? _rows;
+  String? _error;
+
+  _Step? get _step => _steps?[_index];
+
+  @override
+  void initState() {
+    super.initState();
+    _sms.addListener(_smsChanged);
+    _decide();
+  }
+
+  @override
+  void dispose() {
+    _sms.removeListener(_smsChanged);
+    if (widget.sms == null) _sms.dispose();
+    for (final row in _rows ?? const <_BalanceRow>[]) {
+      row.controller.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _decide() async {
+    final sync = widget.sync;
+    var backup = false;
+    try {
+      if (sync != null && sync.supported && !await Onboarding.backupSeen()) {
+        if (sync.status == null) await sync.refresh();
+        backup = sync.status?.email == null;
+      }
+    } catch (_) {}
+    if (_sms.supported) {
+      try {
+        _smsWasOn =
+            (await _sms.repository.state()).$1 &&
+            await _sms.platform.hasPermission();
+      } catch (_) {}
+    }
+    final setup = [if (backup) _Step.backup, if (_sms.supported) _Step.sms];
+    if (!mounted) return;
+    if (setup.isEmpty) return _finish();
+    setState(() => _steps = [_Step.welcome, ...setup]);
+  }
+
+  void _next() {
+    if (_index + 1 < _steps!.length) {
+      setState(() => _index++);
+    } else {
+      _finish();
+    }
+  }
+
+  Future<void> _connect() async {
+    if (await connectDrive(context, widget.sync!) && mounted) _next();
+  }
+
+  /// One system prompt covers SMS and alerts. Once allowed, the first scan
+  /// runs here. Refused or dismissed, the page stays so the choice is
+  /// made on purpose: Enable Permissions again, or Skip.
+  void _allowSms() {
+    if (_smsWasOn) {
+      _finish();
+      return;
+    }
+    setState(() {
+      _asking = true;
+      _smsDenied = false;
+    });
+    unawaited(
+      _sms.enable().whenComplete(() {
+        if (!mounted) return;
+        if (_sms.enabled) {
+          _loadAccounts();
+        } else {
+          setState(() {
+            _asking = false;
+            _smsDenied = true;
+          });
+        }
+      }),
+    );
+  }
+
+  void _smsChanged() {
+    if (!mounted || _steps == null) return;
+    if (_step == _Step.sms && _sms.enabled) {
+      setState(() {
+        _asking = false;
+        _steps = [..._steps!, _Step.accounts];
+        _index = _steps!.length - 1;
+      });
+    } else if (_step == _Step.accounts) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _loadAccounts() async {
+    try {
+      final accounts = await AccountRepository(widget.database).load();
+      if (!mounted) return;
+      setState(
+        () => _rows = [
+          for (final a in accounts)
+            if (!a.isArchived && a.type != AccountType.creditCard)
+              _BalanceRow(a),
+        ],
+      );
+    } catch (_) {
+      if (mounted) setState(() => _rows = []);
+    }
+  }
+
+  Future<void> _saveBalances() async {
+    final changes = <(int, int)>[];
+    for (final row in _rows ?? const <_BalanceRow>[]) {
+      // Left as filled in, or cleared: the balance stays as it is.
+      if (row.untouched || row.controller.text.trim().isEmpty) continue;
+      final amount = row.amount;
+      if (amount == null || amount < 0) {
+        setState(() => _error = 'Check the balance for ${row.account.name}.');
+        return;
+      }
+      if (amount != row.account.balanceMinor) {
+        changes.add((row.account.id, amount));
+      }
+    }
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      final transactions = TransactionRepository(widget.database);
+      for (final (id, amount) in changes) {
+        await transactions.adjustBalance(
+          accountId: id,
+          mode: BalanceAdjustmentMode.setTo,
+          amountMinor: amount,
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = 'Could not save the balances. Please try again.';
+      });
+      return;
+    }
+    await _finish();
+  }
+
+  Future<void> _finish() async {
+    if (_done) return;
+    _done = true;
+    final steps = _steps ?? const <_Step>[];
+    try {
+      await Onboarding.finish(sawBackup: steps.contains(_Step.backup));
+    } catch (_) {}
+    widget.onDone();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final step = _step;
+    return PopScope(
+      // Back steps back; it can't leave the scan, which is already running.
+      canPop: step == null || _index == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && step != _Step.accounts && _index > 0) {
+          setState(() => _index--);
+        }
+      },
+      child: Scaffold(
+        body: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.center,
+              colors: [
+                theme.colorScheme.primary.withValues(alpha: .1),
+                theme.scaffoldBackgroundColor,
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 520),
+                child: step == null
+                    ? const SizedBox.expand()
+                    : AnimatedSwitcher(
+                        duration: MediaQuery.disableAnimationsOf(context)
+                            ? Duration.zero
+                            : const Duration(milliseconds: 200),
+                        child: SizedBox.expand(
+                          key: ValueKey(step),
+                          child: _page(context, step),
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// How many steps the dots show: the accounts step joins once SMS is on.
+  int get _planned {
+    final steps = _steps!;
+    return steps.length +
+        (steps.contains(_Step.sms) &&
+                !_smsWasOn &&
+                !steps.contains(_Step.accounts)
+            ? 1
+            : 0);
+  }
+
+  Widget _page(BuildContext context, _Step step) => Column(
+    children: [
+      _header(step),
+      Expanded(
+        child: LayoutBuilder(
+          builder: (context, box) => SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: box.maxHeight),
+              // Pictures sit at the top, so they stay put from page to page;
+              // only the accounts step, which has none, is centred.
+              child: Align(
+                alignment: step == _Step.accounts
+                    ? Alignment.center
+                    : const Alignment(0, -1),
+                child: switch (step) {
+                  _Step.welcome => _WelcomeContent(
+                    backup: _steps!.contains(_Step.backup),
+                    sms: _steps!.contains(_Step.sms),
+                  ),
+                  _Step.backup => const BackupWelcomeContent(),
+                  _Step.sms => _SmsContent(denied: _smsDenied),
+                  _Step.accounts => _accountsContent(context),
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+      switch (step) {
+        _Step.welcome => _welcomeBar(),
+        _Step.backup => _backupBar(),
+        _Step.sms => _smsBar(),
+        _Step.accounts => _accountsBar(),
+      },
+    ],
+  );
+
+  /// The step dots, with Skip at the top right on the backup and SMS steps.
+  Widget _header(_Step step) {
+    final dots = _Dots(count: _planned, current: _index);
+    if (step == _Step.sms) {
+      // Already on, there is nothing to skip: just Finish.
+      return _smsWasOn
+          ? dots
+          : _withSkip(
+              dots,
+              TextButton(
+                onPressed: _asking ? null : _finish,
+                child: const Text('Skip'),
+              ),
+            );
+    }
+    if (step != _Step.backup) return dots;
+    final sync = widget.sync!;
+    return ListenableBuilder(
+      listenable: sync,
+      builder: (context, _) => _withSkip(
+        dots,
+        TextButton(
+          onPressed: sync.connecting || sync.restoring ? null : _next,
+          child: const Text('Skip'),
+        ),
+      ),
+    );
+  }
+
+  Widget _withSkip(Widget dots, Widget skip) => Stack(
+    alignment: Alignment.center,
+    children: [
+      dots,
+      Align(
+        alignment: Alignment.centerRight,
+        child: Padding(padding: const EdgeInsets.only(right: 8), child: skip),
+      ),
+    ],
+  );
+
+  Widget _welcomeBar() => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+    child: SizedBox(
+      width: double.infinity,
+      child: PillButton(label: 'Get started', onPressed: _next),
+    ),
+  );
+
+  Widget _backupBar() {
+    final sync = widget.sync!;
+    return ListenableBuilder(
+      listenable: sync,
+      builder: (context, _) {
+        final busy = sync.connecting || sync.restoring;
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (sync.actionError != null) ...[
+                ErrorBanner(sync.actionError!),
+                const SizedBox(height: 12),
+              ],
+              GoogleSignInButton(
+                label: 'Continue with Google',
+                busy: busy,
+                busyLabel: sync.restoring ? 'Restoring your data…' : null,
+                onPressed: _connect,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _smsBar() => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+    child: SizedBox(
+      width: double.infinity,
+      child: PillButton(
+        label: _smsWasOn ? 'Finish' : 'Enable Permissions',
+        loading: _asking,
+        onPressed: _allowSms,
+      ),
+    ),
+  );
+
+  Widget _accountsBar() => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+    child: SizedBox(
+      width: double.infinity,
+      child: PillButton(
+        label: 'Finish',
+        loading: _saving,
+        onPressed: _rows == null ? _finish : _saveBalances,
+      ),
+    ),
+  );
+
+  Widget _accountsContent(BuildContext context) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final number = NumberFormat.decimalPattern();
+    final muted = text.bodyMedium?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+      height: 1.5,
+    );
+    final rows = _rows;
+    if (rows == null) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const RoundIcon(Icons.manage_search_rounded),
+          const SizedBox(height: 24),
+          Text(
+            'Finding your accounts',
+            textAlign: TextAlign.center,
+            style: text.headlineMedium,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            _sms.importing
+                ? 'Saving your transactions…'
+                : '${number.format(_sms.scannedMessages)} messages checked',
+            textAlign: TextAlign.center,
+            style: muted,
+          ),
+          const SizedBox(height: 22),
+          const LinearProgressIndicator(
+            borderRadius: BorderRadius.all(Radius.circular(4)),
+          ),
+          const SizedBox(height: 22),
+          Row(
+            children: [
+              Expanded(
+                child: _Figure(
+                  number.format(_sms.foundTransactions),
+                  'Transactions',
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _Figure(
+                  number.format(_sms.foundAccounts.length),
+                  'Banks',
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+    final saved = _sms.lastScan?.saved ?? 0;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          rows.isEmpty ? 'All set' : 'Check your balances',
+          textAlign: TextAlign.center,
+          style: text.headlineMedium,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          rows.isEmpty
+              ? 'No bank SMS yet. New ones are added as they arrive.'
+              : [
+                  if (saved > 0)
+                    '${number.format(saved)} ${saved == 1 ? 'transaction' : 'transactions'} added.',
+                  'Balances from your bank’s SMS are filled in.',
+                ].join(' '),
+          textAlign: TextAlign.center,
+          style: muted,
+        ),
+        if (_sms.error != null) ...[
+          const SizedBox(height: 14),
+          ErrorBanner(_sms.error!),
+        ],
+        const SizedBox(height: 20),
+        for (final row in rows) ...[
+          _BalanceField(row),
+          const SizedBox(height: 12),
+        ],
+        if (_error != null) ErrorBanner(_error!),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+}
+
+/// The welcome: what Simple Money does, and the steps that follow.
+class _WelcomeContent extends StatelessWidget {
+  const _WelcomeContent({required this.backup, required this.sms});
+  final bool backup, sms;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const HeroSlot(child: AppLogoTile(size: 110)),
+        const SizedBox(height: 24),
+        Text(
+          'Welcome to Simple Money',
+          textAlign: TextAlign.center,
+          style: text.headlineMedium,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Know where your money goes. Your data stays on your phone.',
+          textAlign: TextAlign.center,
+          style: text.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 28),
+        MenuGroup(
+          label: 'What you’ll set up',
+          children: [
+            if (backup)
+              MenuRow(
+                icon: Icons.cloud_rounded,
+                title: 'Back up to Google Drive',
+                subtitle: 'Optional · a private copy in your Drive',
+                trailing: const SizedBox.shrink(),
+              ),
+            if (sms)
+              MenuRow(
+                icon: Icons.sms_rounded,
+                title: 'Add payments from SMS',
+                subtitle: 'Optional · bank payments added for you',
+                trailing: const SizedBox.shrink(),
+              ),
+            if (sms)
+              const MenuRow(
+                icon: Icons.account_balance_wallet_rounded,
+                title: 'Check your accounts',
+                subtitle: 'Confirm the balances we find',
+                trailing: SizedBox.shrink(),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// The step before the SMS permission prompt: what is used, and what isn't.
+class _SmsContent extends StatelessWidget {
+  const _SmsContent({this.denied = false});
+
+  /// The permission was refused or dismissed.
+  final bool denied;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final muted = text.bodyMedium?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+      height: 1.5,
+    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const HeroSlot(child: RoundIcon(Icons.sms_rounded)),
+        const SizedBox(height: 24),
+        Text(
+          'Enable Automatic Detection',
+          textAlign: TextAlign.center,
+          style: text.headlineMedium,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'To add your bank transactions automatically, Simple Money reads '
+          'the SMS on your phone, including new ones as they arrive, and '
+          'picks out the ones from your bank. This is the main way the app '
+          'records your spending.',
+          textAlign: TextAlign.center,
+          style: muted,
+        ),
+        const SizedBox(height: 24),
+        const PrivacyCard(
+          title: 'Your Privacy Matters',
+          points: [
+            'Only bank transaction messages are used',
+            'Messages are read on your device and never uploaded',
+            'Not sold or shared with anyone',
+            'OTPs and personal messages are ignored',
+            'You can turn this off anytime in More › Settings',
+          ],
+        ),
+        if (denied) ...[
+          const SizedBox(height: 14),
+          const ErrorBanner(
+            'SMS access wasn’t allowed. Tap Enable Permissions to try again. '
+            'If nothing appears, allow SMS in Android Settings › Apps › '
+            'Simple Money › Permissions.',
+          ),
+        ],
+        const SizedBox(height: 14),
+        Text(
+          'Tap Enable Permissions and your phone will ask to allow SMS and notifications. '
+          'You can skip this and add transactions by hand.',
+          textAlign: TextAlign.center,
+          style: text.bodySmall,
+        ),
+      ],
+    );
+  }
+}
+
+class _Dots extends StatelessWidget {
+  const _Dots({required this.count, required this.current});
+  final int count, current;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      // As tall as a Skip button, so the pages below start at the same place.
+      padding: const EdgeInsets.symmetric(vertical: 21),
+      child: Semantics(
+        label: 'Step ${current + 1} of $count',
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var i = 0; i < count; i++)
+              Container(
+                width: i == current ? 18 : 6,
+                height: 6,
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                decoration: BoxDecoration(
+                  color: i == current
+                      ? colors.primary
+                      : colors.onSurface.withValues(alpha: .18),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Figure extends StatelessWidget {
+  const _Figure(this.value, this.label);
+  final String value, label;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return MoneyCard(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+      child: Column(
+        children: [
+          Text(value, style: text.titleLarge),
+          const SizedBox(height: 2),
+          Text(label, style: text.bodySmall),
+        ],
+      ),
+    );
+  }
+}
+
+class _BalanceRow {
+  _BalanceRow(this.account)
+    : initial = _plain(account.balanceMinor, account.digits) {
+    controller = TextEditingController(text: initial);
+  }
+  final Account account;
+  final String initial;
+  late final TextEditingController controller;
+
+  bool get untouched => controller.text.trim() == initial;
+
+  int? get amount => parseAccountAmount(controller.text, account.digits);
+
+  /// An amount as typed: no grouping, no trailing zero decimals.
+  static String _plain(int minor, int digits) {
+    final scale = math.pow(10, digits).toInt();
+    final whole = minor.abs() ~/ scale;
+    final fraction = minor.abs() % scale;
+    final sign = minor < 0 ? '-' : '';
+    return fraction == 0
+        ? '$sign$whole'
+        : '$sign$whole.${fraction.toString().padLeft(digits, '0')}';
+  }
+}
+
+/// An account as it looks in Accounts, with its balance to confirm.
+class _BalanceField extends StatelessWidget {
+  const _BalanceField(this.row);
+  final _BalanceRow row;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.headlineSmall?.copyWith(
+      fontWeight: FontWeight.w700,
+      letterSpacing: -.5,
+    );
+    return AccountCard(
+      account: row.account,
+      showTransactionCount: false,
+      subtitle: row.account.balanceReportedAt != null
+          ? 'Balance from your SMS'
+          : 'Enter today’s balance',
+      balanceEditor: Align(
+        alignment: Alignment.centerLeft,
+        child: SizedBox(
+          width: 200,
+          child: TextField(
+            controller: row.controller,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+            ],
+            textInputAction: TextInputAction.done,
+            onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+            style: style,
+            decoration: InputDecoration(
+              hintText: 'Set balance',
+              hintStyle: style?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: .38),
+              ),
+              border: InputBorder.none,
+              isDense: true,
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

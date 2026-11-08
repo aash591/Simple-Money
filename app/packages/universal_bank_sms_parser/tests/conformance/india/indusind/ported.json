@@ -1,0 +1,594 @@
+[
+  {
+    "id": "indusind-ported-001",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VM-INDUSB-S",
+      "body": "Rs. 1,234.00 debited from A/c XX1234 at ZOMATO Ref 998877. Avl Bal: Rs 10,000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template001",
+      "candidate": {
+        "amountMinor": 123400,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "998877",
+        "counterparty": "ZOMATO",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indusind-ported-002",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-INDUSIND-S",
+      "body": "A/c *XX1234 debited by Rs 1234.00 towards xxxx.yyyy@icici. RRN: 510048508040. Not You? call 18602677777- IndusInd Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template002",
+      "candidate": {
+        "amountMinor": 123400,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "510048508040",
+        "counterparty": "xxxx.yyyy@icici",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "Rs 1234"
+    }
+  },
+  {
+    "id": "indusind-ported-003",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-INDUSIND-S",
+      "body": "A/C *XX1234 credited by Rs 25000.00 from xxxx.yyyy@ybl. RRN:510048508040. Avl Bal:105502.12. Not you? Call 18602677777 - IndusInd bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template003",
+      "candidate": {
+        "amountMinor": 2500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "510048508040",
+        "counterparty": "xxxx.yyyy@ybl",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "Rs 25000"
+    }
+  },
+  {
+    "id": "indusind-ported-004",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-INDUSIND-S",
+      "body": "Your IndusInd Account 20XXXXX1234 has been debited for INR 6440 towards IMPS/12345678901. Call 18602677777 to report issue-IndusInd Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template004",
+      "candidate": {
+        "amountMinor": 644000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "report issue-IndusInd Bank",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indusind-ported-005",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-INDUSIND-S",
+      "body": "IndusInd A/C  Debited; INR 4,500.00 Ref-ACH DR INW PAY/0000WD2CEFDT2Z58B2202320321456/Grow.Bal INR 141,999.93.Dispute-Call 18602677777-IndusInd Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template005",
+      "candidate": {
+        "amountMinor": 450000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indusind-ported-006",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-INDUSIND-S",
+      "body": "INR 1,101.53 debited from your A/C 201***123456 towards Debit Card Purchase. Avl BAL INR 400.20 - Not you? Call 18602677777 to report issue - IndusInd Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template006",
+      "candidate": {
+        "amountMinor": 110153,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "3456",
+        "reference": null,
+        "counterparty": "Debit Card Purchase",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indusind-ported-007",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JK-INDUSB-S",
+      "body": "A/C *XX0000 credited by Rs 300.00 from abcd@upiid. RRN:123456789098. Avl Bal:00.00. Not you? Call 18602677777 - IndusInd bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template007",
+      "candidate": {
+        "amountMinor": 30000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "0000",
+        "reference": "123456789098",
+        "counterparty": "abcd@upiid",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "Rs 300"
+    }
+  },
+  {
+    "id": "indusind-ported-008",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JX-INDUSB-S",
+      "body": "A/C *XX0000 credited by Rs 890.00 from abcd@upiid. RRN:123456789098. Avl Bal:00.00. Not you? Call 18602677777 - IndusInd bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template007",
+      "candidate": {
+        "amountMinor": 89000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "0000",
+        "reference": "123456789098",
+        "counterparty": "abcd@upiid",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "Rs 890"
+    }
+  },
+  {
+    "id": "indusind-ported-009",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JM-INDUSB-S",
+      "body": "Your IndusInd Account 15XXXXX0000 has been credited for INR 116.56 towards IMPS/500200000290. Call 18602677777 to report issue-IndusInd Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template009",
+      "candidate": {
+        "amountMinor": 11656,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "0000",
+        "reference": null,
+        "counterparty": "report issue-IndusInd Bank",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indusind-ported-010",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VM-INDUSB-T",
+      "body": "Your account XXXXXXX1234 is credited by Rs.54321 on 07-11-25 received from account XXXXXXX4321/MADMONEY (IMPS Ref no. 123456789). Call 18602677777 to report issue-IndusInd Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template010",
+      "candidate": {
+        "amountMinor": 5432100,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456789",
+        "counterparty": "Rs.54321",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indusind-ported-011",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-INDUSIND-S",
+      "body": "INR 1,250.00 spent on IndusInd Card XX1234 on 14-06-2026 04:21:45 pm at INSTAMART. Avl Lmt: INR 48,750.00. To dispute, call 18602677777/SMS BLOCK 1234 to 5676757",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template011",
+      "candidate": {
+        "amountMinor": 125000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "INSTAMART",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indusind-ported-012",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-INDUSIND-S",
+      "body": "Dear Customer, refund of INR 250 from Swiggy Limited Banga has been credited to your IndusInd Bank Credit Card XX1234 on 11-Jun-26 and the refund amount has been adjusted against the outstanding on your card account - IndusInd Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template012",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "card",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "Swiggy Limited Banga",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "refunds",
+          "name": "Refunds",
+          "type": "income",
+          "ruleId": "in.category.refund",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indusind-ported-013",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-INDUSIND-S",
+      "body": "Dear Customer, refund of INR 499 from Zomato has been credited to your IndusInd Bank Credit Card XXXX5678 on 11-Jun-26 and the refund amount has been adjusted against the outstanding on your card account - IndusInd Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template012",
+      "candidate": {
+        "amountMinor": 49900,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "card",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "Zomato",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "refunds",
+          "name": "Refunds",
+          "type": "income",
+          "ruleId": "in.category.refund",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indusind-ported-014",
+    "country": "IN",
+    "bankId": "in.indusind",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-INDUSB-S",
+      "body": "Rs. 250.00 debited from A/c XX9876 at SWIGGY Ref TXN123",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template014",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "9876",
+        "reference": "TXN123",
+        "counterparty": "SWIGGY",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

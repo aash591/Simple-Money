@@ -1,0 +1,202 @@
+[
+  {
+    "id": "dhanlaxmi-reject-security",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "TL-DHANBK-S",
+      "body": "Your OTP is 123456. INR 20.00 is debited from A/c XXXX1234 on 28-NOV-2025 - \"UPI TXN: /675325120952-MR /Payment from PhonePe/Q12345444@ybl/YESB0YBLUPI/4172120251128000100004392\". Aval Bal is INR 26,578.49. If not transacted call 044-42413000.-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-reject-promotional",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "TL-DHANBK-S",
+      "body": "Exclusive offer: apply now. INR 20.00 is debited from A/c XXXX1234 on 28-NOV-2025 - \"UPI TXN: /675325120952-MR /Payment from PhonePe/Q12345444@ybl/YESB0YBLUPI/4172120251128000100004392\". Aval Bal is INR 26,578.49. If not transacted call 044-42413000.-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-reject-failed",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "TL-DHANBK-S",
+      "body": "Payment failed. INR 20.00 is debited from A/c XXXX1234 on 28-NOV-2025 - \"UPI TXN: /675325120952-MR /Payment from PhonePe/Q12345444@ybl/YESB0YBLUPI/4172120251128000100004392\". Aval Bal is INR 26,578.49. If not transacted call 044-42413000.-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-reject-pending",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "TL-DHANBK-S",
+      "body": "Payment pending. INR 20.00 is debited from A/c XXXX1234 on 28-NOV-2025 - \"UPI TXN: /675325120952-MR /Payment from PhonePe/Q12345444@ybl/YESB0YBLUPI/4172120251128000100004392\". Aval Bal is INR 26,578.49. If not transacted call 044-42413000.-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-reject-future",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "TL-DHANBK-S",
+      "body": "Will be debited. INR 20.00 is debited from A/c XXXX1234 on 28-NOV-2025 - \"UPI TXN: /675325120952-MR /Payment from PhonePe/Q12345444@ybl/YESB0YBLUPI/4172120251128000100004392\". Aval Bal is INR 26,578.49. If not transacted call 044-42413000.-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-reject-notice",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "TL-DHANBK-S",
+      "body": "Statement generated. INR 20.00 is debited from A/c XXXX1234 on 28-NOV-2025 - \"UPI TXN: /675325120952-MR /Payment from PhonePe/Q12345444@ybl/YESB0YBLUPI/4172120251128000100004392\". Aval Bal is INR 26,578.49. If not transacted call 044-42413000.-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-reject-unknown-sender",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTERED",
+      "body": "INR 20.00 is debited from A/c XXXX1234 on 28-NOV-2025 - \"UPI TXN: /675325120952-MR /Payment from PhonePe/Q12345444@ybl/YESB0YBLUPI/4172120251128000100004392\". Aval Bal is INR 26,578.49. If not transacted call 044-42413000.-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-reject-promotion-sender",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "VM-DHANBK-P",
+      "body": "INR 20.00 is debited from A/c XXXX1234 on 28-NOV-2025 - \"UPI TXN: /675325120952-MR /Payment from PhonePe/Q12345444@ybl/YESB0YBLUPI/4172120251128000100004392\". Aval Bal is INR 26,578.49. If not transacted call 044-42413000.-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-reject-balance-only",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "TL-DHANBK-S",
+      "body": "Available balance INR 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-legacy-rejection-001",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Legacy rejected literal: india_dhanlaxmi_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "DHANBK",
+      "body": "Your Dhanlaxmi Bank account balance is INR 50,000.00.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true
+  }
+]

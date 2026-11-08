@@ -1,0 +1,406 @@
+{
+  "format": "sms-rules-runtime",
+  "schemaVersion": "0.3",
+  "minEngineVersion": "0.3.0",
+  "packVersion": 1,
+  "rules": [
+    {
+      "id": "ir.parsian.credit",
+      "bankId": "ir.parsian",
+      "bankName": "Parsian Bank",
+      "country": "IR",
+      "senders": [
+        "PARSIANBANK",
+        "PARSIAN",
+        "PARSIAN BANK",
+        "PERSIANBANK",
+        "PERSIAN"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii",
+          "persian",
+          "arabic_indic"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "IRR": 2
+        },
+        "denominations": {
+          "تومان": {
+            "currency": "IRR",
+            "multiplier": 10
+          },
+          "ریال": {
+            "currency": "IRR",
+            "multiplier": 1
+          }
+        },
+        "currency": "IRR"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        },
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "Ø±Ù…Ø² ÛŒÚ©Ø¨Ø§Ø± Ù…ØµØ±Ù",
+              "Ú©Ø¯ ØªØ§ÛŒÛŒØ¯"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "Ù¾ÛŒØ´Ù†Ù‡Ø§Ø¯",
+              "ØªØ¨Ù„ÛŒØº",
+              "ØªØ®ÙÛŒÙ"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "Ù†Ø§Ù…ÙˆÙÙ‚",
+              "Ù„ØºÙˆ"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "Ø¯Ø± Ø§Ù†ØªØ¸Ø§Ø±"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ù¾Ø±Ø¯Ø§Ø®Øª"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "مبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 24
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_enum",
+          "name": "denomination",
+          "maxLength": 8,
+          "values": [
+            "تومان",
+            "ریال"
+          ]
+        },
+        {
+          "op": "match_literal",
+          "value": " واریز به حساب شما انجام شد."
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount",
+          "denominationCapture": "denomination"
+        }
+      }
+    },
+    {
+      "id": "ir.parsian.debit",
+      "bankId": "ir.parsian",
+      "bankName": "Parsian Bank",
+      "country": "IR",
+      "senders": [
+        "PARSIANBANK",
+        "PARSIAN",
+        "PARSIAN BANK",
+        "PERSIANBANK",
+        "PERSIAN"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii",
+          "persian",
+          "arabic_indic"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "IRR": 2
+        },
+        "denominations": {
+          "تومان": {
+            "currency": "IRR",
+            "multiplier": 10
+          },
+          "ریال": {
+            "currency": "IRR",
+            "multiplier": 1
+          }
+        },
+        "currency": "IRR"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        },
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "Ø±Ù…Ø² ÛŒÚ©Ø¨Ø§Ø± Ù…ØµØ±Ù",
+              "Ú©Ø¯ ØªØ§ÛŒÛŒØ¯"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "Ù¾ÛŒØ´Ù†Ù‡Ø§Ø¯",
+              "ØªØ¨Ù„ÛŒØº",
+              "ØªØ®ÙÛŒÙ"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "Ù†Ø§Ù…ÙˆÙÙ‚",
+              "Ù„ØºÙˆ"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "Ø¯Ø± Ø§Ù†ØªØ¸Ø§Ø±"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ù¾Ø±Ø¯Ø§Ø®Øª"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "مبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 24
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_enum",
+          "name": "denomination",
+          "maxLength": 8,
+          "values": [
+            "تومان",
+            "ریال"
+          ]
+        },
+        {
+          "op": "match_literal",
+          "value": " از حساب شما برداشت شد."
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount",
+          "denominationCapture": "denomination"
+        }
+      }
+    }
+  ],
+  "senderIndex": {
+    "PARSIAN": [
+      0,
+      1
+    ],
+    "PARSIAN BANK": [
+      0,
+      1
+    ],
+    "PARSIANBANK": [
+      0,
+      1
+    ],
+    "PERSIAN": [
+      0,
+      1
+    ],
+    "PERSIANBANK": [
+      0,
+      1
+    ]
+  },
+  "categoryRules": [],
+  "counterpartyRules": []
+}

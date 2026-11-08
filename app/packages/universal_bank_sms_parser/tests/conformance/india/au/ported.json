@@ -1,0 +1,253 @@
+[
+  {
+    "id": "au-ported-001",
+    "country": "IN",
+    "bankId": "in.au",
+    "provenance": "Legacy Dart regression: india_au_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-AUBANK",
+      "body": "Debited INR 165.00 from A/c X7013 on 01-MAR-2026 UPI/DR/651122781360/UK FOOD/UTIB/9180201 Bal INR 900000000 Not you? Call 180012001200 & dial 0 -AU Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.au.template001",
+      "candidate": {
+        "amountMinor": 16500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "AU Small Finance Bank",
+        "countryCode": "IN",
+        "accountLast4": "7013",
+        "reference": "651122781360",
+        "counterparty": "UK FOOD",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "au-ported-002",
+    "country": "IN",
+    "bankId": "in.au",
+    "provenance": "Legacy Dart regression: india_au_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-AUBANK",
+      "body": "Debited INR 500.00 from A/c 1234567890 on 15-FEB-2026. Bal INR 10000.00. -AU Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.au.template002",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "AU Small Finance Bank",
+        "countryCode": "IN",
+        "accountLast4": "7890",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "au-ported-003",
+    "country": "IN",
+    "bankId": "in.au",
+    "provenance": "Legacy Dart regression: india_au_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-AUBANK",
+      "body": "INR 259.90 spent at TELEGRAM PREMIUM on AU Bank Credit Card x1234 21-03-2026 05:49:40 PM. Not you? Call 180012001500 or SMS PBLOCK 1234 to 5676767",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.au.template003",
+      "candidate": {
+        "amountMinor": 25990,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "AU Small Finance Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "TELEGRAM PREMIUM",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "au-ported-004",
+    "country": "IN",
+    "bankId": "in.au",
+    "provenance": "Legacy Dart regression: india_au_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-AUBANK-S",
+      "body": "Dr INR 29,000.00 from A/c X7661 on 05-MAY-2026 UPI/DR/012345678901/Bank Account XXXXX Bal INR 10,952.10 Not you? Call 180012001200 & dial 0 -AU Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.au.template004",
+      "candidate": {
+        "amountMinor": 2900000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "AU Small Finance Bank",
+        "countryCode": "IN",
+        "accountLast4": "7661",
+        "reference": "012345678901",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "au-ported-005",
+    "country": "IN",
+    "bankId": "in.au",
+    "provenance": "Legacy Dart regression: india_au_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-AUBANK-S",
+      "body": "Dr INR 10.00 - AU A/c X4541 12-MAY-2026 UPI/DR/424941009000/ALADDIN SHAWARMA/Y Bal INR 18,838.10 Fraud? Call 180012001200/SMS BLOCK UPI to 5676767",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.au.template005",
+      "candidate": {
+        "amountMinor": 1000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "AU Small Finance Bank",
+        "countryCode": "IN",
+        "accountLast4": "4541",
+        "reference": "424941009000",
+        "counterparty": "ALADDIN SHAWARMA",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants_dish",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "au-ported-006",
+    "country": "IN",
+    "bankId": "in.au",
+    "provenance": "Legacy Dart regression: india_au_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-AUBANK-S",
+      "body": "Cr INR 5,000.00 to A/c X4541 12-MAY-2026 UPI/CR/424941009999/JANE DOE/Y Bal INR 23,838.10 -AU Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.au.template006",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "AU Small Finance Bank",
+        "countryCode": "IN",
+        "accountLast4": "4541",
+        "reference": "424941009999",
+        "counterparty": "JANE DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

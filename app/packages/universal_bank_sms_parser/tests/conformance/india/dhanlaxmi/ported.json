@@ -1,0 +1,209 @@
+[
+  {
+    "id": "dhanlaxmi-ported-001",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Legacy Dart regression: india_dhanlaxmi_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "TL-DHANBK-S",
+      "body": "INR 20.00 is debited from A/c XXXX1234 on 28-NOV-2025 - \"UPI TXN: /675325120952-MR /Payment from PhonePe/Q12345444@ybl/YESB0YBLUPI/4172120251128000100004392\". Aval Bal is INR 26,578.49. If not transacted call 044-42413000.-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.dhanlaxmi.template001",
+      "candidate": {
+        "amountMinor": 2000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Dhanlaxmi Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "675325120952",
+        "counterparty": "PhonePe",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "dhanlaxmi-ported-002",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Legacy Dart regression: india_dhanlaxmi_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-DHANBK",
+      "body": "INR 10.00 is credited to A/c XXXX1234 on 24-APR-2025 - \"UPI TXN: /398353431145-Paytm/payment on Myntra using UPI on Mar 25 2025/one97987¡axisbank/911188478932/41721202504240001\". Aval Bal is INR 36,278.92 -DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.dhanlaxmi.template002",
+      "candidate": {
+        "amountMinor": 1000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Dhanlaxmi Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "398353431145",
+        "counterparty": "Myntra",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "dhanlaxmi-ported-003",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Legacy Dart regression: india_dhanlaxmi_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-DHANBK",
+      "body": "Your a/c no. XXXXXXXX1234 is credited for Rs.10.00 on 24-04-25 and debited from a/c no. XXXXXXXX0987 (UPI Ref no 398353431145).-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.dhanlaxmi.template003",
+      "candidate": {
+        "amountMinor": 1000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Dhanlaxmi Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "398353431145",
+        "counterparty": "Internal Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "dhanlaxmi-ported-004",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Legacy Dart regression: india_dhanlaxmi_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "TL-DHANBK-S",
+      "body": "INR 50,000.00 is debited from A/c XXXX5678 on 15-DEC-2025 - \"UPI TXN: /123456789012-MR /Payment from GPay\". Aval Bal is INR 1,25,000.50. If not transacted call 044-42413000.-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.dhanlaxmi.template004",
+      "candidate": {
+        "amountMinor": 5000000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Dhanlaxmi Bank",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": "123456789012",
+        "counterparty": "GPay",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "dhanlaxmi-ported-005",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Legacy Dart regression: india_dhanlaxmi_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-DHANBK",
+      "body": "INR 500.00 is credited to A/c XXXX9999 on 01-JAN-2026 - \"UPI TXN: /111222333444-Salary/Payment from Employer\". Aval Bal is INR 75,500.00 -DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.dhanlaxmi.template005",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Dhanlaxmi Bank",
+        "countryCode": "IN",
+        "accountLast4": "9999",
+        "reference": "111222333444",
+        "counterparty": "Employer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "salary",
+          "name": "Salary",
+          "type": "income",
+          "ruleId": "in.category.salary",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

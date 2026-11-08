@@ -1,0 +1,202 @@
+[
+  {
+    "id": "cashfree-reject-security",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JX-CSHfre-S",
+      "body": "Your OTP is 123456. Payment INR 50.00 (ID:5448114171) confirmed for order #735571_428_1777162938185 on AuraGold.\nPowered by Cashfree",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cashfree-reject-promotional",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JX-CSHfre-S",
+      "body": "Exclusive offer: apply now. Payment INR 50.00 (ID:5448114171) confirmed for order #735571_428_1777162938185 on AuraGold.\nPowered by Cashfree",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cashfree-reject-failed",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JX-CSHfre-S",
+      "body": "Payment failed. Payment INR 50.00 (ID:5448114171) confirmed for order #735571_428_1777162938185 on AuraGold.\nPowered by Cashfree",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cashfree-reject-pending",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JX-CSHfre-S",
+      "body": "Payment pending. Payment INR 50.00 (ID:5448114171) confirmed for order #735571_428_1777162938185 on AuraGold.\nPowered by Cashfree",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cashfree-reject-future",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JX-CSHfre-S",
+      "body": "Will be debited. Payment INR 50.00 (ID:5448114171) confirmed for order #735571_428_1777162938185 on AuraGold.\nPowered by Cashfree",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cashfree-reject-notice",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "JX-CSHfre-S",
+      "body": "Statement generated. Payment INR 50.00 (ID:5448114171) confirmed for order #735571_428_1777162938185 on AuraGold.\nPowered by Cashfree",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cashfree-reject-unknown-sender",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTERED",
+      "body": "Payment INR 50.00 (ID:5448114171) confirmed for order #735571_428_1777162938185 on AuraGold.\nPowered by Cashfree",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cashfree-reject-promotion-sender",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "VM-CSHFRE-P",
+      "body": "Payment INR 50.00 (ID:5448114171) confirmed for order #735571_428_1777162938185 on AuraGold.\nPowered by Cashfree",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cashfree-reject-balance-only",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "JX-CSHfre-S",
+      "body": "Available balance INR 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cashfree-legacy-rejection-001",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Legacy rejected literal: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "CSHFRE",
+      "body": "OTP 123456 is your one time password. Do not share.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true
+  }
+]

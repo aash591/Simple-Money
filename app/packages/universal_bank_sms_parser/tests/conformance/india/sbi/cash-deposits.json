@@ -1,0 +1,165 @@
+[
+  {
+    "id": "sbi-cdm-deposit",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Synthetic regression from manually inspected October 2026 device SMS deposit templates; all identifiers and values replaced.",
+    "input": {
+      "sender": "AX-CBSSBI-S",
+      "body": "Your A/C XXXXX1234 Credited INR 1,250.50 on 12/10/26 -Deposit of Cash at S1NL000001 CDM. Avl Bal INR 9,876.54-SBI",
+      "receivedAt": "2026-10-12T10:30:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.cdm.cash_deposit",
+      "candidate": {
+        "amountMinor": 125050,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "atm",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "atm_deposit",
+          "name": "ATM Deposit",
+          "type": "income",
+          "ruleId": "in.category.cdm_deposit",
+          "isFallback": false,
+          "aliases": [
+            "Cash Deposit"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-cdm-deposit-small",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Synthetic regression from manually inspected October 2026 device SMS deposit templates; all identifiers and values replaced.",
+    "input": {
+      "sender": "AD-CBSSBI-S",
+      "body": "Your A/C XXXXX1234 Credited INR 500.00 on 12/10/26 -Deposit of Cash at S1NN000002 CDM. Avl Bal INR 0.00-SBI",
+      "receivedAt": "2026-10-12T10:30:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.cdm.cash_deposit",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "atm",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "atm_deposit",
+          "name": "ATM Deposit",
+          "type": "income",
+          "ruleId": "in.category.cdm_deposit",
+          "isFallback": false,
+          "aliases": [
+            "Cash Deposit"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-cdm-charge",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Synthetic regression from manually inspected October 2026 device SMS deposit templates; all identifiers and values replaced.",
+    "input": {
+      "sender": "AD-CBSSBI-S",
+      "body": "Your AC XXXXX1234 Debited INR 25.00 on 12/10/26 -CDM CHARGE DR. Avl Bal INR 9,876.54.-SBI",
+      "receivedAt": "2026-10-12T10:30:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.sbi.cdm.charge",
+      "candidate": {
+        "amountMinor": 2500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "atm",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "State Bank of India",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "bank_charges",
+          "name": "Bank Charges",
+          "type": "expense",
+          "ruleId": "in.category.bank_charges",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-cdm-otp",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Synthetic regression from manually inspected October 2026 device SMS deposit templates; all identifiers and values replaced.",
+    "input": {
+      "sender": "AX-CBSSBI-S",
+      "body": "OTP 123456. Your A/C XXXXX1234 Credited INR 1,250.50 on 12/10/26 -Deposit of Cash at S1NL000001 CDM. Avl Bal INR 9,876.54-SBI",
+      "receivedAt": "2026-10-12T10:30:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sbi-cdm-pending",
+    "country": "IN",
+    "bankId": "in.sbi",
+    "provenance": "Synthetic regression from manually inspected October 2026 device SMS deposit templates; all identifiers and values replaced.",
+    "input": {
+      "sender": "AX-CBSSBI-S",
+      "body": "Pending: Your A/C XXXXX1234 Credited INR 1,250.50 on 12/10/26 -Deposit of Cash at S1NL000001 CDM. Avl Bal INR 9,876.54-SBI",
+      "receivedAt": "2026-10-12T10:30:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

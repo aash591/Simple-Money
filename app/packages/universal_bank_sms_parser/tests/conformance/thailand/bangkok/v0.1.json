@@ -1,0 +1,133 @@
+[
+  {
+    "id": "thai-transfer",
+    "provenance": "existing PennyWise-derived Dart fixture",
+    "input": {
+      "sender": "BBL",
+      "body": "BBL: โอนเงินออก 1,500.00 บาท บช x1234 คงเหลือ 19,320.45 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.bangkok.transfer.debit",
+      "candidate": {
+        "amountMinor": 150000,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "Bangkok Bank",
+        "countryCode": "TH",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "compareLegacy": true,
+    "country": "TH",
+    "bankId": "th.bangkok"
+  },
+  {
+    "id": "thai-transfer-security",
+    "input": {
+      "sender": "BBL",
+      "body": "Your OTP is 123456. BBL: โอนเงินออก 1,500.00 บาท บช x1234 คงเหลือ 19,320.45 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "TH",
+    "bankId": "th.bangkok"
+  },
+  {
+    "id": "thai-transfer-promotional",
+    "input": {
+      "sender": "BBL",
+      "body": "Exclusive offer: apply now. BBL: โอนเงินออก 1,500.00 บาท บช x1234 คงเหลือ 19,320.45 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "TH",
+    "bankId": "th.bangkok"
+  },
+  {
+    "id": "thai-transfer-failed",
+    "input": {
+      "sender": "BBL",
+      "body": "Payment failed. BBL: โอนเงินออก 1,500.00 บาท บช x1234 คงเหลือ 19,320.45 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "TH",
+    "bankId": "th.bangkok"
+  },
+  {
+    "id": "thai-transfer-pending",
+    "input": {
+      "sender": "BBL",
+      "body": "Payment pending. BBL: โอนเงินออก 1,500.00 บาท บช x1234 คงเหลือ 19,320.45 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "TH",
+    "bankId": "th.bangkok"
+  },
+  {
+    "id": "thai-transfer-future",
+    "input": {
+      "sender": "BBL",
+      "body": "Will be debited. BBL: โอนเงินออก 1,500.00 บาท บช x1234 คงเหลือ 19,320.45 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "conservative future-rejection extension",
+    "country": "TH",
+    "bankId": "th.bangkok"
+  }
+]

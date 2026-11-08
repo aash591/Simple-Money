@@ -1,0 +1,147 @@
+[
+  {
+    "id": "shared-indusind",
+    "provenance": "existing PennyWise-derived Dart fixture",
+    "input": {
+      "sender": "INDBNK",
+      "body": "A/C *XX1234 credited by Rs 25000.00 from xxxx.yyyy@ybl. RRN:510048508040. Avl Bal:105502.12. Not you? Call 18602677777 - IndusInd bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indusind.template003",
+      "candidate": {
+        "amountMinor": 2500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "IndusInd Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "510048508040",
+        "counterparty": "xxxx.yyyy@ybl",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "Rs 25000"
+    },
+    "country": "IN",
+    "bankId": "in.indusind"
+  },
+  {
+    "id": "shared-indusind-security",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Your OTP is 123456. A/C *XX1234 credited by Rs 25000.00 from xxxx.yyyy@ybl. RRN:510048508040. Avl Bal:105502.12. Not you? Call 18602677777 - IndusInd bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.indusind"
+  },
+  {
+    "id": "shared-indusind-promotional",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Exclusive offer: apply now. A/C *XX1234 credited by Rs 25000.00 from xxxx.yyyy@ybl. RRN:510048508040. Avl Bal:105502.12. Not you? Call 18602677777 - IndusInd bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.indusind"
+  },
+  {
+    "id": "shared-indusind-failed",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Payment failed. A/C *XX1234 credited by Rs 25000.00 from xxxx.yyyy@ybl. RRN:510048508040. Avl Bal:105502.12. Not you? Call 18602677777 - IndusInd bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.indusind"
+  },
+  {
+    "id": "shared-indusind-pending",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Payment pending. A/C *XX1234 credited by Rs 25000.00 from xxxx.yyyy@ybl. RRN:510048508040. Avl Bal:105502.12. Not you? Call 18602677777 - IndusInd bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.indusind"
+  },
+  {
+    "id": "shared-indusind-future",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Will be debited. A/C *XX1234 credited by Rs 25000.00 from xxxx.yyyy@ybl. RRN:510048508040. Avl Bal:105502.12. Not you? Call 18602677777 - IndusInd bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "conservative future-rejection extension",
+    "country": "IN",
+    "bankId": "in.indusind"
+  }
+]

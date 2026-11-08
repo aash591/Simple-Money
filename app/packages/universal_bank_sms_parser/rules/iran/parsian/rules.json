@@ -1,0 +1,93 @@
+{
+  "id": "ir.parsian",
+  "name": "Parsian Bank",
+  "senders": [
+    "PARSIANBANK",
+    "PARSIAN",
+    "PARSIAN BANK",
+    "PERSIANBANK",
+    "PERSIAN"
+  ],
+  "formats": [
+    {
+      "id": "ir.parsian.debit",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "مبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 24
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_enum",
+          "name": "denomination",
+          "maxLength": 8,
+          "values": [
+            "تومان",
+            "ریال"
+          ]
+        },
+        {
+          "op": "match_literal",
+          "value": " از حساب شما برداشت شد."
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount",
+          "denominationCapture": "denomination"
+        }
+      }
+    },
+    {
+      "id": "ir.parsian.credit",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "مبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 24
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_enum",
+          "name": "denomination",
+          "maxLength": 8,
+          "values": [
+            "تومان",
+            "ریال"
+          ]
+        },
+        {
+          "op": "match_literal",
+          "value": " واریز به حساب شما انجام شد."
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount",
+          "denominationCapture": "denomination"
+        }
+      }
+    }
+  ]
+}

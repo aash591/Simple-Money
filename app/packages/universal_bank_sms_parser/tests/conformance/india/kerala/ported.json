@@ -1,0 +1,86 @@
+[
+  {
+    "id": "kerala-ported-001",
+    "country": "IN",
+    "bankId": "in.kerala",
+    "provenance": "Legacy Dart regression: india_uco_psb_kerala_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-KELBNK-S",
+      "body": "Dear Customer Your A/c no XXXX0024 is credited with 15000.00 on 06-06-2026 by Loan Recovery From : 139451061. Balance is -579822.00 - Kerala Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kerala.template001",
+      "candidate": {
+        "amountMinor": 1500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "bankName": "Kerala Bank",
+        "countryCode": "IN",
+        "accountLast4": "0024",
+        "reference": null,
+        "counterparty": "Loan Recovery",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kerala-ported-002",
+    "country": "IN",
+    "bankId": "in.kerala",
+    "provenance": "Legacy Dart regression: india_uco_psb_kerala_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-KELBNK-S",
+      "body": "Your A/c no XXXX0024 is credited with 15000.00 by Loan Recovery.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.kerala.template002",
+      "candidate": {
+        "amountMinor": 1500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "bankName": "Kerala Bank",
+        "countryCode": "IN",
+        "accountLast4": "0024",
+        "reference": null,
+        "counterparty": "Loan Recovery",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

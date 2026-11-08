@@ -1,0 +1,460 @@
+[
+  {
+    "id": "baroda-ported-001",
+    "country": "IN",
+    "bankId": "in.baroda",
+    "provenance": "Legacy Dart regression: india_bank_of_baroda_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-BOBTXN-S",
+      "body": "Rs.29 transferred from A/c ...5494 to:Loan Recovery Fo. Total Bal:Rs.24898.57CR. Avlbl Amt:Rs.24898.57(04-11-2025 04:03:09) - Bank of Baroda",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.baroda.template001",
+      "candidate": {
+        "amountMinor": 2900,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Bank of Baroda",
+        "countryCode": "IN",
+        "accountLast4": "5494",
+        "reference": null,
+        "counterparty": "Loan Recovery Fo",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "baroda-ported-002",
+    "country": "IN",
+    "bankId": "in.baroda",
+    "provenance": "Legacy Dart regression: india_bank_of_baroda_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-BOBTXN-S",
+      "body": "Rs.1500.00 transferred from A/c ...1234 to:John Smith. Total Bal:Rs.15000.00CR. Avlbl Amt:Rs.15000.00(10-11-2025 10:30:00) - Bank of Baroda",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.baroda.template002",
+      "candidate": {
+        "amountMinor": 150000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Bank of Baroda",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "John Smith",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "baroda-ported-003",
+    "country": "IN",
+    "bankId": "in.baroda",
+    "provenance": "Legacy Dart regression: india_bank_of_baroda_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-BOBTXN",
+      "body": "Rs.80.00 Dr. from A/c XX123456 on 12-11-2024. AvlBal:Rs1234.56cx. Ref:52211012345 -Bank of Baroda",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.baroda.template003",
+      "candidate": {
+        "amountMinor": 8000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Bank of Baroda",
+        "countryCode": "IN",
+        "accountLast4": "3456",
+        "reference": "52211012345",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "baroda-ported-004",
+    "country": "IN",
+    "bankId": "in.baroda",
+    "provenance": "Legacy Dart regression: india_bank_of_baroda_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-BOBSMS",
+      "body": "Rs.500.00 Cr. to redacted@ybl A/c XX789012 on 15-11-2024. AvlBal:Rs5678.90. Ref:987654321 -Bank of Baroda",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.baroda.template004",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Bank of Baroda",
+        "countryCode": "IN",
+        "accountLast4": "9012",
+        "reference": "987654321",
+        "counterparty": "UPI Payment",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "baroda-ported-005",
+    "country": "IN",
+    "bankId": "in.baroda",
+    "provenance": "Legacy Dart regression: india_bank_of_baroda_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-BOBSMS",
+      "body": "Rs.1000.00 Cr. to merchant@okaxis A/c XX345678 on 16-11-2024. AvlBal:Rs10000.00. Ref:1234567890 -Bank of Baroda",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.baroda.template005",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Bank of Baroda",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": "1234567890",
+        "counterparty": "merchant",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "baroda-ported-006",
+    "country": "IN",
+    "bankId": "in.baroda",
+    "provenance": "Legacy Dart regression: india_bank_of_baroda_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-BOBTXN-S",
+      "body": "Rs.2500.00 credited to A/c XX456789 via IMPS/518233445566 by JOHN DOE. AvlBal:Rs25000.00 -Bank of Baroda",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.baroda.template006",
+      "candidate": {
+        "amountMinor": 250000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Bank of Baroda",
+        "countryCode": "IN",
+        "accountLast4": "6789",
+        "reference": "518233445566",
+        "counterparty": "JOHN DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "baroda-ported-007",
+    "country": "IN",
+    "bankId": "in.baroda",
+    "provenance": "Legacy Dart regression: india_bank_of_baroda_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-BOBSMS",
+      "body": "Rs.10000.00 deposited in cash to A/c XX234567 on 20-11-2024. AvlBal:Rs45000.00 -Bank of Baroda",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.baroda.template007",
+      "candidate": {
+        "amountMinor": 1000000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "bankName": "Bank of Baroda",
+        "countryCode": "IN",
+        "accountLast4": "4567",
+        "reference": null,
+        "counterparty": "Cash Deposit",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "baroda-ported-008",
+    "country": "IN",
+    "bankId": "in.baroda",
+    "provenance": "Legacy Dart regression: india_bank_of_baroda_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-BOBCRD-S",
+      "body": "ALERT: INR 1,500.00 is spent on your BOBCARD ending 1234 at AMAZON on 25-11-2024 10:30:00. Available credit limit is Rs 42,981.46 -Bank of Baroda",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.baroda.template008",
+      "candidate": {
+        "amountMinor": 150000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Bank of Baroda",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "AMAZON",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "baroda-ported-009",
+    "country": "IN",
+    "bankId": "in.baroda",
+    "provenance": "Legacy Dart regression: india_bank_of_baroda_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-BOBCRD-S",
+      "body": "ALERT: INR 250.50 spent on your BOBCARD ending 5678 at SWIGGY on 26-11-2024. -Bank of Baroda",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.baroda.template009",
+      "candidate": {
+        "amountMinor": 25050,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Bank of Baroda",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "SWIGGY",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "baroda-ported-010",
+    "country": "IN",
+    "bankId": "in.baroda",
+    "provenance": "Legacy Dart regression: india_bank_of_baroda_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-BOBSMS",
+      "body": "Your A/c XX987654 is credited with INR 70.00 on 30-11-2024. Total Bal:Rs.5000.00 -Bank of Baroda",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.baroda.template010",
+      "candidate": {
+        "amountMinor": 7000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Bank of Baroda",
+        "countryCode": "IN",
+        "accountLast4": "7654",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "baroda-ported-011",
+    "country": "IN",
+    "bankId": "in.baroda",
+    "provenance": "Legacy Dart regression: india_bank_of_baroda_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-BOBTXN",
+      "body": "Rs.5000.00 Credited to A/c XX112233 on 01-12-2024. AvlBal:Rs12345.67 -Bank of Baroda",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.baroda.template011",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Bank of Baroda",
+        "countryCode": "IN",
+        "accountLast4": "2233",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

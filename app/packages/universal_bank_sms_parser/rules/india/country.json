@@ -1,0 +1,2399 @@
+{
+  "schemaVersion": "0.3",
+  "minEngineVersion": "0.3.0",
+  "packVersion": 1,
+  "country": "IN",
+  "defaults": {
+    "currency": "INR",
+    "case": "ascii_insensitive",
+    "digits": [
+      "ascii"
+    ],
+    "decimalMark": ".",
+    "grouping": "western",
+    "exponents": {
+      "INR": 2,
+      "USD": 2,
+      "EUR": 2,
+      "GBP": 2
+    }
+  },
+  "classifiers": [
+    {
+      "classification": "security",
+      "when": {
+        "any": [
+          "your otp",
+          "Your OTP",
+          "otp is",
+          "verification code",
+          "one-time password"
+        ]
+      }
+    },
+    {
+      "classification": "promotional",
+      "when": {
+        "any": [
+          "apply now",
+          "exclusive offer",
+          "Exclusive offer",
+          "pre-approved",
+          "cashback offer"
+        ]
+      }
+    },
+    {
+      "classification": "failed",
+      "when": {
+        "any": [
+          "failed",
+          "declined",
+          "unsuccessful"
+        ]
+      }
+    },
+    {
+      "classification": "pending",
+      "when": {
+        "any": [
+          "pending"
+        ]
+      }
+    },
+    {
+      "classification": "future",
+      "when": {
+        "any": [
+          "will be debited",
+          "Will be debited",
+          "will be credited",
+          "to be debited",
+          "payment due"
+        ]
+      }
+    },
+    {
+      "classification": "notice",
+      "when": {
+        "any": [
+          "statement generated",
+          "minimum amount due"
+        ]
+      }
+    },
+    {
+      "classification": "notice",
+      "when": {
+        "any": [
+          "bill has been generated",
+          "ignore if already paid",
+          "converting your outstanding dues"
+        ]
+      }
+    }
+  ],
+  "banks": [
+    "airtel/rules.json",
+    "amazonpay/rules.json",
+    "amex/rules.json",
+    "au/rules.json",
+    "axis/rules.json",
+    "bandhan/rules.json",
+    "baroda/rules.json",
+    "boi/rules.json",
+    "canara/rules.json",
+    "cashfree/rules.json",
+    "central/rules.json",
+    "cityunion/rules.json",
+    "cred/rules.json",
+    "dbs/rules.json",
+    "dhanlaxmi/rules.json",
+    "equitas/rules.json",
+    "federal/rules.json",
+    "greater/rules.json",
+    "hdfc/rules.json",
+    "hdfcmf/rules.json",
+    "hsbc/rules.json",
+    "icici/rules.json",
+    "idbi/rules.json",
+    "idfc/rules.json",
+    "indian/rules.json",
+    "indusind/rules.json",
+    "iob/rules.json",
+    "ippb/rules.json",
+    "jana/rules.json",
+    "jiopay/rules.json",
+    "jiopayments/rules.json",
+    "jk/rules.json",
+    "jupiter/rules.json",
+    "karnataka/rules.json",
+    "kerala/rules.json",
+    "keralagramin/rules.json",
+    "kotak/rules.json",
+    "lazypay/rules.json",
+    "navi/rules.json",
+    "nsdl/rules.json",
+    "onecard/rules.json",
+    "pluxee/rules.json",
+    "pnb/rules.json",
+    "post/rules.json",
+    "psb/rules.json",
+    "saraswat/rules.json",
+    "sbi/rules.json",
+    "slice/rules.json",
+    "southindian/rules.json",
+    "standardchartered/rules.json",
+    "uco/rules.json",
+    "union/rules.json",
+    "utkarsh/rules.json",
+    "yes/rules.json"
+  ],
+  "categoryRules": [
+    {
+      "id": "in.category.card_repayment",
+      "priority": 10,
+      "categoryId": "credit_card_repayment",
+      "name": "Credit Card Repayment",
+      "aliases": [
+        "Credit Card Payment",
+        "Card Repayment"
+      ],
+      "directions": [
+        "debit",
+        "credit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "all": [
+          "payment"
+        ],
+        "any": [
+          "received",
+          "credited",
+          "processed",
+          "towards",
+          "repayment",
+          "debited"
+        ],
+        "none": [
+          "refund",
+          "cashback",
+          "reversal",
+          "reversed",
+          " at "
+        ]
+      },
+      "isFallback": false,
+      "requires": {
+        "any": [
+          "credit card",
+          "onecard",
+          "supercard",
+          "sbi card"
+        ]
+      }
+    },
+    {
+      "id": "in.category.refund",
+      "priority": 20,
+      "categoryId": "refunds",
+      "name": "Refunds",
+      "aliases": [],
+      "directions": [
+        "credit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "refund",
+          "cashback",
+          "reversal",
+          "reversed",
+          "rewards",
+          "UPIRET"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.bank_charges",
+      "priority": 30,
+      "categoryId": "bank_charges",
+      "name": "Bank Charges",
+      "aliases": [],
+      "directions": [
+        "debit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "CDM CHARGE",
+          "annual charge",
+          "maintenance charge",
+          "service charge",
+          "charge debited",
+          "charge dr",
+          "WDL Service",
+          "sms charges",
+          "CDM CH ARGE",
+          "commission",
+          "ATM AMC",
+          "card AMC",
+          "INSTAALERTCHG",
+          "annual fee"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.atm_deposit",
+      "priority": 40,
+      "categoryId": "atm_deposit",
+      "name": "ATM Deposit",
+      "aliases": [
+        "Cash Deposit"
+      ],
+      "directions": [
+        "credit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "using cash deposit machine",
+          "ATM deposit",
+          "CDM deposit",
+          "CSH DEP",
+          "CASH DEP",
+          "CDM DEP"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.cdm_deposit",
+      "priority": 41,
+      "categoryId": "atm_deposit",
+      "name": "ATM Deposit",
+      "aliases": [
+        "Cash Deposit"
+      ],
+      "directions": [
+        "credit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "all": [
+          "deposit of cash",
+          " CDM"
+        ],
+        "any": [],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.cash_deposit",
+      "priority": 45,
+      "categoryId": "cash_deposit",
+      "name": "Cash Deposit",
+      "aliases": [],
+      "directions": [
+        "credit"
+      ],
+      "source": "body",
+      "match": "words",
+      "when": {
+        "all": [
+          "by CASH"
+        ],
+        "any": [],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.atm_withdrawal",
+      "priority": 50,
+      "categoryId": "atm_withdrawal",
+      "name": "ATM Withdrawal",
+      "aliases": [
+        "Cash Withdrawal"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "withdrawn",
+          "cash withdrawal",
+          "ATM txn",
+          "ATM transaction",
+          "ATM WDL",
+          "ATM CASH",
+          "CASH WDL",
+          "ATM WITHDRAWAL",
+          "NFS/CASH"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.interest",
+      "priority": 60,
+      "categoryId": "interest",
+      "name": "Interest",
+      "aliases": [],
+      "directions": [
+        "credit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "towards interest",
+          "interest credited",
+          "interest payment",
+          "int.pd",
+          "interest credit",
+          "interes t credit",
+          "interest paid"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.salary",
+      "priority": 70,
+      "categoryId": "salary",
+      "name": "Salary",
+      "aliases": [],
+      "directions": [
+        "credit"
+      ],
+      "source": "body",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "salary"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.electricity",
+      "priority": 80,
+      "categoryId": "electricity",
+      "name": "Electricity",
+      "aliases": [
+        "Bills & Utilities"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "KSEB",
+          "Kerala State Electricity"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.train",
+      "priority": 90,
+      "categoryId": "public_transport_train",
+      "name": "Train",
+      "aliases": [
+        "Public Transport",
+        "Transportation"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "Indian Rail",
+          "IRCTC"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.bus",
+      "priority": 90,
+      "categoryId": "public_transport_bus",
+      "name": "Bus",
+      "aliases": [
+        "Public Transport",
+        "Transportation"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "KSRTC",
+          "keralastateroad",
+          "Kerala State Ro",
+          "redbus"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.bus_short_name",
+      "priority": 91,
+      "categoryId": "public_transport_bus",
+      "name": "Bus",
+      "aliases": [
+        "Public Transport",
+        "Transportation"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "exact",
+      "when": {
+        "all": [],
+        "any": [
+          "Kerala State",
+          "Kerala Stat"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.bus_short_body",
+      "priority": 92,
+      "categoryId": "public_transport_bus",
+      "name": "Bus",
+      "aliases": [
+        "Public Transport",
+        "Transportation"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "to Kerala State.",
+          "IST Kerala Stat Avl",
+          "IST Kerala State Avl"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.subscriptions",
+      "priority": 100,
+      "categoryId": "subscriptions",
+      "name": "Subscriptions",
+      "aliases": [
+        "Entertainment"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "Netflix",
+          "Spotify",
+          "Hotstar",
+          "YouTube Premium",
+          "Prime Video"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.fuel",
+      "priority": 110,
+      "categoryId": "fuel",
+      "name": "Fuel",
+      "aliases": [],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "fuel",
+          "fuels",
+          "petrol",
+          "pump",
+          "petroleum",
+          "diesel",
+          "BPCL",
+          "HPCL",
+          "IOC",
+          "Indian Oil"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.fuel_alias",
+      "priority": 111,
+      "categoryId": "fuel",
+      "name": "Fuel",
+      "aliases": [],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "Chithira Pe",
+          "ChithiraPetroleum",
+          "D P N FU"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.pharmacy",
+      "priority": 120,
+      "categoryId": "pharmacy",
+      "name": "Pharmacy",
+      "aliases": [],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "pharmacy",
+          "medical",
+          "medicals",
+          "chemist",
+          "pharma"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.health",
+      "priority": 130,
+      "categoryId": "health",
+      "name": "Health & Fitness",
+      "aliases": [
+        "Doctor"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "hospital",
+          "clinic",
+          "doctor",
+          "dental"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.restaurants",
+      "priority": 140,
+      "categoryId": "restaurants",
+      "name": "Restaurants",
+      "aliases": [
+        "Food & Beverage"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "restaurant",
+          "restaurants",
+          "Swiggy",
+          "Zomato",
+          "cafe",
+          "bakery",
+          "Food Box",
+          "Mubarak Hot"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.cab",
+      "priority": 150,
+      "categoryId": "public_transport_cab",
+      "name": "Cab",
+      "aliases": [
+        "Taxi",
+        "Public Transport",
+        "Transportation"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "Uber",
+          "Ola",
+          "taxi"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.mobile_recharge",
+      "priority": 160,
+      "categoryId": "mobile_recharge",
+      "name": "Mobile Recharge",
+      "aliases": [
+        "Mobile"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "gpay recharge",
+          "gpayrecharge",
+          "recharge"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.mobile",
+      "priority": 170,
+      "categoryId": "mobile",
+      "name": "Mobile",
+      "aliases": [
+        "Bills & Utilities"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "BSNL",
+          "Airtel",
+          "Jio",
+          "Vodafone"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.clothing",
+      "priority": 180,
+      "categoryId": "clothing",
+      "name": "Clothing",
+      "aliases": [
+        "Shopping"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "textile",
+          "textiles",
+          "clothing",
+          "garment",
+          "garments",
+          "fashion"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.groceries",
+      "priority": 190,
+      "categoryId": "groceries",
+      "name": "Groceries",
+      "aliases": [
+        "Grocery"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "store"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.shopping",
+      "priority": 200,
+      "categoryId": "shopping",
+      "name": "Shopping",
+      "aliases": [],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "Flipkart",
+          "Amazon",
+          "Myntra",
+          "Meesho"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.nach_debit",
+      "priority": 99999,
+      "categoryId": "nach_debit",
+      "name": "NACH Auto Debit",
+      "aliases": [],
+      "directions": [
+        "debit"
+      ],
+      "source": "body",
+      "match": "words",
+      "when": {
+        "any": [
+          "NACH"
+        ]
+      },
+      "isFallback": true
+    },
+    {
+      "id": "in.category.incoming_transfer",
+      "priority": 99998,
+      "categoryId": "other_income",
+      "name": "Other Income",
+      "aliases": [],
+      "directions": [
+        "credit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "any": [
+          "transfer from"
+        ]
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.personal",
+      "priority": 100000,
+      "categoryId": "personal",
+      "name": "Personal",
+      "aliases": [
+        "Other Expense",
+        "Other Income"
+      ],
+      "directions": [
+        "debit",
+        "credit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [],
+        "none": []
+      },
+      "isFallback": true
+    },
+    {
+      "id": "in.category.grocery_words",
+      "priority": 191,
+      "categoryId": "groceries",
+      "name": "Groceries",
+      "aliases": [
+        "Grocery"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "any": [
+          "grocery",
+          "groceries",
+          "supermarket",
+          "mart"
+        ]
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.electricity_merchant",
+      "priority": 81,
+      "categoryId": "electricity",
+      "name": "Electricity",
+      "aliases": [
+        "Bills & Utilities"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "electricity",
+          "kseb"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.water",
+      "priority": 82,
+      "categoryId": "water",
+      "name": "Water",
+      "aliases": [
+        "Bills & Utilities"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "water authority",
+          "kwa",
+          "water bill"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.internet",
+      "priority": 83,
+      "categoryId": "internet",
+      "name": "Internet",
+      "aliases": [
+        "Bills & Utilities"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "broadband",
+          "fibernet",
+          "fiber",
+          "fibre",
+          "kerala vision",
+          "asianet",
+          "railwire",
+          "hathway",
+          "jiofiber",
+          "airtel xstream"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.dth",
+      "priority": 84,
+      "categoryId": "subscriptions",
+      "name": "Subscriptions",
+      "aliases": [
+        "Bills & Utilities"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "tata play",
+          "tata sky",
+          "dish tv",
+          "d2h",
+          "sun direct",
+          "dth"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.metro",
+      "priority": 93,
+      "categoryId": "public_transport_train",
+      "name": "Train",
+      "aliases": [
+        "Public Transport",
+        "Transportation"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "kmrl",
+          "kochi metro",
+          "metro"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.tolls",
+      "priority": 94,
+      "categoryId": "tolls",
+      "name": "Tolls",
+      "aliases": [
+        "Transportation"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "fastag",
+          "netc",
+          "toll",
+          "toll plaza"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.parking",
+      "priority": 95,
+      "categoryId": "parking",
+      "name": "Parking",
+      "aliases": [
+        "Transportation"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "parking"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.subscriptions_merchant",
+      "priority": 101,
+      "categoryId": "subscriptions",
+      "name": "Subscriptions",
+      "aliases": [
+        "Bills & Utilities"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "google play",
+          "playstore",
+          "play store",
+          "google one",
+          "apple",
+          "itunes",
+          "microsoft",
+          "adobe",
+          "canva",
+          "openai",
+          "chatgpt",
+          "jiocinema",
+          "zee5",
+          "sonyliv",
+          "disney"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.subscriptions_handle",
+      "priority": 102,
+      "categoryId": "subscriptions",
+      "name": "Subscriptions",
+      "aliases": [
+        "Bills & Utilities"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "playstore"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.fuel_more",
+      "priority": 112,
+      "categoryId": "fuel",
+      "name": "Fuel",
+      "aliases": [
+        "Transportation"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "petro",
+          "filling station",
+          "fuel station"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.pharmacy_short",
+      "priority": 121,
+      "categoryId": "pharmacy",
+      "name": "Pharmacy",
+      "aliases": [
+        "Health & Fitness"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "med",
+          "medic",
+          "medi",
+          "medicine",
+          "medicines",
+          "medicare",
+          "drug",
+          "drugs",
+          "druggist",
+          "chemists",
+          "medplus",
+          "netmeds",
+          "pharmeasy",
+          "1mg"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.health_more",
+      "priority": 131,
+      "categoryId": "health",
+      "name": "Health & Fitness",
+      "aliases": [],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "diagnostic",
+          "diagnostics",
+          "laboratory",
+          "scans",
+          "scan centre",
+          "physio",
+          "physiotherapy",
+          "ayurveda",
+          "ayurvedic",
+          "homeo",
+          "homoeo",
+          "optical",
+          "opticals",
+          "optician",
+          "eye care",
+          "dentist",
+          "nursing home",
+          "health care",
+          "healthcare"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.beauty",
+      "priority": 132,
+      "categoryId": "beauty_personal_care",
+      "name": "Beauty & Personal Care",
+      "aliases": [
+        "Shopping"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "salon",
+          "saloon",
+          "parlour",
+          "parlor",
+          "beauty",
+          "hair",
+          "barber",
+          "spa",
+          "unisex",
+          "makeover",
+          "cosmetics"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.gym",
+      "priority": 133,
+      "categoryId": "gym_sports",
+      "name": "Gym & Sports",
+      "aliases": [
+        "Health & Fitness"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "gym",
+          "fitness",
+          "turf",
+          "sports",
+          "yoga"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.cafe",
+      "priority": 135,
+      "categoryId": "cafe",
+      "name": "Cafe",
+      "aliases": [
+        "Restaurants",
+        "Food & Beverage"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "tea",
+          "chai",
+          "chaya",
+          "coffee",
+          "cafe",
+          "juice",
+          "juices",
+          "shakes",
+          "cool bar",
+          "coolbar",
+          "ice cream",
+          "icecream",
+          "ice creams",
+          "chaayos",
+          "starbucks"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.bakery",
+      "priority": 136,
+      "categoryId": "bakery",
+      "name": "Bakery",
+      "aliases": [
+        "Cafe",
+        "Restaurants",
+        "Food & Beverage"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "bake",
+          "cake"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.bakery_short",
+      "priority": 137,
+      "categoryId": "bakery",
+      "name": "Bakery",
+      "aliases": [
+        "Cafe",
+        "Restaurants",
+        "Food & Beverage"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "bak",
+          "sweets",
+          "confectionery",
+          "confectionary"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.restaurants_more",
+      "priority": 141,
+      "categoryId": "restaurants",
+      "name": "Restaurants",
+      "aliases": [
+        "Food & Beverage"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "hotel",
+          "hotels",
+          "fast food",
+          "food court",
+          "kitchen",
+          "mandi",
+          "dhaba",
+          "canteen",
+          "mess",
+          "darbar",
+          "thattukada",
+          "pizza",
+          "burger",
+          "kfc",
+          "mcdonalds",
+          "dominos",
+          "subway",
+          "eatery",
+          "tiffin",
+          "meals"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.restaurants_dish",
+      "priority": 142,
+      "categoryId": "restaurants",
+      "name": "Restaurants",
+      "aliases": [
+        "Food & Beverage"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "grill",
+          "biriyani",
+          "biryani",
+          "shawarma",
+          "alfahm"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.cab_more",
+      "priority": 151,
+      "categoryId": "public_transport_cab",
+      "name": "Cab",
+      "aliases": [
+        "Public Transport",
+        "Transportation"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "rapido",
+          "namma yatri",
+          "auto rickshaw"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.recharge_more",
+      "priority": 161,
+      "categoryId": "mobile_recharge",
+      "name": "Mobile Recharge",
+      "aliases": [
+        "Mobile",
+        "Bills & Utilities"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "euronet",
+          "prepaid recharge"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.recharge_handle",
+      "priority": 162,
+      "categoryId": "mobile_recharge",
+      "name": "Mobile Recharge",
+      "aliases": [
+        "Mobile",
+        "Bills & Utilities"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "body",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "gpayrechar"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.mobile_vi",
+      "priority": 171,
+      "categoryId": "mobile",
+      "name": "Mobile",
+      "aliases": [
+        "Bills & Utilities"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "exact",
+      "when": {
+        "all": [],
+        "any": [
+          "vi",
+          "vi prepaid",
+          "vi postpaid",
+          "vi recharge"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.mobile_more",
+      "priority": 172,
+      "categoryId": "mobile",
+      "name": "Mobile",
+      "aliases": [
+        "Bills & Utilities"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "vodafone idea",
+          "sanchar nigam"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.insurance",
+      "priority": 173,
+      "categoryId": "insurance",
+      "name": "Insurance",
+      "aliases": [],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "insurance",
+          "lic",
+          "policybazaar",
+          "policyba",
+          "star health",
+          "acko"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.charity",
+      "priority": 174,
+      "categoryId": "charity",
+      "name": "Charity",
+      "aliases": [],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "donation",
+          "donations",
+          "charity",
+          "zakat",
+          "masjid",
+          "mosque",
+          "church",
+          "temple",
+          "devaswom",
+          "orphanage",
+          "cmdrf"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.movies",
+      "priority": 175,
+      "categoryId": "movies",
+      "name": "Movies",
+      "aliases": [
+        "Entertainment"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "bookmyshow",
+          "cinema",
+          "cinemas",
+          "theatre",
+          "theater",
+          "pvr",
+          "inox",
+          "multiplex"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.flights",
+      "priority": 176,
+      "categoryId": "flights",
+      "name": "Flights",
+      "aliases": [
+        "Travel"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "airlines",
+          "airways",
+          "air india",
+          "indigo",
+          "akasa",
+          "spicejet",
+          "air services",
+          "aviation"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.travel",
+      "priority": 177,
+      "categoryId": "travel_trip",
+      "name": "Travel Trip",
+      "aliases": [
+        "Travel"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "travels",
+          "tours",
+          "holidays",
+          "makemytrip",
+          "goibibo",
+          "cleartrip",
+          "ixigo"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.lodging",
+      "priority": 178,
+      "categoryId": "hotels",
+      "name": "Hotels",
+      "aliases": [
+        "Travel"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "lodge",
+          "resort",
+          "resorts",
+          "homestay",
+          "home stay",
+          "oyo",
+          "tourist home"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.education",
+      "priority": 179,
+      "categoryId": "education",
+      "name": "Education",
+      "aliases": [],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "school",
+          "college",
+          "academy",
+          "tuition",
+          "institute",
+          "coaching",
+          "university",
+          "polytechnic",
+          "madrasa",
+          "madrassa"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.books",
+      "priority": 180,
+      "categoryId": "books",
+      "name": "Books",
+      "aliases": [
+        "Education"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "books",
+          "book stall",
+          "bookstall",
+          "book house",
+          "stationery",
+          "stationary",
+          "stationers",
+          "library",
+          "xerox",
+          "photostat",
+          "printers"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.clothing_more",
+      "priority": 181,
+      "categoryId": "clothing",
+      "name": "Clothing",
+      "aliases": [
+        "Shopping"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "silks",
+          "silk",
+          "saree",
+          "sarees",
+          "readymade",
+          "readymades",
+          "boutique",
+          "tailor",
+          "tailors",
+          "tailoring",
+          "dress",
+          "dresses",
+          "wear",
+          "wears",
+          "abaaya",
+          "abaya",
+          "wedding",
+          "wed inn",
+          "trends",
+          "zudio",
+          "pantaloons",
+          "westside"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.footwear",
+      "priority": 182,
+      "categoryId": "footwear",
+      "name": "Footwear",
+      "aliases": [
+        "Shopping"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "footwear",
+          "footwears",
+          "shoes",
+          "shoe",
+          "chappal",
+          "chappals",
+          "bata",
+          "vkc",
+          "walkaroo"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.childcare",
+      "priority": 183,
+      "categoryId": "childcare",
+      "name": "Childcare",
+      "aliases": [
+        "Family",
+        "Shopping"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "baby",
+          "babies",
+          "kids",
+          "kidz",
+          "toys",
+          "toy",
+          "firstcry"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.gifts",
+      "priority": 184,
+      "categoryId": "gifts",
+      "name": "Gifts",
+      "aliases": [
+        "Shopping"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "gift",
+          "gifts"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.electronics",
+      "priority": 185,
+      "categoryId": "electronics",
+      "name": "Electronics",
+      "aliases": [
+        "Shopping"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "electronics",
+          "electronic",
+          "mobiles",
+          "mobile shop",
+          "mobile store",
+          "computers",
+          "computer",
+          "laptop",
+          "laptops",
+          "appliances",
+          "croma",
+          "reliance digital",
+          "myg"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.furniture",
+      "priority": 186,
+      "categoryId": "furniture",
+      "name": "Furniture",
+      "aliases": [
+        "Housing"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "furniture",
+          "furnitures",
+          "furnishing",
+          "furnishings",
+          "mattress",
+          "interiors"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.home",
+      "priority": 187,
+      "categoryId": "home_decor",
+      "name": "Home Decor",
+      "aliases": [
+        "Shopping"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "crockery",
+          "metals",
+          "utensils",
+          "kitchenware",
+          "home needs"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.accessories",
+      "priority": 188,
+      "categoryId": "accessories",
+      "name": "Accessories",
+      "aliases": [
+        "Shopping"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "fancy",
+          "fancies",
+          "watches",
+          "jewellery",
+          "jewellers",
+          "jewelry",
+          "covering"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.repairs",
+      "priority": 189,
+      "categoryId": "repairs",
+      "name": "Repairs",
+      "aliases": [
+        "Housing"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "hardware",
+          "hardwares",
+          "tools",
+          "tool",
+          "fasteners",
+          "paints",
+          "paint",
+          "sanitary",
+          "sanitaryware",
+          "plumbing",
+          "plumber",
+          "tiles",
+          "cement",
+          "steel",
+          "steels",
+          "concrete",
+          "blocks",
+          "bricks",
+          "crusher",
+          "timber",
+          "timbers",
+          "glass",
+          "aluminium",
+          "aluminum",
+          "electricals",
+          "electrical",
+          "electrician",
+          "repair",
+          "repairs"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.vehicle",
+      "priority": 192,
+      "categoryId": "vehicle_maintenance",
+      "name": "Vehicle Maintenance",
+      "aliases": [
+        "Transportation"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "spares",
+          "spare parts",
+          "auto parts",
+          "parts",
+          "motors",
+          "motor",
+          "automobiles",
+          "automobile",
+          "garage",
+          "workshop",
+          "tyres",
+          "tyre",
+          "tires",
+          "two wheeler",
+          "motorcycle",
+          "bike",
+          "service station",
+          "lubricants"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.fruits",
+      "priority": 193,
+      "categoryId": "fruits",
+      "name": "Fruits",
+      "aliases": [
+        "Groceries",
+        "Food & Beverage"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "fruits",
+          "fruit"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.groceries_more",
+      "priority": 194,
+      "categoryId": "groceries",
+      "name": "Groceries",
+      "aliases": [
+        "Food & Beverage"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "provisions",
+          "provision",
+          "provisional",
+          "super market",
+          "hypermarket",
+          "hyper market",
+          "vegetables",
+          "vegetable",
+          "vege",
+          "spices",
+          "rice",
+          "civil supplies",
+          "supplyco",
+          "maveli",
+          "milma",
+          "dairy",
+          "milk",
+          "fish",
+          "chicken",
+          "meat",
+          "mutton",
+          "beef",
+          "eggs",
+          "kirana",
+          "jiomart",
+          "bigbasket",
+          "big basket",
+          "blinkit",
+          "zepto",
+          "dmart",
+          "lulu",
+          "ration"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.groceries_more_2",
+      "priority": 194,
+      "categoryId": "groceries",
+      "name": "Groceries",
+      "aliases": [
+        "Food & Beverage"
+      ],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "flour mill"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.shopping_online",
+      "priority": 201,
+      "categoryId": "shopping",
+      "name": "Shopping",
+      "aliases": [],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "substring",
+      "when": {
+        "all": [],
+        "any": [
+          "flipkart",
+          "meesho",
+          "myntra",
+          "amazon",
+          "ajio",
+          "nykaa",
+          "snapdeal",
+          "shopsy",
+          "olx"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    },
+    {
+      "id": "in.category.shopping_generic",
+      "priority": 205,
+      "categoryId": "shopping",
+      "name": "Shopping",
+      "aliases": [],
+      "directions": [
+        "debit"
+      ],
+      "source": "merchant",
+      "match": "words",
+      "when": {
+        "all": [],
+        "any": [
+          "shop",
+          "shoppe",
+          "mall",
+          "malls",
+          "emporium",
+          "bazaar",
+          "bazar",
+          "enterprises",
+          "agencies",
+          "traders",
+          "trading"
+        ],
+        "none": []
+      },
+      "isFallback": false
+    }
+  ],
+  "counterpartyRules": [
+    {
+      "id": "in.counterparty.upi_to",
+      "priority": 10,
+      "prefix": "via UPI to ",
+      "suffixes": [
+        ". Ref",
+        ".Ref",
+        " Ref"
+      ],
+      "maxLength": 120,
+      "when": {
+        "any": [
+          "via UPI to"
+        ],
+        "none": [
+          "to VPA"
+        ]
+      }
+    },
+    {
+      "id": "in.counterparty.upi_vpa",
+      "priority": 20,
+      "prefix": " to VPA ",
+      "suffixes": [
+        " UPI Ref",
+        " UPIRef",
+        " Ref"
+      ],
+      "maxLength": 120,
+      "when": {
+        "any": [
+          "via UPI"
+        ]
+      }
+    },
+    {
+      "id": "in.counterparty.upi_recipient",
+      "priority": 30,
+      "prefix": " to ",
+      "suffixes": [
+        ".Ref:",
+        " Ref",
+        " . Ref"
+      ],
+      "maxLength": 120,
+      "when": {
+        "any": [
+          "sent via UPI",
+          "debited via UPI"
+        ]
+      }
+    },
+    {
+      "id": "in.counterparty.sbi_upi",
+      "priority": 40,
+      "prefix": "trf to ",
+      "suffixes": [
+        " Refno"
+      ],
+      "maxLength": 120,
+      "when": {
+        "all": [
+          "trf to",
+          "UPI"
+        ]
+      }
+    },
+    {
+      "id": "in.counterparty.card_merchant",
+      "priority": 50,
+      "prefix": " at ",
+      "suffixes": [
+        " with your ",
+        " on ",
+        " has been"
+      ],
+      "maxLength": 120,
+      "when": {
+        "any": [
+          "spent Rs.",
+          "spent on",
+          "spent INR",
+          "payment of",
+          "payment for",
+          "done at"
+        ],
+        "none": [
+          "at the earliest",
+          "at least",
+          "at no extra"
+        ]
+      }
+    },
+    {
+      "id": "in.counterparty.cash_machine",
+      "priority": 60,
+      "prefix": "using cash deposit machine at ",
+      "suffixes": [
+        ". Current Bal"
+      ],
+      "maxLength": 120,
+      "when": {
+        "all": [
+          "using cash deposit machine"
+        ]
+      }
+    }
+  ]
+}

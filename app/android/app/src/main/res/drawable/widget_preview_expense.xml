@@ -1,0 +1,4 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item><shape><solid android:color="@color/widget_expense_tint"/><corners android:radius="18dp"/><size android:width="64dp" android:height="64dp"/></shape></item>
+    <item android:drawable="@drawable/widget_expense" android:left="18dp" android:top="18dp" android:right="18dp" android:bottom="18dp"/>
+</layer-list>

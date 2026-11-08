@@ -1,0 +1,460 @@
+[
+  {
+    "id": "indian-ported-001",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Legacy Dart regression: india_indian_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BV-INDBNK-S",
+      "body": "Rs.2.00 credited to a/c *8175 on 07/10/2025 by a/c linked to VPA poweraccess.paytm3@axisbank (UPI Ref no 981408452805).Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template001",
+      "candidate": {
+        "amountMinor": 200,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "8175",
+        "reference": "981408452805",
+        "counterparty": "poweraccess.paytm3",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indian-ported-002",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Legacy Dart regression: india_indian_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Rs. 2000 withdrawn from ATM at MAIN STREET BRANCH on 09/10/2025.Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template002",
+      "candidate": {
+        "amountMinor": 200000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "ATM - MAIN STREET BRANCH",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "atm_withdrawal",
+          "name": "ATM Withdrawal",
+          "type": "expense",
+          "ruleId": "in.category.atm_withdrawal",
+          "isFallback": false,
+          "aliases": [
+            "Cash Withdrawal"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indian-ported-003",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Legacy Dart regression: india_indian_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "INDBNK",
+      "body": "Rs. 5000.00 deposited to a/c *8175 on 10/10/2025.Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template003",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "8175",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indian-ported-004",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Legacy Dart regression: india_indian_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BV-INDBNK-S",
+      "body": "Rs.15000.00 credited to a/c *1234 on 11/10/2025 by a/c linked to VPA customer@paytm (UPI Ref no 555444333222).Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template001",
+      "candidate": {
+        "amountMinor": 1500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "555444333222",
+        "counterparty": "customer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indian-ported-005",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Legacy Dart regression: india_indian_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BV-INDBNK-S",
+      "body": "Rs.1.50 credited to a/c *5678 on 12/10/2025 by a/c linked to VPA reward@gpay (UPI Ref no 111222333444).Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template001",
+      "candidate": {
+        "amountMinor": 150,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": "111222333444",
+        "counterparty": "reward",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indian-ported-006",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Legacy Dart regression: india_indian_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "INDIAN",
+      "body": "Rs.100.00 credited to a/c *9012 on 13/10/2025.Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template006",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "9012",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indian-ported-007",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Legacy Dart regression: india_indian_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BV-INDBNK-S",
+      "body": "Rs. 21,000 credited to A/c XX1234 on 28/02/2026 at 21:06:00 UTR:IDFBXX90280/NEFT/GXCO TECH / Avl Bal- Rs. 21,532.08 CR -Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template007",
+      "candidate": {
+        "amountMinor": 2100000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "IDFBXX90280",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indian-ported-008",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Legacy Dart regression: india_indian_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BV-INDBNK-S",
+      "body": "Your A/c XXX56781234 is credited by Rs. 21,000 Total Bal : Rs. 21,532.08 CR Clr Bal : Rs. 21,532.08 CR as on:28/02/2026 21:06 -IndianBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template008",
+      "candidate": {
+        "amountMinor": 2100000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indian-ported-009",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Legacy Dart regression: india_indian_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-INDBNK-S",
+      "body": "Sent Rs.440.00 from A/c *4512 on 17-07-26 to NARMADA FOODS.RRN 213416112187.Avl Bal Rs.4585.65.Not you? SMS BLOCK to 9289592895-Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template009",
+      "candidate": {
+        "amountMinor": 44000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "4512",
+        "reference": "213416112187",
+        "counterparty": "NARMADA FOODS",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indian-ported-010",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Legacy Dart regression: india_indian_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-INDBNK-S",
+      "body": "Sent Rs.1,500.00 from A/c *4512 on 17-07-26 to FLIPKART.RRN 213416112188.Avl Bal Rs.9585.65.Not you? SMS BLOCK to 9289592895-Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template009",
+      "candidate": {
+        "amountMinor": 150000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "4512",
+        "reference": "213416112188",
+        "counterparty": "FLIPKART",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "indian-ported-011",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Legacy Dart regression: india_indian_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-INDBNK-S",
+      "body": "Sent Rs.500 from A/c *4512 on 17-07-26 to ZOMATO.RRN 213416112189.Avl Bal Rs.9085.65.Not you? SMS BLOCK to 9289592895-Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template009",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "4512",
+        "reference": "213416112189",
+        "counterparty": "ZOMATO",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

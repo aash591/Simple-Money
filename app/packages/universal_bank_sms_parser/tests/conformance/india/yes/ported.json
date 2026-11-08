@@ -1,0 +1,249 @@
+[
+  {
+    "id": "yes-ported-001",
+    "country": "IN",
+    "bankId": "in.yes",
+    "provenance": "Legacy Dart regression: india_yes_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "CP-YESBNK-S",
+      "body": "INR 404.36 spent on YES BANK Card X3349 @UPI_C N S FUEL PORT 24-08-2025 06:17:25 pm. Avl Lmt INR 211,476.24. SMS BLKCC 3349 to 9840909000 if not you",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.yes.template001",
+      "candidate": {
+        "amountMinor": 40436,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Yes Bank",
+        "countryCode": "IN",
+        "accountLast4": "3349",
+        "reference": null,
+        "counterparty": "C N S FUEL PORT",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "fuel",
+          "name": "Fuel",
+          "type": "expense",
+          "ruleId": "in.category.fuel",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "yes-ported-002",
+    "country": "IN",
+    "bankId": "in.yes",
+    "provenance": "Legacy Dart regression: india_yes_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-YESBNK-S",
+      "body": "INR 56.00 spent on YES BANK Card X3349 @UPI_S B ENTERPRISES 24-08-2025 06:03:40 am. Avl Lmt INR 211,880.60. SMS BLKCC 3349 to 9840909000 if not you",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.yes.template002",
+      "candidate": {
+        "amountMinor": 5600,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Yes Bank",
+        "countryCode": "IN",
+        "accountLast4": "3349",
+        "reference": null,
+        "counterparty": "S B ENTERPRISES",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping_generic",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "yes-ported-003",
+    "country": "IN",
+    "bankId": "in.yes",
+    "provenance": "Legacy Dart regression: india_yes_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JX-YESBNK-S",
+      "body": "INR 24.00 spent on YES BANK Card X3349 @UPI_MOHAMMED AKRAM 23-08-2025 11:51:19 am. Avl Lmt INR 212,012.60. SMS BLKCC 3349 to 9840909000 if not you",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.yes.template003",
+      "candidate": {
+        "amountMinor": 2400,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Yes Bank",
+        "countryCode": "IN",
+        "accountLast4": "3349",
+        "reference": null,
+        "counterparty": "MOHAMMED AKRAM",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "yes-ported-004",
+    "country": "IN",
+    "bankId": "in.yes",
+    "provenance": "Legacy Dart regression: india_yes_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "CP-YESBNK-S",
+      "body": "INR 250.00 spent on YES BANK Card X3349 @UPI_SURAKSHAA HEALTHCA 23-08-2025 10:02:59 am. Avl Lmt INR 212,036.60. SMS BLKCC 3349 to 9840909000 if not you",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.yes.template004",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Yes Bank",
+        "countryCode": "IN",
+        "accountLast4": "3349",
+        "reference": null,
+        "counterparty": "SURAKSHAA HEALTHCA",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "yes-device3-card-spent",
+    "country": "IN",
+    "bankId": "in.yes",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-YESBNK-S",
+      "body": "INR 125.00 spent on YES Bank Card XX1234 @UPI_SAMPLE 08 Oct 2026. Avl limit INR 5000.00. SMS BLOCK to 00000 if not you",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.yes.device003.card_spent",
+      "candidate": {
+        "amountMinor": 12500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Yes Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "yes-device3-card-payment",
+    "country": "IN",
+    "bankId": "in.yes",
+    "provenance": "Sanitized Android 16 bank SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-YESBNK-S",
+      "body": "Dear Customer, payment of Rs.250.00 is received towards your YES Bank credit card ending 1234. Thank you.",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.yes.device003.card_payment",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "card",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Yes Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "credit_card_repayment",
+          "name": "Credit Card Repayment",
+          "type": "income",
+          "ruleId": "in.category.card_repayment",
+          "isFallback": false,
+          "aliases": [
+            "Credit Card Payment",
+            "Card Repayment"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  }
+]

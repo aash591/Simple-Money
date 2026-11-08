@@ -1,0 +1,182 @@
+[
+  {
+    "id": "dbs-reject-security",
+    "country": "IN",
+    "bankId": "in.dbs",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "DBSBNK",
+      "body": "Your OTP is 123456. Your account no ********1234 debited with INR 11. Current Balance is INR37888.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dbs-reject-promotional",
+    "country": "IN",
+    "bankId": "in.dbs",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "DBSBNK",
+      "body": "Exclusive offer: apply now. Your account no ********1234 debited with INR 11. Current Balance is INR37888.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dbs-reject-failed",
+    "country": "IN",
+    "bankId": "in.dbs",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "DBSBNK",
+      "body": "Payment failed. Your account no ********1234 debited with INR 11. Current Balance is INR37888.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dbs-reject-pending",
+    "country": "IN",
+    "bankId": "in.dbs",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "DBSBNK",
+      "body": "Payment pending. Your account no ********1234 debited with INR 11. Current Balance is INR37888.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dbs-reject-future",
+    "country": "IN",
+    "bankId": "in.dbs",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "DBSBNK",
+      "body": "Will be debited. Your account no ********1234 debited with INR 11. Current Balance is INR37888.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dbs-reject-notice",
+    "country": "IN",
+    "bankId": "in.dbs",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "DBSBNK",
+      "body": "Statement generated. Your account no ********1234 debited with INR 11. Current Balance is INR37888.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dbs-reject-unknown-sender",
+    "country": "IN",
+    "bankId": "in.dbs",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTERED",
+      "body": "Your account no ********1234 debited with INR 11. Current Balance is INR37888.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dbs-reject-promotion-sender",
+    "country": "IN",
+    "bankId": "in.dbs",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "VM-DBS-P",
+      "body": "Your account no ********1234 debited with INR 11. Current Balance is INR37888.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dbs-reject-balance-only",
+    "country": "IN",
+    "bankId": "in.dbs",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "DBSBNK",
+      "body": "Available balance INR 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

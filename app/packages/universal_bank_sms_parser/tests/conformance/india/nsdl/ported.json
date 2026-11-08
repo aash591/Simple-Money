@@ -1,0 +1,128 @@
+[
+  {
+    "id": "nsdl-ported-001",
+    "country": "IN",
+    "bankId": "in.nsdl",
+    "provenance": "Legacy Dart regression: india_nsdl_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-NSDLPB-S",
+      "body": "A/c XX1234 debited Rs 1.00 on 20-Jun-26 for linked myupihandle@oksbi. UPI Ref 122345526539 - NSDLPB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.nsdl.template001",
+      "candidate": {
+        "amountMinor": 100,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "NSDL Payments Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "122345526539",
+        "counterparty": "myupihandle",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nsdl-ported-002",
+    "country": "IN",
+    "bankId": "in.nsdl",
+    "provenance": "Legacy Dart regression: india_nsdl_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-NSDLPB-S",
+      "body": "A/c no XX1234 is credited for Rs.100.00 on 20-Jun-26 (UPI Ref No 617109835321) - NSDLPB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.nsdl.template002",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "NSDL Payments Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "617109835321",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nsdl-ported-003",
+    "country": "IN",
+    "bankId": "in.nsdl",
+    "provenance": "Legacy Dart regression: india_nsdl_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-NSDLPB-S",
+      "body": "A/c XX1234 debited Rs 50.00 on 20-Jun-26 for linked business.name@oksbi. UPI Ref 122345526540 - NSDLPB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.nsdl.template001",
+      "candidate": {
+        "amountMinor": 5000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "NSDL Payments Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "122345526540",
+        "counterparty": "business.name",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

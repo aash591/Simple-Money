@@ -1,0 +1,41 @@
+[
+  {
+    "id": "karnataka-ported-001",
+    "country": "IN",
+    "bankId": "in.karnataka",
+    "provenance": "Legacy Dart regression: source-derived example; see NOTICE.md",
+    "input": {
+      "sender": "KBLBNK",
+      "body": "Your Account x001234x has been DEBITED for Rs.6368/- ACHInwDr-LIC OF INDIA/01-10-2026",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.karnataka.template001",
+      "candidate": {
+        "amountMinor": 636800,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Karnataka Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "LIC OF INDIA",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "insurance",
+          "name": "Insurance",
+          "type": "expense",
+          "ruleId": "in.category.insurance",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

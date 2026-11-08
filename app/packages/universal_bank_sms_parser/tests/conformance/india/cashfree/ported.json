@@ -1,0 +1,85 @@
+[
+  {
+    "id": "cashfree-ported-001",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JX-CSHfre-S",
+      "body": "Payment INR 50.00 (ID:5448114171) confirmed for order #735571_428_1777162938185 on AuraGold.\nPowered by Cashfree",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.cashfree.template001",
+      "candidate": {
+        "amountMinor": 5000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Cashfree",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "5448114171",
+        "counterparty": "AuraGold",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "cashfree-ported-002",
+    "country": "IN",
+    "bankId": "in.cashfree",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VK-CSHfre-S",
+      "body": "Payment INR 299.00 (ID:9988776655) confirmed for order #order_001 on Sun Direct.\nPowered by Cashfree",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.cashfree.template002",
+      "candidate": {
+        "amountMinor": 29900,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Cashfree",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "9988776655",
+        "counterparty": "Sun Direct",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "subscriptions",
+          "name": "Subscriptions",
+          "type": "expense",
+          "ruleId": "in.category.dth",
+          "isFallback": false,
+          "aliases": [
+            "Bills & Utilities"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

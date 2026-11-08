@@ -1,0 +1,464 @@
+[
+  {
+    "id": "idfc-card",
+    "provenance": "existing PennyWise-derived Dart fixture",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Transaction Successful! EUR 500.00 spent on your IDFC FIRST Bank Credit Card ending XX1234 at AMAZON EU on 08-FEB-2025 at 01:28 PM Avbl Limit: INR 4074.10 If not done by you, call 180010888",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.card",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "card",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "AMAZON EU",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true,
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-debit",
+    "provenance": "existing PennyWise-derived Dart fixture",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Your A/C XXXXXXX1234 is debited by INR 68.00 on 06/08/25 17:36. New Bal :INR 5000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.account.debit",
+      "candidate": {
+        "amountMinor": 6800,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-credit",
+    "provenance": "existing PennyWise-derived Dart fixture",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Your A/C XXXXXXX5678 is credited by INR 500.00 on 06/08/25 17:36. New Bal :INR 10000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.account.credit",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-multiline",
+    "provenance": "existing PennyWise-derived Dart fixture",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Transaction Successful! EUR 500.00 spent\ton your IDFC FIRST Bank Credit Card ending XX1234\n at AMAZON EU on 08-FEB-2025 at 01:28 PM Avbl Limit: INR 4074.10 If not done by you, call 180010888",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.card",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "card",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "AMAZON EU",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true,
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-card-security",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Your OTP is 123456. Transaction Successful! EUR 500.00 spent on your IDFC FIRST Bank Credit Card ending XX1234 at AMAZON EU on 08-FEB-2025 at 01:28 PM Avbl Limit: INR 4074.10 If not done by you, call 180010888",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-card-promotional",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Exclusive offer: apply now. Transaction Successful! EUR 500.00 spent on your IDFC FIRST Bank Credit Card ending XX1234 at AMAZON EU on 08-FEB-2025 at 01:28 PM Avbl Limit: INR 4074.10 If not done by you, call 180010888",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-card-failed",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Payment failed. Transaction Successful! EUR 500.00 spent on your IDFC FIRST Bank Credit Card ending XX1234 at AMAZON EU on 08-FEB-2025 at 01:28 PM Avbl Limit: INR 4074.10 If not done by you, call 180010888",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-card-pending",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Payment pending. Transaction Successful! EUR 500.00 spent on your IDFC FIRST Bank Credit Card ending XX1234 at AMAZON EU on 08-FEB-2025 at 01:28 PM Avbl Limit: INR 4074.10 If not done by you, call 180010888",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-card-future",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Will be debited. Transaction Successful! EUR 500.00 spent on your IDFC FIRST Bank Credit Card ending XX1234 at AMAZON EU on 08-FEB-2025 at 01:28 PM Avbl Limit: INR 4074.10 If not done by you, call 180010888",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "conservative future-rejection extension",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-debit-security",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Your OTP is 123456. Your A/C XXXXXXX1234 is debited by INR 68.00 on 06/08/25 17:36. New Bal :INR 5000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-debit-promotional",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Exclusive offer: apply now. Your A/C XXXXXXX1234 is debited by INR 68.00 on 06/08/25 17:36. New Bal :INR 5000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-debit-failed",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Payment failed. Your A/C XXXXXXX1234 is debited by INR 68.00 on 06/08/25 17:36. New Bal :INR 5000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-debit-pending",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Payment pending. Your A/C XXXXXXX1234 is debited by INR 68.00 on 06/08/25 17:36. New Bal :INR 5000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-debit-future",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Will be debited. Your A/C XXXXXXX1234 is debited by INR 68.00 on 06/08/25 17:36. New Bal :INR 5000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "conservative future-rejection extension",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-credit-security",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Your OTP is 123456. Your A/C XXXXXXX5678 is credited by INR 500.00 on 06/08/25 17:36. New Bal :INR 10000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-credit-promotional",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Exclusive offer: apply now. Your A/C XXXXXXX5678 is credited by INR 500.00 on 06/08/25 17:36. New Bal :INR 10000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-credit-failed",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Payment failed. Your A/C XXXXXXX5678 is credited by INR 500.00 on 06/08/25 17:36. New Bal :INR 10000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-credit-pending",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Payment pending. Your A/C XXXXXXX5678 is credited by INR 500.00 on 06/08/25 17:36. New Bal :INR 10000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.idfc"
+  },
+  {
+    "id": "idfc-credit-future",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Will be debited. Your A/C XXXXXXX5678 is credited by INR 500.00 on 06/08/25 17:36. New Bal :INR 10000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "conservative future-rejection extension",
+    "country": "IN",
+    "bankId": "in.idfc"
+  }
+]

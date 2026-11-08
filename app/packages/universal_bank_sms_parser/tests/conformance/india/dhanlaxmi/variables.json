@@ -1,0 +1,209 @@
+[
+  {
+    "id": "dhanlaxmi-variables-001",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "TL-DHANBK-S",
+      "body": "INR 321.09 is debited from A/c XXXX9988 on 02-DEC-2027 - \"UPI TXN: /MIG123456-MR /Payment from MIGRATIONSHOP/META998877@metadatavalue/META998877/9876.54\". Aval Bal is INR 9876.54. If not transacted call 9876.54-9876.54.-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.dhanlaxmi.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Dhanlaxmi Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-variables-002",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-DHANBK",
+      "body": "INR 321.09 is credited to A/c XXXX9988 on 02-DEC-2027 - \"UPI TXN: /MIG123456-Paytm/payment on MIGRATIONSHOP using UPI on 02-DEC-2027/META998877¡axisbank/9876.54/9876.54\". Aval Bal is INR 9876.54 -DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.dhanlaxmi.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Dhanlaxmi Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-variables-003",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-DHANBK",
+      "body": "Your a/c no. XXXXXXXX9988 is credited for Rs.321.09 on 02-DEC-2027 and debited from a/c no. META998877 (UPI Ref no MIG123456).-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.dhanlaxmi.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Dhanlaxmi Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "Internal Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-variables-004",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "TL-DHANBK-S",
+      "body": "INR 321.09 is debited from A/c XXXX9988 on 02-DEC-2027 - \"UPI TXN: /MIG123456-MR /Payment from MIGRATIONSHOP\". Aval Bal is INR 9876.54. If not transacted call 9876.54-9876.54.-DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.dhanlaxmi.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Dhanlaxmi Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dhanlaxmi-variables-005",
+    "country": "IN",
+    "bankId": "in.dhanlaxmi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VM-DHANBK",
+      "body": "INR 321.09 is credited to A/c XXXX9988 on 02-DEC-2027 - \"UPI TXN: /MIG123456-Salary/Payment from MIGRATIONSHOP\". Aval Bal is INR 9876.54 -DhanlaxmiBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.dhanlaxmi.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Dhanlaxmi Bank",
+        "countryCode": "IN",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "salary",
+          "name": "Salary",
+          "type": "income",
+          "ruleId": "in.category.salary",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

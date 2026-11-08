@@ -1,0 +1,245 @@
+[
+  {
+    "id": "onecard-ported-001",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Legacy Dart regression: source-derived example; see NOTICE.md",
+    "input": {
+      "sender": "ONECRD",
+      "body": "You've fueled up for Rs. 500.00 at FUEL STORE on card ending 1234",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.onecard.template001",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "OneCard",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "FUEL STORE",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "fuel",
+          "name": "Fuel",
+          "type": "expense",
+          "ruleId": "in.category.fuel",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "onecard-device6-payment",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-ONECRD-S",
+      "body": "Great! We have received payment towards your OneCard for Rs. 250.00 on 08/10/26. Thank you.",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.onecard.device006.payment",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "card",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "OneCard",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "credit_card_repayment",
+          "name": "Credit Card Repayment",
+          "type": "income",
+          "ruleId": "in.category.card_repayment",
+          "isFallback": false,
+          "aliases": [
+            "Credit Card Payment",
+            "Card Repayment"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-device6-fuel",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-ONECRD-S",
+      "body": "You've fueled up for Rs. 75.50 at SAMPLE PUMP. Reward points earned. -OneCard",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.onecard.device006.fuel",
+      "candidate": {
+        "amountMinor": 7550,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "OneCard",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "fuel",
+          "name": "Fuel",
+          "type": "expense",
+          "ruleId": "in.category.fuel",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-device10-bill-paid",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Sanitized physical-device template; all identifiers synthetic",
+    "input": {
+      "sender": "AD-ONECRD-S",
+      "body": "You have paid a bill of Rs. 120.00 on 08/10/26. Reward points earned. -OneCard",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.onecard.device010.bill_paid",
+      "candidate": {
+        "amountMinor": 12000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "OneCard",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-device13-card-spent",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Sanitized physical-device template; all identifiers synthetic",
+    "input": {
+      "sender": "AD-ONECRD-S",
+      "body": "You have spent Rs.125.00 at SAMPLE STORE with your OneCard credit card ending in 1234. Reward points earned.",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.onecard.device013.card_spent",
+      "candidate": {
+        "amountMinor": 12500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "OneCard",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SAMPLE STORE",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "category": {
+          "id": "groceries",
+          "name": "Groceries",
+          "type": "expense",
+          "ruleId": "in.category.groceries",
+          "isFallback": false,
+          "aliases": [
+            "Grocery"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "onecard-device13-payment-at-merchant",
+    "country": "IN",
+    "bankId": "in.onecard",
+    "provenance": "Sanitized physical-device template; all identifiers synthetic",
+    "input": {
+      "sender": "AD-ONECRD-S",
+      "body": "Your payment of Rs.80.00 at SAMPLE SHOP has been processed. Reward points earned on this purchase. -OneCard",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.onecard.device013.payment_processed",
+      "candidate": {
+        "amountMinor": 8000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "OneCard",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SAMPLE SHOP",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping_generic",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

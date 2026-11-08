@@ -1,0 +1,275 @@
+{
+  "type": "object",
+  "properties": {
+    "classification": {
+      "enum": [
+        "completed",
+        "security",
+        "promotional",
+        "failed",
+        "pending",
+        "future",
+        "notice",
+        "unknown"
+      ]
+    },
+    "decision": {
+      "enum": [
+        "review",
+        "ignored"
+      ]
+    },
+    "reason": {
+      "enum": [
+        "invalidMessage",
+        "unregisteredSender",
+        "security",
+        "promotional",
+        "failed",
+        "pending",
+        "future",
+        "notice",
+        "workLimit",
+        "noMatchingFormat",
+        "ambiguousMatches",
+        "completedNeedsReview"
+      ]
+    },
+    "packVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "ruleId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "candidate": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/candidate"
+        }
+      ]
+    }
+  },
+  "required": [
+    "classification",
+    "decision",
+    "reason",
+    "packVersion",
+    "ruleId",
+    "candidate"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:universal-bank-sms-parser:result:0.3",
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "properties": {
+        "amountMinor": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "currencyCode": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "direction": {
+          "enum": [
+            "debit",
+            "credit"
+          ]
+        },
+        "channel": {
+          "enum": [
+            "atm",
+            "upi",
+            "card",
+            "bankTransfer",
+            "wallet",
+            "other"
+          ]
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "bankName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "countryCode": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "accountLast4": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9Xx*#.-]{1,4}$"
+        },
+        "reference": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "counterparty": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "category": {
+          "$ref": "#/$defs/suggestedCategory"
+        },
+        "accountingTreatment": {
+          "enum": ["income", "expense", "transfer"]
+        }
+      },
+      "required": [
+        "amountMinor",
+        "currencyCode",
+        "direction",
+        "channel",
+        "occurredAt",
+        "bankName",
+        "countryCode",
+        "accountLast4",
+        "reference",
+        "counterparty"
+      ],
+      "additionalProperties": false
+    },
+    "suggestedCategory": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "type": {
+          "enum": [
+            "expense",
+            "income"
+          ]
+        },
+        "ruleId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^[a-z][a-zA-Z0-9_.-]*$"
+        },
+        "isFallback": {
+          "type": "boolean"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "maxItems": 16,
+          "minItems": 0
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "type",
+        "ruleId",
+        "isFallback",
+        "aliases"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "reason": {
+            "const": "completedNeedsReview"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "classification": {
+            "const": "completed"
+          },
+          "decision": {
+            "const": "review"
+          },
+          "candidate": {
+            "$ref": "#/$defs/candidate"
+          },
+          "ruleId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "const": "ignored"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "candidate": {
+            "type": "null"
+          },
+          "ruleId": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "reason": {
+            "const": "ambiguousMatches"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "classification": {
+            "const": "completed"
+          },
+          "decision": {
+            "const": "review"
+          },
+          "candidate": {
+            "type": "null"
+          },
+          "ruleId": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

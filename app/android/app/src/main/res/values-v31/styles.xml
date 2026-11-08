@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ draws its own splash before any app code runs, in the
+         phone's light/dark mode. -->
+    <style name="LaunchTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:windowSplashScreenBackground">@color/launch_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_light</item>
+    </style>
+    <!-- From Android 13 the app tells the system which of these to use at the
+         next cold start, so the splash follows the in-app light/dark choice
+         (MainActivity.syncSplashTheme). -->
+    <style name="LaunchThemeLight" parent="LaunchTheme">
+        <item name="android:windowSplashScreenBackground">#F3F2F8</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_light</item>
+    </style>
+    <style name="LaunchThemeDark" parent="LaunchTheme">
+        <item name="android:windowSplashScreenBackground">#000000</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_icon_dark</item>
+    </style>
+</resources>

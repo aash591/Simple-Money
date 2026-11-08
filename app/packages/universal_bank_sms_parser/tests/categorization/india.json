@@ -1,0 +1,899 @@
+[
+  {
+    "id": "rail-short",
+    "input": {
+      "body": "Debited Rs 500 from a/c X1234 via UPI to Indian Railw. Ref 987. Bal Rs 1000.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "Indian Railw",
+      "category": {
+        "id": "public_transport_train",
+        "name": "Train",
+        "type": "expense",
+        "ruleId": "in.category.train",
+        "isFallback": false,
+        "aliases": [
+          "Public Transport",
+          "Transportation"
+        ]
+      }
+    }
+  },
+  {
+    "id": "rail-uts",
+    "input": {
+      "body": "Rs 500 sent via UPI on 12-10-26 at 10:30 to IRCTC UTS.Ref:987.Not you? Call 1800.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "IRCTC UTS",
+      "category": {
+        "id": "public_transport_train",
+        "name": "Train",
+        "type": "expense",
+        "ruleId": "in.category.train",
+        "isFallback": false,
+        "aliases": [
+          "Public Transport",
+          "Transportation"
+        ]
+      }
+    }
+  },
+  {
+    "id": "bus-short",
+    "input": {
+      "body": "Debited Rs 500 from a/c X1234 via UPI to Kerala State. Ref 987. Bal Rs 1000.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "Kerala State",
+      "category": {
+        "id": "public_transport_bus",
+        "name": "Bus",
+        "type": "expense",
+        "ruleId": "in.category.bus_short_name",
+        "isFallback": false,
+        "aliases": [
+          "Public Transport",
+          "Transportation"
+        ]
+      }
+    }
+  },
+  {
+    "id": "bus-vpa",
+    "input": {
+      "body": "Rs 500 debited via UPI to VPA keralastateroad123@hdfcbank UPI Ref No 987.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "keralastateroad123@hdfcbank",
+      "category": {
+        "id": "public_transport_bus",
+        "name": "Bus",
+        "type": "expense",
+        "ruleId": "in.category.bus",
+        "isFallback": false,
+        "aliases": [
+          "Public Transport",
+          "Transportation"
+        ]
+      }
+    }
+  },
+  {
+    "id": "electricity-over-bus",
+    "input": {
+      "body": "Kerala State Electricity Board Ltd. (KSEBL) bill INR 500 paid.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "Kerala State"
+      }
+    },
+    "expected": {
+      "counterparty": "Kerala State",
+      "category": {
+        "id": "electricity",
+        "name": "Electricity",
+        "type": "expense",
+        "ruleId": "in.category.electricity",
+        "isFallback": false,
+        "aliases": [
+          "Bills & Utilities"
+        ]
+      }
+    }
+  },
+  {
+    "id": "store-groceries",
+    "input": {
+      "body": "Rs 500 spent on your credit card at CORNER STORE on 12/10/26.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "CORNER STORE",
+      "category": {
+        "id": "groceries",
+        "name": "Groceries",
+        "type": "expense",
+        "ruleId": "in.category.groceries",
+        "isFallback": false,
+        "aliases": [
+          "Grocery"
+        ]
+      }
+    }
+  },
+  {
+    "id": "fuel-over-store",
+    "input": {
+      "body": "Rs 500 spent on your credit card at PETROL PUMP STORE on 12/10/26.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "PETROL PUMP STORE",
+      "category": {
+        "id": "fuel",
+        "name": "Fuel",
+        "type": "expense",
+        "ruleId": "in.category.fuel",
+        "isFallback": false,
+        "aliases": []
+      }
+    }
+  },
+  {
+    "id": "fuel-short",
+    "input": {
+      "body": "Spent INR 500 Axis Bank Card Chithira Pe Avl Limit INR 1000.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "Chithira Pe"
+      }
+    },
+    "expected": {
+      "counterparty": "Chithira Pe",
+      "category": {
+        "id": "fuel",
+        "name": "Fuel",
+        "type": "expense",
+        "ruleId": "in.category.fuel_alias",
+        "isFallback": false,
+        "aliases": []
+      }
+    }
+  },
+  {
+    "id": "pharmacy-over-store",
+    "input": {
+      "body": "Rs 500 spent on your credit card at CITY MEDICAL STORE on 12/10/26.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "CITY MEDICAL STORE",
+      "category": {
+        "id": "pharmacy",
+        "name": "Pharmacy",
+        "type": "expense",
+        "ruleId": "in.category.pharmacy",
+        "isFallback": false,
+        "aliases": []
+      }
+    }
+  },
+  {
+    "id": "bakery-symbols",
+    "input": {
+      "body": "Spent INR 500 Axis Bank Card JSM_BAKERY_ Avl Limit INR 1000.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "JSM_BAKERY_"
+      }
+    },
+    "expected": {
+      "counterparty": "JSM_BAKERY_",
+      "category": {
+        "id": "bakery",
+        "name": "Bakery",
+        "type": "expense",
+        "ruleId": "in.category.bakery",
+        "isFallback": false,
+        "aliases": [
+          "Cafe",
+          "Restaurants",
+          "Food & Beverage"
+        ]
+      }
+    }
+  },
+  {
+    "id": "restaurant-short",
+    "input": {
+      "body": "Spent INR 500 Axis Bank Card MUBARAK HOT Avl Limit INR 1000.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "MUBARAK HOT"
+      }
+    },
+    "expected": {
+      "counterparty": "MUBARAK HOT",
+      "category": {
+        "id": "restaurants",
+        "name": "Restaurants",
+        "type": "expense",
+        "ruleId": "in.category.restaurants",
+        "isFallback": false,
+        "aliases": [
+          "Food & Beverage"
+        ]
+      }
+    }
+  },
+  {
+    "id": "unknown-name",
+    "input": {
+      "body": "Debited Rs 500 from a/c X1234 via UPI to Person A. Ref 987. Bal Rs 1000.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "Person A",
+      "category": {
+        "id": "personal",
+        "name": "Personal",
+        "type": "expense",
+        "ruleId": "in.category.personal",
+        "isFallback": true,
+        "aliases": [
+          "Other Expense",
+          "Other Income"
+        ]
+      }
+    }
+  },
+  {
+    "id": "unknown-credit",
+    "input": {
+      "body": "Rs 500 credited from Person B.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "Person B"
+      }
+    },
+    "expected": {
+      "counterparty": "Person B",
+      "category": {
+        "id": "personal",
+        "name": "Personal",
+        "type": "income",
+        "ruleId": "in.category.personal",
+        "isFallback": true,
+        "aliases": [
+          "Other Expense",
+          "Other Income"
+        ]
+      }
+    }
+  },
+  {
+    "id": "word-boundary",
+    "input": {
+      "body": "Spent INR 500 at PUMPKIN STORE on 12/10/26.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "PUMPKIN STORE",
+      "category": {
+        "id": "groceries",
+        "name": "Groceries",
+        "type": "expense",
+        "ruleId": "in.category.groceries",
+        "isFallback": false,
+        "aliases": [
+          "Grocery"
+        ]
+      }
+    }
+  },
+  {
+    "id": "atm-withdrawal",
+    "input": {
+      "body": "Rs 500 withdrawn at SBI ATM. Use bank ATMs to avoid charges.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": null,
+      "category": {
+        "id": "atm_withdrawal",
+        "name": "ATM Withdrawal",
+        "type": "expense",
+        "ruleId": "in.category.atm_withdrawal",
+        "isFallback": false,
+        "aliases": [
+          "Cash Withdrawal"
+        ]
+      }
+    }
+  },
+  {
+    "id": "atm-deposit",
+    "input": {
+      "body": "Your A/c X1234 credited INR 500 -Deposit of Cash at S1NL0001 CDM. Avl Bal INR 1000.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": null,
+      "category": {
+        "id": "atm_deposit",
+        "name": "ATM Deposit",
+        "type": "income",
+        "ruleId": "in.category.cdm_deposit",
+        "isFallback": false,
+        "aliases": [
+          "Cash Deposit"
+        ]
+      }
+    }
+  },
+  {
+    "id": "federal-deposit",
+    "input": {
+      "body": "Rs 500 credited using cash deposit machine at FBL-TEST STORE. Current Bal: Rs 1000.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "FBL-TEST STORE",
+      "category": {
+        "id": "atm_deposit",
+        "name": "ATM Deposit",
+        "type": "income",
+        "ruleId": "in.category.atm_deposit",
+        "isFallback": false,
+        "aliases": [
+          "Cash Deposit"
+        ]
+      }
+    }
+  },
+  {
+    "id": "cash-deposit",
+    "input": {
+      "body": "INR 500 credited to A/c XXX123 by CASH.Total bal INR 1000.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": null,
+      "category": {
+        "id": "cash_deposit",
+        "name": "Cash Deposit",
+        "type": "income",
+        "ruleId": "in.category.cash_deposit",
+        "isFallback": false,
+        "aliases": []
+      }
+    }
+  },
+  {
+    "id": "card-repayment",
+    "input": {
+      "body": "Your payment of Rs 500 has been credited to your SBI credit card XX1234.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": null,
+      "category": {
+        "id": "credit_card_repayment",
+        "name": "Credit Card Repayment",
+        "type": "income",
+        "ruleId": "in.category.card_repayment",
+        "isFallback": false,
+        "aliases": [
+          "Credit Card Payment",
+          "Card Repayment"
+        ]
+      }
+    }
+  },
+  {
+    "id": "merchant-not-repayment",
+    "input": {
+      "body": "Your payment of Rs 500 at CORNER STORE has been processed for OneCard.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "CORNER STORE",
+      "category": {
+        "id": "groceries",
+        "name": "Groceries",
+        "type": "expense",
+        "ruleId": "in.category.groceries",
+        "isFallback": false,
+        "aliases": [
+          "Grocery"
+        ]
+      }
+    }
+  },
+  {
+    "id": "refund-not-repayment",
+    "input": {
+      "body": "Refund payment credited to SBI credit card XX1234.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": null,
+      "category": {
+        "id": "refunds",
+        "name": "Refunds",
+        "type": "income",
+        "ruleId": "in.category.refund",
+        "isFallback": false,
+        "aliases": []
+      }
+    }
+  },
+  {
+    "id": "bank-fee",
+    "input": {
+      "body": "Your AC X1234 debited INR 25 -CDM CHARGE DR. Avl Bal INR 1000.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": null,
+      "category": {
+        "id": "bank_charges",
+        "name": "Bank Charges",
+        "type": "expense",
+        "ruleId": "in.category.bank_charges",
+        "isFallback": false,
+        "aliases": []
+      }
+    }
+  },
+  {
+    "id": "salary",
+    "input": {
+      "body": "INR 50000 credited to account towards Salary.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": null,
+      "category": {
+        "id": "salary",
+        "name": "Salary",
+        "type": "income",
+        "ruleId": "in.category.salary",
+        "isFallback": false,
+        "aliases": []
+      }
+    }
+  },
+  {
+    "id": "interest",
+    "input": {
+      "body": "INR 500 credited to account towards Interest.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": null,
+      "category": {
+        "id": "interest",
+        "name": "Interest",
+        "type": "income",
+        "ruleId": "in.category.interest",
+        "isFallback": false,
+        "aliases": []
+      }
+    }
+  },
+  {
+    "id": "recharge",
+    "input": {
+      "body": "UPI to gpayrecharge@icici Ref 987.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "gpayrecharge@icici"
+      }
+    },
+    "expected": {
+      "counterparty": "gpayrecharge@icici",
+      "category": {
+        "id": "mobile_recharge",
+        "name": "Mobile Recharge",
+        "type": "expense",
+        "ruleId": "in.category.mobile_recharge",
+        "isFallback": false,
+        "aliases": [
+          "Mobile"
+        ]
+      }
+    }
+  },
+  {
+    "id": "cashfree-not-cash",
+    "input": {
+      "body": "INR 500 credited by Cashfree Private Limited.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "Cashfree"
+      }
+    },
+    "expected": {
+      "counterparty": "Cashfree",
+      "category": {
+        "id": "personal",
+        "name": "Personal",
+        "type": "income",
+        "ruleId": "in.category.personal",
+        "isFallback": true,
+        "aliases": [
+          "Other Expense",
+          "Other Income"
+        ]
+      }
+    }
+  },
+  {
+    "id": "personal-not-mart",
+    "input": {
+      "body": "INR 500 paid to Martina.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "Martina"
+      }
+    },
+    "expected": {
+      "counterparty": "Martina",
+      "category": {
+        "id": "personal",
+        "name": "Personal",
+        "type": "expense",
+        "ruleId": "in.category.personal",
+        "isFallback": true,
+        "aliases": [
+          "Other Expense",
+          "Other Income"
+        ]
+      }
+    }
+  },
+  {
+    "id": "cab-uber",
+    "input": {
+      "body": "Debited Rs 500 from a/c X1234 via UPI to Uber. Ref 987. Bal Rs 1000.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "Uber",
+      "category": {
+        "id": "public_transport_cab",
+        "name": "Cab",
+        "type": "expense",
+        "ruleId": "in.category.cab",
+        "isFallback": false,
+        "aliases": [
+          "Taxi",
+          "Public Transport",
+          "Transportation"
+        ]
+      }
+    }
+  },
+  {
+    "id": "bus-redbus",
+    "input": {
+      "body": "Debited Rs 500 from a/c X1234 via UPI to redbus. Ref 987. Bal Rs 1000.",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Test Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "expected": {
+      "counterparty": "redbus",
+      "category": {
+        "id": "public_transport_bus",
+        "name": "Bus",
+        "type": "expense",
+        "ruleId": "in.category.bus",
+        "isFallback": false,
+        "aliases": [
+          "Public Transport",
+          "Transportation"
+        ]
+      }
+    }
+  }
+]

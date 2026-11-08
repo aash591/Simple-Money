@@ -1,0 +1,11 @@
+<!-- Picker preview of the 2x2 quick actions widget for Android 11 and older. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item><shape><solid android:color="@color/widget_surface"/><corners android:radius="24dp"/><size android:width="152dp" android:height="152dp"/></shape></item>
+    <item android:drawable="@mipmap/ic_app_art" android:left="24dp" android:top="24dp" android:right="84dp" android:bottom="84dp"/>
+    <item android:left="84dp" android:top="24dp" android:right="24dp" android:bottom="84dp"><shape><solid android:color="@color/widget_income_tint"/><corners android:radius="14dp"/></shape></item>
+    <item android:drawable="@drawable/widget_income" android:left="97dp" android:top="37dp" android:right="37dp" android:bottom="97dp"/>
+    <item android:left="24dp" android:top="84dp" android:right="84dp" android:bottom="24dp"><shape><solid android:color="@color/widget_expense_tint"/><corners android:radius="14dp"/></shape></item>
+    <item android:drawable="@drawable/widget_expense" android:left="37dp" android:top="97dp" android:right="97dp" android:bottom="37dp"/>
+    <item android:left="84dp" android:top="84dp" android:right="24dp" android:bottom="24dp"><shape><solid android:color="@color/widget_scan_tint"/><corners android:radius="14dp"/></shape></item>
+    <item android:drawable="@drawable/widget_scan" android:left="97dp" android:top="97dp" android:right="37dp" android:bottom="37dp"/>
+</layer-list>

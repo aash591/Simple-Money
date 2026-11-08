@@ -1,0 +1,169 @@
+[
+  {
+    "id": "jiopay-ported-001",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Legacy Dart regression: india_cred_jiopay_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Recharge Successful for Jio Number : 9876543210. Rs. 249.00 paid. Transaction ID : BR000CAUBYON",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.jiopay.template001",
+      "candidate": {
+        "amountMinor": 24900,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "JioPay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "BR000CAUBYON",
+        "counterparty": "Jio Recharge - 9876****",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "mobile_recharge",
+          "name": "Mobile Recharge",
+          "type": "expense",
+          "ruleId": "in.category.mobile_recharge",
+          "isFallback": false,
+          "aliases": [
+            "Mobile"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jiopay-ported-002",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Legacy Dart regression: india_cred_jiopay_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JA-JioPay-S",
+      "body": "Payment successful to ZOMATO. Rs. 500.00 paid. Transaction ID : BR000CAUBYON",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.jiopay.template002",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "JioPay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "BR000CAUBYON",
+        "counterparty": "ZOMATO",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jiopay-ported-003",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Legacy Dart regression: india_cred_jiopay_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Bill Payment of Rs. 1,234.56 for Electricity bill successful. Rs. 1,234.56 paid. Transaction ID : BR000CAUBYON",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.jiopay.template003",
+      "candidate": {
+        "amountMinor": 123456,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "JioPay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "BR000CAUBYON",
+        "counterparty": "Electricity bill",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "electricity",
+          "name": "Electricity",
+          "type": "expense",
+          "ruleId": "in.category.electricity_merchant",
+          "isFallback": false,
+          "aliases": [
+            "Bills & Utilities"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "Electricity Bill"
+    }
+  },
+  {
+    "id": "jiopay-ported-004",
+    "country": "IN",
+    "bankId": "in.jiopay",
+    "provenance": "Legacy Dart regression: india_cred_jiopay_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JIOPAY",
+      "body": "Recharge Successful for Jio Number : 9876543210. Rs. 249.00 paid",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.jiopay.template004",
+      "candidate": {
+        "amountMinor": 24900,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "JioPay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Jio Recharge - 9876****",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "mobile_recharge",
+          "name": "Mobile Recharge",
+          "type": "expense",
+          "ruleId": "in.category.mobile_recharge",
+          "isFallback": false,
+          "aliases": [
+            "Mobile"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

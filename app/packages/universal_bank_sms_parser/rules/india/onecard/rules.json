@@ -1,0 +1,205 @@
+{
+  "id": "in.onecard",
+  "name": "OneCard",
+  "senders": [
+    "ONECARD",
+    "ONECRD"
+  ],
+  "formats": [
+    {
+      "id": "in.onecard.template001",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "card",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "You've fueled up for Rs. "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " at "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " on card ending "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "in.onecard.device006.payment",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "card",
+      "requires": {
+        "all": [
+          "received payment",
+          "your OneCard for Rs."
+        ]
+      },
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "your OneCard for Rs."
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " on "
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        }
+      }
+    },
+    {
+      "id": "in.onecard.device006.fuel",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "card",
+      "requires": {
+        "none": [
+          "on card ending "
+        ]
+      },
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "You've fueled up for Rs. "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " at "
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        }
+      }
+    },
+    {
+      "id": "in.onecard.device010.bill_paid",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "card",
+      "tokens": [
+        { "op": "match_literal", "value": "paid a bill of Rs. " },
+        { "op": "capture_money", "name": "amount", "maxLength": 64 },
+        { "op": "match_literal", "value": " on " }
+      ],
+      "output": {
+        "amount": { "capture": "amount" }
+      }
+    },
+    {
+      "id": "in.onecard.device013.card_spent",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "card",
+      "requires": { "all": ["credit card ending"] },
+      "tokens": [
+        { "op": "match_literal", "value": "spent Rs." },
+        { "op": "capture_money", "name": "amount", "maxLength": 64 },
+        { "op": "match_literal", "value": " at " }
+      ],
+      "output": { "amount": { "capture": "amount" } }
+    },
+    {
+      "id": "in.onecard.device013.payment_processed",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "card",
+      "requires": { "all": ["has been processed"] },
+      "tokens": [
+        { "op": "match_literal", "value": "Your payment of Rs." },
+        { "op": "capture_money", "name": "amount", "maxLength": 64 },
+        { "op": "match_literal", "value": " at " }
+      ],
+      "output": { "amount": { "capture": "amount" } }
+    }
+  ],
+  "classifiers": [
+    {
+      "classification": "notice",
+      "when": {
+        "all": [
+          "reward points",
+          "available"
+        ],
+        "none": [
+          "spent Rs.",
+          "fueled up for Rs."
+        ]
+      }
+    },
+    {
+      "classification": "future",
+      "when": {
+        "all": [
+          "bill",
+          "due"
+        ],
+        "none": [
+          "received payment",
+          "paid a bill",
+          "bill has been cleared"
+        ]
+      }
+    },
+    {
+      "classification": "pending",
+      "when": {
+        "all": [
+          "payment",
+          "initiated"
+        ],
+        "none": [
+          "received payment"
+        ]
+      }
+    }
+  ]
+}

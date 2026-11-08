@@ -1,0 +1,217 @@
+[
+  {
+    "id": "cred-ported-001",
+    "country": "IN",
+    "bankId": "in.cred",
+    "provenance": "Legacy Dart regression: india_cred_jiopay_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JK-CREDIN-S",
+      "body": "Payment of Rs.50000 has been successfully credited towards your ICICI Bank Credit Card. Your payment was settled in 3 seconds - CRED",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.cred.template001",
+      "candidate": {
+        "amountMinor": 5000000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRED",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "ICICI Bank Credit Card",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "credit_card_repayment",
+          "name": "Credit Card Repayment",
+          "type": "expense",
+          "ruleId": "in.category.card_repayment",
+          "isFallback": false,
+          "aliases": [
+            "Credit Card Payment",
+            "Card Repayment"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "cred-ported-002",
+    "country": "IN",
+    "bankId": "in.cred",
+    "provenance": "Legacy Dart regression: india_cred_jiopay_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AX-CREDIN-S",
+      "body": "Payment of Rs.1234.56 has been successfully credited towards your HDFC Credit Card. Your payment was settled in 3 seconds - CRED",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.cred.template001",
+      "candidate": {
+        "amountMinor": 123456,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRED",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "HDFC Credit Card",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "credit_card_repayment",
+          "name": "Credit Card Repayment",
+          "type": "expense",
+          "ruleId": "in.category.card_repayment",
+          "isFallback": false,
+          "aliases": [
+            "Credit Card Payment",
+            "Card Repayment"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "cred-ported-003",
+    "country": "IN",
+    "bankId": "in.cred",
+    "provenance": "Legacy Dart regression: india_cred_jiopay_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JK-CREDIN-S",
+      "body": "Payment of Rs.50,000 has been successfully credited towards your ICICI Bank Credit Card. Your payment was settled in 3 seconds - CRED",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.cred.template001",
+      "candidate": {
+        "amountMinor": 5000000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRED",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "ICICI Bank Credit Card",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "credit_card_repayment",
+          "name": "Credit Card Repayment",
+          "type": "expense",
+          "ruleId": "in.category.card_repayment",
+          "isFallback": false,
+          "aliases": [
+            "Credit Card Payment",
+            "Card Repayment"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "cred-ported-004",
+    "country": "IN",
+    "bankId": "in.cred",
+    "provenance": "Legacy Dart regression: india_cred_jiopay_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-CRED-S",
+      "body": "Payment of Rs.10000 has been successfully credited towards your SBI Credit Card.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.cred.template004",
+      "candidate": {
+        "amountMinor": 1000000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRED",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SBI Credit Card",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "credit_card_repayment",
+          "name": "Credit Card Repayment",
+          "type": "expense",
+          "ruleId": "in.category.card_repayment",
+          "isFallback": false,
+          "aliases": [
+            "Credit Card Payment",
+            "Card Repayment"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "cred-ported-005",
+    "country": "IN",
+    "bankId": "in.cred",
+    "provenance": "Legacy Dart regression: india_cred_jiopay_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AX-CRED-T",
+      "body": "Payment of Rs.5000 has been successfully credited towards your HDFC Credit Card.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.cred.template004",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRED",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "HDFC Credit Card",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "credit_card_repayment",
+          "name": "Credit Card Repayment",
+          "type": "expense",
+          "ruleId": "in.category.card_repayment",
+          "isFallback": false,
+          "aliases": [
+            "Credit Card Payment",
+            "Card Repayment"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,64 @@
+[
+  {
+    "id": "federal-cdm-deposit",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Synthetic regression from manually inspected October 2026 device SMS deposit templates; all identifiers and values replaced.",
+    "input": {
+      "sender": "AX-FEDBNK-S",
+      "body": "Hi,Rs.1250.50credited in your A/c XX1234 on 12OCT2026 10:30:00 using cash deposit machine at FBL-TEST BRANCH. Current Bal: Rs.9876.54 - Federal Bank",
+      "receivedAt": "2026-10-12T10:30:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.federal.template021",
+      "candidate": {
+        "amountMinor": 125050,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "atm",
+        "occurredAt": "2026-10-12T10:30:00.000Z",
+        "bankName": "Federal Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "FBL-TEST BRANCH",
+        "category": {
+          "id": "atm_deposit",
+          "name": "ATM Deposit",
+          "type": "income",
+          "ruleId": "in.category.atm_deposit",
+          "isFallback": false,
+          "aliases": [
+            "Cash Deposit"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "federal-cdm-failed",
+    "country": "IN",
+    "bankId": "in.federal",
+    "provenance": "Synthetic regression from manually inspected October 2026 device SMS deposit templates; all identifiers and values replaced.",
+    "input": {
+      "sender": "AX-FEDBNK-S",
+      "body": "Failed: Hi,Rs.1250.50credited in your A/c XX1234 on 12OCT2026 10:30:00 using cash deposit machine at FBL-TEST BRANCH. Current Bal: Rs.9876.54 - Federal Bank",
+      "receivedAt": "2026-10-12T10:30:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,182 @@
+[
+  {
+    "id": "psb-reject-security",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "VM-PSBANK-S",
+      "body": "Your OTP is 123456. PSB000000000000001 A/C No **1111 Credited with Rs 500--Vendor Amount (CLR BAL 1250.63CR)(18-03-2026 16:51:51) Punjab&Sind Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "psb-reject-promotional",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "VM-PSBANK-S",
+      "body": "Exclusive offer: apply now. PSB000000000000001 A/C No **1111 Credited with Rs 500--Vendor Amount (CLR BAL 1250.63CR)(18-03-2026 16:51:51) Punjab&Sind Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "psb-reject-failed",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "VM-PSBANK-S",
+      "body": "Payment failed. PSB000000000000001 A/C No **1111 Credited with Rs 500--Vendor Amount (CLR BAL 1250.63CR)(18-03-2026 16:51:51) Punjab&Sind Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "psb-reject-pending",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "VM-PSBANK-S",
+      "body": "Payment pending. PSB000000000000001 A/C No **1111 Credited with Rs 500--Vendor Amount (CLR BAL 1250.63CR)(18-03-2026 16:51:51) Punjab&Sind Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "psb-reject-future",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "VM-PSBANK-S",
+      "body": "Will be debited. PSB000000000000001 A/C No **1111 Credited with Rs 500--Vendor Amount (CLR BAL 1250.63CR)(18-03-2026 16:51:51) Punjab&Sind Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "psb-reject-notice",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "VM-PSBANK-S",
+      "body": "Statement generated. PSB000000000000001 A/C No **1111 Credited with Rs 500--Vendor Amount (CLR BAL 1250.63CR)(18-03-2026 16:51:51) Punjab&Sind Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "psb-reject-unknown-sender",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTERED",
+      "body": "PSB000000000000001 A/C No **1111 Credited with Rs 500--Vendor Amount (CLR BAL 1250.63CR)(18-03-2026 16:51:51) Punjab&Sind Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "psb-reject-promotion-sender",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "VM-PSBANK-P",
+      "body": "PSB000000000000001 A/C No **1111 Credited with Rs 500--Vendor Amount (CLR BAL 1250.63CR)(18-03-2026 16:51:51) Punjab&Sind Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "psb-reject-balance-only",
+    "country": "IN",
+    "bankId": "in.psb",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "VM-PSBANK-S",
+      "body": "Available balance INR 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

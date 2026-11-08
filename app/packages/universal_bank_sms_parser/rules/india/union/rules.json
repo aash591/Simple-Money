@@ -1,0 +1,202 @@
+{
+  "id": "in.union",
+  "name": "Union Bank of India",
+  "senders": [
+    "UBIBNK",
+    "UBISMS",
+    "UBOI",
+    "UNIONB",
+    "UNIONBANK"
+  ],
+  "formats": [
+    {
+      "id": "in.union.template001",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "A/c "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Debited for Rs:"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " on "
+        },
+        {
+          "op": "capture_text",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " by "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " ref no "
+        },
+        {
+          "op": "capture_reference",
+          "name": "reference",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Avl Bal Rs:"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "in.union.device001",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "A/c "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Credited for Rs:"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " on "
+        },
+        {
+          "op": "capture_text",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " by "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 128
+        },
+        {
+          "op": "match_literal",
+          "value": " ref no "
+        },
+        {
+          "op": "capture_reference",
+          "name": "reference",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Avl Bal Rs:"
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "."
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        },
+        "reference": {
+          "capture": "reference"
+        }
+      }
+    },
+    {
+      "id": "in.union.device011.debit",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        { "op": "match_literal", "value": "A/c " },
+        { "op": "capture_account", "name": "account", "maxLength": 64 },
+        { "op": "match_literal", "value": " Debited Rs:" },
+        { "op": "capture_money", "name": "amount", "maxLength": 64 },
+        { "op": "match_literal", "value": " on " }
+      ],
+      "output": {
+        "amount": { "capture": "amount" },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        }
+      }
+    },
+    {
+      "id": "in.union.device014.credit_dot",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "requires": { "all": ["A/c"] },
+      "tokens": [
+        { "op": "match_literal", "value": "Credited for Rs." },
+        { "op": "capture_money", "name": "amount", "maxLength": 64 },
+        { "op": "match_literal", "value": " on " }
+      ],
+      "output": { "amount": { "capture": "amount" } }
+    }
+  ]
+}

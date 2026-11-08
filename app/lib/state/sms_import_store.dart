@@ -1,0 +1,729 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
+
+import '../data/community/community_fixes.dart';
+import '../data/repositories/sms_import_repository.dart';
+import '../data/repositories/sms_review_repository.dart';
+import '../data/repositories/account_repository.dart';
+import '../data/repositories/category_repository.dart';
+import '../data/db/app_database.dart';
+import '../data/sms_inbox_platform.dart';
+import '../domain/party_category.dart';
+import '../data/bank_sms_parser.dart';
+import '../data/user_sms_rules.dart';
+import '../domain/account.dart';
+import '../domain/bank_institution_icon.dart';
+
+PortableSmsEngine _buildEngine(List<String> packs) {
+  const compiler = RuleCompiler();
+  return BankSmsParser(
+    compiler.mergeRuntimePacks(
+      packs
+          .map(
+            (p) => compiler.loadRuntime(jsonDecode(p) as Map<String, dynamic>),
+          )
+          .toList(),
+    ),
+  );
+}
+
+/// Bundled packs plus the user's own rules, plus shared ones from other
+/// users. A pack that can't merge (one repeating a bundled pattern, say) is
+/// dropped rather than stopping SMS import: the shared pack first, then the
+/// user's, unless that is all there is.
+PortableSmsEngine _buildEngineWithUser(
+  (List<String>, String?, String?) input,
+) {
+  final (bundled, user, community) = input;
+  final attempts = [
+    if (community != null) [...bundled, ?user, community],
+    if (user != null) [...bundled, user],
+  ];
+  RuleValidationException? failure;
+  for (final packs in attempts) {
+    try {
+      return _buildEngine(packs);
+    } on RuleValidationException catch (error) {
+      failure ??= error;
+    }
+  }
+  if (bundled.isEmpty && failure != null) throw failure;
+  return _buildEngine(bundled);
+}
+
+/// The user's approved SMS rules as a runtime pack, or null.
+Future<String?> userSmsPack(AppDatabase database) async {
+  try {
+    return await UserSmsRuleRepository(database).runtimePack();
+  } catch (_) {
+    return null;
+  }
+}
+
+/// Shared SMS rules from other users as a runtime pack, or null.
+Future<String?> communitySmsPack(AppDatabase database) async {
+  try {
+    return await CommunityFixRepository(database).runtimePack();
+  } catch (_) {
+    return null;
+  }
+}
+
+Future<PortableSmsEngine> loadBundledSmsEngine() async =>
+    compute(_buildEngine, await _bundledPacks());
+
+/// The engine the app reads bank SMS with: bundled packs, the user's rules
+/// and shared ones.
+Future<PortableSmsEngine> loadSmsEngine(AppDatabase database) async => compute(
+  _buildEngineWithUser,
+  (
+    await _bundledPacks(),
+    await userSmsPack(database),
+    await communitySmsPack(database),
+  ),
+);
+
+/// The bundled packs' JSON, optionally only those whose text passes [where].
+Future<List<String>> bundledSmsPacks({bool Function(String text)? where}) =>
+    _bundledPacks(where: where);
+
+/// A small engine for one incoming message: only the packs that register its
+/// sender are compiled, on the calling isolate. Null when no pack (and no
+/// host-only family) knows the sender, so the message cannot be a transaction.
+///
+/// Every pack carries the same shared category lists, and a sender's rules all
+/// live in the packs that name it, so the result matches the full engine.
+///
+/// [userPack] is the user's own rules ([userSmsPack]) and [communityPack]
+/// the shared ones ([communitySmsPack]), each used when it names the sender.
+Future<PortableSmsEngine?> loadBundledSmsEngineFor(
+  String sender, {
+  String? userPack,
+  String? communityPack,
+}) async {
+  final normalized = normalizeRuleSender(sender);
+  if (normalized == null) return null;
+  final matching = await _bundledPacks(
+    where: (text) => text.contains('"$normalized"'),
+  );
+  String? naming(String? pack) =>
+      pack != null && pack.contains('"$normalized"') ? pack : null;
+  final user = naming(userPack);
+  final community = naming(communityPack);
+  if (matching.isNotEmpty || user != null || community != null) {
+    try {
+      return _buildEngineWithUser((matching, user, community));
+    } on RuleValidationException {
+      return null;
+    }
+  }
+  return BankSmsParser.hostOnlySenders.containsKey(normalized)
+      ? _buildEngine(await _bundledPacks())
+      : null;
+}
+
+Future<PartyCategorizer>? _categorizer;
+
+/// The shared category rules, for whatever isn't an SMS: a statement row, a
+/// scanned UPI QR. Every pack carries all of them, so one pack is enough.
+Future<PartyCategorizer> loadBundledCategorizer() =>
+    _categorizer ??= _bundledPacks(first: true)
+        .then(
+          (packs) => PartyCategorizer(
+            PortableCategorizer(
+              const RuleCompiler().loadRuntime(
+                jsonDecode(packs.single) as Map<String, dynamic>,
+              ),
+            ),
+          ),
+        )
+        .catchError((Object error) {
+          _categorizer = null;
+          throw error;
+        });
+
+/// Only the packs that are returned are hash-verified.
+Future<List<String>> _bundledPacks({
+  bool Function(String text)? where,
+  bool first = false,
+}) async {
+  const root = 'packages/universal_bank_sms_parser/distribution/';
+  final manifest = jsonDecode(
+    await rootBundle.loadString('${root}manifest.json'),
+  ) as Map<String, dynamic>;
+  final indian = (manifest['packs'] as List).where(
+    (p) => (p['countries'] as List).contains('IN'),
+  );
+  final packs = await Future.wait(
+    (first ? indian.take(1) : indian).map((p) async {
+      final bytes = await rootBundle.load('$root${p['path']}');
+      final data = bytes.buffer.asUint8List(
+        bytes.offsetInBytes,
+        bytes.lengthInBytes,
+      );
+      final text = utf8.decode(data);
+      if (where != null && !where(text)) return null;
+      if (data.length != p['sizeBytes'] ||
+          sha256.convert(data).toString() != p['sha256']) {
+        throw const FormatException('Invalid bundled SMS rules');
+      }
+      return text;
+    }),
+  );
+  return packs.nonNulls.toList();
+}
+
+// Keep the closures outside the store so no notifier, platform channel or UI
+// state can be captured and sent to the worker isolate.
+Future<(int, int, Set<String>)> _processStagedPage(
+  AppDatabase database,
+  PortableSmsEngine engine,
+) => database.computeWithDatabase(
+  connect: AppDatabase.new,
+  computation: (AppDatabase workerDb) async {
+    final repository = SmsImportRepository(workerDb);
+    final page = await repository.stagedPage();
+    var found = 0;
+
+    await workerDb.transaction(() async {
+      for (final row in page) {
+        final result = engine.parse(row.sms);
+        if (engine is BankSmsParser) {
+          final snapshot = engine.balanceSnapshot(row.sms);
+          if (snapshot != null) {
+            await repository.recordBalance(snapshot, row.sms.receivedAt);
+          }
+        }
+        await repository.enqueue(row.sms, result);
+        if (result.candidate != null) {
+          found++;
+        }
+      }
+      // Queue consumption and parsed records commit together.
+      await repository.clearStagedPage();
+    });
+    // Use the same resolved groups as review, including suffix-less messages
+    // that can now be matched to a known account.
+    final accounts = (await repository.detectedAccounts())
+        .map((sms) => sms.bankKey)
+        .toSet();
+    return (page.length, found, accounts);
+  },
+);
+
+class _ReviewData {
+  const _ReviewData(
+    this.enabled,
+    this.pending,
+    this.detected,
+    this.links,
+    this.balances,
+    this.creditLimits,
+    this.totalLimits,
+    this.accountMessageCounts,
+    this.count,
+    this.ready,
+    this.cashCurrencies,
+    this.cashMessageCounts,
+    this.changed,
+  );
+  final bool enabled;
+  final int count, ready;
+  final Set<String> cashCurrencies;
+  final Map<String, int> cashMessageCounts;
+  final bool changed;
+  final List<PendingSmsImport> pending, detected;
+  final Map<String, int> links, balances, creditLimits, totalLimits;
+  final Map<String, int> accountMessageCounts;
+}
+
+Future<_ReviewData> _loadReviewData(
+  AppDatabase database,
+  PortableSmsEngine engine,
+  Map<String, int> selections,
+  bool rebuild,
+  Set<String> refreshIds,
+  String rules,
+) => database.computeWithDatabase(
+  connect: AppDatabase.new,
+  computation: (AppDatabase workerDb) async {
+    final repository = SmsImportRepository(workerDb);
+    final enabled = (await repository.state()).$1;
+    final review = SmsReviewRepository(workerDb);
+    var changed = false;
+    await workerDb.transaction(() async {
+      final signature = await review.contextSignature(rules);
+      rebuild = rebuild || await review.contextChanged(signature);
+      changed = await review.cleanReviewed(compact: rebuild) > 0;
+      if (rebuild) {
+        changed =
+            await workerDb.customUpdate('DELETE FROM sms_review') > 0 ||
+            changed;
+      } else if (refreshIds.isNotEmpty) {
+        final placeholders = List.filled(refreshIds.length, '?').join(',');
+        changed =
+            await workerDb.customUpdate(
+                  'DELETE FROM sms_review WHERE fingerprint IN ($placeholders)',
+                  variables: refreshIds.map(Variable.new).toList(),
+                ) >
+                0 ||
+            changed;
+      }
+      if (rebuild || refreshIds.isNotEmpty || await review.needsSync()) {
+        final accounts = await AccountRepository(workerDb).load();
+        final categories = await CategoryRepository(workerDb)
+            .load(includeDrafts: true);
+        final links = await repository.accountLinks();
+        final detected = await repository.detectedAccounts();
+        final notifications = <String, BankSms>{};
+        // Only messages absent from the persistent review index are decoded
+        // and reparsed. Ordinary refreshes therefore stay O(page size), not
+        // O(the user's entire SMS history).
+        while (true) {
+          final queued = await repository.pendingWithoutReview();
+          if (queued.isEmpty) break;
+          changed = true;
+          final prepared = _preparePending(
+            (engine, queued),
+            notifications,
+            reparse: rebuild,
+          );
+          final included = prepared.map((sms) => sms.id).toSet();
+          for (final sms in prepared) {
+            await review.put(
+              sms,
+              accounts,
+              categories,
+              links,
+              selections[sms.id],
+              detected: detected,
+            );
+          }
+          for (final sms in queued) {
+            if (!included.contains(sms.id)) await review.putIgnored(sms);
+          }
+        }
+      }
+      if (rebuild) await review.recordContext(signature);
+    });
+    final links = await repository.accountLinks();
+    final page = await review.page();
+    return _ReviewData(
+      enabled,
+      page.map((row) => row.sms).toList(),
+      await repository.detectedAccounts(),
+      links,
+      await repository.latestBalances(backfill: false),
+      await repository.latestCreditLimits(),
+      await repository.latestTotalCreditLimits(),
+      await repository.detectedAccountMessageCounts(),
+      await review.count(),
+      await review.count(const SmsReviewFilter(ready: true)),
+      await review.cashCurrencies(),
+      await review.cashCurrencyMessageCounts(),
+      changed,
+    );
+  },
+);
+
+/// Rows queued since the last rebuild were parsed by this same rule context, so
+/// only a rebuild (rules, accounts or host version changed) parses them again.
+List<PendingSmsImport> _preparePending(
+  (PortableSmsEngine, List<PendingSmsImport>) input,
+  Map<String, BankSms> notifications, {
+  required bool reparse,
+}) {
+  final engine = input.$1;
+  final rows = <PendingSmsImport>[];
+  for (final sms in input.$2) {
+    final message = BankSms(
+      sender: sms.sender,
+      body: sms.body,
+      receivedAt: sms.receivedAt,
+    );
+    final identity = smsNotificationIdentity(message);
+    final previous = notifications[identity];
+    if (previous != null && isRepeatedSmsNotification(previous, message)) {
+      continue;
+    }
+    notifications[identity] = message;
+    final parsed = reparse ? engine.parse(message) : null;
+    if (parsed != null &&
+        parsed.classification != RuleClassification.unknown &&
+        parsed.candidate == null) {
+      continue;
+    }
+    // Prefer the current rule pack's candidate so newly added formats repair
+    // pending rows that were scanned with an older pack. Stored host metadata
+    // is merged back below; unknown messages retain their saved candidate.
+    final candidate =
+        parsed?.candidate ??
+        SmsTransactionCandidate.fromJson({
+          ...sms.data,
+          'occurredAt':
+              sms.data['occurredAt'] ?? sms.receivedAt.toIso8601String(),
+        });
+    final enriched = engine.enrichCandidate(message, candidate);
+    final data = enriched.toJson();
+    rows.add(
+      PendingSmsImport(
+        id: sms.id,
+        sender: sms.sender,
+        body: sms.body,
+        receivedAt: sms.receivedAt,
+        data: {...sms.data, ...Map<String, dynamic>.from(data)},
+      ),
+    );
+  }
+  return rows;
+}
+
+/// What the last scan did on its own, for the home card.
+class SmsScanSummary {
+  const SmsScanSummary({required this.accountsAdded, required this.saved});
+  final int accountsAdded, saved;
+}
+
+Future<int> _saveReady(AppDatabase database) => database.computeWithDatabase(
+  connect: AppDatabase.new,
+  computation: (AppDatabase workerDb) =>
+      SmsReviewRepository(workerDb).saveReady(),
+);
+
+class SmsImportStore extends ChangeNotifier {
+  SmsImportStore(
+    this.repository, {
+    SmsInboxPlatform? platform,
+    Future<PortableSmsEngine> Function()? engineLoader,
+    this.autoImport = true,
+  }) : platform = platform ?? SmsInboxPlatform(),
+       _usesBundledEngine = engineLoader == null,
+       engineLoader =
+           engineLoader ?? (() => loadSmsEngine(repository.database));
+  final SmsImportRepository repository;
+  final SmsInboxPlatform platform;
+
+  /// Whether a finished scan adds accounts and saves ready transactions.
+  final bool autoImport;
+  final Future<PortableSmsEngine> Function() engineLoader;
+  Future<PortableSmsEngine>? _engine;
+  final bool _usesBundledEngine;
+  Future<String>? _rulesSignature;
+
+  /// Only the first review page, for the dashboard. All rows remain in SQLite.
+  List<PendingSmsImport> pending = [];
+  int pendingCount = 0, readyCount = 0, reviewRevision = 0;
+  Set<String> cashCurrencies = {};
+  Map<String, int> cashMessageCounts = {};
+  late final SmsReviewRepository review = SmsReviewRepository(
+    repository.database,
+  );
+  List<PendingSmsImport> detectedAccounts = [];
+  Map<String, int> accountLinks = {};
+  Map<String, int> smsBalances = {};
+  Map<String, int> smsCreditLimits = {};
+  Map<String, int> smsTotalCreditLimits = {};
+  Map<String, int> accountMessageCounts = {};
+  final Map<String, int> selectedCategories = {};
+  Future<void> selectCategory(PendingSmsImport sms, int id) async {
+    selectedCategories[sms.id] = id;
+    await reload(refreshIds: {sms.id});
+  }
+
+  bool enabled = false, busy = false, _disposed = false;
+  bool scanning = false;
+
+  /// After reading the inbox: adding accounts and saving transactions.
+  bool importing = false;
+  SmsScanSummary? lastScan;
+
+  /// Called after a scan adds accounts or saves transactions, so the ledger
+  /// screens can reload.
+  VoidCallback? onLedgerChanged;
+  int scannedMessages = 0, foundTransactions = 0;
+  final Set<String> foundAccounts = {};
+  String? error;
+  bool get supported => platform.supported;
+  void _notify() {
+    if (!_disposed) notifyListeners();
+  }
+
+  int _reloadVersion = 0;
+  Future<void> reload({
+    bool rebuildReview = false,
+    Set<String> refreshIds = const {},
+  }) async {
+    if (_disposed) return;
+    final version = ++_reloadVersion;
+    _rulesSignature ??= _usesBundledEngine
+        ? _bundledRulesSignature()
+        : Future.value('custom-engine');
+    _engine ??= engineLoader();
+    final engine = await _engine!;
+    final data = await _loadReviewData(
+      repository.database,
+      engine,
+      Map.of(selectedCategories),
+      rebuildReview,
+      Set.of(refreshIds),
+      await _rulesSignature!,
+    );
+    if (_disposed || version != _reloadVersion) return;
+    final changed =
+        data.changed || pendingCount != data.count || readyCount != data.ready;
+    enabled = data.enabled;
+    pending = data.pending;
+    pendingCount = data.count;
+    readyCount = data.ready;
+    cashCurrencies = data.cashCurrencies;
+    cashMessageCounts = data.cashMessageCounts;
+    if (changed) reviewRevision++;
+    if (pendingCount == 0) selectedCategories.clear();
+    smsBalances = data.balances;
+    accountLinks = data.links;
+    smsCreditLimits = data.creditLimits;
+    smsTotalCreditLimits = data.totalLimits;
+    accountMessageCounts = data.accountMessageCounts;
+    detectedAccounts = data.detected;
+    _notify();
+  }
+
+  /// The bundled packs, the user's own rules and shared ones, which all
+  /// decide how pending messages read.
+  Future<String> _bundledRulesSignature() async =>
+      '${await rootBundle.loadString('packages/universal_bank_sms_parser/distribution/manifest.json')}'
+      '\nuser:${await UserSmsRuleRepository(repository.database).signature()}'
+      '\ncommunity:${await CommunityFixRepository(repository.database).signature()}';
+
+  /// The user's SMS rules changed. Pending messages are read again with the
+  /// new set, and the whole inbox is scanned so messages no rule caught
+  /// before can be found.
+  Future<void> rulesChanged() async {
+    _engine = null;
+    _rulesSignature = null;
+    if (enabled && supported) {
+      await scan(full: true);
+    } else {
+      await reload();
+    }
+  }
+
+  Future<void> initialize() async {
+    try {
+      enabled = (await repository.state()).$1;
+      if (enabled && supported && !await platform.hasPermission()) {
+        enabled = false;
+        await repository.enable(false);
+      }
+      await platform.setRealtimeEnabled(enabled);
+      await reload();
+      if (enabled) await scan(automatic: true);
+    } catch (_) {
+      error = 'Could not load bank messages. Please try again.';
+      _notify();
+    }
+  }
+
+  Future<void> enable() async {
+    if (busy || !supported || _disposed) return;
+    busy = true;
+    error = null;
+    _notify();
+    var allowed = false;
+    try {
+      allowed = await platform.requestPermission();
+      if (!allowed) {
+        error = 'SMS access was not granted. Try again in More › Settings.';
+      } else if (!_disposed) {
+        enabled = true;
+        await repository.enable(true);
+        await platform.setRealtimeEnabled(true);
+      }
+    } catch (_) {
+      allowed = false;
+      error = 'Could not access the SMS inbox. Please try again.';
+    } finally {
+      busy = false;
+      _notify();
+    }
+    if (allowed && !_disposed) await scan();
+  }
+
+  Future<void> disable() async {
+    enabled = false;
+    await repository.enable(false);
+    await platform.setRealtimeEnabled(false);
+    _notify();
+  }
+
+  Future<void> scan({bool full = false, bool automatic = false}) async {
+    if (busy || !enabled || !supported || _disposed) return;
+    // A completed scan survives app restarts. Opening/resuming the app should
+    // reuse its saved review queue; only an explicit scan reads the inbox again.
+    // An interrupted first scan has no checkpoint and can still recover.
+    if (automatic) {
+      try {
+        if ((await repository.state()).$2 > 0) return;
+      } catch (_) {
+        error = 'Could not load bank messages. Please try again.';
+        _notify();
+        return;
+      }
+    }
+    // Another scan may have started while reading the persisted checkpoint.
+    if (busy || !enabled || !supported || _disposed) return;
+    busy = true;
+    error = null;
+    _notify();
+    scanning = true;
+    scannedMessages = 0;
+    foundTransactions = 0;
+    foundAccounts.clear();
+    lastScan = null;
+    _notify();
+    var completed = false;
+    final started = DateTime.now().millisecondsSinceEpoch;
+    try {
+      if (!await platform.hasPermission()) {
+        enabled = false;
+        await repository.enable(false);
+        error = 'SMS access is off. Turn it on again in More › Settings.';
+        await platform.setRealtimeEnabled(false);
+        return;
+      }
+      final checkpoint = (await repository.state()).$2;
+      final since = full
+          ? 0
+          : (checkpoint - const Duration(days: 1).inMilliseconds).clamp(
+              0,
+              started,
+            );
+      _engine ??= engineLoader();
+      final engine = await _engine!;
+      var afterId = 0;
+      while (!_disposed && enabled) {
+        final page = await platform.readPage(afterId: afterId, since: since);
+        if (page.isEmpty) break;
+        for (final row in page) {
+          if (row.id <= afterId) throw StateError('Invalid inbox pagination');
+          afterId = row.id;
+        }
+        if (_disposed || !enabled) break;
+        await repository.stagePage(page);
+        final progress = await _processStagedPage(repository.database, engine);
+        scannedMessages += progress.$1;
+        foundTransactions += progress.$2;
+        foundAccounts
+          ..clear()
+          ..addAll(progress.$3);
+        _notify();
+        await Future<void>.delayed(Duration.zero);
+      }
+      if (enabled && !_disposed) {
+        await repository.checkpoint(started);
+        completed = true;
+      }
+    } catch (_) {
+      _engine = null;
+      error = 'Could not finish reading SMS. Your pending messages are kept; scan again to retry.';
+    } finally {
+      // Refresh once, including partially committed pages after a read error.
+      try {
+        await repository.clearStagedPage();
+        await reload();
+      } catch (_) {
+        error ??= 'Could not refresh bank messages. Please try again.';
+      }
+      if (autoImport && completed && error == null && !_disposed) {
+        importing = true;
+        _notify();
+        try {
+          lastScan = await _autoImport();
+          onLedgerChanged?.call();
+        } catch (_) {
+          error = 'Could not save everything. Your messages are kept; scan again to retry.';
+        }
+        importing = false;
+      }
+      scanning = false;
+      busy = false;
+      _notify();
+    }
+  }
+
+  /// A scan only asks about what it cannot decide. Banks whose messages carry
+  /// an account number get an account, ATM messages get a Cash account, and
+  /// every transaction with an account and category is saved. Unnumbered
+  /// banks to link and transactions to check are left for review.
+  Future<SmsScanSummary> _autoImport() async {
+    final accounts = AccountRepository(repository.database);
+    final before = await accounts.load();
+    bool active(int? id) => before.any((a) => a.id == id && !a.isArchived);
+    final numbered = [
+      for (final sms in detectedAccounts)
+        if (sms.accountLast4 != null && !active(accountLinks[sms.bankKey])) sms,
+    ];
+    await repository.createDetectedAccounts(
+      numbered,
+      icons: {
+        for (final sms in numbered)
+          sms.bankKey: bankInstitutionIcon(
+            sms.bankName,
+            creditCard: sms.creditCard,
+          ),
+      },
+    );
+    for (final currency in cashCurrencies) {
+      if (before.any(
+        (a) =>
+            a.type == AccountType.cash &&
+            a.currency == currency &&
+            !a.isArchived,
+      )) {
+        continue;
+      }
+      await accounts.save(
+        name: 'Cash',
+        currency: currency,
+        digits: 2,
+        openingBalance: 0,
+        type: AccountType.cash,
+        icon: 'wallet_one',
+      );
+    }
+    final added = (await accounts.load()).length - before.length;
+    await reload();
+    final saved = await _saveReady(repository.database);
+    await reload();
+    return SmsScanSummary(accountsAdded: added, saved: saved);
+  }
+
+  Future<int> saveReady() async {
+    await reload();
+    return _saveReady(repository.database);
+  }
+
+  Future<void> dismiss(PendingSmsImport sms) async {
+    await repository.dismiss(sms.id);
+    await reload();
+  }
+
+  Future<void> linkAccount(PendingSmsImport sms, int id) async {
+    await repository.linkAccount(sms, id);
+    accountLinks = {...accountLinks, sms.bankKey: id};
+    _notify();
+    // The reference-table signature invalidates matching only when it changes.
+    await reload();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+}

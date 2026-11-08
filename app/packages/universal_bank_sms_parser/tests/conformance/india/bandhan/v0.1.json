@@ -1,0 +1,403 @@
+[
+  {
+    "id": "bandhan-debit",
+    "provenance": "existing PennyWise-derived Dart fixture",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "INR 180.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123013240123/Amazon Pa Value 16-NOV-2025 . Clear Bal is INR 9999.99. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.bandhan.template001",
+      "candidate": {
+        "amountMinor": 18000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "Bandhan Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "D123013240123",
+        "counterparty": "Amazon Pa",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true,
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "bandhan-credit",
+    "provenance": "existing PennyWise-derived Dart fixture",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "INR 25,000.00 deposited to A/c XXXXXXXXXX1234 towards UPI/CR/C224513287910/JOHN DOE/u on 03-OCT-2025 . Clear Bal is INR 30,123.00 . Bandhan Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.bandhan.template005",
+      "candidate": {
+        "amountMinor": 2500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "Bandhan Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "C224513287910",
+        "counterparty": "JOHN DOE",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "bandhan-debit-security",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "Your OTP is 123456. INR 180.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123013240123/Amazon Pa Value 16-NOV-2025 . Clear Bal is INR 9999.99. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "bandhan-debit-promotional",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "Exclusive offer: apply now. INR 180.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123013240123/Amazon Pa Value 16-NOV-2025 . Clear Bal is INR 9999.99. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "bandhan-debit-failed",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "Payment failed. INR 180.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123013240123/Amazon Pa Value 16-NOV-2025 . Clear Bal is INR 9999.99. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "bandhan-debit-pending",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "Payment pending. INR 180.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123013240123/Amazon Pa Value 16-NOV-2025 . Clear Bal is INR 9999.99. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "bandhan-debit-future",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "Will be debited. INR 180.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123013240123/Amazon Pa Value 16-NOV-2025 . Clear Bal is INR 9999.99. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "conservative future-rejection extension",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "bandhan-credit-security",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "Your OTP is 123456. INR 25,000.00 deposited to A/c XXXXXXXXXX1234 towards UPI/CR/C224513287910/JOHN DOE/u on 03-OCT-2025 . Clear Bal is INR 30,123.00 . Bandhan Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "bandhan-credit-promotional",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "Exclusive offer: apply now. INR 25,000.00 deposited to A/c XXXXXXXXXX1234 towards UPI/CR/C224513287910/JOHN DOE/u on 03-OCT-2025 . Clear Bal is INR 30,123.00 . Bandhan Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "bandhan-credit-failed",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "Payment failed. INR 25,000.00 deposited to A/c XXXXXXXXXX1234 towards UPI/CR/C224513287910/JOHN DOE/u on 03-OCT-2025 . Clear Bal is INR 30,123.00 . Bandhan Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "bandhan-credit-pending",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "Payment pending. INR 25,000.00 deposited to A/c XXXXXXXXXX1234 towards UPI/CR/C224513287910/JOHN DOE/u on 03-OCT-2025 . Clear Bal is INR 30,123.00 . Bandhan Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "bandhan-credit-future",
+    "input": {
+      "sender": "XY-BDNSMS-S",
+      "body": "Will be debited. INR 25,000.00 deposited to A/c XXXXXXXXXX1234 towards UPI/CR/C224513287910/JOHN DOE/u on 03-OCT-2025 . Clear Bal is INR 30,123.00 . Bandhan Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "conservative future-rejection extension",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "unknown",
+    "input": {
+      "sender": "UNKNOWN",
+      "body": "INR 180.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123013240123/Amazon Pa Value 16-NOV-2025 . Clear Bal is INR 9999.99. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "adversarial conformance example",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "balance",
+    "input": {
+      "sender": "BDNSMS",
+      "body": "Available balance INR 999.00.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "adversarial conformance example",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "malformed-money",
+    "input": {
+      "sender": "BDNSMS",
+      "body": "INR 1,80.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123013240123/Amazon Pa Value 16-NOV-2025 . Clear Bal is INR 9999.99. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "adversarial conformance example",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "zero",
+    "input": {
+      "sender": "BDNSMS",
+      "body": "INR 0.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123013240123/Amazon Pa Value 16-NOV-2025 . Clear Bal is INR 9999.99. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "adversarial conformance example",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "fraction",
+    "input": {
+      "sender": "BDNSMS",
+      "body": "INR 180.001 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123013240123/Amazon Pa Value 16-NOV-2025 . Clear Bal is INR 9999.99. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "adversarial conformance example",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  },
+  {
+    "id": "promotional-sender",
+    "input": {
+      "sender": "XY-BDNSMS-P",
+      "body": "INR 180.00 debited from A/c XXXXXXXXXX1234 towards UPI/DR/D123013240123/Amazon Pa Value 16-NOV-2025 . Clear Bal is INR 9999.99. Bandhan Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "adversarial conformance example",
+    "country": "IN",
+    "bankId": "in.bandhan"
+  }
+]

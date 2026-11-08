@@ -1,0 +1,459 @@
+[
+  {
+    "id": "canara-ported-001",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Legacy Dart regression: india_canara_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VA-CANBNK-S",
+      "body": "An amount of INR 13,30,614.75 has been credited to XXXX6785 on 02/12/2025 towards RTGS by Sender AXIS MUTUAL FUND REDEMPTION PO, IFSC UTIB0000004, Sender A/c XXXX9108, AXIS BANK, MUMBAI BRANCH, UTR UTIBR72025120200011461, Total Avail. Bal INR 2679815.88- Canara Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.template001",
+      "candidate": {
+        "amountMinor": 133061475,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "9108",
+        "reference": null,
+        "counterparty": "AXIS MUTUAL FUND REDEMPTION PO",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "canara-ported-002",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Legacy Dart regression: india_canara_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VK-CANBNK-S",
+      "body": "Dear Customer, Acct XXX123 Dr. INR 260.00 on 06/07/26 to SAMPLE MART; UPI: 123456789012; Bal INR 12,345.67.Not you? SMS BLOCKUPI to XXXXXXXXXX-CanaraBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.template002",
+      "candidate": {
+        "amountMinor": 26000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "123",
+        "reference": "123456789012",
+        "counterparty": "SAMPLE MART",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "groceries",
+          "name": "Groceries",
+          "type": "expense",
+          "ruleId": "in.category.grocery_words",
+          "isFallback": false,
+          "aliases": [
+            "Grocery"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "canara-ported-003",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Legacy Dart regression: india_canara_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JK-CANBNK-S",
+      "body": "Dear Customer, Acct XXX456 Dr. Rs. 75.50 on 07/07/26 to CITY CAFE; UPI: 987654321098; Bal INR 9,876.54.Not you? SMS BLOCKUPI to XXXXXXXXXX-CanaraBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.template003",
+      "candidate": {
+        "amountMinor": 7550,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "456",
+        "reference": "987654321098",
+        "counterparty": "CITY CAFE",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "cafe",
+          "name": "Cafe",
+          "type": "expense",
+          "ruleId": "in.category.cafe",
+          "isFallback": false,
+          "aliases": [
+            "Restaurants",
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "canara-ported-004",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Legacy Dart regression: india_canara_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VK-CANBNK-S",
+      "body": "Dear Customer, Acct XXX789 Dr. ₹41.00 on 08/07/26 to METRO TRANSIT; UPI: 456789012345; Bal INR 8,765.43.Not you? SMS BLOCKUPI to XXXXXXXXXX-CanaraBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.template004",
+      "candidate": {
+        "amountMinor": 4100,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "789",
+        "reference": "456789012345",
+        "counterparty": "METRO TRANSIT",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "public_transport_train",
+          "name": "Train",
+          "type": "expense",
+          "ruleId": "in.category.metro",
+          "isFallback": false,
+          "aliases": [
+            "Public Transport",
+            "Transportation"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "canara-ported-005",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Legacy Dart regression: india_canara_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VK-CANBNK-S",
+      "body": "Dear Customer, Acct XXX321 Dr. INR 88.00 on 09/07/26 to CORNER STORE, UPI: 111222333444; Bal INR 5,000.00.Not you? SMS BLOCKUPI to XXXXXXXXXX-CanaraBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.template005",
+      "candidate": {
+        "amountMinor": 8800,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "321",
+        "reference": "111222333444",
+        "counterparty": "CORNER STORE",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "groceries",
+          "name": "Groceries",
+          "type": "expense",
+          "ruleId": "in.category.groceries",
+          "isFallback": false,
+          "aliases": [
+            "Grocery"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "canara-device5-debit",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-CANBNK-S",
+      "body": "An amount of INR 125.50 has been DEBITED to your account XX1234 on 08/10/26. Total Avail.bal INR 5000.00.Dial 0000000000 to report.",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.device005.debit",
+      "candidate": {
+        "amountMinor": 12550,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "canara-device5-paid",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-CANBNK-S",
+      "body": "Rs.50.00 paid thru A/C XX1234 on 08/10/26 12:01 to SAMPLE, UPI Ref 123456789012. If not done, SMS BLOCKUPI to 00000.-Canara Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.device005.paid",
+      "candidate": {
+        "amountMinor": 5000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456789012",
+        "counterparty": "SAMPLE",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "canara-device5-credit",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-CANBNK-S",
+      "body": "An amount of INR 75.00 has been CREDITED to your account XX1234 on 08/10/26.Total Avail.bal INR 5000.00.- Canara Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.device005.credit",
+      "candidate": {
+        "amountMinor": 7500,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "canara-device5-ac-credit",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-CANBNK-S",
+      "body": "Your a/c XXX123 CREDITED with INR 70.00 on 08/10/26. Avail.bal INR 5000.00. - Canara Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.device005.ac_credit",
+      "candidate": {
+        "amountMinor": 7000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "canara-device13-upi-credit",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Sanitized physical-device template; all identifiers synthetic",
+    "input": {
+      "sender": "AD-CANBNK-S",
+      "body": "Your a/c XX1234 has been credited with Rs.75.00 on 08/10/26 from A/c XX5678. UPI Ref 123456. -Canara Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.device013.upi_credit",
+      "candidate": {
+        "amountMinor": 7500,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "canara-device13-cash-credit",
+    "country": "IN",
+    "bankId": "in.canara",
+    "provenance": "Sanitized physical-device template; all identifiers synthetic",
+    "input": {
+      "sender": "AD-CANBNK-S",
+      "body": "INR 120.00 has been credited to your A/c XX1234 on 08/10/26 by CASH. Total Bal is INR 500.00. -Canara Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.canara.device013.cash_credit",
+      "candidate": {
+        "amountMinor": 12000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Canara Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "category": {
+          "id": "cash_deposit",
+          "name": "Cash Deposit",
+          "type": "income",
+          "ruleId": "in.category.cash_deposit",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,920 @@
+[
+  {
+    "id": "icici-ported-001",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JM-ICICIT-S",
+      "body": "USD 11.80 spent using ICICI Bank Card XX7004 on 03-Sep-25 on 1xJetBrains AI . Avl Limit: INR 17,95,899.53. If not you, call 1800 2662/SMS BLOCK 7004 to 9215676766.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template001",
+      "candidate": {
+        "amountMinor": 1180,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": "7004",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-002",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JM-ICICIT-S",
+      "body": "EUR 50.00 spent using ICICI Bank Card XX1234 on 05-Sep-25 on Amazon DE. Avl Limit: INR 2,00,000.00. SMS BLOCK 1234 to 9215676766",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template002",
+      "candidate": {
+        "amountMinor": 5000,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "Amazon DE",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-003",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JM-ICICIT-S",
+      "body": "INR 500.00 spent using ICICI Bank Card XX5678 on 06-Sep-25 on Swiggy. Avl Limit: INR 1,50,000.00.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template003",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "Swiggy",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-004",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AX-ICICIT-S",
+      "body": "Your account has been debited with Rs 649.00 towards Netflix Entertainment Ser for AutoPay MERCHANTMANDATE. RRN 421723106963. Avl Bal Rs 10,000.00-ICICI Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template004",
+      "candidate": {
+        "amountMinor": 64900,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "421723106963",
+        "counterparty": "Netflix Entertainment Ser for AutoPay MERCHANTMANDATE",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "subscriptions",
+          "name": "Subscriptions",
+          "type": "expense",
+          "ruleId": "in.category.subscriptions",
+          "isFallback": false,
+          "aliases": [
+            "Entertainment"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-005",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AX-ICICIT-S",
+      "body": "ICICI Bank Acct XX123 debited for Rs 500.00 on 01-Oct-25; merchant credited. UPI: 543210987654. Call 18002662 for dispute. Updated Bal: Rs 5,000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template005",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "543210987654",
+        "counterparty": "merchant",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-006",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AX-ICICIT-S",
+      "body": "Rs. 1,000.00 has been debited from your account XX456 for bill payment. Avl Bal: Rs 3,000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template006",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-007",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AX-ICICIT-S",
+      "body": "Your account has been successfully debited with Rs 250.00. Reference: TXN123456789",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template007",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "TXN123456789",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-008",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VM-ICICIT",
+      "body": "ICICI Bank Account XX566 credited:Rs. 18,832.00 on 28-Feb-25. Info INF*000169831922*IQBO SAL FE. Available Balance is Rs. 28,076.14.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template008",
+      "candidate": {
+        "amountMinor": 1883200,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-009",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-ICICIT-S",
+      "body": "ICICI Bank Acc XX921 debited Rs. 10,000.00 on 20-Jan-26 NFSCASH WDL. Avb Bal Rs. 3,943.84. To dispute Call 18002662 or SMS BLOCK 921 to 9215676766 .",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template009",
+      "candidate": {
+        "amountMinor": 1000000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "dispute Call 18002662 or SMS BLOCK 921 to 9215676766",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "accountingTreatment": "transfer",
+        "category": {
+          "id": "atm_withdrawal",
+          "name": "ATM Withdrawal",
+          "type": "expense",
+          "ruleId": "in.category.atm_withdrawal",
+          "isFallback": false,
+          "aliases": [
+            "Cash Withdrawal"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-010",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-ICICIT-S",
+      "body": "ICICI Bank Acc XX771 debited Rs. 10,000.00 on 20-Jan-26 NFS*CASH WDL*. Avb Bal Rs. 3,943.84. To dispute Call 18002662 or SMS BLOCK 771 to 9215676766 .",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template010",
+      "candidate": {
+        "amountMinor": 1000000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "dispute Call 18002662 or SMS BLOCK 771 to 9215676766",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "accountingTreatment": "transfer",
+        "category": {
+          "id": "atm_withdrawal",
+          "name": "ATM Withdrawal",
+          "type": "expense",
+          "ruleId": "in.category.atm_withdrawal",
+          "isFallback": false,
+          "aliases": [
+            "Cash Withdrawal"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-011",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-ICICIT-S",
+      "body": "ICICI BANK NEFT Transaction with reference number IN12603221231681 for Rs. 22050.00 has been credited to the beneficiary account on 01-02-2026 at 10:32:51",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template011",
+      "candidate": {
+        "amountMinor": 2205000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "IN12603221231681",
+        "counterparty": "the beneficiary account",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-012",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-ICICIT-S",
+      "body": "ICICI Bank Acct XX123 debited with Rs 10 on 20-Dec-25 & Acct XX456 credited.IMPS:ABCDEF123456. Call 18002662 for dispute or SMS BLOCK 700 to 9215676766",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template012",
+      "candidate": {
+        "amountMinor": 1000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "ABCDEF123456",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-013",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-ICICIT-S",
+      "body": "ICICI Bank Acct XX111 debited with Rs 5000 on 15-Jan-26 & Acct XX222 credited. NEFT RRN ZX9876543210. -ICICI Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template013",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "ZX9876543210",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-014",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-ICICIT-S",
+      "body": "ICICI Bank Acct XX333 is debited with Rs 200 and Acct XX444 is credited. IMPS:LMNOPQ987654. -ICICI Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template014",
+      "candidate": {
+        "amountMinor": 20000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "LMNOPQ987654",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-015",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AD-ICICIT-S",
+      "body": "ICICI Bank Account XX227 credited:Rs. 104.00 on 19-May-26. Info ACH*VARUNBEVERAGES LIMI*778. Available Balance is Rs 1,11,231.93",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template015",
+      "candidate": {
+        "amountMinor": 10400,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-016",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "AX-ICICIT",
+      "body": "ICICI Bank Account XX123 debited Rs. 5,000.00 on 19-May-26 InfoACH*BD-ACHKFL.Avl Bal Rs. 3,25,000.04.To dispute call 1800 blah blah",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template016",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "dispute call 1800 blah blah",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-017",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VM-ICICIT-S",
+      "body": "ICICI Bank Acc XX611 debited Rs. 6,500.00 on 19-Jun-26 CAM*62712SRY*. Avb Bal Rs. 10,079.44. To dispute Call 18002662 or SMS BLOCK 611 to 9215676766",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template017",
+      "candidate": {
+        "amountMinor": 650000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "dispute Call 18002662 or SMS BLOCK 611 to 9215676766",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-018",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "VK-ICICIT-S",
+      "body": "ICICI Bank Account XX378 credited:Rs. 6,000.00 on 24-Jun-26. Info NEFT-FDRLM4175907234-JOHN JOSE. Available Balance is Rs. 16,079.44.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template018",
+      "candidate": {
+        "amountMinor": 600000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-019",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "JD-ICICIT-S",
+      "body": "ICICI Bank Acc XX342 debited Rs. 8,927.00 on 07-Jun-26 InfoBIL*Auto Loan.Avl Bal Rs. 1,248.78.To dispute call 18002662 or SMS BLOCK 342 to 9215676766",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template019",
+      "candidate": {
+        "amountMinor": 892700,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "dispute call 18002662 or SMS BLOCK 342 to 9215676766",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-020",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "ICICIB",
+      "body": "ICICI Bank Acct XX051 debited for Rs 180.00 on 10-Nov-25; DINDUGAL ORIGIN credited. UPI:568069174081. Call 18002662 for dispute. SMS BLOCK 051 to 9215676766. 06:33 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template020",
+      "candidate": {
+        "amountMinor": 18000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "568069174081",
+        "counterparty": "DINDUGAL ORIGIN",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-021",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "ICICIB",
+      "body": "ICICI Bank Acct XX051 debited for Rs 210.00 on 11-Nov-25; HOTEL SARADHAS credited. UPI:531517664120. Call 18002662 for dispute. SMS BLOCK 051 to 9215676766. 06:57 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template020",
+      "candidate": {
+        "amountMinor": 21000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "531517664120",
+        "counterparty": "HOTEL SARADHAS",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants_more",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "icici-ported-022",
+    "country": "IN",
+    "bankId": "in.icici",
+    "provenance": "Legacy Dart regression: upstream test fixture; see NOTICE.md",
+    "input": {
+      "sender": "ICICIB",
+      "body": "ICICI Bank Acct XX051 debited for Rs 240.00 on 12-Nov-25; DINDUGAL ORIGIN credited. UPI:568205532451. Call 18002662 for dispute. SMS BLOCK 051 to 9215676766. 06:29 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.icici.template020",
+      "candidate": {
+        "amountMinor": 24000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "ICICI Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "568205532451",
+        "counterparty": "DINDUGAL ORIGIN",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

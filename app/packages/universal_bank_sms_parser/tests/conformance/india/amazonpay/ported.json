@@ -1,0 +1,441 @@
+[
+  {
+    "id": "amazonpay-ported-001",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Your Apay Wallet balance is debited for INR 250.00 Transaction Reference Number is 123456789012 - Powered by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template001",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "123456789012",
+        "counterparty": "Amazon Pay Transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "amazonpay-ported-002",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "APAY",
+      "body": "Payment of Rs 150.50 using Apay Balance successful at merchant. Updated Balance is Rs 850.00 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 15050,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "merchant",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "amazonpay-ported-003",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Payment of Rs 1,250.00 using Apay Balance successful at Amazon. Updated Balance is Rs 2,500.00 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 125000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Amazon",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "amazonpay-ported-004",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Your Apay Wallet balance is debited for INR 450.75 Transaction Reference Number is 987654321098 - Powered by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template001",
+      "candidate": {
+        "amountMinor": 45075,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "987654321098",
+        "counterparty": "Amazon Pay Transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "amazonpay-ported-005",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "APAY",
+      "body": "Payment of Rs 85.25 using Apay Balance successful at Zepto. Updated Balance is Rs 1,200.00 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 8525,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Zepto",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "groceries",
+          "name": "Groceries",
+          "type": "expense",
+          "ruleId": "in.category.groceries_more",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "amazonpay-ported-006",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Payment of Rs 2,999.00 using Apay Balance successful at Flipkart. Updated Balance is Rs 5,000.00 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 299900,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Flipkart",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "amazonpay-ported-007",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Your Apay Wallet balance is debited for INR 10.00 Transaction Reference Number is 555555555555 - Powered by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template001",
+      "candidate": {
+        "amountMinor": 1000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "555555555555",
+        "counterparty": "Amazon Pay Transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "amazonpay-ported-008",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AMAZON PAY",
+      "body": "Payment of Rs 15,000.00 using Apay Balance successful at Amazon. Updated Balance is Rs 25,000.00 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 1500000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Amazon",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "amazonpay-ported-009",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Payment of Rs 500 using Apay Balance successful at merchant. Updated Balance is Rs 1500 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "merchant",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "amazonpay-ported-010",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JUSPAY",
+      "body": "Payment of Rs 750 using Apay Balance successful at Big Bazaar. Updated Balance is Rs 2500 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 75000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Big Bazaar",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping_generic",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "amazonpay-ported-011",
+    "country": "IN",
+    "bankId": "in.amazonpay",
+    "provenance": "Legacy Dart regression: india_gateways_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "APAY",
+      "body": "Payment of Rs 1200 using Apay Balance successful at D'Mart Store. Updated Balance is Rs 3500 - SMS by Juspay",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.amazonpay.template002",
+      "candidate": {
+        "amountMinor": 120000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Amazon Pay",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "D'Mart Store",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "groceries",
+          "name": "Groceries",
+          "type": "expense",
+          "ruleId": "in.category.groceries",
+          "isFallback": false,
+          "aliases": [
+            "Grocery"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

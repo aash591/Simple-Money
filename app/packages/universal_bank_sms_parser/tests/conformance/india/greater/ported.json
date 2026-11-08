@@ -1,0 +1,89 @@
+[
+  {
+    "id": "greater-ported-001",
+    "country": "IN",
+    "bankId": "in.greater",
+    "provenance": "Legacy Dart regression: india_greater_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "GREATERBNK",
+      "body": "Your Account XXXX5207 had a DEBIT transaction of RS. 100.00 on 19/04/2026 at 23:21:35.Available balance is Rs. 1127.55: GREATER BANK",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.greater.template001",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "bankName": "Greater Bank",
+        "countryCode": "IN",
+        "accountLast4": "5207",
+        "reference": null,
+        "counterparty": "DEBIT transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "Debit Transaction"
+    }
+  },
+  {
+    "id": "greater-ported-002",
+    "country": "IN",
+    "bankId": "in.greater",
+    "provenance": "Legacy Dart regression: india_greater_bank_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-GRTRBN-S",
+      "body": "Your a/c no. XXXXXXXX5207 is debited for Rs.100.00 on 19-04-26 and credited to a/c no. XXXXXXXX8364 (UPI Ref no 232135417634) If Not You? Call 18001217224 Greater Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.greater.template002",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Greater Bank",
+        "countryCode": "IN",
+        "accountLast4": "5207",
+        "reference": "232135417634",
+        "counterparty": "Bank Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

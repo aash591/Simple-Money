@@ -1,0 +1,167 @@
+[
+  {
+    "id": "hsbc-ported-001",
+    "country": "IN",
+    "bankId": "in.hsbc",
+    "provenance": "Legacy Dart regression: india_egypt_hsbc_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-HSBCIN-S",
+      "body": "HSBC: Dear HSBC Customer, your NEFT transaction with reference number HSBCN00106726185 for INR 150,000.00 has been credited to the HDFC A/c XXXXXXXXXX6956 of AKASH KEDIA on 01-01-2026 at 15:36:47 .",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hsbc.template001",
+      "candidate": {
+        "amountMinor": 15000000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "HSBC Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": "HSBCN00106726185",
+        "counterparty": "AKASH KEDIA",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "hsbc-ported-002",
+    "country": "IN",
+    "bankId": "in.hsbc",
+    "provenance": "Legacy Dart regression: india_egypt_hsbc_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-HSBCIN",
+      "body": "HSBC: Thank you for using HSBC Debit Card XXXXX71xx for INR 305.00 on 15-Dec-25 at IKEA INDIA .",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hsbc.template002",
+      "candidate": {
+        "amountMinor": 30500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "HSBC Bank",
+        "countryCode": "IN",
+        "accountLast4": "71xx",
+        "reference": null,
+        "counterparty": "IKEA INDIA",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "hsbc-ported-003",
+    "country": "IN",
+    "bankId": "in.hsbc",
+    "provenance": "Legacy Dart regression: india_egypt_hsbc_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VM-HSBCIN-S",
+      "body": "HSBC: INR 50,000.00 is credited to your A/c 074-260***-006 as NEFT from CHAS A/c ***6983 of John Doe .",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hsbc.template003",
+      "candidate": {
+        "amountMinor": 5000000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "HSBC Bank",
+        "countryCode": "IN",
+        "accountLast4": "0006",
+        "reference": null,
+        "counterparty": "CHAS A/c ***6983 of John Doe",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "hsbc-ported-004",
+    "country": "IN",
+    "bankId": "in.hsbc",
+    "provenance": "Legacy Dart regression: india_egypt_hsbc_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "HSBCIN",
+      "body": "HSBC: INR 1,234.56 is paid from your A/c 074-260***-006 to AMAZON on 20-Dec-25. Your Avl Bal is INR 98,765.44 .",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hsbc.template004",
+      "candidate": {
+        "amountMinor": 123456,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "HSBC Bank",
+        "countryCode": "IN",
+        "accountLast4": "0006",
+        "reference": null,
+        "counterparty": "AMAZON",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

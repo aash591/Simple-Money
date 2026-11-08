@@ -1,0 +1,326 @@
+[
+  {
+    "id": "parsian-toman-debit",
+    "provenance": "existing PennyWise-derived Dart fixture",
+    "input": {
+      "sender": "PARSIAN",
+      "body": "مبلغ 500,000 تومان از حساب شما برداشت شد. مانده: 2,500,000 تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.parsian.debit",
+      "candidate": {
+        "amountMinor": 500000000,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "Parsian Bank",
+        "countryCode": "IR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "compareLegacy": true,
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-toman-credit",
+    "provenance": "existing PennyWise-derived Dart fixture",
+    "input": {
+      "sender": "PARSIANBANK",
+      "body": "مبلغ 2,000,000 تومان واریز به حساب شما انجام شد. مانده: 3,000,000 تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.parsian.credit",
+      "candidate": {
+        "amountMinor": 2000000000,
+        "currencyCode": "IRR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "Parsian Bank",
+        "countryCode": "IR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "compareLegacy": true,
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-persian-digits",
+    "provenance": "digit normalization extension",
+    "input": {
+      "sender": "PARSIAN",
+      "body": "مبلغ ۵۰۰,۰۰۰ تومان از حساب شما برداشت شد. مانده: ۲,۵۰۰,۰۰۰ تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.parsian.debit",
+      "candidate": {
+        "amountMinor": 500000000,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "Parsian Bank",
+        "countryCode": "IR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "compareLegacy": false,
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-rial",
+    "provenance": "existing PennyWise-derived Dart fixture",
+    "input": {
+      "sender": "PARSIAN",
+      "body": "مبلغ 500,000 ریال از حساب شما برداشت شد. مانده: 2,500,000 ریال",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.parsian.debit",
+      "candidate": {
+        "amountMinor": 50000000,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "Parsian Bank",
+        "countryCode": "IR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null
+      }
+    },
+    "compareLegacy": true,
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-toman-debit-security",
+    "input": {
+      "sender": "PARSIAN",
+      "body": "your otp is 123456. مبلغ 500,000 تومان از حساب شما برداشت شد. مانده: 2,500,000 تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-toman-debit-promotional",
+    "input": {
+      "sender": "PARSIAN",
+      "body": "exclusive offer: apply now. مبلغ 500,000 تومان از حساب شما برداشت شد. مانده: 2,500,000 تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-toman-debit-failed",
+    "input": {
+      "sender": "PARSIAN",
+      "body": "payment failed. مبلغ 500,000 تومان از حساب شما برداشت شد. مانده: 2,500,000 تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-toman-debit-pending",
+    "input": {
+      "sender": "PARSIAN",
+      "body": "payment pending. مبلغ 500,000 تومان از حساب شما برداشت شد. مانده: 2,500,000 تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-toman-debit-future",
+    "input": {
+      "sender": "PARSIAN",
+      "body": "will be debited. مبلغ 500,000 تومان از حساب شما برداشت شد. مانده: 2,500,000 تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "conservative future-rejection extension",
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-toman-credit-security",
+    "input": {
+      "sender": "PARSIANBANK",
+      "body": "your otp is 123456. مبلغ 2,000,000 تومان واریز به حساب شما انجام شد. مانده: 3,000,000 تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-toman-credit-promotional",
+    "input": {
+      "sender": "PARSIANBANK",
+      "body": "exclusive offer: apply now. مبلغ 2,000,000 تومان واریز به حساب شما انجام شد. مانده: 3,000,000 تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-toman-credit-failed",
+    "input": {
+      "sender": "PARSIANBANK",
+      "body": "payment failed. مبلغ 2,000,000 تومان واریز به حساب شما انجام شد. مانده: 3,000,000 تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-toman-credit-pending",
+    "input": {
+      "sender": "PARSIANBANK",
+      "body": "payment pending. مبلغ 2,000,000 تومان واریز به حساب شما انجام شد. مانده: 3,000,000 تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": true,
+    "provenance": "adversarial prefix",
+    "country": "IR",
+    "bankId": "ir.parsian"
+  },
+  {
+    "id": "parsian-toman-credit-future",
+    "input": {
+      "sender": "PARSIANBANK",
+      "body": "will be debited. مبلغ 2,000,000 تومان واریز به حساب شما انجام شد. مانده: 3,000,000 تومان",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false,
+    "provenance": "conservative future-rejection extension",
+    "country": "IR",
+    "bankId": "ir.parsian"
+  }
+]

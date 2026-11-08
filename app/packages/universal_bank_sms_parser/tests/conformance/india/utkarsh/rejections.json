@@ -1,0 +1,182 @@
+[
+  {
+    "id": "utkarsh-reject-security",
+    "country": "IN",
+    "bankId": "in.utkarsh",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "UTKSPR",
+      "body": "Your OTP is 123456. INR 120.00 spent on your SuperCard xxxx1234 for UPI - SHOP on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "utkarsh-reject-promotional",
+    "country": "IN",
+    "bankId": "in.utkarsh",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "UTKSPR",
+      "body": "Exclusive offer: apply now. INR 120.00 spent on your SuperCard xxxx1234 for UPI - SHOP on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "utkarsh-reject-failed",
+    "country": "IN",
+    "bankId": "in.utkarsh",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "UTKSPR",
+      "body": "Payment failed. INR 120.00 spent on your SuperCard xxxx1234 for UPI - SHOP on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "utkarsh-reject-pending",
+    "country": "IN",
+    "bankId": "in.utkarsh",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "UTKSPR",
+      "body": "Payment pending. INR 120.00 spent on your SuperCard xxxx1234 for UPI - SHOP on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "utkarsh-reject-future",
+    "country": "IN",
+    "bankId": "in.utkarsh",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "UTKSPR",
+      "body": "Will be debited. INR 120.00 spent on your SuperCard xxxx1234 for UPI - SHOP on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "utkarsh-reject-notice",
+    "country": "IN",
+    "bankId": "in.utkarsh",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "UTKSPR",
+      "body": "Statement generated. INR 120.00 spent on your SuperCard xxxx1234 for UPI - SHOP on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "utkarsh-reject-unknown-sender",
+    "country": "IN",
+    "bankId": "in.utkarsh",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTERED",
+      "body": "INR 120.00 spent on your SuperCard xxxx1234 for UPI - SHOP on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "utkarsh-reject-promotion-sender",
+    "country": "IN",
+    "bankId": "in.utkarsh",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "VM-UTKARSH-P",
+      "body": "INR 120.00 spent on your SuperCard xxxx1234 for UPI - SHOP on 01-Oct-2026.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "utkarsh-reject-balance-only",
+    "country": "IN",
+    "bankId": "in.utkarsh",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UTKSPR",
+      "body": "Available balance INR 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

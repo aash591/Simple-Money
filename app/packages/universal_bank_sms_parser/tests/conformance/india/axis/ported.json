@@ -1,0 +1,502 @@
+[
+  {
+    "id": "axis-ported-001",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Legacy Dart regression: india_axis_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AX-AXISBK-S",
+      "body": "Spent INR 131\nAxis Bank Card no. XX0818\n05-10-25 09:43:27 IST\nSwiggy Limi\nAvl Limit: INR 217162.72\nNot you? SMS BLOCK 0818 to 919951860002",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.axis.template001",
+      "candidate": {
+        "amountMinor": 13100,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Axis Bank",
+        "countryCode": "IN",
+        "accountLast4": "0818",
+        "reference": null,
+        "counterparty": "Swiggy Limi",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "Swiggy"
+    }
+  },
+  {
+    "id": "axis-ported-002",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Legacy Dart regression: india_axis_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AX-AXISBK-S",
+      "body": "Spent INR 1299.00\nAxis Bank Card no. XX5678\n12-10-25 14:30:15 IST\nAmazon Pay\nAvl Limit: INR 50000.00\nNot you? SMS BLOCK 5678 to 919951860002",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.axis.template001",
+      "candidate": {
+        "amountMinor": 129900,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Axis Bank",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "Amazon Pay",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "Amazon"
+    }
+  },
+  {
+    "id": "axis-ported-003",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Legacy Dart regression: india_axis_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "CP-AXISBK-S",
+      "body": "Spent\nCard no. XX7441\nINR 562\n01-09-25 12:04:18\nAVENUE SUPE\nAvl Lmt INR 5120.87\nSMS BLOCK 7441 to 919951860002, if not you - Axis Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.axis.template003",
+      "candidate": {
+        "amountMinor": 56200,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Axis Bank",
+        "countryCode": "IN",
+        "accountLast4": "7441",
+        "reference": null,
+        "counterparty": "AVENUE SUPE",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true,
+    "legacyDifferences": {
+      "counterparty": "AVENUE"
+    }
+  },
+  {
+    "id": "axis-ported-004",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Legacy Dart regression: india_axis_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JX-AXISBK-S",
+      "body": "Spent INR 174\nAxis Bank Card no. XX7441\n13-09-25 21:35:56 IST\nBlinkit\nAvl Limit: INR 6652.78\nNot you? SMS BLOCK 7441 to 919951860002",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.axis.template001",
+      "candidate": {
+        "amountMinor": 17400,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Axis Bank",
+        "countryCode": "IN",
+        "accountLast4": "7441",
+        "reference": null,
+        "counterparty": "Blinkit",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "groceries",
+          "name": "Groceries",
+          "type": "expense",
+          "ruleId": "in.category.groceries_more",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "axis-ported-005",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Legacy Dart regression: india_axis_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AX-AXISBK-S",
+      "body": "Spent\nCard no. XX7441\nINR 207\n01-09-25 14:10:35\nBlinkit\nAvl Lmt INR 4632.87\nSMS BLOCK 7441 to 919951860002, if not you - Axis Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.axis.template003",
+      "candidate": {
+        "amountMinor": 20700,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Axis Bank",
+        "countryCode": "IN",
+        "accountLast4": "7441",
+        "reference": null,
+        "counterparty": "Blinkit",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "groceries",
+          "name": "Groceries",
+          "type": "expense",
+          "ruleId": "in.category.groceries_more",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "axis-ported-006",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Legacy Dart regression: india_axis_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "CP-AXISBK-S",
+      "body": "Spent INR 500\nAxis Bank Card no. XX6018\n22-09-25 09:03:41 IST\nBPCL ARUNAA\nAvl Limit: INR 17131.47\nNot you? SMS BLOCK 6018 to 919951860002",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.axis.template001",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Axis Bank",
+        "countryCode": "IN",
+        "accountLast4": "6018",
+        "reference": null,
+        "counterparty": "BPCL ARUNAA",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "fuel",
+          "name": "Fuel",
+          "type": "expense",
+          "ruleId": "in.category.fuel",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "axis-ported-007",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Legacy Dart regression: india_axis_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JX-AXISBK-S",
+      "body": "Spent INR 500\nAxis Bank Card no. XX6018\n13-09-25 13:08:07 IST\nJSK FUEL ST\nAvl Limit: INR 6826.78\nNot you? SMS BLOCK 6018 to 919951860002",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.axis.template001",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Axis Bank",
+        "countryCode": "IN",
+        "accountLast4": "6018",
+        "reference": null,
+        "counterparty": "JSK FUEL ST",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "fuel",
+          "name": "Fuel",
+          "type": "expense",
+          "ruleId": "in.category.fuel",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "axis-ported-008",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Legacy Dart regression: india_axis_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JD-AXISBK-S",
+      "body": "INR 2000.00 debited from A/c no. XX589034 on AXIS BANK L 04-11-2025 16:06:39 IST. Avl bal: INR 98919.81. Not you? SMS BLOCKCARD XX0192 to +919951860002 - Axis Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.axis.template008",
+      "candidate": {
+        "amountMinor": 200000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Axis Bank",
+        "countryCode": "IN",
+        "accountLast4": "9034",
+        "reference": null,
+        "counterparty": "ATM",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "axis-ported-009",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Legacy Dart regression: india_axis_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JD-AXISBK-S",
+      "body": "INR 209.00 debited from A/c no. XXxxxxy on BURGRILL 04-12-2025 13:13:27 IST. Avl bal: INR xxxxxxx. Not you? SMS BLOCKCARD XX0023 to +919951860002 - Axis Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.axis.template009",
+      "candidate": {
+        "amountMinor": 20900,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Axis Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "BURGRILL",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants_dish",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "axis-ported-010",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Legacy Dart regression: india_axis_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JD-AXISBK-S",
+      "body": "INR 1028.00 debited from A/c no. XXxxxxy on RESTAURANT XY 02-12-2025 20:38:23 IST. Avl bal: INR xxxxxxx. Not you? SMS BLOCKCARD XX0023 to +919951860002 - Axis Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.axis.template009",
+      "candidate": {
+        "amountMinor": 102800,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Axis Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "RESTAURANT XY",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "restaurants",
+          "name": "Restaurants",
+          "type": "expense",
+          "ruleId": "in.category.restaurants",
+          "isFallback": false,
+          "aliases": [
+            "Food & Beverage"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "axis-ported-011",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Legacy Dart regression: india_axis_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JD-AXISBK-S",
+      "body": "INR 500.00 debited from A/c no. XX312225 on MERCHANT ABC 02-12-2025 20:38:23 IST. Avl bal: INR 10000.00. Not you? SMS BLOCKCARD XX0023 to +919951860002 - Axis Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.axis.template011",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Axis Bank",
+        "countryCode": "IN",
+        "accountLast4": "2225",
+        "reference": null,
+        "counterparty": "MERCHANT ABC",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "axis-device9-card-payment",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Sanitized Android 16 SMS template regression; all identifiers synthetic",
+    "input": {
+      "sender": "AD-AXISBK-S",
+      "body": "Payment of INR 250.00 has been received towards your Axis Bank Credit Card XX1234 on 08/10/26 - Axis Bank",
+      "receivedAt": "2026-10-08T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.axis.device009.card_payment",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "card",
+        "occurredAt": "2026-10-08T00:00:00.000Z",
+        "bankName": "Axis Bank",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "credit_card_repayment",
+          "name": "Credit Card Repayment",
+          "type": "income",
+          "ruleId": "in.category.card_repayment",
+          "isFallback": false,
+          "aliases": [
+            "Credit Card Payment",
+            "Card Repayment"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  }
+]

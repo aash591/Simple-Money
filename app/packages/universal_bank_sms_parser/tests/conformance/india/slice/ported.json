@@ -1,0 +1,580 @@
+[
+  {
+    "id": "slice-ported-001",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JK-SLICEIT",
+      "body": "Sent Rs.500 to MERCHANT NAME (UPI transaction success). Sent from slice.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template001",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MERCHANT NAME",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-002",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-SLCEIT-S",
+      "body": "Rs.250 debited from your slice account via UPI. Txn ID 1234567890.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template002",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-003",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-SLCEIT-S",
+      "body": "Rs.100 paid to MERCHANT via slice UPI. Txn ID 9876543210.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template003",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-004",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-SLCEIT-S",
+      "body": "Your slice credit card transaction of RS. 50000 on amazon.in is successful. If not you, call 08048329999 - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template004",
+      "candidate": {
+        "amountMinor": 5000000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "amazon.in",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-005",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AX-SLICEIT-S",
+      "body": "Your slice credit card transaction of RS. 1234.56 on flipkart.com is successful.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template005",
+      "candidate": {
+        "amountMinor": 123456,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "flipkart.com",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-006",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "VA-SLCBNK-S",
+      "body": "Rs. 124 spent on your credit card xx1234 at Sample Merchant on 18-Jun-26 (UPI Ref: 100000000000). Not you? Call 080-0000-0000 - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template006",
+      "candidate": {
+        "amountMinor": 12400,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "100000000000",
+        "counterparty": "Sample Merchant",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-007",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-SLCEIT-S",
+      "body": "Rs.350 spent on your slice credit card at MERCHANT. Available limit: Rs.10000.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template007",
+      "candidate": {
+        "amountMinor": 35000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MERCHANT",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-008",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-SLCEIT-S",
+      "body": "Rs.1000 credited to your slice account as cashback.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template008",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Slice Credit",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "refunds",
+          "name": "Refunds",
+          "type": "income",
+          "ruleId": "in.category.refund",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-009",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AD-SLCEIT-S",
+      "body": "Your slice credit card transaction of RS. 50000 on Feb 15 is successful.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template009",
+      "candidate": {
+        "amountMinor": 5000000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-010",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "slice",
+      "body": "Rs. 100 sent from a/c xx2743 on 17-Jun-26 to Hussain Shaikh (UPI Ref: 616851070000). Not you? Call 08048329999 - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template010",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": "2743",
+        "reference": "616851070000",
+        "counterparty": "Hussain Shaikh",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-011",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "slice",
+      "body": "Rs. 250 sent from a/c xx2743 on 17-Jun-26 to Request Foods (UPI Ref: 616851070099). Not you? Call 08048329999 - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template010",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": "2743",
+        "reference": "616851070099",
+        "counterparty": "Request Foods",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-012",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "slice",
+      "body": "Successfully paid Rs.1 from slice a/c XX2743 to OpenAI LLC on 25-May-26 via UPI AutoPay. UMN - 019e5exxxa1679b6aee8ae4f0ff88d19@slc - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template012",
+      "candidate": {
+        "amountMinor": 100,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": "2743",
+        "reference": null,
+        "counterparty": "OpenAI LLC",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "subscriptions",
+          "name": "Subscriptions",
+          "type": "expense",
+          "ruleId": "in.category.subscriptions_merchant",
+          "isFallback": false,
+          "aliases": [
+            "Bills & Utilities"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-013",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "slice",
+      "body": "Rs. 2,000 received in slice A/c xx2743 on 15-Jun-26 from NASIMUDDIN NAJAMUDDIN SHAIKH via UPI (Ref ID: 212756500000). Avl. Bal. Rs. 2,203.56 - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template013",
+      "candidate": {
+        "amountMinor": 200000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": "2743",
+        "reference": "212756500000",
+        "counterparty": "NASIMUDDIN NAJAMUDDIN SHAIKH",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "slice-ported-014",
+    "country": "IN",
+    "bankId": "in.slice",
+    "provenance": "Legacy Dart regression: india_slice_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "slice",
+      "body": "Your transaction of Rs. 2.07 at FamAppbyTriO from a/c xx2743 is successful. If not you, call 080-4832-9999 - slice",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.slice.template014",
+      "candidate": {
+        "amountMinor": 207,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Slice",
+        "countryCode": "IN",
+        "accountLast4": "2743",
+        "reference": null,
+        "counterparty": "FamAppbyTriO",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]

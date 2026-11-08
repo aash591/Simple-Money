@@ -1,0 +1,289 @@
+[
+  {
+    "id": "idfc-ported-001",
+    "country": "IN",
+    "bankId": "in.idfc",
+    "provenance": "Legacy Dart regression: india_idfc_first_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Transaction Successful! EUR 500.00 spent on your IDFC FIRST Bank Credit Card ending XX1234 at AMAZON EU on 08-FEB-2025 at 01:28 PM Avbl Limit: INR 4074.10 If not done by you, call 180010888",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.card",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "AMAZON EU",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "idfc-ported-002",
+    "country": "IN",
+    "bankId": "in.idfc",
+    "provenance": "Legacy Dart regression: india_idfc_first_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Transaction Successful! USD 99.99 spent on your IDFC FIRST Bank Credit Card ending XX5678 at NETFLIX on 15-MAR-2025 at 10:00 AM Avbl Limit: INR 25000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.card",
+      "candidate": {
+        "amountMinor": 9999,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "NETFLIX",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "subscriptions",
+          "name": "Subscriptions",
+          "type": "expense",
+          "ruleId": "in.category.subscriptions",
+          "isFallback": false,
+          "aliases": [
+            "Entertainment"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "idfc-ported-003",
+    "country": "IN",
+    "bankId": "in.idfc",
+    "provenance": "Legacy Dart regression: india_idfc_first_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "AX-IDFCBK-T",
+      "body": "Transaction Successful! GBP 150.00 spent on your IDFC FIRST Bank Credit Card ending XX9999 at LONDON SHOP on 20-APR-2025 at 03:45 PM Avbl Limit: INR 10000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.card",
+      "candidate": {
+        "amountMinor": 15000,
+        "currencyCode": "GBP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "9999",
+        "reference": null,
+        "counterparty": "LONDON SHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "shopping",
+          "name": "Shopping",
+          "type": "expense",
+          "ruleId": "in.category.shopping_generic",
+          "isFallback": false,
+          "aliases": []
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "idfc-ported-004",
+    "country": "IN",
+    "bankId": "in.idfc",
+    "provenance": "Legacy Dart regression: india_idfc_first_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Your A/C XXXXXXX1234 is debited by INR 68.00 on 06/08/25 17:36. New Bal :INR 5000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.account.debit",
+      "candidate": {
+        "amountMinor": 6800,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "idfc-ported-005",
+    "country": "IN",
+    "bankId": "in.idfc",
+    "provenance": "Legacy Dart regression: india_idfc_first_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "JM-IDFCFB-S",
+      "body": "Your A/c XX4614 debited by Rs. 1,172.06 on 15/01/26; REDBUS credited. RRN 060649915527. Available balance Rs. 9,134.15. Team IDFC FIRST Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.template005",
+      "candidate": {
+        "amountMinor": 117206,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "4614",
+        "reference": "060649915527",
+        "counterparty": "REDBUS",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "public_transport_bus",
+          "name": "Bus",
+          "type": "expense",
+          "ruleId": "in.category.bus",
+          "isFallback": false,
+          "aliases": [
+            "Public Transport",
+            "Transportation"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "idfc-ported-006",
+    "country": "IN",
+    "bankId": "in.idfc",
+    "provenance": "Legacy Dart regression: india_idfc_first_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Your A/C XXXXXXX5678 is credited by INR 500.00 on 06/08/25 17:36. New Bal :INR 10000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.account.credit",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "idfc-ported-007",
+    "country": "IN",
+    "bankId": "in.idfc",
+    "provenance": "Legacy Dart regression: india_idfc_first_test.dart; see NOTICE.md",
+    "input": {
+      "sender": "BM-IDFCBK-S",
+      "body": "Your A/C XXXXXXX1234 is credited by INR 125.50 on 01/01/25 for monthly interest. New Bal :INR 15125.50",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.template007",
+      "candidate": {
+        "amountMinor": 12550,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "Interest Credit",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": true
+  }
+]
