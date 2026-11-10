@@ -14,10 +14,17 @@ class ScrollEdgeHaptics extends StatefulWidget {
 
 class _ScrollEdgeHapticsState extends State<ScrollEdgeHaptics> {
   final _gestures = Expando<Set<bool>>();
+  DateTime? _lastTick;
 
   bool _onScroll(ScrollNotification notification) {
     final source = notification.context;
     if (source == null) return false;
+    // Only vertical, innermost scrollables count: horizontal carousels,
+    // chip rows and pickers would otherwise tick constantly.
+    if (notification.depth != 0 ||
+        notification.metrics.axis != Axis.vertical) {
+      return false;
+    }
     if (notification is ScrollStartNotification) {
       _gestures[source] = notification.dragDetails != null ? <bool>{} : null;
     } else if (notification is ScrollEndNotification) {
@@ -32,7 +39,13 @@ class _ScrollEdgeHapticsState extends State<ScrollEdgeHaptics> {
       final atStart = metrics.pixels <= metrics.minScrollExtent;
       final atEnd = metrics.pixels >= metrics.maxScrollExtent;
       if ((atStart || atEnd) && edges.add(atStart)) {
-        VibrationSettings.softTick();
+        final now = DateTime.now();
+        final last = _lastTick;
+        if (last == null ||
+            now.difference(last) > const Duration(milliseconds: 600)) {
+          _lastTick = now;
+          VibrationSettings.softTick();
+        }
       }
     }
     return false;

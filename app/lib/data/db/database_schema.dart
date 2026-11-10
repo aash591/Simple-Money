@@ -115,9 +115,19 @@ CREATE TABLE IF NOT EXISTS agent_suggestions (
 )
 ''';
 
+// Merchant -> category the user chose on a notification, reused for the next
+// message from that merchant. Synced. `owner` is the undo token of the change.
+const _createSmsCategoryMemoryTable = '''
+CREATE TABLE IF NOT EXISTS sms_category_memory (
+  merchant TEXT PRIMARY KEY,
+  category_id INTEGER NOT NULL,
+  owner TEXT NOT NULL
+)
+''';
+
 // SMS formats the user approved, added to the bundled rule packs (see
 // data/user_sms_rules.dart). One row is one format of the portable rule
-// spec. Device-local: kept by a restore, removed by a device wipe.
+// spec. Synced, so a restored phone keeps the formats it learned.
 const _createUserSmsRulesTable = '''
 CREATE TABLE IF NOT EXISTS user_sms_rules (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

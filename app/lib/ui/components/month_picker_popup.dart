@@ -51,11 +51,10 @@ Future<DateTime?> _showCalendarPickerPopup(
       button.localToGlobal(Offset.zero, ancestor: overlay) & button.size;
   final themes = InheritedTheme.capture(from: context, to: navigator.context);
   return navigator.push<DateTime>(
-    RawDialogRoute<DateTime>(
+    _PopupRoute<DateTime>(
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.transparent,
-      transitionDuration: const Duration(milliseconds: 320),
       pageBuilder: (context, animation, _) {
         final media = MediaQuery.of(context);
         final safe = Rect.fromLTRB(
@@ -106,6 +105,21 @@ Future<DateTime?> _showCalendarPickerPopup(
       transitionBuilder: (_, _, _, child) => child,
     ),
   );
+}
+
+/// A dialog route timed like the other popups: it eases open and closes
+/// quicker than it opened.
+class _PopupRoute<T> extends RawDialogRoute<T> {
+  _PopupRoute({
+    required super.pageBuilder,
+    super.barrierDismissible,
+    super.barrierColor,
+    super.barrierLabel,
+    super.transitionBuilder,
+  }) : super(transitionDuration: PopupZoom.duration);
+
+  @override
+  Duration get reverseTransitionDuration => PopupZoom.reverseDuration;
 }
 
 class _CalendarPosition extends SingleChildLayoutDelegate {

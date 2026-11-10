@@ -142,6 +142,12 @@ class _Key extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final primary = SheetColors.of(context).primary;
+    final operator = compact && const {'AC', '%', '÷', '×', '−', '+', '='}
+        .contains(label);
+    // Operators are solid accent pills with white text, like the app's main
+    // action buttons.
+    final opFill = primary;
     return GlassButton(
       // Calculator keys are flat, wide pills like a phone dialer's.
       height: compact ? 38 : 56,
@@ -150,15 +156,21 @@ class _Key extends StatelessWidget {
       // frost, so keys are solid light grey, raised off the sheet by a soft
       // shadow, like a phone dialer's.
       fill: dark
-          ? Colors.white.withValues(alpha: .06)
-          : const Color(0xffeff0f2),
+          ? Colors.white.withValues(alpha: operator ? .11 : .06)
+          : (operator ? opFill : Colors.white),
+      flatFill: dark ? null : (operator ? opFill : Colors.white),
       shadow: !dark,
       foregroundColor: onTap == null
           ? SheetColors.of(context).muted.withValues(alpha: .4)
-          : null,
+          : (operator && !dark
+                ? ThemeData.estimateBrightnessForColor(primary) ==
+                          Brightness.dark
+                      ? Colors.white
+                      : Colors.black
+                : null),
       textStyle: TextStyle(
         fontSize: compact ? 22 : 28,
-        fontWeight: FontWeight.w500,
+        fontWeight: operator ? FontWeight.w600 : FontWeight.w500,
       ),
       onPressed: onTap == null
           ? null

@@ -54,8 +54,8 @@ class _MorePopupButtonState<T> extends State<MorePopupButton<T>>
   final _menuKey = GlobalKey<_MorePopupOverlayState<T>>();
   late final _animation = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 380),
-    reverseDuration: const Duration(milliseconds: 140),
+    duration: PopupZoom.duration,
+    reverseDuration: PopupZoom.reverseDuration,
   );
   OverlayEntry? _entry;
   LocalHistoryEntry? _history;

@@ -38,6 +38,7 @@ enum _Step {
   result,
   categoryReview,
   category,
+  subcategory,
   account,
   destination,
   accountReview,
@@ -89,7 +90,7 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
   final _calculator = AmountCalculator();
   String _title = '';
   String _note = '';
-  int? _categoryId, _accountId, _toAccountId;
+  int? _categoryId, _accountId, _toAccountId, _subcategoryParentId;
   bool _isTransfer = false;
   PendingUpiPayment? _draft;
   List<PendingUpiPayment> _pending = [];
@@ -193,6 +194,7 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
         _Step.amount => _Step.result,
         _Step.categoryReview => _Step.result,
         _Step.category => _Step.categoryReview,
+        _Step.subcategory => _Step.category,
         _Step.accountReview => _isTransfer ? _Step.destination : _Step.account,
         _Step.destination => _Step.account,
         _Step.account => _Step.categoryReview,
@@ -228,6 +230,19 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
       return;
     }
     widget.onBack();
+  }
+
+  Category? _categoryOf(int? id) {
+    for (final c in widget.categoryStore.categories) {
+      if (c.id == id) return c;
+    }
+    return null;
+  }
+
+  void _pickCategory(int id) {
+    _isTransfer = false;
+    _categoryId = id;
+    _edited(_Step.account, forward: true);
   }
 
   Future<void> _selectRecipient(UpiRecipient recipient) async {
@@ -1178,6 +1193,7 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
             label: parent.name,
             chevron: true,
           ),
+          // Subcategories show only while searching (e.g. "fuel").
           for (final child in widget.categoryStore.categories.where(
             (c) => c.parentId == parent.id,
           ))
@@ -1187,15 +1203,21 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
               label: child.name,
               chevron: true,
               indent: true,
+              searchOnly: true,
             ),
         ],
       ],
-      selected: _categoryId,
+      selected: null,
       onSelected: (id) {
         if (_busy) return;
-        _isTransfer = false;
-        _categoryId = id;
-        _edited(_Step.account, forward: true);
+        final category = _categoryOf(id);
+        if (category == null) return;
+        if (category.parentId != null) {
+          _pickCategory(id);
+          return;
+        }
+        _subcategoryParentId = id;
+        _go(_Step.subcategory);
       },
       searchHint: 'Search categories',
       addLabel: 'Add category',
@@ -1203,6 +1225,41 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
         context,
         widget.categoryStore,
         CategoryType.expense,
+      ))?.id,
+    ),
+    _Step.subcategory => ChoicePickerPage<int>(
+      header: SheetHeader.flow('Pay with UPI', onBack: _back),
+      heading: 'Choose subcategory',
+      items: [
+        if (_categoryOf(_subcategoryParentId) case final parent?)
+          ChoiceItem(
+            value: parent.id,
+            icon: AppIcon(parent.icon, size: 28),
+            label: 'Use ${parent.name} only',
+            chevron: true,
+          ),
+        for (final child in widget.categoryStore.categories.where(
+          (c) => c.parentId == _subcategoryParentId,
+        ))
+          ChoiceItem(
+            value: child.id,
+            icon: AppIcon(child.icon, size: 28),
+            label: child.name,
+            chevron: true,
+          ),
+      ],
+      selected: null,
+      onSelected: (id) {
+        if (_busy) return;
+        _pickCategory(id);
+      },
+      searchHint: 'Search subcategories',
+      addLabel: 'Add subcategory',
+      onAdd: (context) async => (await addCategoryAndSelect(
+        context,
+        widget.categoryStore,
+        CategoryType.expense,
+        parentId: _subcategoryParentId,
       ))?.id,
     ),
     _Step.account => ChoicePickerPage<int>(
@@ -1438,6 +1495,109 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
   );
 }
 
+/// Zoom factor shown at full zoom; the camera's real range varies by phone.
+const _maxZoomFactor = 5.0;
+
+/// A camera-style lens ruler: drag it sideways and the ticks slide under a
+/// fixed marker while the zoom factor shows above.
+class _ZoomDial extends StatelessWidget {
+  const _ZoomDial({required this.zoom, required this.onChanged});
+  final double zoom;
+  final ValueChanged<double> onChanged;
+
+  static const _tickGap = 8.0;
+  static const _factorPerTick = 0.1;
+
+  @override
+  Widget build(BuildContext context) {
+    final factor = 1 + zoom * (_maxZoomFactor - 1);
+    return Center(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragUpdate: (d) {
+          // Each pixel moves the zoom three times as far as the ticks slide.
+          final next = factor - d.delta.dx * 3 / _tickGap * _factorPerTick;
+          onChanged((next - 1) / (_maxZoomFactor - 1));
+        },
+        child: SizedBox(
+          width: 160,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '${factor.toStringAsFixed(1)}x',
+                style: const TextStyle(
+                  color: Color(0xFFFFD60A),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              ShaderMask(
+                blendMode: BlendMode.dstIn,
+                shaderCallback: (rect) => const LinearGradient(
+                  colors: [
+                    Colors.transparent,
+                    Colors.black,
+                    Colors.black,
+                    Colors.transparent,
+                  ],
+                  stops: [0, 0.3, 0.7, 1],
+                ).createShader(rect),
+                child: SizedBox(
+                  height: 36,
+                  width: double.infinity,
+                  child: CustomPaint(painter: _RulerPainter(factor)),
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RulerPainter extends CustomPainter {
+  _RulerPainter(this.factor);
+  final double factor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const gap = _ZoomDial._tickGap, step = _ZoomDial._factorPerTick;
+    final centre = size.width / 2;
+    final half = centre / gap * step;
+    final paint = Paint()..strokeWidth = 1.5;
+    for (
+      var i = ((factor - half) / step).floor();
+      i <= ((factor + half) / step).ceil();
+      i++
+    ) {
+      final value = i * step;
+      if (value < 1 - 1e-9 || value > _maxZoomFactor + 1e-9) continue;
+      final x = centre + (value - factor) / step * gap;
+      final major = i % 10 == 0;
+      paint.color = major ? Colors.white : Colors.white70;
+      canvas.drawLine(
+        Offset(x, size.height * (major ? 0.15 : 0.3)),
+        Offset(x, size.height * (major ? 0.85 : 0.7)),
+        paint,
+      );
+    }
+    canvas.drawLine(
+      Offset(centre, 0),
+      Offset(centre, size.height),
+      Paint()
+        ..color = const Color(0xFFFFD60A)
+        ..strokeWidth = 2.5,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_RulerPainter old) => old.factor != factor;
+}
+
 class _ScanPage extends StatefulWidget {
   const _ScanPage({
     required this.isActive,
@@ -1468,6 +1628,28 @@ class _ScanPageState extends State<_ScanPage> {
   String? _error;
   bool _detected = false;
   final _scannerKey = GlobalKey();
+  final _controller = MobileScannerController();
+
+  /// Camera zoom from 0 (none) to 1 (maximum), driven by pinching.
+  double _zoom = 0, _zoomAtStart = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _pinch(ScaleUpdateDetails details) {
+    if (details.pointerCount < 2) return;
+    _setZoom(_zoomAtStart + (details.scale - 1) * 1.5);
+  }
+
+  void _setZoom(double value) {
+    final zoom = value.clamp(0.0, 1.0);
+    if ((zoom - _zoom).abs() < 0.002) return;
+    setState(() => _zoom = zoom);
+    unawaited(_controller.setZoomScale(zoom).catchError((_) {}));
+  }
 
   void _scan(BarcodeCapture capture) {
     if (_detected || !widget.isActive()) return;
@@ -1507,25 +1689,47 @@ class _ScanPageState extends State<_ScanPage> {
                           widget.cameraAllowed == true &&
                           !kIsWeb &&
                           defaultTargetPlatform == TargetPlatform.android
-                      ? MobileScanner(
-                          key: _scannerKey,
-                          onDetect: _scan,
-                          errorBuilder: (context, error) => ColoredBox(
-                            color: Colors.black87,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(24),
-                                child: Text(
-                                  error.errorCode ==
-                                          MobileScannerErrorCode
-                                              .permissionDenied
-                                      ? 'Allow camera access in Settings to scan a UPI QR code.'
-                                      : 'Camera unavailable. Check camera access in Settings and reopen this scanner.',
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(color: Colors.white),
+                      ? GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onScaleStart: (_) => _zoomAtStart = _zoom,
+                          onScaleUpdate: _pinch,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              MobileScanner(
+                                key: _scannerKey,
+                                controller: _controller,
+                                onDetect: _scan,
+                                errorBuilder: (context, error) => ColoredBox(
+                                  color: Colors.black87,
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(24),
+                                      child: Text(
+                                        error.errorCode ==
+                                                MobileScannerErrorCode
+                                                    .permissionDenied
+                                            ? 'Allow camera access in Settings to scan a UPI QR code.'
+                                            : 'Camera unavailable. Check camera access in Settings and reopen this scanner.',
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                              Positioned(
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                child: _ZoomDial(
+                                  zoom: _zoom,
+                                  onChanged: _setZoom,
+                                ),
+                              ),
+                            ],
                           ),
                         )
                       : ColoredBox(

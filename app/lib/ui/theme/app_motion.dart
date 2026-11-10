@@ -1,13 +1,11 @@
-import 'dart:math' as math;
-
 import 'package:flutter/gestures.dart' show kMinFlingVelocity;
 import 'package:flutter/material.dart';
 
 /// The app's shared motion: how things open, close and come to rest.
 abstract final class AppMotion {
-  /// Opening: starts from rest, passes its target by a few percent and
-  /// settles back, like something on a soft spring.
-  static const Curve spring = _SpringCurve();
+  /// Opening: sets off briskly and glides to a stop on its target, slowing
+  /// all the way in, with no overshoot or bounce.
+  static const Curve enter = Cubic(.22, 1, .36, 1);
 
   /// Closing, as a `reverseCurve`: slow to leave, then quickly gone. Reverse
   /// curves are sampled against a value already running backwards, so the
@@ -20,20 +18,6 @@ abstract final class AppMotion {
     stiffness: 420,
     ratio: .78,
   );
-}
-
-/// The step response of a lightly underdamped spring, over 0..1.
-class _SpringCurve extends Curve {
-  const _SpringCurve();
-
-  static const _decay = 6.0, _frequency = 7.5;
-
-  @override
-  double transformInternal(double t) =>
-      1 -
-      math.exp(-_decay * t) *
-          (math.cos(_frequency * t) +
-              _decay / _frequency * math.sin(_frequency * t));
 }
 
 /// Scrolling that flings the way Android lists do, but runs softly past an

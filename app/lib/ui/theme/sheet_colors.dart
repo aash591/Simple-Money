@@ -67,6 +67,25 @@ class SheetColors {
     income: green,
   );
 
+  /// The light-mode sheet base for the current theme style. It is a step
+  /// darker than the white cards drawn on it, and tinted to match the page of
+  /// that style, so cards read as raised surfaces instead of vanishing.
+  static Color lightSheetBase(BuildContext context) {
+    final accentColor = Theme.of(context).colorScheme.primary;
+    final style = Theme.of(context).extension<AppChrome>()?.style;
+    return switch (style) {
+      AppStyle.simple => const Color(0xfff2f2f7),
+      AppStyle.aurora => Color.alphaBlend(
+        accentColor.withValues(alpha: .07),
+        const Color(0xffeceef6),
+      ),
+      _ => Color.alphaBlend(
+        accentColor.withValues(alpha: .04),
+        const Color(0xffefeeec),
+      ),
+    };
+  }
+
   static Color _lift(Color color, double amount) =>
       Color.alphaBlend(Colors.white.withValues(alpha: amount), color);
 
@@ -88,7 +107,9 @@ class SheetColors {
         ? Colors.white.withValues(alpha: .6)
         : base.card;
     return SheetColors._(
-      background: dark ? theme.scaffoldBackgroundColor : base.background,
+      background: dark
+          ? theme.scaffoldBackgroundColor
+          : lightSheetBase(context),
       card: card,
       text: base.text,
       muted: base.muted,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_motion.dart';
 
-/// Zooms from the corner nearest its trigger with a small, smooth overshoot,
+/// Zooms from the corner nearest its trigger, easing smoothly to a stop,
 /// while [PopupReveal] fades the glass in.
 class PopupZoom extends StatefulWidget {
   const PopupZoom({
@@ -12,6 +12,11 @@ class PopupZoom extends StatefulWidget {
     this.layoutBuilder,
     required this.child,
   });
+
+  /// How long a popup takes to open, and to close. The close is shorter, but
+  /// long enough to be seen collapsing back into its trigger.
+  static const duration = Duration(milliseconds: 380);
+  static const reverseDuration = Duration(milliseconds: 200);
 
   final Animation<double> animation;
   final Alignment alignment;
@@ -52,7 +57,7 @@ class PopupZoomState extends State<PopupZoom> {
   void _bind() {
     _scale = CurvedAnimation(
       parent: widget.animation,
-      curve: AppMotion.spring,
+      curve: AppMotion.enter,
       reverseCurve: Curves.easeInCubic.flipped,
     );
     _reveal = CurvedAnimation(

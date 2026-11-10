@@ -46,14 +46,21 @@ class PillButton extends StatelessWidget {
     final light = Theme.of(context).brightness == Brightness.light;
     final neutral = !primary || onPressed == null && !loading;
     final raised = light && neutral && backgroundColor == null;
+    // Quiet buttons are white on the tinted sheet; a disabled main action is
+    // a pale wash of its own colour, so it still reads as the primary one.
+    final tone = color ?? SheetColors.of(context).primary;
+    final raisedFill = primary
+        ? Color.alphaBlend(tone.withValues(alpha: .55), Colors.white)
+        : Colors.white;
     return GlassButton(
       onPressed: onPressed,
-      color: primary ? color ?? SheetColors.of(context).primary : null,
-      fill: raised
-          ? const Color(0xffeff0f2)
-          : (primary ? null : backgroundColor),
+      color: primary ? tone : null,
+      fill: raised ? raisedFill : (primary ? null : backgroundColor),
+      flatFill: raised ? raisedFill : null,
       shadow: raised,
-      foregroundColor: primary ? null : color,
+      foregroundColor: primary
+          ? (raised ? Colors.white : null)
+          : color,
       textStyle: _textStyle,
       busy: loading,
       child: loading

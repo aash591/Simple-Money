@@ -24,6 +24,7 @@ class GlassButton extends StatefulWidget {
     this.height = 48,
     this.textStyle,
     this.shadow = false,
+    this.flatFill,
     this.blur = 0,
     this.autofocus = false,
     this.busy = false,
@@ -44,6 +45,10 @@ class GlassButton extends StatefulWidget {
   /// A soft drop shadow outside the pill, for buttons sitting on a plain
   /// surface such as the keypad.
   final bool shadow;
+
+  /// Overrides the body (and draws the [shadow]) in the simple, non-glass
+  /// style too, where [fill] is otherwise ignored.
+  final Color? flatFill;
 
   /// Blurs what shows through a translucent [fill] by this sigma; 0 for
   /// none. Joins the nearest [BackdropGroup], so pills in one group blur in
@@ -135,16 +140,19 @@ class _GlassButtonState extends State<GlassButton>
         ? widget.color!
         : glass
         ? widget.fill ?? GlassButton.neutralFill(brightness)
-        : Color.alphaBlend(
-            onSurface.withValues(alpha: .07),
-            Theme.of(context).colorScheme.surface,
-          );
+        : widget.flatFill ??
+              Color.alphaBlend(
+                onSurface.withValues(alpha: .07),
+                Theme.of(context).colorScheme.surface,
+              );
     // Pressed: neutral glass brightens in dark mode and dims in light mode;
     // a solid fill always deepens a little.
     final pressedTint = !solid && dark
         ? Colors.white.withValues(alpha: .12)
         : Colors.black.withValues(alpha: solid ? .14 : .07);
-    final foreground = !_active
+    final foreground = widget.foregroundColor != null && widget.flatFill != null
+        ? widget.foregroundColor!
+        : !_active
         ? onSurface.withValues(alpha: .35)
         : widget.foregroundColor ?? (solid ? Colors.white : onSurface);
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
@@ -164,7 +172,7 @@ class _GlassButtonState extends State<GlassButton>
             scale: 1 - .05 * t,
             child: Container(
               height: widget.height,
-              decoration: widget.shadow && glass
+              decoration: widget.shadow && (glass || widget.flatFill != null)
                   ? BoxDecoration(
                       borderRadius: radius,
                       boxShadow: [

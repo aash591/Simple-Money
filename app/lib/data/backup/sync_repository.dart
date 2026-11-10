@@ -294,8 +294,12 @@ class SyncRepository {
         'UPDATE sms_import_state SET enabled=0, scanned_at=0 WHERE id=1',
       );
     }
+    // schemaVersion 0 is a wipe, which clears everything.
+    bool carried(String table) =>
+        backup.schemaVersion == 0 ||
+        backup.schemaVersion >= (syncTableSince[table] ?? 0);
     for (final table in syncTables.keys) {
-      await db.customStatement('DELETE FROM $table');
+      if (carried(table)) await db.customStatement('DELETE FROM $table');
     }
     for (final MapEntry(key: table, value: rows) in backup.tables.entries) {
       // Older backups may lack newer columns (left at their defaults);

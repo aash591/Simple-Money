@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../data/daily_reminders.dart';
 import '../../../state/main_currency_controller.dart';
 import 'main_currency_screen.dart';
 
@@ -88,6 +89,31 @@ class SettingsScreen extends StatelessWidget {
                       : (value) async {
                           try {
                             await VibrationSettings.instance.setEnabled(value);
+                          } catch (_) {
+                            if (context.mounted) {
+                              showAppToast(
+                                context,
+                                'Could not save this setting. Try again.',
+                              );
+                            }
+                          }
+                        },
+                ),
+              ),
+              ListenableBuilder(
+                listenable: DailyReminders.instance,
+                builder: (context, _) => MenuSwitchRow(
+                  icon: Icons.notifications_active_rounded,
+                  title: 'Daily reminders',
+                  subtitle: DailyReminders.instance.enabled
+                      ? 'Every day at 8 pm and 10 pm'
+                      : 'Off',
+                  value: DailyReminders.instance.enabled,
+                  onChanged: DailyReminders.instance.saving
+                      ? null
+                      : (value) async {
+                          try {
+                            await DailyReminders.instance.setEnabled(value);
                           } catch (_) {
                             if (context.mounted) {
                               showAppToast(

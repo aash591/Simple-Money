@@ -235,52 +235,84 @@ class TypeChoiceCard extends StatelessWidget {
             color.withValues(alpha: .14),
             Theme.of(context).colorScheme.surface,
           )
-        : Color.alphaBlend(color.withValues(alpha: .08), colors.card);
-    return Material(
-      color: fill,
-      borderRadius: BorderRadius.circular(18),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: dark ? color.withValues(alpha: .14) : colors.card,
-                  shape: BoxShape.circle,
+        : Color.alphaBlend(color.withValues(alpha: .15), Colors.white);
+    final radius = BorderRadius.circular(18);
+    return DecoratedBox(
+      // Light mode: a soft coloured shadow and edge lift the card off the
+      // tinted sheet.
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: dark
+            ? null
+            : [
+                BoxShadow(
+                  color: color.withValues(alpha: .16),
+                  blurRadius: 14,
+                  offset: const Offset(0, 4),
+                  spreadRadius: -4,
                 ),
-                child: Icon(icon, color: color, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: color,
-                      ),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 4),
+              ],
+      ),
+      child: Material(
+        color: fill,
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: dark
+              ? BorderSide.none
+              : BorderSide(color: color.withValues(alpha: .28)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: dark ? color.withValues(alpha: .14) : colors.card,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        subtitle!,
-                        style: TextStyle(fontSize: 13, color: colors.muted),
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                        ),
                       ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: dark ? null : FontWeight.w500,
+                            color: dark
+                                ? colors.muted
+                                : Color.alphaBlend(
+                                    Colors.black.withValues(alpha: .25),
+                                    colors.muted,
+                                  ),
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Icon(Icons.chevron_right_rounded, color: color),
-            ],
+                const SizedBox(width: 8),
+                Icon(Icons.chevron_right_rounded, color: color),
+              ],
+            ),
           ),
         ),
       ),

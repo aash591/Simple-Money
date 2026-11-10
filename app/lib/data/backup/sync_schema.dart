@@ -19,7 +19,15 @@ const syncTables = {
   // bank's messages go to: without them a restored phone saves its inbox again.
   'sms_history': ['fingerprint'],
   'sms_account_links': ['bank_key'],
+  // What the app has learned from the user: merchant -> category choices and
+  // the SMS formats they approved. Both are lost with the phone otherwise.
+  'sms_category_memory': ['merchant'],
+  'user_sms_rules': ['id'],
 };
+
+/// The schema version whose mirrors first carry a table. A backup older than
+/// that never held it, so restoring one must not wipe the phone's own rows.
+const syncTableSince = {'sms_category_memory': 44, 'user_sms_rules': 44};
 
 Future<void> createSyncSchema(GeneratedDatabase db) async {
   await db.customStatement('''CREATE TABLE sync_state (

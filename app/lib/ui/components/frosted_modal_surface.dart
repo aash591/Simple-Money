@@ -7,6 +7,7 @@ import 'glass_surface.dart' show glassCardFill;
 import 'inner_glow.dart';
 import '../../state/appearance_controller.dart' show AppearanceScope;
 import '../theme/app_theme.dart' show auroraDarkPage, usesAurora, usesGlass;
+import '../theme/sheet_colors.dart';
 import 'native_modal_blur.dart';
 import 'popup_zoom.dart';
 
@@ -48,7 +49,9 @@ class FrostedModalSurface extends StatelessWidget {
         child: ClipRRect(
           borderRadius: borderRadius,
           child: ColoredBox(
-            color: Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Theme.of(context).colorScheme.surface
+                : SheetColors.lightSheetBase(context),
             child: content,
           ),
         ),
@@ -79,8 +82,15 @@ class FrostedModalSurface extends StatelessWidget {
           borderRadius: borderRadius,
           // No tint of its own: the blur and the cards' own glass fill. Only
           // phones that can't blur get a near-opaque colour instead.
-          color: solid ? tint.withValues(alpha: tint.a * visibility) : null,
-          gradient: solid
+          color: solid
+              ? (dark ? tint : SheetColors.lightSheetBase(context))
+                    .withValues(alpha: (dark ? tint.a : .96) * visibility)
+              : (dark
+                    ? null
+                    : SheetColors.lightSheetBase(
+                        context,
+                      ).withValues(alpha: (picture ? .72 : .84) * visibility)),
+          gradient: solid || !dark
               ? null
               : (glassCardFill(context) as LinearGradient).scale(visibility),
         ),

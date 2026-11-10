@@ -200,11 +200,11 @@ class _ProScreenState extends State<ProScreen> {
     ];
   }
 
-  /// The plans in the order they're offered: yearly, monthly, lifetime.
+  /// The plans in the order they're offered: monthly, yearly, lifetime.
   List<ProPlan> get _ordered => [
     for (final kind in [
-      ProPlanKind.yearly,
       ProPlanKind.monthly,
+      ProPlanKind.yearly,
       ProPlanKind.lifetime,
     ])
       ?_plan(kind),

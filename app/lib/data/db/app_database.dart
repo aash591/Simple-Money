@@ -32,7 +32,7 @@ class AppDatabase extends GeneratedDatabase {
   /// solely so the profile-seed behavior can be verified in tests.
   final bool _seedProfileData;
   @override
-  int get schemaVersion => 43;
+  int get schemaVersion => 44;
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => const [];
   @override
@@ -75,6 +75,7 @@ class AppDatabase extends GeneratedDatabase {
       await customStatement(_createExchangeRatesTable);
       await customStatement(_createAgentSuggestionsTable);
       await customStatement(_createUserSmsRulesTable);
+      await customStatement(_createSmsCategoryMemoryTable);
       await customStatement(_createCommunityFixesTable);
       await seedDefaultCategories();
       if (_seedProfileData) await _seedProfileSampleData();
@@ -84,6 +85,12 @@ class AppDatabase extends GeneratedDatabase {
       // v40 -> v41: recurring payments became recurring payments, which can also
       // be money coming in. Before every other step, which use the new names.
       if (from >= 15 && from < 41) await _recurringPayments(from);
+      // v43 -> v44: these two are synced now, so they must exist before the
+      // sync schema below (which, for old databases, triggers every table).
+      if (from < 44) {
+        await customStatement(_createUserSmsRulesTable);
+        await customStatement(_createSmsCategoryMemoryTable);
+      }
       if (from < 25) await createSmsImportSchema();
       if (from < 25) {
         final columns = (await customSelect(
@@ -284,6 +291,16 @@ class AppDatabase extends GeneratedDatabase {
             'ALTER TABLE sync_state ADD COLUMN restore_pending INTEGER NOT NULL DEFAULT 0',
           );
         }
+      }
+      // Databases older than v8 got every trigger from createSyncSchema.
+      if (from >= 8 && from < 44) {
+        const learned = ['sms_category_memory', 'user_sms_rules'];
+        for (final table in learned) {
+          await createSyncTriggers(this, table);
+        }
+        // Through the triggers' table, so the next upload carries what the
+        // app has already learned.
+        await seedSyncOutbox(this, tables: learned);
       }
     },
     beforeOpen: (_) async {

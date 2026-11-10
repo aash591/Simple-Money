@@ -35,6 +35,10 @@ import 'state/ad_gate.dart';
 import 'state/pro_controller.dart';
 import 'state/upi_settings.dart';
 import 'ui/components/app_lock_gate.dart';
+
+import 'dart:async' show unawaited;
+
+import 'data/daily_reminders.dart';
 import 'ui/components/scroll_edge_haptics.dart';
 import 'data/backup/sync_repository.dart';
 import 'ui/components/feature_page.dart';
@@ -147,6 +151,24 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     _homeLayout.restore();
     _mainCurrency.start();
     _startPro();
+    if (widget.accountStore == null) {
+      DailyReminders.instance.restore().then((_) => _syncDailyReminders());
+      _transactions.addListener(_syncDailyReminders);
+    }
+  }
+
+  /// Keeps the 8 pm / 10 pm nudges in line with whether today already has a
+  /// transaction.
+  void _syncDailyReminders() {
+    if (_transactions.loading) return;
+    final now = DateTime.now();
+    final added = _transactions.transactions.any(
+      (t) =>
+          t.date.year == now.year &&
+          t.date.month == now.month &&
+          t.date.day == now.day,
+    );
+    unawaited(DailyReminders.instance.reschedule(addedToday: added));
   }
 
   /// Billing and ads belong to the main app only, not the launcher sheets or
@@ -231,6 +253,7 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     const MethodChannel('simple_money/sms_changes').setMethodCallHandler(null);
+    _transactions.removeListener(_syncDailyReminders);
     _sync?.dispose();
     _themeMode.dispose();
     _security.dispose();
