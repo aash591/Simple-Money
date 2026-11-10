@@ -138,6 +138,13 @@ class LoanPayoffChart extends StatelessWidget {
               value: payoff.futureInterest.toDouble(),
               color: palette.expense,
             ),
+            // What clearing the loan takes from today: principal plus interest.
+            ChartEntry(
+              label: 'Total to pay',
+              value: (payoff.outstanding + payoff.futureInterest).toDouble(),
+              color: Theme.of(context).colorScheme.onSurface
+                  .withValues(alpha: .55),
+            ),
           ],
           formatValue: _money,
         ),

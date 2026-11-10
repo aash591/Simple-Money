@@ -285,33 +285,21 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     // Simple's bar is a step up from the cards it floats over, so it never
     // dissolves into the card behind it.
     final simpleBar = dark ? scheme.surfaceContainerHigh : scheme.surface;
-    final barTint = aurora
-        ? Color.alphaBlend(
-            scheme.primary.withValues(alpha: .12),
-            const Color(0xff353c55),
-          )
-        : dark
-        ? const Color(0xff484848)
-        : const Color(0xfff1f2f0);
+    // The glass bar has no tint of its own: just the blur, the lens and the
+    // rim, so it takes its colour from whatever is behind it.
+    const barTint = Colors.transparent;
     // Aurora's selected pill is a raised pane of frosted glass, a step
     // lighter than the bar, rather than a black hole in it. Opaque, like the
     // black one, so it hides the plain tab beneath it.
     // Simple's is a soft accent wash, opaque over its bar for the same reason.
+    final tones = _pillTones(scheme);
     final pillColor = simple
         ? Color.alphaBlend(
             scheme.primary.withValues(alpha: dark ? .18 : .12),
             simpleBar,
           )
-        : aurora
-        ? Color.alphaBlend(
-            scheme.primary.withValues(alpha: .14),
-            const Color(0xff3b4260),
-          )
-        : const Color(0xff080808);
-    final pillTop = Color.alphaBlend(
-      scheme.primary.withValues(alpha: .1),
-      const Color(0xff4f5678),
-    );
+        : tones.bottom;
+    final pillTop = tones.top;
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
     final barShader = _barShader;
     final pillShader = _pillShader;
@@ -409,7 +397,7 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                         fit: StackFit.expand,
                         children: [
                           BackdropFilter(
-                            filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                            filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                             child: const SizedBox.expand(),
                           ),
                           _GlassBackdrop(
@@ -419,7 +407,7 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                             refractionHeight: 24,
                             refractionAmount: 24,
                             saturation: 1.5,
-                            tint: barTint.withValues(alpha: dark ? .42 : .38),
+                            tint: barTint,
                             highlight: dark ? .28 : .6,
                           ),
                         ],
@@ -519,30 +507,17 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                 final handle = pill(
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: simple || (dark && !aurora)
+                      color: simple
                           ? pillColor.withValues(alpha: 1 - press)
                           : null,
                       gradient: simple
-                          ? null
-                          : aurora
-                          ? LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                pillTop.withValues(alpha: 1 - press),
-                                pillColor.withValues(alpha: 1 - press),
-                              ],
-                            )
-                          : dark
                           ? null
                           : LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                const Color(0xfffcfcfd)
-                                    .withValues(alpha: 1 - press),
-                                const Color(0xfff0f0f3)
-                                    .withValues(alpha: 1 - press),
+                                pillTop.withValues(alpha: 1 - press),
+                                pillColor.withValues(alpha: 1 - press),
                               ],
                             ),
                     ),
@@ -673,17 +648,24 @@ class _Tab extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final simple = !usesGlass(context);
-    final color = simple
-        // Simple marks the selected tab in the accent, on its accent wash.
-        ? (lit ? scheme.primary : scheme.onSurfaceVariant)
-        : scheme.brightness == Brightness.light
-        ? const Color(0xff171817)
-        : lit
-        // On Aurora's accent pill the plain accent would vanish; lift it.
-        ? (_auroraDark(context)
-              ? Color.lerp(scheme.primary, Colors.white, .62)!
-              : scheme.primary)
-        : scheme.onSurfaceVariant;
+    // What the selected tab sits on, so its accent can be made legible
+    // whatever colour was picked: lightened on dark, deepened on light.
+    final dark = scheme.brightness == Brightness.dark;
+    final tones = _pillTones(scheme);
+    final pill = simple
+        ? Color.alphaBlend(
+            scheme.primary.withValues(alpha: dark ? .18 : .12),
+            dark ? scheme.surfaceContainerHigh : scheme.surface,
+          )
+        : Color.lerp(tones.top, tones.bottom, .5)!;
+    final color = lit
+        ? _legible(scheme.primary, pill)
+        // The other tabs stay neutral: white on dark, dark ink on light.
+        : dark
+        ? Colors.white
+        : simple
+        ? scheme.onSurface
+        : const Color(0xff171817);
     return Semantics(
       container: true,
       button: true,
@@ -739,7 +721,7 @@ class _FrostedGlass extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BackdropFilter(
-    filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+    filter: ui.ImageFilter.blur(sigmaX: 6, sigmaY: 6),
     child: DecoratedBox(
       decoration: ShapeDecoration(
         color: color.withValues(alpha: .78),
@@ -897,4 +879,46 @@ class _RenderGlassBackdrop extends RenderBox {
     layer!.filter = ui.ImageFilter.shader(_glass.shader);
     context.pushLayer(layer!, (_, _) {}, offset);
   }
+}
+
+double _contrast(Color a, Color b) {
+  final la = a.computeLuminance(), lb = b.computeLuminance();
+  final hi = la > lb ? la : lb, lo = la > lb ? lb : la;
+  return (hi + .05) / (lo + .05);
+}
+
+/// [color], moved towards white (on a dark ground) or black (on a light one)
+/// just far enough to be read against [ground]. A colour that already reads
+/// is left alone, so every accent keeps as much of its own hue as it can.
+Color _legible(Color color, Color ground, {double minimum = 4.5}) {
+  final towards = ground.computeLuminance() < .4 ? Colors.white : Colors.black;
+  var result = color;
+  for (
+    var step = 1;
+    step <= 20 && _contrast(result, ground) < minimum;
+    step++
+  ) {
+    result = Color.lerp(color, towards, step * .05)!;
+  }
+  return result;
+}
+
+/// The selected pill's two tones, made from the accent itself so it looks
+/// at home with any colour: a deep, calm shade of it in dark, a pale tint in
+/// light. Saturation is kept in a middle band so a vivid accent isn't garish
+/// and a grey one isn't lifeless.
+({Color top, Color bottom}) _pillTones(ColorScheme scheme) {
+  final hsl = HSLColor.fromColor(scheme.primary);
+  if (scheme.brightness == Brightness.dark) {
+    final saturation = hsl.saturation.clamp(.35, .65);
+    return (
+      top: hsl.withSaturation(saturation).withLightness(.34).toColor(),
+      bottom: hsl.withSaturation(saturation).withLightness(.25).toColor(),
+    );
+  }
+  final saturation = hsl.saturation.clamp(.3, .7);
+  return (
+    top: hsl.withSaturation(saturation).withLightness(.95).toColor(),
+    bottom: hsl.withSaturation(saturation).withLightness(.88).toColor(),
+  );
 }

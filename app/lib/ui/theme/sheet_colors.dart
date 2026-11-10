@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_theme.dart';
+import 'legible_color.dart';
 import 'surface_style.dart';
 
 /// The calm, low-contrast palette every bottom sheet is drawn in (see
@@ -77,22 +78,38 @@ class SheetColors {
     // cards drawn in that colour vanish into it. A touch of white lifts
     // them to a light grey that reads as a surface of its own.
     final glass = usesGlass(context);
+    // On glass the cards and controls are see-through washes over the
+    // frosted sheet, not opaque slabs, so the sheet's glass shows through.
     final card = dark
-        ? _lift(theme.colorScheme.surface, glass ? .08 : .025)
+        ? (glass
+              ? Colors.white.withValues(alpha: .08)
+              : _lift(theme.colorScheme.surface, .025))
+        : glass
+        ? Colors.white.withValues(alpha: .6)
         : base.card;
     return SheetColors._(
       background: dark ? theme.scaffoldBackgroundColor : base.background,
       card: card,
       text: base.text,
       muted: base.muted,
-      control: dark
-          ? _lift(theme.inputDecorationTheme.fillColor!, glass ? .08 : 0)
+      control: glass
+          ? (dark
+                ? Colors.white.withValues(alpha: .09)
+                : theme.colorScheme.primary.withValues(alpha: .08))
+          : dark
+          ? _lift(theme.inputDecorationTheme.fillColor!, 0)
           : base.control,
       // Drawn on the lifted card, so it is lifted from the card itself
       // rather than from a fixed grey, which would match the card exactly.
-      divider: dark ? _lift(card, .13) : base.divider,
+      divider: dark
+          ? (glass ? Colors.white.withValues(alpha: .12) : _lift(card, .13))
+          : base.divider,
       outline: base.outline,
-      primary: theme.colorScheme.primary,
+      // Used for text and icons as well as tints, so on dark it is lifted
+      // just enough to read against the sheet whatever accent was chosen.
+      primary: dark
+          ? legibleOn(theme.colorScheme.primary, const Color(0xff1b1b22))
+          : theme.colorScheme.primary,
       expense: base.expense,
       income: base.income,
     );

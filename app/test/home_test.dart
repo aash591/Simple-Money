@@ -428,11 +428,9 @@ void main() {
       expect(summary.categories.single.amount, 21000);
       expect(summary.missingCurrencies, isEmpty);
       final insights = await InsightsRepository(db)
-          .loadScope(DateTime(2026, 2), scope, now: DateTime(2026, 3));
+          .loadScope(DateTime(2026, 2), scope);
       expect(insights.flows.last.spent, 21000);
       expect(insights.flows.last.income, 16000);
-      expect(insights.categoryChanges.single.current, 21000);
-      expect(insights.categoryChanges.single.average, 5000);
       expect(insights.previousDailyExpenses[4], 5000);
       expect(
         insights.balances.last,
@@ -681,9 +679,7 @@ void main() {
       // Every card and chart lays out at a narrow width and large text.
       for (final card in [
         find.text('Spending pace'),
-        find.text('Next 30 days'),
         find.byType(CalloutDonutChart),
-        find.text('What changed'),
         find.text('Money in vs money out'),
         find.text('Net worth'),
       ]) {

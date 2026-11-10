@@ -127,7 +127,7 @@ class ChartLegend extends StatelessWidget {
               // An amount shrinks to fit rather than ellipsizing: half a
               // number is worse than a small one, and long currency strings
               // at large text sizes would otherwise overflow the row.
-              Flexible(
+              Expanded(
                 flex: 2,
                 child: FittedBox(
                   fit: BoxFit.scaleDown,

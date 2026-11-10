@@ -13,7 +13,6 @@ import 'empty_state.dart';
 import 'search_field.dart';
 import 'secondary_header.dart';
 import 'segmented_pill.dart';
-import 'settings_icon.dart';
 
 const _gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
   crossAxisCount: 5,
@@ -366,27 +365,31 @@ class _IconChoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final radius = BorderRadius.circular(dark ? 8 : 18);
+    final radius = BorderRadius.circular(16);
+    // A soft glass tile in the theme's own colours, tinted by its primary
+    // when chosen, rather than a flat grey that ignores the theme.
+    final fill = selected
+        ? scheme.primary.withValues(alpha: dark ? .2 : .12)
+        : scheme.onSurface.withValues(alpha: dark ? .07 : .04);
     return Material(
-      color: dark ? darkIconBackground : Colors.transparent,
+      color: fill,
       borderRadius: radius,
       child: InkWell(
         borderRadius: radius,
         onTap: onTap,
         onLongPress: onLongPress,
         child: Container(
-          padding: EdgeInsets.all(dark ? 4 : 6),
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             borderRadius: radius,
-            border: selected
-                ? Border.all(
-                    color: Theme.of(context).colorScheme.primary,
-                    width: 2,
-                  )
-                : dark
-                ? Border.all(color: darkIconBorder)
-                : null,
+            border: Border.all(
+              color: selected
+                  ? scheme.primary
+                  : scheme.onSurface.withValues(alpha: dark ? .1 : .06),
+              width: selected ? 2 : 1,
+            ),
           ),
           alignment: Alignment.center,
           child: child,

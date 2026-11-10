@@ -1,4 +1,5 @@
 import 'package:drift/native.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,20 +14,26 @@ import 'package:simple_money/state/category_store.dart';
 import 'package:simple_money/state/home_layout.dart';
 import 'package:simple_money/state/transaction_store.dart';
 import 'package:simple_money/ui/more/home_layout_screen.dart';
-import 'package:simple_money/ui/more/home_card_preview.dart';
+import 'package:simple_money/ui/components/reminder_card.dart';
+import 'package:simple_money/ui/home/home_cards.dart';
+import 'package:simple_money/ui/more/home_preview_data.dart';
+import 'package:simple_money/ui/theme/app_theme.dart';
 
 void main() {
-  testWidgets('Every card has a preview at narrow width with large text', (
-    tester,
-  ) async {
+  testWidgets('Every real card draws on example data at narrow width with '
+      'large text', (tester) async {
     tester.view.physicalSize = const Size(320, 800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    final example = HomePreviewData.create();
+    addTearDown(example.dispose);
     for (final id in HomeCardId.values) {
+      final card = buildHomeCard(id, example.context);
+      expect(card, isNotNull, reason: '${id.name} has example data');
       await tester.pumpWidget(
         MaterialApp(
-          theme: ThemeData.dark(),
+          theme: appTheme(Brightness.dark),
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
                 .copyWith(textScaler: const TextScaler.linear(1.5)),
@@ -34,17 +41,93 @@ void main() {
           ),
           home: Scaffold(
             body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: HomeCardPreview(id: id),
-              ),
+              child: Padding(padding: const EdgeInsets.all(18), child: card),
             ),
           ),
         ),
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull, reason: id.name);
+      // These hide themselves when nothing is due: the example must be due.
+      if (const [
+        HomeCardId.upcomingEmis,
+        HomeCardId.upcomingPayments,
+        HomeCardId.upcomingDebts,
+      ].contains(id)) {
+        expect(find.byType(ReminderCard), findsOneWidget, reason: id.name);
+      }
     }
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+  testWidgets('the committed card shows what you pay and what you get', (
+    tester,
+  ) async {
+    final example = HomePreviewData.create();
+    addTearDown(example.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: appTheme(Brightness.light),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: buildHomeCard(HomeCardId.committed, example.context),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('To pay'), findsOneWidget);
+    expect(find.text('To get'), findsOneWidget);
+    expect(
+      find.textContaining('Next: HDFC Bank EMI is due tomorrow'),
+      findsOneWidget,
+    );
+    // EMI 16,017 + Netflix 649 out; Alex's 1,500 in.
+    expect(find.textContaining('16,666'), findsOneWidget);
+    expect(find.textContaining('1,500'), findsWidgets);
+
+    // Tapping a day with a payment lists it underneath; tapping again clears.
+    final tomorrow = DateTime.now().add(const Duration(days: 1));
+    await tester.tap(find.text('${tomorrow.day}').first);
+    await tester.pumpAndSettle();
+    expect(find.text('HDFC Bank EMI'), findsOneWidget);
+    expect(find.textContaining('Next:'), findsNothing);
+    await tester.tap(find.text('${tomorrow.day}').first);
+    await tester.pumpAndSettle();
+    expect(find.text('HDFC Bank EMI'), findsNothing);
+    expect(find.textContaining('Next:'), findsOneWidget);
+  });
+
+  testWidgets('the reminder card keeps its action at the right edge', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final example = HomePreviewData.create();
+    addTearDown(example.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: appTheme(Brightness.dark),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: buildHomeCard(HomeCardId.upcomingEmis, example.context),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final card = tester.getRect(find.byType(ReminderCard));
+    final action = tester.getRect(find.text('Mark paid'));
+    final chip = tester.getRect(find.text('Due tomorrow'));
+    // The action sits against the right edge (card padding and its own
+    // arrow), the due date against the left, and the gap between is free.
+    expect(card.right - action.right, lessThan(60));
+    expect(chip.left - card.left, lessThan(60));
+    expect(action.left - chip.right, greaterThan(20));
+    await tester.pumpWidget(const SizedBox.shrink());
   });
   group('HomeLayout', () {
     setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -92,10 +175,11 @@ void main() {
         layout.order.indexOf(HomeCardId.recentTransactions),
         lessThan(layout.order.indexOf(HomeCardId.overview)),
       );
-      // SMS history follows overview, including for existing saved layouts.
+      // SMS history follows the card before it by default, including for
+      // existing saved layouts.
       expect(
         layout.order.indexOf(HomeCardId.smsHistory),
-        layout.order.indexOf(HomeCardId.overview) + 1,
+        layout.order.indexOf(HomeCardId.upcomingDebts) + 1,
       );
       layout.dispose();
     });
@@ -105,7 +189,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(home: HomeLayoutScreen(layout: layout)),
       );
-      expect(find.text('Upcoming EMIs'), findsOneWidget);
+      // The name above the real card, and the card's own title.
+      expect(find.text('Upcoming EMIs'), findsWidgets);
       await tester.tap(find.byType(Switch).first);
       await tester.pump();
       expect(layout.isVisible(HomeCardId.values.first), isFalse);
@@ -122,6 +207,60 @@ void main() {
       await tester.tap(find.text('Reset to default'));
       await tester.pumpAndSettle();
       expect(layout.isDefault, isTrue);
+      await tester.pumpWidget(const SizedBox.shrink());
+      layout.dispose();
+    });
+
+    testWidgets('the arrangement screen shows every upcoming card with an '
+        'example payment', (tester) async {
+      tester.view.physicalSize = const Size(400, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final layout = HomeLayout();
+      await tester.pumpWidget(
+        MaterialApp(home: HomeLayoutScreen(layout: layout)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Car · HDFC Bank'), findsOneWidget);
+      expect(find.text('Netflix'), findsOneWidget);
+      expect(find.text('Alex'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+      layout.dispose();
+    });
+
+    testWidgets('press and hold lifts a card so it can be dragged into '
+        'place; a plain swipe only scrolls', (tester) async {
+      tester.view.physicalSize = const Size(400, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final layout = HomeLayout();
+      await tester.pumpWidget(
+        MaterialApp(home: HomeLayoutScreen(layout: layout)),
+      );
+      await tester.pumpAndSettle();
+      final second = find.text('Upcoming payments').first;
+
+      // A quick drag does not pick the card up.
+      await tester.drag(second, const Offset(0, -200));
+      await tester.pumpAndSettle();
+      expect(layout.order.first, HomeCardId.overview);
+
+      // Held down first, it lifts and can be moved above the one before.
+      await tester.pumpAndSettle();
+      final start = tester.getCenter(find.text('Upcoming payments').first);
+      final gesture = await tester.startGesture(start);
+      await tester.pump(kLongPressTimeout + const Duration(milliseconds: 100));
+      final target = tester.getCenter(find.text('Upcoming EMIs').first);
+      for (var i = 1; i <= 12; i++) {
+        await gesture.moveTo(Offset.lerp(start, target, i / 12)!);
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(layout.order[1], HomeCardId.upcomingPayments);
+      expect(layout.order[2], HomeCardId.upcomingEmis);
       await tester.pumpWidget(const SizedBox.shrink());
       layout.dispose();
     });
@@ -175,7 +314,7 @@ void main() {
       date: date,
     );
 
-    test('adds up months, category changes and month-end balances', () async {
+    test('adds up months and month-end balances', () async {
       await add(TransactionType.expense, 1000, DateTime(2026, 1, 5), 'Cafe');
       await add(TransactionType.expense, 3000, DateTime(2026, 2, 5), 'Cafe');
       await add(TransactionType.expense, 400, DateTime(2026, 2, 25), 'Cafe');
@@ -189,7 +328,7 @@ void main() {
       );
 
       final result = await InsightsRepository(db)
-          .load(DateTime(2026, 3), 'INR', 2, now: DateTime(2026, 3, 12));
+          .load(DateTime(2026, 3), 'INR', 2);
       expect(result.previousDailyExpenses.length, 28);
       expect(result.previousDailyExpenses[4], 3000);
       expect(result.flows.length, InsightsRepository.months);
@@ -199,12 +338,6 @@ void main() {
         spent: 5000,
       ));
       expect(result.flows[4].spent, 3400);
-
-      // March is running, so February counts only to the 12th (3000, not
-      // 3400) and January 1000: an average of 2000 over two months.
-      expect(result.comparedMonths, 2);
-      final food = result.categoryChanges.single;
-      expect((food.current, food.average), (5000, 2000));
 
       // Transfers between the two INR accounts leave the total alone.
       expect(result.balances.last, 100000 - 1000 - 3400 + 9000 - 5000);

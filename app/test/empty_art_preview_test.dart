@@ -1,19 +1,12 @@
-// Temporary visual preview of the empty-state artwork; not part of the suite.
-import 'dart:io';
+// Golden coverage of the current empty-state artwork.
+import 'preview_fonts.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simple_money/ui/components/empty_art.dart';
 import 'package:simple_money/ui/components/empty_state.dart';
 import 'package:simple_money/ui/components/glass_surface.dart';
 import 'package:simple_money/ui/theme/app_theme.dart';
-
-Future<void> _font(String family, String path) async {
-  final loader = FontLoader(family)
-    ..addFont(Future.value(ByteData.sublistView(File(path).readAsBytesSync())));
-  await loader.load();
-}
 
 Widget _panel(Brightness b, Color c) => Theme(
   data: appTheme(b, accentColor: c),
@@ -30,7 +23,8 @@ Widget _panel(Brightness b, Color c) => Theme(
                 child: EmptyState(
                   icon: Icons.account_balance_wallet_outlined,
                   title: 'No accounts yet',
-                  message: 'Add a bank account, card or wallet to start tracking.',
+                  message:
+                      'Add a bank account, card or wallet to start tracking.',
                   actionLabel: 'Add account',
                   onAction: () {},
                 ),
@@ -53,21 +47,26 @@ Widget _panel(Brightness b, Color c) => Theme(
 
 void main() {
   testWidgets('empty art preview', (tester) async {
-    await _font('Inter', 'assets/fonts/Inter.ttf');
-    await _font('MaterialIcons',
-        'C:/Users/ADMIN/develop/flutter/bin/cache/artifacts/material_fonts/materialicons-regular.otf');
+    await loadPreviewFonts();
     tester.view.physicalSize = const Size(1200, 1000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Row(children: [
-        Expanded(child: _panel(Brightness.light, const Color(0xff3d7be0))),
-        Expanded(child: _panel(Brightness.dark, accent)),
-        Expanded(child: _panel(Brightness.light, const Color(0xffe0703d))),
-      ]),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Row(
+          children: [
+            Expanded(child: _panel(Brightness.light, const Color(0xff3d7be0))),
+            Expanded(child: _panel(Brightness.dark, accent)),
+            Expanded(child: _panel(Brightness.light, const Color(0xffe0703d))),
+          ],
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
-    await expectLater(find.byType(Row).first, matchesGoldenFile('empty_art_preview.png'));
+    await expectLater(
+      find.byType(Row).first,
+      matchesGoldenFile('empty_art_preview.png'),
+    );
   });
 }

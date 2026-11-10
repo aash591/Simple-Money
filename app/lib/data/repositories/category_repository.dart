@@ -154,7 +154,7 @@ class CategoryRepository {
       'DELETE FROM budgets WHERE id IN ($emptyBudgets)',
     );
     await database.customUpdate(
-      '''UPDATE subscriptions SET category_id = NULL WHERE category_id IN
+      '''UPDATE recurring_payments SET category_id = NULL WHERE category_id IN
       (SELECT id FROM categories WHERE id = ? OR parent_id = ?)''',
       variables: [Variable(id), Variable(id)],
     );

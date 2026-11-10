@@ -3,15 +3,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Every section Home can show, in the order a fresh install shows them.
 enum HomeCardId {
-  upcomingEmis,
-  upcomingSubscriptions,
-  upcomingDebts,
   overview,
+  upcomingEmis,
+  upcomingPayments,
+  upcomingDebts,
   smsHistory,
   spendingPace,
   committed,
   spending,
-  categoryChanges,
   cashFlow,
   accounts,
   netWorth,
@@ -22,14 +21,13 @@ enum HomeCardId {
 extension HomeCardInfo on HomeCardId {
   String get label => switch (this) {
     HomeCardId.upcomingEmis => 'Upcoming EMIs',
-    HomeCardId.upcomingSubscriptions => 'Upcoming subscriptions',
+    HomeCardId.upcomingPayments => 'Upcoming payments',
     HomeCardId.upcomingDebts => 'Upcoming debts',
     HomeCardId.overview => 'Month overview',
-    HomeCardId.smsHistory => 'SMS auto-import',
+    HomeCardId.smsHistory => 'Needs your review',
     HomeCardId.spendingPace => 'Spending pace',
-    HomeCardId.committed => 'Money already committed',
+    HomeCardId.committed => 'Coming up',
     HomeCardId.spending => 'Top expense categories',
-    HomeCardId.categoryChanges => 'What changed',
     HomeCardId.cashFlow => 'Money in vs money out',
     HomeCardId.accounts => 'Accounts',
     HomeCardId.netWorth => 'Net worth',
@@ -39,14 +37,14 @@ extension HomeCardInfo on HomeCardId {
 
   String get description => switch (this) {
     HomeCardId.upcomingEmis => 'Loan payments due this week',
-    HomeCardId.upcomingSubscriptions => 'Renewals due this week',
+    HomeCardId.upcomingPayments =>
+      'Rent, subscriptions and bills due this week',
     HomeCardId.upcomingDebts => 'Money due to or from people this week',
     HomeCardId.overview => 'Net savings, income, spent and budget left',
-    HomeCardId.smsHistory => 'Transactions added from your bank SMS',
+    HomeCardId.smsHistory => 'Bank messages waiting for a category or account',
     HomeCardId.spendingPace => 'This month against last, day by day',
-    HomeCardId.committed => 'EMIs, renewals and debts due in 30 days',
+    HomeCardId.committed => 'Payments to make and money to get, next 30 days',
     HomeCardId.spending => 'Where the month’s money went',
-    HomeCardId.categoryChanges => 'Categories up or down on your usual',
     HomeCardId.cashFlow => 'Six months of money in and out',
     HomeCardId.accounts => 'Your first few balances',
     HomeCardId.netWorth => 'What you own minus what you owe',
@@ -56,14 +54,13 @@ extension HomeCardInfo on HomeCardId {
 
   IconData get icon => switch (this) {
     HomeCardId.upcomingEmis => Icons.account_balance_outlined,
-    HomeCardId.upcomingSubscriptions => Icons.autorenew_rounded,
+    HomeCardId.upcomingPayments => Icons.autorenew_rounded,
     HomeCardId.upcomingDebts => Icons.handshake_outlined,
     HomeCardId.overview => Icons.savings_outlined,
     HomeCardId.smsHistory => Icons.sms_outlined,
     HomeCardId.spendingPace => Icons.show_chart_rounded,
     HomeCardId.committed => Icons.lock_clock_outlined,
     HomeCardId.spending => Icons.donut_large_rounded,
-    HomeCardId.categoryChanges => Icons.swap_vert_rounded,
     HomeCardId.cashFlow => Icons.bar_chart_rounded,
     HomeCardId.accounts => Icons.account_balance_wallet_outlined,
     HomeCardId.netWorth => Icons.trending_up_rounded,
@@ -75,7 +72,6 @@ extension HomeCardInfo on HomeCardId {
     HomeCardId.spendingPace ||
     HomeCardId.committed ||
     HomeCardId.spending ||
-    HomeCardId.categoryChanges ||
     HomeCardId.cashFlow ||
     HomeCardId.netWorth ||
     HomeCardId.loanPayoff => true,

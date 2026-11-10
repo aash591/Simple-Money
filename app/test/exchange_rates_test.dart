@@ -54,11 +54,12 @@ void main() {
       final client = MockClient((_) async {
         if (mode == 1) throw const SocketException('Offline');
         if (mode == 2) return http.Response('{"date":"bad", "inr":null}', 200);
-        if (mode == 3)
+        if (mode == 3) {
           return http.Response(
             '{"date":"2026-09-18", "inr":{"inr":1,"usd":-2}}',
             200,
           );
+        }
         return http.Response(body(date: '2026-09-10'), 200);
       });
       addTearDown(client.close);

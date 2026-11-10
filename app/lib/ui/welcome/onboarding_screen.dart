@@ -18,6 +18,7 @@ import '../components/common.dart';
 import '../components/menu_list.dart';
 import '../more/accounts/account_card.dart';
 import '../more/settings/sync/backup_widgets.dart';
+import '../more/settings/sync/backup_pin_screen.dart';
 import '../more/settings/sync/sync_flow.dart';
 import 'backup_welcome_screen.dart';
 import 'privacy_card.dart';
@@ -35,6 +36,7 @@ class OnboardingScreen extends StatefulWidget {
     required this.onDone,
     this.sync,
     this.sms,
+    this.smsOnly = false,
   });
   final AppDatabase database;
   final SyncController? sync;
@@ -44,6 +46,10 @@ class OnboardingScreen extends StatefulWidget {
 
   /// The SMS store to use instead of a new one, for tests.
   final SmsImportStore? sms;
+
+  /// Only the SMS step, opened later from Settings: no welcome or backup,
+  /// and finishing does not mark the first-run setup as done.
+  final bool smsOnly;
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -58,6 +64,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   /// SMS import was on before: nothing to ask or scan.
   bool _smsWasOn = false;
   bool _asking = false, _saving = false, _done = false;
+
+  /// The scan result has been seen and the person went on to the balances.
+  bool _checking = false;
 
   /// The SMS prompt was refused or dismissed: the page stays, with a note.
   bool _smsDenied = false;
@@ -84,6 +93,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _decide() async {
+    if (widget.smsOnly) {
+      if (!mounted) return;
+      setState(() => _steps = [_Step.sms]);
+      return;
+    }
     final sync = widget.sync;
     var backup = false;
     try {
@@ -114,12 +128,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _connect() async {
-    if (await connectDrive(context, widget.sync!) && mounted) _next();
+    final sync = widget.sync!;
+    if (!await connectDrive(context, sync) || !mounted) return;
+    // Backups can be locked with a PIN from the start; skipping is fine.
+    if (sync.status?.encryption == null) {
+      await showBackupPinFlow(
+        context,
+        purpose: BackupPinPurpose.enable,
+        optional: true,
+        onSubmit: (pin) => sync.setEncryption(true, pin),
+      );
+    }
+    if (mounted) _next();
   }
 
   /// One system prompt covers SMS and alerts. Once allowed, the first scan
   /// runs here. Refused or dismissed, the page stays so the choice is
-  /// made on purpose: Enable Permissions again, or Skip.
+  /// made on purpose: Setup Permissions again, or Skip.
   void _allowSms() {
     if (_smsWasOn) {
       _finish();
@@ -215,9 +240,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_done) return;
     _done = true;
     final steps = _steps ?? const <_Step>[];
-    try {
-      await Onboarding.finish(sawBackup: steps.contains(_Step.backup));
-    } catch (_) {}
+    if (!widget.smsOnly) {
+      try {
+        await Onboarding.finish(sawBackup: steps.contains(_Step.backup));
+      } catch (_) {}
+    }
     widget.onDone();
   }
 
@@ -398,24 +425,81 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     child: SizedBox(
       width: double.infinity,
       child: PillButton(
-        label: _smsWasOn ? 'Finish' : 'Enable Permissions',
+        label: _smsWasOn ? 'Finish' : 'Setup Permissions',
         loading: _asking,
         onPressed: _allowSms,
       ),
     ),
   );
 
-  Widget _accountsBar() => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-    child: SizedBox(
-      width: double.infinity,
-      child: PillButton(
-        label: 'Finish',
-        loading: _saving,
-        onPressed: _rows == null ? _finish : _saveBalances,
+  Widget _accountsBar() {
+    final rows = _rows;
+    // Scanning: nothing to press yet but Finish. The result comes next, then
+    // the balances, each only when the person chooses to go on.
+    final onResult = rows != null && rows.isNotEmpty && !_checking;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      child: SizedBox(
+        width: double.infinity,
+        child: PillButton(
+          label: onResult ? 'Check accounts' : 'Finish',
+          loading: _saving,
+          onPressed: rows == null
+              ? _finish
+              : onResult
+              ? () => setState(() => _checking = true)
+              : _saveBalances,
+        ),
       ),
-    ),
-  );
+    );
+  }
+
+  /// What the scan found, before the balances: how much it added, and a
+  /// button to go and check the accounts.
+  Widget _scanResult(BuildContext context, List<_BalanceRow> rows) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final number = NumberFormat.decimalPattern();
+    final saved = _sms.lastScan?.saved ?? _sms.foundTransactions;
+    final banks = _sms.foundAccounts.length;
+    final muted = text.bodyMedium?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+      height: 1.5,
+    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const RoundIcon(Icons.task_alt_rounded),
+        const SizedBox(height: 24),
+        Text(
+          'Scan complete',
+          textAlign: TextAlign.center,
+          style: text.headlineMedium,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Balances are taken from your bank SMS. Banks don’t always send the '
+          'latest balance, so check each one next. You can adjust a balance '
+          'later too.',
+          textAlign: TextAlign.center,
+          style: muted,
+        ),
+        const SizedBox(height: 22),
+        Row(
+          children: [
+            Expanded(child: _Figure(number.format(saved), 'Transactions')),
+            const SizedBox(width: 10),
+            Expanded(child: _Figure(number.format(banks), 'Banks')),
+          ],
+        ),
+        if (_sms.error != null) ...[
+          const SizedBox(height: 14),
+          ErrorBanner(_sms.error!),
+        ],
+      ],
+    );
+  }
 
   Widget _accountsContent(BuildContext context) {
     final theme = Theme.of(context);
@@ -470,6 +554,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ],
       );
     }
+    if (rows.isNotEmpty && !_checking) return _scanResult(context, rows);
     final saved = _sms.lastScan?.saved ?? 0;
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -597,10 +682,8 @@ class _SmsContent extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          'To add your bank transactions automatically, Simple Money reads '
-          'the SMS on your phone, including new ones as they arrive, and '
-          'picks out the ones from your bank. This is the main way the app '
-          'records your spending.',
+          'Bank transactions are picked out of your SMS and added for you, '
+          'including new ones as they arrive.',
           textAlign: TextAlign.center,
           style: muted,
         ),
@@ -618,15 +701,15 @@ class _SmsContent extends StatelessWidget {
         if (denied) ...[
           const SizedBox(height: 14),
           const ErrorBanner(
-            'SMS access wasn’t allowed. Tap Enable Permissions to try again. '
-            'If nothing appears, allow SMS in Android Settings › Apps › '
-            'Simple Money › Permissions.',
+            'Permission wasn’t given. Tap Setup Permissions to try again, '
+            'or turn it on in Android Settings › Apps › Simple Money › '
+            'Permissions.',
           ),
         ],
         const SizedBox(height: 14),
         Text(
-          'Tap Enable Permissions and your phone will ask to allow SMS and notifications. '
-          'You can skip this and add transactions by hand.',
+          'Your phone will ask to allow SMS and notifications. '
+          'You can skip this and add transactions yourself.',
           textAlign: TextAlign.center,
           style: text.bodySmall,
         ),

@@ -86,9 +86,8 @@ void main() {
     db,
   ).load()).firstWhere((a) => a.id == account).balanceMinor;
 
-  Future<int> suggestionId() async => (await tools.suggestions.load(
-    limit: 1,
-  )).single.id;
+  Future<int> suggestionId() async =>
+      (await tools.suggestions.load(limit: 1)).single.id;
 
   setUp(() async {
     db = AppDatabase(NativeDatabase.memory());
@@ -109,9 +108,7 @@ void main() {
       lastDigits: '1234',
     );
     final categories = await CategoryRepository(db).load();
-    personal = categories
-        .firstWhere((c) => c.type == CategoryType.expense)
-        .id;
+    personal = categories.firstWhere((c) => c.type == CategoryType.expense).id;
   });
 
   tearDown(() => db.close());
@@ -238,7 +235,12 @@ void main() {
     });
 
     test('prefers the payment that names the lender', () async {
-      await saved(215000, DateTime(2026, 7, 2, 12), title: 'Rent', account: hdfc);
+      await saved(
+        215000,
+        DateTime(2026, 7, 2, 12),
+        title: 'Rent',
+        account: hdfc,
+      );
       final bajajPayment = await saved(215000, DateTime(2026, 7, 4));
       final reply = await call('suggest_loan', {
         ...bajaj(),
@@ -273,9 +275,8 @@ void main() {
     test('matches by day, wherever in the day the debit landed', () async {
       final late = await saved(215000, DateTime(2026, 7, 5, 22));
       await saved(215000, DateTime(2026, 8, 6, 9));
-      final rows =
-          ((await call('suggest_loan', bajaj()))['payments'] as List)
-              .cast<Map>();
+      final rows = ((await call('suggest_loan', bajaj()))['payments'] as List)
+          .cast<Map>();
       expect(rows[1]['transaction_id'], late);
       // Four days out is another payment.
       expect(rows[2]['transaction_id'], isNull);
@@ -568,8 +569,18 @@ void main() {
             'amount': '1000',
             'date': '2026-10-01',
           },
-          {'person': 'Meera', 'kind': 'borrow', 'amount': '200', 'date': '2026-10-01'},
-          {'person': 'Meera', 'kind': 'repay', 'amount': '50', 'date': '2026-10-02'},
+          {
+            'person': 'Meera',
+            'kind': 'borrow',
+            'amount': '200',
+            'date': '2026-10-01',
+          },
+          {
+            'person': 'Meera',
+            'kind': 'repay',
+            'amount': '50',
+            'date': '2026-10-02',
+          },
         ],
       });
       await tools.suggestions.applyAll();
@@ -776,10 +787,7 @@ void main() {
       expect(find.text('Stays the same'), findsNothing);
       expect(find.textContaining('→'), findsOneWidget);
       expect(find.text('Adds to SBI'), findsOneWidget);
-      expect(
-        find.text('Takes the missing payment out of SBI'),
-        findsOneWidget,
-      );
+      expect(find.text('Takes the missing payment out of SBI'), findsOneWidget);
 
       await tester.tap(find.text('Approve'));
       await settle(tester);
@@ -812,6 +820,17 @@ void main() {
       NativeDatabase.memory(
         setup: (raw) {
           // Version 38's table, which allowed five kinds.
+          // Sync state also existed in v38 and is migrated by later versions.
+          raw.execute('''CREATE TABLE sync_state (
+            id INTEGER PRIMARY KEY CHECK(id = 1),
+            enabled INTEGER NOT NULL DEFAULT 0,
+            email TEXT, subject TEXT, display_name TEXT, picture_url TEXT,
+            installation_id TEXT, mirror_id TEXT NOT NULL,
+            revision INTEGER NOT NULL DEFAULT 0,
+            next_sequence INTEGER NOT NULL DEFAULT 1,
+            last_synced INTEGER, error TEXT, retry_at INTEGER NOT NULL DEFAULT 0,
+            failures INTEGER NOT NULL DEFAULT 0,
+            lease TEXT, lease_until INTEGER NOT NULL DEFAULT 0)''');
           raw.execute('''CREATE TABLE agent_suggestions (
             id INTEGER PRIMARY KEY AUTOINCREMENT, batch_id TEXT NOT NULL,
             kind TEXT NOT NULL CHECK(kind IN ('new_category', 'sms_correction',

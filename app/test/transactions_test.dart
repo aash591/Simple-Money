@@ -253,16 +253,18 @@ void main() {
         title: 'Netflix',
         date: DateTime(2026, 3, 1),
       );
-      final subscription = await db.customInsert('''INSERT INTO subscriptions
+      final recurringPayment = await db.customInsert(
+        '''INSERT INTO recurring_payments
         (name, amount_minor, currency, digits, cycle, next_due, day)
-        VALUES ('Netflix', 64900, 'INR', 2, 'monthly', '2026-04-01', 1)''');
+        VALUES ('Netflix', 64900, 'INR', 2, 'monthly', '2026-04-01', 1)''',
+      );
       await db.customInsert(
-        'INSERT INTO subscription_payments (transaction_id, subscription_id) '
+        'INSERT INTO recurring_payment_history (transaction_id, recurring_payment_id) '
         'VALUES (?, ?)',
-        variables: [Variable(id), Variable(subscription)],
+        variables: [Variable(id), Variable(recurringPayment)],
       );
       final link = await transactions.link(id);
-      expect(link?.kind, TransactionLinkKind.subscription);
+      expect(link?.kind, TransactionLinkKind.recurringPayment);
       expect(link?.name, 'Netflix');
 
       // A price change is fine...

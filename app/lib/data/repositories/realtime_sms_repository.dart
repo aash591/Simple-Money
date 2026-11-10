@@ -109,8 +109,9 @@ class RealtimeSmsRepository {
       [sms.bankKey],
     );
     final account = await _accountFor(sms);
-    if (account == null)
+    if (account == null) {
       throw StateError('Choose an account for this message.');
+    }
     await edit(id, accountId: account.id, categoryId: current.categoryId);
     if (account.created) {
       await db.customStatement(
@@ -181,8 +182,9 @@ class RealtimeSmsRepository {
           'bank transfer',
           'unknown',
           'merchant',
-        }.contains(party))
+        }.contains(party)) {
       return null;
+    }
     return '${sms.credit ? 'credit' : 'debit'}|$party';
   }
 
@@ -199,8 +201,9 @@ class RealtimeSmsRepository {
     final current = await load(id);
     if (current == null ||
         current.categoryId != state['selected'] ||
-        current.otherAccountId != null)
+        current.otherAccountId != null) {
       return null;
+    }
     return state;
   }
 
@@ -233,8 +236,9 @@ class RealtimeSmsRepository {
     int? previousCategoryId,
   }) => db.transaction(() async {
     final before = await load(id);
-    if (before == null)
+    if (before == null) {
       throw StateError('This transaction is no longer available.');
+    }
     final merchant = _merchant(before.sms);
     final previous = merchant == null
         ? null
@@ -258,11 +262,12 @@ class RealtimeSmsRepository {
       await choosePendingCategory(id, categoryId);
     }
     final token = '$id:${DateTime.now().microsecondsSinceEpoch}';
-    if (merchant != null)
+    if (merchant != null) {
       await db.customStatement(
         'INSERT OR REPLACE INTO sms_category_memory VALUES (?,?,?)',
         [merchant, categoryId, token],
       );
+    }
     await db.customStatement(
       'INSERT OR REPLACE INTO sms_category_undo VALUES (?,?)',
       [
@@ -312,11 +317,12 @@ class RealtimeSmsRepository {
               'DELETE FROM sms_category_memory WHERE merchant=?',
               [merchant],
             );
-            if (state['previousRule'] != null)
+            if (state['previousRule'] != null) {
               await db.customStatement(
                 'INSERT INTO sms_category_memory VALUES (?,?,?)',
                 [merchant, state['previousRule'], state['previousOwner']],
               );
+            }
           }
         }
         await db.customStatement(

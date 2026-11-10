@@ -5,8 +5,8 @@ import '../../components/advance_payment_notice.dart';
 import 'package:intl/intl.dart';
 
 import '../../../domain/account.dart';
-import '../../../domain/subscription.dart';
-import '../../../state/subscription_store.dart';
+import '../../../domain/recurring_payment.dart';
+import '../../../state/recurring_payment_store.dart';
 import '../../components/app_icon.dart';
 import '../../components/app_toast.dart';
 
@@ -19,36 +19,37 @@ import '../../theme/sheet_colors.dart';
 import '../debts/debt_widgets.dart';
 import 'mark_paid_sheet.dart';
 import 'renewal_outcome.dart';
-import 'subscription_sheet.dart';
+import 'recurring_payment_sheet.dart';
 
-/// Everything about one subscription: what it costs, when it renews next and
+/// Everything about one recurring payment: what it costs, when it renews next and
 /// what to do about that, then the facts behind it and what has actually been
 /// paid so far.
 ///
-/// Reached by tapping a subscription anywhere it is listed. Editing stays in
+/// Reached by tapping a recurring payment anywhere it is listed. Editing stays in
 /// its sheet, one step further in, so this page can answer "what am I paying
 /// for and when" without asking anyone to read a form.
-class SubscriptionDetailScreen extends StatefulWidget {
-  const SubscriptionDetailScreen({
+class RecurringPaymentDetailScreen extends StatefulWidget {
+  const RecurringPaymentDetailScreen({
     super.key,
     required this.store,
     required this.id,
   });
-  final SubscriptionStore store;
+  final RecurringPaymentStore store;
   final int id;
 
   @override
-  State<SubscriptionDetailScreen> createState() =>
-      _SubscriptionDetailScreenState();
+  State<RecurringPaymentDetailScreen> createState() =>
+      _RecurringPaymentDetailScreenState();
 }
 
-class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
-  late Future<List<SubscriptionPayment>> _payments = _loadPayments();
+class _RecurringPaymentDetailScreenState
+    extends State<RecurringPaymentDetailScreen> {
+  late Future<List<RecurringPaymentRecord>> _payments = _loadPayments();
   String? _error;
 
-  SubscriptionStore get _store => widget.store;
+  RecurringPaymentStore get _store => widget.store;
 
-  Future<List<SubscriptionPayment>> _loadPayments() =>
+  Future<List<RecurringPaymentRecord>> _loadPayments() =>
       _store.repository.payments(widget.id);
 
   @override
@@ -86,18 +87,18 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
     }
   }
 
-  Future<void> _togglePause(Subscription s) => _run(() async {
+  Future<void> _togglePause(RecurringPayment s) => _run(() async {
     await _store.save(() => _store.repository.setPaused(s, !s.paused));
     if (mounted) {
-      showAppToast(context, s.paused ? 'Subscription resumed' : 'Paused');
+      showAppToast(context, s.paused ? 'Recurring payment resumed' : 'Paused');
     }
   });
 
-  Future<void> _skip(Subscription s) async {
+  Future<void> _skip(RecurringPayment s) async {
     final colors = SheetColors.of(context);
     final confirmed = await showConfirmationAlert(
       context,
-      title: 'Skip this renewal?',
+      title: 'Skip this one?',
       message: 'No payment recorded. Account balance unchanged.',
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -105,13 +106,13 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
           RenewalOutcome(
             icon: Icons.event_repeat_rounded,
             color: colors.primary,
-            label: 'Next renewal',
+            label: 'Next due',
             value: DateFormat('d MMM yyyy').format(s.followingDue),
           ),
           RenewalOutcome(
             icon: Icons.money_off_rounded,
             color: colors.muted,
-            label: 'Payment',
+            label: s.incoming ? 'Receipt' : 'Payment',
             value: 'Not recorded',
             caption: 'Account balance unchanged',
           ),
@@ -123,22 +124,21 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
     if (!confirmed || !mounted) return;
     await _run(() async {
       await _store.save(() => _store.repository.skip(s));
-      if (mounted) showAppToast(context, 'Renewal skipped');
+      if (mounted) showAppToast(context, 'Skipped');
     });
   }
 
-  Future<void> _delete(Subscription s) async {
+  Future<void> _delete(RecurringPayment s) async {
     final confirmed = await showDeleteConfirmation(
       context,
       title: 'Delete ${s.name}?',
-      message:
-          'Removes the subscription and its reminders. Past payments stay.',
+      message: 'Removes the recurring payment and its reminders. Past payments stay.',
     );
     if (!confirmed || !mounted) return;
     await _run(() async {
       await _store.save(() => _store.repository.delete(s.id));
       if (!mounted) return;
-      showAppToast(context, 'Subscription deleted');
+      showAppToast(context, 'Recurring payment deleted');
       Navigator.pop(context);
     });
   }
@@ -150,8 +150,10 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
       final s = _store.byId(widget.id);
       if (s == null) {
         return const FeaturePage(
-          title: 'Subscription',
-          child: Center(child: Text('This subscription is no longer here.')),
+          title: 'Recurring payment',
+          child: Center(
+            child: Text('This recurring payment is no longer here.'),
+          ),
         );
       }
       final colors = SheetColors.of(context);
@@ -162,25 +164,27 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
             items: [
               const MorePopupItem(
                 value: 'edit',
-                label: 'Edit subscription',
+                label: 'Edit recurring payment',
                 icon: Icons.edit_outlined,
               ),
               MorePopupItem(
                 value: 'pause',
-                label: s.paused ? 'Resume subscription' : 'Pause subscription',
+                label: s.paused
+                    ? 'Resume recurring payment'
+                    : 'Pause recurring payment',
                 icon: s.paused
                     ? Icons.play_circle_outline_rounded
                     : Icons.pause_circle_outline_rounded,
               ),
               const MorePopupItem(
                 value: 'delete',
-                label: 'Delete subscription',
+                label: 'Delete recurring payment',
                 icon: Icons.delete_outline_rounded,
                 dividerBefore: true,
               ),
             ],
             onSelected: (value) => switch (value) {
-              'edit' => showSubscriptionSheet(
+              'edit' => showRecurringPaymentSheet(
                 context,
                 store: _store,
                 existing: s,
@@ -193,7 +197,7 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(18, 12, 18, 40),
           children: [
-            _Hero(subscription: s),
+            _Hero(recurringPayment: s),
             if (_error != null) ...[
               const SizedBox(height: 14),
               Text(
@@ -204,27 +208,30 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
             ],
             const SizedBox(height: 22),
             DetailSectionHeading(
-              'Next renewal',
+              'Next due',
               status: s.paused ? null : DueChip(s.nextDue),
             ),
             const SizedBox(height: 10),
             _NextRenewal(
-              subscription: s,
+              recurringPayment: s,
               account: _accountName(_store, s),
               saving: _store.saving,
-              onMarkPaid: () =>
-                  showMarkPaidSheet(context, store: _store, subscription: s),
+              onMarkPaid: () => showMarkPaidSheet(
+                context,
+                store: _store,
+                recurringPayment: s,
+              ),
               onSkip: () => _skip(s),
               onResume: () => _togglePause(s),
             ),
             const SizedBox(height: 22),
             const SectionTitle('Details'),
             const SizedBox(height: 10),
-            _Details(subscription: s, store: _store),
+            _Details(recurringPayment: s, store: _store),
             const SizedBox(height: 22),
-            const SectionTitle('Payments'),
+            SectionTitle(s.incoming ? 'Received' : 'Payments'),
             const SizedBox(height: 10),
-            _Payments(subscription: s, payments: _payments),
+            _Payments(recurringPayment: s, payments: _payments),
           ],
         ),
       );
@@ -233,17 +240,17 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
 }
 
 /// The account it is charged to, or null once that account has been deleted.
-String? _accountName(SubscriptionStore store, Subscription s) =>
+String? _accountName(RecurringPaymentStore store, RecurringPayment s) =>
     store.accountStore.byId(s.accountId)?.name;
 
 /// The identity of the thing, and the one number that matters most.
 class _Hero extends StatelessWidget {
-  const _Hero({required this.subscription});
-  final Subscription subscription;
+  const _Hero({required this.recurringPayment});
+  final RecurringPayment recurringPayment;
 
   @override
   Widget build(BuildContext context) {
-    final s = subscription;
+    final s = recurringPayment;
     final colors = SheetColors.of(context);
     return DetailHero(
       leading: AppIcon(s.icon, size: 64),
@@ -258,7 +265,9 @@ class _Hero extends StatelessWidget {
           ? DetailBanner(
               icon: Icons.pause_circle_filled_rounded,
               color: colors.muted,
-              text: 'Paused — nothing is being charged.',
+              text: s.incoming
+                  ? 'Paused — nothing is expected.'
+                  : 'Paused — nothing is being charged.',
             )
           : null,
     );
@@ -268,33 +277,33 @@ class _Hero extends StatelessWidget {
 /// When the next payment lands, and the two things worth doing about it.
 class _NextRenewal extends StatelessWidget {
   const _NextRenewal({
-    required this.subscription,
+    required this.recurringPayment,
     required this.account,
     required this.saving,
     required this.onMarkPaid,
     required this.onSkip,
     required this.onResume,
   });
-  final Subscription subscription;
+  final RecurringPayment recurringPayment;
   final String? account;
   final bool saving;
   final VoidCallback onMarkPaid, onSkip, onResume;
 
   @override
   Widget build(BuildContext context) {
-    final s = subscription;
+    final s = recurringPayment;
     if (s.paused) {
       return MoneyCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Paused, so nothing is due. Resume to restart from the next renewal.',
+              'Paused, so nothing is due. Resume to restart from the next due date.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 14),
             DetailActions(
-              primaryLabel: 'Resume subscription',
+              primaryLabel: 'Resume recurring payment',
               primaryIcon: Icons.play_arrow_rounded,
               onPrimary: saving ? null : onResume,
             ),
@@ -312,14 +321,18 @@ class _NextRenewal extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            account == null ? 'No account chosen yet' : 'Charged to $account',
+            account == null
+                ? 'No account chosen yet'
+                : '${s.incoming ? 'Paid into' : 'Charged to'} $account',
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 16),
           DetailActions(
             primaryLabel: isFuturePayment(s.nextDue)
-                ? 'Record advance payment'
-                : 'Mark paid',
+                ? (s.incoming
+                      ? 'Record advance receipt'
+                      : 'Record advance payment')
+                : (s.incoming ? 'Mark received' : 'Mark paid'),
             primaryIcon: Icons.check_circle_outline_rounded,
             onPrimary: saving ? null : onMarkPaid,
             secondaryLabel: 'Skip this one',
@@ -335,13 +348,13 @@ class _NextRenewal extends StatelessWidget {
 /// The facts behind the headline, including what it works out to over
 /// periods the billing cycle doesn't name.
 class _Details extends StatelessWidget {
-  const _Details({required this.subscription, required this.store});
-  final Subscription subscription;
-  final SubscriptionStore store;
+  const _Details({required this.recurringPayment, required this.store});
+  final RecurringPayment recurringPayment;
+  final RecurringPaymentStore store;
 
   @override
   Widget build(BuildContext context) {
-    final s = subscription;
+    final s = recurringPayment;
     String money(int minor) =>
         formatAccountMoney(minor, digits: s.digits, currency: s.currency);
     final category = store.categoryStore.categories
@@ -351,9 +364,9 @@ class _Details extends StatelessWidget {
     return DetailFacts(
       facts: [
         DetailFact('Billing', s.cycle.label),
-        DetailFact('Renews on', _renewsOn(s)),
+        DetailFact('Due on', _renewsOn(s)),
         DetailFact(
-          'Paid from',
+          s.incoming ? 'Paid into' : 'Paid from',
           account?.name ?? 'Not set',
           leading: account == null ? null : AppIcon(account.icon, size: 24),
           quiet: account == null,
@@ -377,7 +390,7 @@ class _Details extends StatelessWidget {
   /// Says the renewal date the way someone would say it out loud, which each
   /// cycle words differently — a yearly plan needs its month to mean anything,
   /// and a weekly one has no day of the month at all.
-  static String _renewsOn(Subscription s) => switch (s.cycle) {
+  static String _renewsOn(RecurringPayment s) => switch (s.cycle) {
     BillingCycle.weekly => 'Every ${DateFormat('EEEE').format(s.nextDue)}',
     BillingCycle.monthly => '${_ordinal(s.day)} of each month',
     BillingCycle.quarterly => '${_ordinal(s.day)}, every 3 months',
@@ -399,16 +412,16 @@ class _Details extends StatelessWidget {
 
 /// What has actually been charged, newest first.
 class _Payments extends StatelessWidget {
-  const _Payments({required this.subscription, required this.payments});
-  final Subscription subscription;
-  final Future<List<SubscriptionPayment>> payments;
+  const _Payments({required this.recurringPayment, required this.payments});
+  final RecurringPayment recurringPayment;
+  final Future<List<RecurringPaymentRecord>> payments;
 
   @override
   Widget build(BuildContext context) {
-    final s = subscription;
+    final s = recurringPayment;
     String money(int minor) =>
         formatAccountMoney(minor, digits: s.digits, currency: s.currency);
-    return FutureBuilder<List<SubscriptionPayment>>(
+    return FutureBuilder<List<RecurringPaymentRecord>>(
       future: payments,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -434,13 +447,15 @@ class _Payments extends StatelessWidget {
         final rows = snapshot.data!;
         final colors = SheetColors.of(context);
         return DetailHistoryCard(
-          empty: const DetailEmpty(
+          empty: DetailEmpty(
             icon: Icons.receipt_long_outlined,
-            title: 'No payments yet',
-            message: 'Marking paid records it here and in its account.',
+            title: s.incoming ? 'Nothing received yet' : 'No payments yet',
+            message: s.incoming
+                ? 'Marking received records it here and in its account.'
+                : 'Marking paid records it here and in its account.',
           ),
           footer: rows.length > 1
-              ? '${rows.length} payments · '
+              ? '${rows.length} ${s.incoming ? 'receipts' : 'payments'} · '
                     '${money(rows.fold(0, (n, p) => n + p.amountMinor))} so far'
               : null,
           entries: [
@@ -453,7 +468,7 @@ class _Payments extends StatelessWidget {
                 title: DateFormat.yMMMd().format(payment.date),
                 caption: payment.account == null
                     ? 'Account deleted'
-                    : 'Paid from ${payment.account}',
+                    : '${s.incoming ? 'Paid into' : 'Paid from'} ${payment.account}',
                 amount: money(payment.amountMinor),
               ),
           ],

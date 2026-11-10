@@ -98,13 +98,16 @@ void main() {
         home: Builder(
           builder: (context) {
             final colors = SheetColors.of(context);
-            // Cards and controls are lifted off the sheet's frost.
-            Color lift(Color color) =>
-                Color.alphaBlend(Colors.white.withValues(alpha: .08), color);
+            // Cards and controls are see-through washes over the sheet's frost.
             expect(colors.background, darkBackground);
-            expect(colors.card, lift(darkSurface));
-            expect(colors.control, lift(darkControl));
-            expect(colors.primary, CustomizationScreen.colors['Teal']);
+            expect(colors.card, Colors.white.withValues(alpha: .08));
+            expect(colors.control, Colors.white.withValues(alpha: .09));
+            // Lifted just enough to read on the sheet, but still the same hue.
+            final teal = HSLColor.fromColor(
+              CustomizationScreen.colors['Teal']!,
+            );
+            final shown = HSLColor.fromColor(colors.primary);
+            expect((shown.hue - teal.hue).abs(), lessThan(8));
             return const SizedBox();
           },
         ),

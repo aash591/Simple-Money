@@ -12,6 +12,14 @@ class CategoryStore extends ChangeNotifier {
   bool saving = false;
   String? loadError;
 
+  /// Fills the store with [categories] without touching the database, for
+  /// screens that show example data. Nothing is saved.
+  void usePreview(List<Category> categories) {
+    _categories = categories;
+    loading = false;
+    notifyListeners();
+  }
+
   Future<void> load() async {
     loading = true;
     loadError = null;

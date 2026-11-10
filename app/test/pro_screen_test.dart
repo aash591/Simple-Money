@@ -38,14 +38,14 @@ void main() {
 
   testWidgets('while the AI is free, the offer says so', (tester) async {
     await open(tester);
-    expect(find.textContaining('free for now'), findsOneWidget);
+    expect(find.text('Free for now'), findsOneWidget);
   });
 
   testWidgets('once the AI needs Pro, the note is gone', (tester) async {
     ProController.aiNeedsPro = true;
     addTearDown(() => ProController.aiNeedsPro = false);
     await open(tester);
-    expect(find.textContaining('free for now'), findsNothing);
+    expect(find.text('Free for now'), findsNothing);
   });
 
   testWidgets('a lifetime supporter has nothing to manage', (tester) async {
@@ -61,9 +61,13 @@ void main() {
     expect(find.text('PRO'), findsOneWidget);
     expect(find.textContaining('skip the ads'), findsNothing);
     expect(find.text('AI assistant'), findsOneWidget);
-    expect(find.text('Unlimited budgets'), findsOneWidget);
-    expect(find.text('Add as many as you like'), findsOneWidget);
-    expect(find.text('Support development'), findsOneWidget);
+    // Free reads as complete; Pro as the nicer one.
+    expect(find.text('Free is complete. Pro is nicer.'), findsOneWidget);
+    expect(
+      find.text('Track spending, accounts, loans and debts'),
+      findsOneWidget,
+    );
+    expect(find.text('Unlimited'), findsOneWidget);
     expect(
       find.text('Google Play isn’t available on this device.'),
       findsOneWidget,

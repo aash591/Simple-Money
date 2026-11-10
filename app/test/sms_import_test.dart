@@ -33,6 +33,7 @@ import 'package:simple_money/state/transaction_store.dart';
 import 'package:simple_money/state/sms_import_store.dart';
 import 'package:simple_money/ui/components/adaptive_sheet.dart';
 import 'package:simple_money/ui/sms/sms_pending_card.dart';
+import 'package:simple_money/ui/sms/sms_review_card.dart';
 import 'package:simple_money/ui/sms/sms_review_flow.dart';
 
 class FakeInbox extends SmsInboxPlatform {
@@ -676,8 +677,8 @@ void main() {
     expect(inbox.requests, 1);
     expect(inbox.reads, greaterThan(0));
     expect(find.byType(SmsPendingPage), findsNothing);
-    expect(find.text('Review'), findsOneWidget);
-    await tester.tap(find.text('Review'));
+    expect(find.text("Review 1"), findsOneWidget);
+    await tester.tap(find.text("Review 1"));
     await tester.pumpAndSettle();
     expect(find.byType(SmsPendingPage), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
@@ -1239,9 +1240,14 @@ void main() {
         ),
       ),
     );
-    expect(find.byType(SmsPendingTile), findsNothing);
-    expect(find.text('8 transactions to check'), findsOneWidget);
-    await tester.tap(find.text('Review'));
+    // A few of the waiting messages are listed, under the card's own title.
+    expect(find.text(SmsReviewCard.title), findsOneWidget);
+    expect(
+      find.byType(SmsCompactTile),
+      findsNWidgets(SmsReviewCard.previewRows),
+    );
+    expect(find.text('8 bank messages need a category'), findsOneWidget);
+    await tester.tap(find.text('Review 8'));
     await tester.pumpAndSettle();
     expect(find.text('Bank SMS to categorize'), findsOneWidget);
     expect(find.byType(SmsPendingTile), findsNWidgets(8));
@@ -1346,7 +1352,8 @@ void main() {
     testWidgets('becomes its next payment, recorded once', (tester) async {
       late int before;
       await tester.runAsync(
-        () async => before = (await AccountRepository(db).load()).first.balanceMinor,
+        () async =>
+            before = (await AccountRepository(db).load()).first.balanceMinor,
       );
       await saveAsLoan(tester, 500000, 'Bajaj Finance');
       await tester.runAsync(() async {
@@ -1369,11 +1376,11 @@ void main() {
       await saveAsLoan(tester, 10000, 'Small loan');
       expect(find.textContaining('cannot exceed'), findsOneWidget);
       await tester.runAsync(() async {
+        expect((await LoanRepository(db).load()).single.events, isEmpty);
         expect(
-          (await LoanRepository(db).load()).single.events,
+          await db.customSelect('SELECT * FROM transactions').get(),
           isEmpty,
         );
-        expect(await db.customSelect('SELECT * FROM transactions').get(), isEmpty);
         expect((await repo.pending()).length, 1);
       });
     });

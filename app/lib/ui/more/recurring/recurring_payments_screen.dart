@@ -8,8 +8,8 @@ import '../../components/app_back_button.dart';
 import '../../theme/app_typography.dart';
 
 import '../../../domain/account.dart';
-import '../../../domain/subscription.dart';
-import '../../../state/subscription_store.dart';
+import '../../../domain/recurring_payment.dart';
+import '../../../state/recurring_payment_store.dart';
 import '../../components/common.dart';
 import '../../components/charts/charts.dart';
 import '../../components/empty_state.dart';
@@ -20,21 +20,22 @@ import '../../components/secondary_header.dart';
 import '../../components/skeleton.dart';
 import '../../theme/sheet_colors.dart';
 import 'mark_paid_sheet.dart';
-import 'subscription_detail_screen.dart';
-import 'subscription_sheet.dart';
+import 'recurring_payment_detail_screen.dart';
+import 'recurring_payment_sheet.dart';
 
-/// A currency and its precision: subscriptions only add up within one.
+/// A currency and its precision: recurring payments only add up within one.
 typedef _Currency = (String, int);
 
-class SubscriptionsScreen extends StatefulWidget {
-  const SubscriptionsScreen({super.key, required this.store});
-  final SubscriptionStore store;
+class RecurringPaymentsScreen extends StatefulWidget {
+  const RecurringPaymentsScreen({super.key, required this.store});
+  final RecurringPaymentStore store;
 
   @override
-  State<SubscriptionsScreen> createState() => _SubscriptionsScreenState();
+  State<RecurringPaymentsScreen> createState() =>
+      _RecurringPaymentsScreenState();
 }
 
-class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
+class _RecurringPaymentsScreenState extends State<RecurringPaymentsScreen> {
   final _search = TextEditingController();
   final _searchFocus = FocusNode();
   var _searching = false;
@@ -42,7 +43,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
   /// The currency the overview and chart are drawn in, when there's a choice.
   _Currency? _currency;
 
-  SubscriptionStore get _store => widget.store;
+  RecurringPaymentStore get _store => widget.store;
 
   @override
   void dispose() {
@@ -64,7 +65,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
     });
   }
 
-  void _add() => showSubscriptionSheet(context, store: _store);
+  void _add() => showRecurringPaymentSheet(context, store: _store);
 
   @override
   Widget build(BuildContext context) => PopScope(
@@ -73,23 +74,23 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
       if (!didPop) _cancelSearch();
     },
     child: FeaturePage(
-      title: 'Subscriptions',
+      title: 'Recurring payments',
       header: SearchableHeader(
         searching: _searching,
         controller: _search,
         focusNode: _searchFocus,
         fieldKey: const Key('subscription-search'),
-        hintText: 'Search subscriptions',
+        hintText: 'Search recurring payments',
         onChanged: (_) => setState(() {}),
         onCancel: _cancelSearch,
         header: SecondaryHeader(
-          title: 'Subscriptions',
+          title: 'Recurring payments',
           leading: Navigator.of(context).canPop()
               ? const AppBackButton()
               : null,
           actions: [
             AppSearchButton(
-              tooltip: 'Search subscriptions',
+              tooltip: 'Search recurring payments',
               onPressed: _openSearch,
             ),
           ],
@@ -97,7 +98,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
       ),
       floatingActionButton: _searching
           ? null
-          : AddFab(tooltip: 'Add subscription', onPressed: _add),
+          : AddFab(tooltip: 'Add recurring payment', onPressed: _add),
       child: ListenableBuilder(
         listenable: _store,
         builder: (context, _) => _body(context),
@@ -125,14 +126,13 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
         ),
       );
     }
-    final all = _store.subscriptions;
+    final all = _store.recurringPayments;
     if (all.isEmpty) {
       return EmptyState(
         icon: Icons.autorenew_rounded,
-        title: 'No subscriptions yet.',
-        message:
-            'Track Netflix, the gym and more. See what it all costs a month.',
-        actionLabel: 'Add your first subscription',
+        title: 'No recurring payments yet.',
+        message: 'Track Netflix, rent and more, paid or received. See what it all costs a month.',
+        actionLabel: 'Add your first recurring payment',
         onAction: _add,
       );
     }
@@ -189,7 +189,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
           if (currency != null)
             _ChartCard(
               key: ValueKey(currency),
-              subscriptions: inCurrency,
+              recurringPayments: inCurrency,
               currency: currency,
               paused: pausedCount,
             )
@@ -201,7 +201,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
                   Text('Nothing active', style: theme.textTheme.titleMedium),
                   const SizedBox(height: 6),
                   Text(
-                    'All $pausedCount subscriptions are paused.',
+                    'All $pausedCount recurring payments are paused.',
                     style: theme.textTheme.bodySmall,
                   ),
                 ],
@@ -213,7 +213,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
           children: [
             Expanded(
               child: Text(
-                query.isEmpty ? 'Your subscriptions' : 'Results',
+                query.isEmpty ? 'Your recurring payments' : 'Results',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -229,8 +229,9 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
         ),
         const SizedBox(height: 12),
         for (final s in visible)
-          SubscriptionCard(subscription: s, store: _store),
-        if (visible.isEmpty) const NoResultsState('No matching subscriptions'),
+          RecurringPaymentCard(recurringPayment: s, store: _store),
+        if (visible.isEmpty)
+          const NoResultsState('No matching recurring payments'),
       ],
     );
   }
@@ -239,9 +240,9 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
 String _money(int minor, _Currency currency) =>
     formatAccountMoney(minor, digits: currency.$2, currency: currency.$1);
 
-/// Paused subscriptions wear a cool slate instead of the card surface, so
+/// Paused recurring payments wear a cool slate instead of the card surface, so
 /// they read as set aside without needing a section of their own.
-Color subscriptionPausedColor(BuildContext context) =>
+Color recurringPausedColor(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
     ? const Color(0xff9aa8bd)
     : const Color(0xff5f6f86);
@@ -250,11 +251,11 @@ Color subscriptionPausedColor(BuildContext context) =>
 class _ChartCard extends StatefulWidget {
   const _ChartCard({
     super.key,
-    required this.subscriptions,
+    required this.recurringPayments,
     required this.currency,
     required this.paused,
   });
-  final List<Subscription> subscriptions;
+  final List<RecurringPayment> recurringPayments;
   final _Currency currency;
   final int paused;
   @override
@@ -267,71 +268,107 @@ class _ChartCardState extends State<_ChartCard> {
   @override
   Widget build(BuildContext context) {
     final colors = SheetColors.of(context);
+    final theme = Theme.of(context);
     final now = dateOnly(DateTime.now());
-    final totals = upcomingRenewals(
-      widget.subscriptions,
+    final all = widget.recurringPayments;
+    final hasOut = all.any((s) => !s.incoming);
+    final hasIn = all.any((s) => s.incoming);
+    List<int> totals(bool incoming) => upcomingRenewals(
+      all,
       6,
       now: now,
       includeOverdue: false,
+      incoming: incoming,
     );
-    final peak = totals.reduce(math.max);
-    final peakIndex = totals.indexOf(peak);
-    final selected = _selected ?? peakIndex;
+    final pay = totals(false), get = totals(true);
+    final selected = _selected ?? 0;
     final months = [
       for (var i = 0; i < 6; i++) DateTime(now.year, now.month + i),
     ];
-    final overdue = widget.subscriptions
-        .where((s) => s.nextDue.isBefore(now))
+    int overdue(bool incoming) => all
+        .where((s) => s.incoming == incoming && s.nextDue.isBefore(now))
         .fold(0, (sum, s) => sum + s.amountMinor);
-    final even = totals.every((amount) => amount == peak);
     final currency = widget.currency;
+    final title = hasOut && hasIn
+        ? 'Money in and out'
+        : hasIn
+        ? 'Expected by month'
+        : 'Payments by month';
+    Widget figure(String label, int minor, Color color) => Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 6),
+              Text(label, style: theme.textTheme.bodySmall),
+            ],
+          ),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(_money(minor, currency), style: AppTypography.amount),
+          ),
+        ],
+      ),
+    );
     return MoneyCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Plan for upcoming bills',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text(title, style: theme.textTheme.titleMedium),
           const SizedBox(height: 4),
           Text(
             'Next 6 months · ${currency.$1}',
-            style: Theme.of(context).textTheme.bodySmall,
+            style: theme.textTheme.bodySmall,
           ),
           const SizedBox(height: 18),
           Text(
-            _selected != null
-                ? DateFormat('MMMM yyyy').format(months[selected])
-                : even
-                ? 'Expected each month'
-                : 'Highest bill month · ${DateFormat('MMM yyyy').format(months[selected])}',
-            style: Theme.of(context).textTheme.bodySmall,
+            DateFormat('MMMM yyyy').format(months[selected]),
+            style: theme.textTheme.bodySmall,
           ),
-          const SizedBox(height: 4),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              _money(totals[selected], currency),
-              style: AppTypography.amount,
-            ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              if (hasOut) figure('To pay', pay[selected], colors.expense),
+              if (hasOut && hasIn) const SizedBox(width: 16),
+              if (hasIn) figure('To get', get[selected], colors.income),
+            ],
           ),
           const SizedBox(height: 18),
           BarChart(
             height: 160,
             showLegend: false,
             series: [
-              ChartSeries(
-                label: 'Scheduled bills',
-                values: totals,
-                color: colors.primary,
-                valueColors: [
-                  for (var i = 0; i < 6; i++)
-                    i == selected
-                        ? colors.primary
-                        : colors.primary.withValues(alpha: .35),
-                ],
-              ),
+              if (hasOut)
+                ChartSeries(
+                  label: 'To pay',
+                  values: pay,
+                  color: colors.expense,
+                  valueColors: [
+                    for (var i = 0; i < 6; i++)
+                      i == selected
+                          ? colors.expense
+                          : colors.expense.withValues(alpha: .35),
+                  ],
+                ),
+              if (hasIn)
+                ChartSeries(
+                  label: 'To get',
+                  values: get,
+                  color: colors.income,
+                  valueColors: [
+                    for (var i = 0; i < 6; i++)
+                      i == selected
+                          ? colors.income
+                          : colors.income.withValues(alpha: .35),
+                  ],
+                ),
             ],
             labels: [
               for (final month in months) DateFormat('MMM').format(month),
@@ -342,45 +379,46 @@ class _ChartCardState extends State<_ChartCard> {
             ),
             onSelect: (index) => setState(() => _selected = index),
           ),
-          const SizedBox(height: 12),
-          Text(
-            'Tap a month for its total. This month counts only bills from today.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          if (overdue > 0) ...[
+          if (overdue(false) > 0) ...[
             const SizedBox(height: 10),
             Text(
-              '${_money(overdue, currency)} already overdue · separate from this forecast',
-              style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: colors.expense),
+              '${_money(overdue(false), currency)} already overdue · separate from this forecast',
+              style: theme.textTheme.bodySmall?.copyWith(color: colors.expense),
             ),
           ],
-          const SizedBox(height: 6),
-          Text(
-            'Based on current prices and renewal dates. Paused plans excluded.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+          if (overdue(true) > 0) ...[
+            const SizedBox(height: 10),
+            Text(
+              '${_money(overdue(true), currency)} still to receive · separate from this forecast',
+              style: theme.textTheme.bodySmall?.copyWith(color: colors.income),
+            ),
+          ],
         ],
       ),
     );
   }
 }
 
-/// What [subscriptions] charge in each of the next [months] calendar months,
+/// What [recurringPayments] charge (or pay in) in each of the next [months] calendar months,
 /// this one first. A renewal that's already overdue is still owed, so it
 /// counts once towards this month.
 @visibleForTesting
 List<int> upcomingRenewals(
-  List<Subscription> subscriptions,
+  List<RecurringPayment> recurringPayments,
   int months, {
   required DateTime now,
   bool includeOverdue = true,
+
+  /// Money coming in instead of money going out.
+  bool incoming = false,
 }) {
   if (months <= 0) return [];
   final today = dateOnly(now);
   final end = DateTime(now.year, now.month + months);
   final totals = List.filled(months, 0);
-  for (final s in subscriptions.where((s) => !s.paused)) {
+  for (final s in recurringPayments.where(
+    (s) => !s.paused && s.incoming == incoming,
+  )) {
     var due = s.nextDue;
     if (due.isBefore(today)) {
       if (includeOverdue) totals[0] += s.amountMinor;
@@ -397,41 +435,39 @@ List<int> upcomingRenewals(
   return totals;
 }
 
-/// One subscription in the list. The same [ReminderCard] Home shows, so a
+/// One recurring payment in the list. The same [ReminderCard] Home shows, so a
 /// renewal reads identically in both places.
-class SubscriptionCard extends StatelessWidget {
-  const SubscriptionCard({
+class RecurringPaymentCard extends StatelessWidget {
+  const RecurringPaymentCard({
     super.key,
-    required this.subscription,
+    required this.recurringPayment,
     required this.store,
   });
-  final Subscription subscription;
-  final SubscriptionStore store;
+  final RecurringPayment recurringPayment;
+  final RecurringPaymentStore store;
 
   @override
   Widget build(BuildContext context) {
-    final s = subscription;
-    final account = store.accountStore.byId(s.accountId);
+    final s = recurringPayment;
     return ReminderCard(
       icon: s.icon,
       title: s.name,
-      subtitle: '${s.cycle.label} · ${account?.name ?? 'No account'}',
-      amount: formatAccountMoney(
-        s.amountMinor,
-        digits: s.digits,
-        currency: s.currency,
-      ),
-      per: s.cycle.per,
+      subtitle: s.cycle.label,
+      amount:
+          '${s.incoming ? '+' : ''}${formatAccountMoney(s.amountMinor, digits: s.digits, currency: s.currency)}',
+      actionLabel: s.incoming ? 'Mark received' : 'Mark paid',
       due: s.paused ? null : s.nextDue,
       // Paused is not an achievement, so it stays muted rather than green.
       status: s.paused ? (label: 'Paused', done: false) : null,
       onTap: () => Navigator.push(
         context,
-        FeatureRoute<void>(SubscriptionDetailScreen(store: store, id: s.id)),
+        FeatureRoute<void>(
+          RecurringPaymentDetailScreen(store: store, id: s.id),
+        ),
       ),
       onMarkPaid: store.saving
           ? null
-          : () => showMarkPaidSheet(context, store: store, subscription: s),
+          : () => showMarkPaidSheet(context, store: store, recurringPayment: s),
     );
   }
 }

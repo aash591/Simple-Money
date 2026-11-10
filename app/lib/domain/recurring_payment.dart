@@ -25,7 +25,7 @@ extension BillingCycleLabels on BillingCycle {
       );
 
   /// The renewal after [due]. Month-based cycles keep to [day], so a
-  /// subscription started on the 31st renews on the last day of shorter
+  /// recurring payment started on the 31st renews on the last day of shorter
   /// months and returns to the 31st afterwards.
   DateTime after(DateTime due, int day) => switch (this) {
     BillingCycle.weekly => DateTime(due.year, due.month, due.day + 7),
@@ -68,8 +68,8 @@ DateTime dateFromStorage(String value) {
   return DateTime(parts[0], parts[1], parts[2]);
 }
 
-class Subscription {
-  const Subscription({
+class RecurringPayment {
+  const RecurringPayment({
     required this.id,
     required this.name,
     required this.icon,
@@ -83,6 +83,7 @@ class Subscription {
     required this.categoryId,
     required this.remind,
     required this.paused,
+    this.incoming = false,
   });
   final int id;
   final String name;
@@ -101,6 +102,9 @@ class Subscription {
   final int? categoryId;
   final bool remind, paused;
 
+  /// Money coming in, such as rent received, rather than going out.
+  final bool incoming;
+
   int get monthlyAmount => cycle.monthly(amountMinor);
   int get yearlyAmount => cycle.yearly(amountMinor);
   DateTime get followingDue => cycle.after(nextDue, day);
@@ -108,8 +112,8 @@ class Subscription {
 
 /// What the add/edit sheet saves. Currency and precision come from the
 /// account at save time.
-class SubscriptionDraft {
-  const SubscriptionDraft({
+class RecurringPaymentDraft {
+  const RecurringPaymentDraft({
     required this.name,
     required this.icon,
     required this.amountMinor,
@@ -118,6 +122,7 @@ class SubscriptionDraft {
     required this.accountId,
     required this.categoryId,
     required this.remind,
+    this.incoming = false,
   });
   final String name;
   final String? icon;
@@ -128,18 +133,21 @@ class SubscriptionDraft {
   final int? categoryId;
   final bool remind;
 
+  /// Whether it is money coming in rather than going out.
+  final bool incoming;
+
   void validate() {
     final length = name.trim().length;
     if (length < 1 || length > 40) {
-      throw ArgumentError('Give the subscription a name.');
+      throw ArgumentError('Give the recurring payment a name.');
     }
     if (amountMinor <= 0) throw ArgumentError('Enter an amount above zero.');
   }
 }
 
 /// One renewal that was actually paid, linked to the expense it logged.
-class SubscriptionPayment {
-  const SubscriptionPayment({
+class RecurringPaymentRecord {
+  const RecurringPaymentRecord({
     required this.transactionId,
     required this.amountMinor,
     required this.date,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
@@ -36,9 +37,7 @@ PortableSmsEngine _buildEngine(List<String> packs) {
 /// users. A pack that can't merge (one repeating a bundled pattern, say) is
 /// dropped rather than stopping SMS import: the shared pack first, then the
 /// user's, unless that is all there is.
-PortableSmsEngine _buildEngineWithUser(
-  (List<String>, String?, String?) input,
-) {
+PortableSmsEngine _buildEngineWithUser((List<String>, String?, String?) input) {
   final (bundled, user, community) = input;
   final attempts = [
     if (community != null) [...bundled, ?user, community],
@@ -79,14 +78,12 @@ Future<PortableSmsEngine> loadBundledSmsEngine() async =>
 
 /// The engine the app reads bank SMS with: bundled packs, the user's rules
 /// and shared ones.
-Future<PortableSmsEngine> loadSmsEngine(AppDatabase database) async => compute(
-  _buildEngineWithUser,
-  (
-    await _bundledPacks(),
-    await userSmsPack(database),
-    await communitySmsPack(database),
-  ),
-);
+Future<PortableSmsEngine> loadSmsEngine(AppDatabase database) async =>
+    compute(_buildEngineWithUser, (
+      await _bundledPacks(),
+      await userSmsPack(database),
+      await communitySmsPack(database),
+    ));
 
 /// The bundled packs' JSON, optionally only those whose text passes [where].
 Future<List<String>> bundledSmsPacks({bool Function(String text)? where}) =>
@@ -436,6 +433,15 @@ class SmsImportStore extends ChangeNotifier {
   }
 
   bool enabled = false, busy = false, _disposed = false;
+
+  /// Whether the waiting messages have been read once, so a screen can show
+  /// the card with everything else instead of after it.
+  bool loaded = false;
+  void _markLoaded() {
+    loaded = true;
+    _notify();
+  }
+
   bool scanning = false;
 
   /// After reading the inbox: adding accounts and saving transactions.
@@ -516,15 +522,19 @@ class SmsImportStore extends ChangeNotifier {
   Future<void> initialize() async {
     try {
       enabled = (await repository.state()).$1;
+      // The waiting messages first: they are a local read, and the Home card
+      // should not wait on the permission and realtime round trips below.
+      await reload();
+      _markLoaded();
       if (enabled && supported && !await platform.hasPermission()) {
         enabled = false;
         await repository.enable(false);
       }
       await platform.setRealtimeEnabled(enabled);
-      await reload();
       if (enabled) await scan(automatic: true);
     } catch (_) {
       error = 'Could not load bank messages. Please try again.';
+      _markLoaded();
       _notify();
     }
   }

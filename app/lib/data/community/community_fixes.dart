@@ -84,10 +84,7 @@ class CommunityFixRepository {
             .customSelect(
               'SELECT * FROM community_fixes WHERE (?1 IS NULL OR kind = ?1) '
               'AND (?2 OR off = 0) ORDER BY kind, payload',
-              variables: [
-                Variable(kind?.id),
-                Variable(includeOff),
-              ],
+              variables: [Variable(kind?.id), Variable(includeOff)],
             )
             .get())
       if (CommunityKind.byId(r.read<String>('kind')) case final kind?)
@@ -321,10 +318,7 @@ class CommunitySync {
         CommunityFix(
           hash: item['hash'] as String,
           kind: CommunityKind.statementLayout,
-          payload: {
-            'signature': item['signature'],
-            'mapping': item['mapping'],
-          },
+          payload: {'signature': item['signature'], 'mapping': item['mapping']},
         ),
       );
     }
@@ -333,9 +327,7 @@ class CommunitySync {
 
   /// Shares fixes the user chose to share. They wait in a queue until the
   /// phone is online.
-  Future<void> share(
-    List<(CommunityKind, Map<String, Object?>)> fixes,
-  ) async {
+  Future<void> share(List<(CommunityKind, Map<String, Object?>)> fixes) async {
     if (fixes.isEmpty) return;
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -406,7 +398,9 @@ class CommunitySync {
     }
     await prefs.setStringList(
       outboxKey,
-      (prefs.getStringList(outboxKey) ?? const []).skip(queued.take(20).length).toList(),
+      (prefs.getStringList(outboxKey) ?? const [])
+          .skip(queued.take(20).length)
+          .toList(),
     );
   }
 
@@ -423,9 +417,7 @@ class CommunitySync {
         .where((t) => t.contains(RegExp('[a-z]')))
         .toSet();
     if (literals.isEmpty) return true;
-    if (senders.isEmpty ||
-        !inbox.supported ||
-        !await inbox.hasPermission()) {
+    if (senders.isEmpty || !inbox.supported || !await inbox.hasPermission()) {
       return false;
     }
     final seen = {for (final t in literals) t: 0};

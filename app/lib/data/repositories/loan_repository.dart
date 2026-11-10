@@ -619,9 +619,8 @@ class LoanRepository {
       variables: [Variable(event.id)],
     );
     if (event.adopted case final adopted?) {
-      await TransactionRepository(
-        database,
-      ).release(AdoptedTransaction.fromJson(adopted));
+      await TransactionRepository(database)
+          .release(AdoptedTransaction.fromJson(adopted));
     } else if (event.transactionId != null) {
       await TransactionRepository(database).delete(event.transactionId!);
     }
@@ -631,31 +630,28 @@ class LoanRepository {
   /// been added: every payment is undone, the start's own transactions go,
   /// and the ones it took over from the ledger are given back. Only while
   /// nothing has been recorded since — [version] says what it was left at.
-  Future<void> unwind(
-    int id,
-    int version,
-    List<AdoptedTransaction> adopted,
-  ) => database.transaction(() async {
-    var loan = await _current(id, version);
-    while (loan.events.isNotEmpty) {
-      await undo(loan);
-      loan = (await load()).firstWhere((l) => l.id == id);
-    }
-    await database.customUpdate(
-      'DELETE FROM loans WHERE id = ?',
-      variables: [Variable(id)],
-    );
-    final transactions = TransactionRepository(database);
-    for (final transaction in [loan.disbursalId, loan.chargesId]) {
-      if (transaction == null) continue;
-      if (adopted.where((a) => a.id == transaction).firstOrNull
-          case final taken?) {
-        await transactions.release(taken);
-      } else {
-        await transactions.delete(transaction);
-      }
-    }
-  });
+  Future<void> unwind(int id, int version, List<AdoptedTransaction> adopted) =>
+      database.transaction(() async {
+        var loan = await _current(id, version);
+        while (loan.events.isNotEmpty) {
+          await undo(loan);
+          loan = (await load()).firstWhere((l) => l.id == id);
+        }
+        await database.customUpdate(
+          'DELETE FROM loans WHERE id = ?',
+          variables: [Variable(id)],
+        );
+        final transactions = TransactionRepository(database);
+        for (final transaction in [loan.disbursalId, loan.chargesId]) {
+          if (transaction == null) continue;
+          if (adopted.where((a) => a.id == transaction).firstOrNull
+              case final taken?) {
+            await transactions.release(taken);
+          } else {
+            await transactions.delete(transaction);
+          }
+        }
+      });
 
   /// Deleting tracking retains real account transactions. Undo is explicit.
   Future<void> delete(Loan loan) => database.transaction(() async {

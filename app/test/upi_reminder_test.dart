@@ -15,7 +15,9 @@ void main() {
   PendingUpiPayment payment({String? place, int? accountId}) =>
       PendingUpiPayment(
         id: 'p1',
-        recipient: UpiRecipient.parse('upi://pay?pa=shop@bank&pn=Mina%20Medicals'),
+        recipient: UpiRecipient.parse(
+          'upi://pay?pa=shop@bank&pn=Mina%20Medicals',
+        ),
         amountText: '250',
         categoryId: null,
         accountId: accountId,
@@ -62,8 +64,10 @@ void main() {
     await addAccount();
     final accounts = await AccountRepository(db).load();
     expect(upiPaymentAccount(payment(), accounts), isNull);
-    expect(upiPaymentAccount(payment(accountId: accounts.last.id), accounts),
-        accounts.last.id);
+    expect(
+      upiPaymentAccount(payment(accountId: accounts.last.id), accounts),
+      accounts.last.id,
+    );
   });
 
   test('the notification names the amount, the shop and the place', () async {

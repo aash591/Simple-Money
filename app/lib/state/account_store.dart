@@ -37,6 +37,14 @@ class AccountStore extends ChangeNotifier {
   bool saving = false;
   String? loadError;
 
+  /// Fills the store with [accounts] without touching the database, for
+  /// screens that show example data. Nothing is saved.
+  void usePreview(List<Account> accounts) {
+    _accounts = accounts;
+    loading = false;
+    notifyListeners();
+  }
+
   Future<void> load({bool initializeDefault = false}) async {
     loading = true;
     loadError = null;

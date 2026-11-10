@@ -10,8 +10,8 @@ import '../../state/debt_store.dart';
 import '../../state/loan_store.dart';
 import 'loans/loans_screen.dart';
 import '../../state/sms_import_store.dart';
-import '../../state/subscription_store.dart';
-import 'subscriptions/subscriptions_screen.dart';
+import '../../state/recurring_payment_store.dart';
+import 'recurring/recurring_payments_screen.dart';
 import '../../state/transaction_store.dart';
 import '../../state/sync_controller.dart';
 import '../../state/home_layout.dart';
@@ -44,7 +44,7 @@ class MoreScreen extends StatelessWidget {
     this.syncController,
     this.debtStore,
     this.loanStore,
-    this.subscriptionStore,
+    this.recurringPaymentStore,
     this.onLedgerChanged,
     this.onRulesChanged,
     this.smsStore,
@@ -57,7 +57,7 @@ class MoreScreen extends StatelessWidget {
   final SyncController? syncController;
   final DebtStore? debtStore;
   final LoanStore? loanStore;
-  final SubscriptionStore? subscriptionStore;
+  final RecurringPaymentStore? recurringPaymentStore;
 
   /// Reloads the ledger screens after something here changed it.
   final VoidCallback? onLedgerChanged;
@@ -178,14 +178,16 @@ class MoreScreen extends StatelessWidget {
                           FeatureRoute<void>(LoansScreen(store: loanStore!)),
                         ),
                       ),
-                    if (subscriptionStore != null)
+                    if (recurringPaymentStore != null)
                       MenuRow(
                         icon: Icons.autorenew_rounded,
-                        title: 'Subscriptions',
+                        title: 'Recurring payments',
                         subtitle: 'Netflix, gym, and everything that renews',
                         onTap: () => Navigator.of(context).push(
                           FeatureRoute<void>(
-                            SubscriptionsScreen(store: subscriptionStore!),
+                            RecurringPaymentsScreen(
+                              store: recurringPaymentStore!,
+                            ),
                           ),
                         ),
                       ),

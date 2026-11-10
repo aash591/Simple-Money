@@ -145,24 +145,43 @@ void main() {
       return settings;
     }
 
-    testWidgets('the first row is free, the second row and picker are Pro', (
+    testWidgets('the first row is free, the rest is a one-hour preview', (
       tester,
     ) async {
       final settings = await open(tester);
-      expect(find.byIcon(Icons.lock_rounded), findsNWidgets(4));
+      expect(find.byIcon(Icons.lock_rounded), findsNothing);
       await tester.tap(find.byTooltip('Pink'));
       await tester.pumpAndSettle();
-      // A free color asks first, so nothing waits on an ad out of sight.
-      expect(find.text('Watch a short ad to switch color'), findsOneWidget);
+      // Every change asks first, so nothing waits on an ad out of sight.
+      expect(find.text('Watch a short ad to change color'), findsOneWidget);
       expect(find.text('Get Pro instead'), findsOneWidget);
       expect(settings.accentColor, isNot(CustomizationScreen.colors['Pink']));
       await tester.tap(find.text('Watch ad'));
       await tester.pumpAndSettle();
       expect(settings.accentColor, CustomizationScreen.colors['Pink']);
+      expect(settings.nextPreviewEnd, isNull);
+
+      var now = DateTime(2026, 1, 1, 9);
+      settings.clock = () => now;
       await tester.tap(find.byTooltip('Teal'));
       await tester.pumpAndSettle();
-      expect(find.text('A Pro color'), findsOneWidget);
+      expect(find.textContaining('use it for an hour'), findsOneWidget);
+      await tester.tap(find.text('Watch ad'));
+      await tester.pumpAndSettle();
+      expect(settings.accentColor, CustomizationScreen.colors['Teal']);
+      expect(
+        settings.nextPreviewEnd,
+        now.add(AppearanceController.previewLength),
+      );
+      expect(find.textContaining('Trying a Pro look'), findsOneWidget);
+
+      // An hour on, it goes back to the last free color.
+      now = now.add(const Duration(hours: 1, minutes: 1));
+      await settings.expirePreviews();
+      await tester.pumpAndSettle();
       expect(settings.accentColor, CustomizationScreen.colors['Pink']);
+      expect(settings.nextPreviewEnd, isNull);
+      expect(find.textContaining('Trying a Pro look'), findsNothing);
     });
 
     testWidgets('with the limits off, every color is open', (tester) async {

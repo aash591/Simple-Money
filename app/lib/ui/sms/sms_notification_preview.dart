@@ -118,11 +118,12 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
         otherAccountId = value?.otherAccountId;
       });
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           loading = false;
           error = 'Could not load this transaction.';
         });
+      }
     }
   }
 
@@ -170,8 +171,9 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
       }
       await _load();
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() => error = 'Could not refresh this transaction.');
+      }
     } finally {
       opening = false;
     }
@@ -287,6 +289,13 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
     final loan = transfer ? null : loanId;
     final loanRepository = LoanRepository(widget.database);
     try {
+      final paymentCategory = loan != null
+          ? await loanRepository.paymentCategory()
+          : !transfer &&
+                (categoryId != value.categoryId || value.otherAccountId != null)
+          ? categoryId
+          : null;
+      if (!mounted) return;
       final done = await applyLiveSmsEdit(
         context,
         database: widget.database,
@@ -296,13 +305,7 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
         other: transfer ? otherAccountId : null,
         // An unchanged category is left alone, so changing only the account
         // doesn't also teach the merchant a category.
-        category: loan != null
-            ? await loanRepository.paymentCategory()
-            : !transfer &&
-                  (categoryId != value.categoryId ||
-                      value.otherAccountId != null)
-            ? categoryId
-            : null,
+        category: paymentCategory,
       );
       if (done && loan != null) {
         // Editing can replace the transaction, so ask for it again.

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../domain/account.dart';
-import '../../../domain/subscription.dart';
-import '../../../state/subscription_store.dart';
+import '../../../domain/recurring_payment.dart';
+import '../../../state/recurring_payment_store.dart';
 import '../../components/action_buttons.dart';
 import '../../components/adaptive_sheet.dart';
 import '../../components/advance_payment_notice.dart';
@@ -17,32 +17,33 @@ import '../../transactions/transaction_widgets.dart';
 import '../debts/debt_widgets.dart';
 import 'renewal_outcome.dart';
 
-/// Logs one renewal of [subscription] as paid: which account it came out of
+/// Logs one renewal of [recurringPayment] as paid: which account it came out of
 /// and on what day, with what that does spelled out before it's confirmed.
 Future<void> showMarkPaidSheet(
   BuildContext context, {
-  required SubscriptionStore store,
-  required Subscription subscription,
+  required RecurringPaymentStore store,
+  required RecurringPayment recurringPayment,
 }) => showAdaptiveSheet<void>(
   context,
-  builder: (_) => MarkPaidSheet(store: store, subscription: subscription),
+  builder: (_) =>
+      MarkPaidSheet(store: store, recurringPayment: recurringPayment),
 );
 
 class MarkPaidSheet extends StatefulWidget {
   const MarkPaidSheet({
     super.key,
     required this.store,
-    required this.subscription,
+    required this.recurringPayment,
   });
-  final SubscriptionStore store;
-  final Subscription subscription;
+  final RecurringPaymentStore store;
+  final RecurringPayment recurringPayment;
 
   @override
   State<MarkPaidSheet> createState() => _MarkPaidSheetState();
 }
 
 class _MarkPaidSheetState extends State<MarkPaidSheet> {
-  Subscription get _s => widget.subscription;
+  RecurringPayment get _s => widget.recurringPayment;
   List<Account> get _accounts => widget.store.accountStore.accounts;
 
   /// Its own account, or the first one it could be paid from.
@@ -85,7 +86,7 @@ class _MarkPaidSheetState extends State<MarkPaidSheet> {
   Future<void> _pickAccount() async {
     final picked = await showChoiceListSheet<int>(
       context,
-      title: 'Paid from',
+      title: _s.incoming ? 'Paid into' : 'Paid from',
       items: [
         for (final account in _accounts)
           ChoiceItem(
@@ -163,16 +164,17 @@ class _MarkPaidSheetState extends State<MarkPaidSheet> {
     return PopScope(
       canPop: !_saving,
       child: SheetPage(
-        header: const SheetHeader('Mark as paid'),
+        header: SheetHeader(_s.incoming ? 'Mark as received' : 'Mark as paid'),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _Summary(subscription: _s, amount: _money(_s.amountMinor)),
+            _Summary(recurringPayment: _s, amount: _money(_s.amountMinor)),
             if (_futurePayment) ...[
               const SizedBox(height: 18),
               AdvancePaymentNotice(
                 due: _s.nextDue,
-                payment: 'This renewal',
+                following: _s.followingDue,
+                payment: 'This payment',
                 accepted: _advanceAccepted,
                 onChanged: _saving
                     ? null
@@ -189,14 +191,14 @@ class _MarkPaidSheetState extends State<MarkPaidSheet> {
                     iconKey: account?.icon,
                     fallback: Icons.account_balance_wallet_outlined,
                   ),
-                  label: 'Paid from',
+                  label: _s.incoming ? 'Paid into' : 'Paid from',
                   value: account?.name ?? 'Choose an account',
                   placeholder: account == null,
                   onTap: edit(_pickAccount),
                 ),
                 TransactionDetailRow(
                   leading: const SheetIconTile(icon: Icons.event_rounded),
-                  label: 'Paid on',
+                  label: _s.incoming ? 'Received on' : 'Paid on',
                   value: _dateLabel,
                   onTap: edit(_pickDate),
                 ),
@@ -214,17 +216,19 @@ class _MarkPaidSheetState extends State<MarkPaidSheet> {
                   children: [
                     RenewalOutcome(
                       icon: Icons.receipt_long_rounded,
-                      color: colors.expense,
-                      label: 'Expense recorded',
+                      color: _s.incoming ? colors.income : colors.expense,
+                      label: _s.incoming
+                          ? 'Income recorded'
+                          : 'Expense recorded',
                       value: _money(_s.amountMinor),
                       caption: account == null || mismatch
                           ? 'Choose a payment account'
-                          : 'From ${account.name}',
+                          : '${_s.incoming ? 'Into' : 'From'} ${account.name}',
                     ),
                     RenewalOutcome(
                       icon: Icons.event_repeat_rounded,
                       color: colors.primary,
-                      label: 'Next renewal',
+                      label: 'Next due',
                       value: DateFormat('d MMM yyyy').format(_s.followingDue),
                     ),
                   ],
@@ -243,7 +247,9 @@ class _MarkPaidSheetState extends State<MarkPaidSheet> {
             ] else if (account == null) ...[
               const SizedBox(height: 12),
               Text(
-                'Choose the account it was paid from.',
+                _s.incoming
+                    ? 'Choose the account it was paid into.'
+                    : 'Choose the account it was paid from.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 13, color: colors.muted),
               ),
@@ -256,8 +262,10 @@ class _MarkPaidSheetState extends State<MarkPaidSheet> {
           primaryLabel: _saving
               ? 'Saving…'
               : _futurePayment
-              ? 'Record advance payment'
-              : 'Mark paid',
+              ? (_s.incoming
+                    ? 'Record advance receipt'
+                    : 'Record advance payment')
+              : (_s.incoming ? 'Mark received' : 'Mark paid'),
           onPrimary: _canSave ? _save : null,
           primaryColor: colors.primary,
         ),
@@ -266,16 +274,16 @@ class _MarkPaidSheetState extends State<MarkPaidSheet> {
   }
 }
 
-/// The subscription and the amount being paid, front and centre.
+/// The recurring payment and the amount being paid, front and centre.
 class _Summary extends StatelessWidget {
-  const _Summary({required this.subscription, required this.amount});
-  final Subscription subscription;
+  const _Summary({required this.recurringPayment, required this.amount});
+  final RecurringPayment recurringPayment;
   final String amount;
 
   @override
   Widget build(BuildContext context) {
     final colors = SheetColors.of(context);
-    final s = subscription;
+    final s = recurringPayment;
     return SheetCard(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),

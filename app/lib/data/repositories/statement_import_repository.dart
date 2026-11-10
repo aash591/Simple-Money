@@ -1,4 +1,5 @@
 import '../community/community_fixes.dart';
+
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
@@ -240,26 +241,23 @@ class StatementImportRepository {
   /// Joins the transfers between the user's accounts recorded a leg at a
   /// time within three days of [date] — each bank's SMS saved as an expense
   /// and an income (see [recordedTransferLegs]). Returns how many.
-  Future<int> linkRecordedTransfers(DateTime date) =>
-      database.transaction(() async {
-        const margin = Duration(days: 3);
-        final pairs = recordedTransferLegs(
-          await ledgerBetween(
-            database,
-            date.subtract(margin),
-            date.add(margin),
-          ),
+  Future<int> linkRecordedTransfers(DateTime date) => database.transaction(
+    () async {
+      const margin = Duration(days: 3);
+      final pairs = recordedTransferLegs(
+        await ledgerBetween(database, date.subtract(margin), date.add(margin)),
+      );
+      for (final (:out, :into) in pairs) {
+        await _joinLegs(
+          out.id,
+          into.id,
+          fromAccountId: out.accountId,
+          toAccountId: into.accountId,
         );
-        for (final (:out, :into) in pairs) {
-          await _joinLegs(
-            out.id,
-            into.id,
-            fromAccountId: out.accountId,
-            toAccountId: into.accountId,
-          );
-        }
-        return pairs.length;
-      });
+      }
+      return pairs.length;
+    },
+  );
 
   /// Makes expense or income [keptId] the transfer between the two
   /// accounts, with [note] added, and removes [goneId], its other leg when

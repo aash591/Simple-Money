@@ -37,6 +37,9 @@ String? serviceIcon(String name) {
     if (RegExp(provider.key).hasMatch(words)) return 'brand:${provider.value}';
   }
   if (RegExp(r'\bmeesho\b').hasMatch(words)) return 'brand:meesho';
+  if (RegExp(r'\bbajaj\s*(?:finance|finserv)\b').hasMatch(words)) {
+    return 'brand:bajajfinance';
+  }
   if (RegExp(r'\bdisney\s*(?:\+|plus)\b|\bdisney\s*\+').hasMatch(words)) {
     if (normalized.contains('hotstar')) return 'brand:jiohotstar';
     return 'brand:disneyplus';

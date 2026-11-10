@@ -1,16 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 
 import '../../state/home_layout.dart';
-import '../components/common.dart';
+import '../../state/security_controller.dart';
 import '../components/feature_page.dart';
 import '../components/more_popup_button.dart';
-import 'home_card_preview.dart';
+import '../components/reorder_lift.dart';
+import '../home/home_cards.dart';
+import 'home_preview_data.dart';
 
-/// Arranges Home: drag a card to move it, switch it off to hide it.
-class HomeLayoutScreen extends StatelessWidget {
+/// Arranges Home: each card is drawn as it really looks, on example data.
+/// Press and hold one to lift it and drag it into place; switch it off to
+/// hide it.
+class HomeLayoutScreen extends StatefulWidget {
   const HomeLayoutScreen({super.key, required this.layout});
   final HomeLayout layout;
+
+  @override
+  State<HomeLayoutScreen> createState() => _HomeLayoutScreenState();
+}
+
+class _HomeLayoutScreenState extends State<HomeLayoutScreen> {
+  late final HomePreviewData _preview = HomePreviewData.create();
+  HomeLayout get layout => widget.layout;
+
+  @override
+  void dispose() {
+    _preview.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => FeaturePage(
@@ -38,127 +57,155 @@ class HomeLayoutScreen extends StatelessWidget {
         ),
       ),
     ],
-    child: ListenableBuilder(
-      listenable: layout,
-      builder: (context, _) {
-        final text = Theme.of(context).textTheme;
-        final order = layout.order;
-        return ReorderableListView.builder(
-          padding: const EdgeInsets.fromLTRB(18, 8, 18, 32),
-          buildDefaultDragHandles: false,
-          header: Padding(
-            padding: const EdgeInsets.only(bottom: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${layout.visible.length} of ${order.length} shown',
-                    style: text.bodySmall,
+    // Example figures are shown plainly, whatever the privacy setting.
+    child: SecurityScope(
+      controller: _preview.security,
+      child: ListenableBuilder(
+        listenable: layout,
+        builder: (context, _) {
+          final text = Theme.of(context).textTheme;
+          final order = layout.order;
+          final example = _preview.context;
+          return ReorderableListView.builder(
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 32),
+            buildDefaultDragHandles: false,
+            header: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+              child: Row(
+                // Both labels stay flexible: at large text scales an
+                // unconstrained hint squeezes the count into a column.
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${layout.visible.length} of ${order.length} shown',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: text.bodySmall,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Press and hold to reorder',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                      style: text.bodySmall,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            footer: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+              child: Text(
+                'Cards show example figures. Empty cards hide themselves. '
+                'Upcoming payments show only when due, loan payoff only while '
+                'a loan is open.',
+                style: text.bodySmall,
+              ),
+            ),
+            onReorderStart: (_) => HapticFeedback.mediumImpact(),
+            proxyDecorator: reorderLift,
+            itemCount: order.length,
+            onReorderItem: layout.move,
+            itemBuilder: (context, index) {
+              final id = order[index];
+              return ReorderableDelayedDragStartListener(
+                key: ValueKey(id),
+                index: index,
+                child: Semantics(
+                  customSemanticsActions: {
+                    if (index > 0)
+                      const CustomSemanticsAction(label: 'Move up'): () =>
+                          layout.move(index, index - 1),
+                    if (index < order.length - 1)
+                      const CustomSemanticsAction(label: 'Move down'): () =>
+                          layout.move(index, index + 1),
+                  },
+                  child: _Item(
+                    id: id,
+                    visible: layout.isVisible(id),
+                    card: buildHomeCard(id, example),
+                    onVisible: (value) => layout.setVisible(id, value),
                   ),
                 ),
-                Text('Drag to reorder', style: text.bodySmall),
-              ],
-            ),
-          ),
-          footer: Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              'Empty cards hide themselves. Upcoming payments show only when due, loan payoff only while a loan is open.',
-              style: text.bodySmall,
-            ),
-          ),
-          proxyDecorator: (child, index, animation) =>
-              Material(color: Colors.transparent, elevation: 0, child: child),
-          itemCount: order.length,
-          onReorderItem: layout.move,
-          itemBuilder: (context, index) => Padding(
-            key: ValueKey(order[index]),
-            padding: const EdgeInsets.only(bottom: 12),
-            child: _CardRow(layout: layout, index: index),
-          ),
-        );
-      },
+              );
+            },
+          );
+        },
+      ),
     ),
   );
 }
 
-class _CardRow extends StatelessWidget {
-  const _CardRow({required this.layout, required this.index});
-  final HomeLayout layout;
-  final int index;
+/// One card as it looks on Home, under its name and an on/off switch.
+class _Item extends StatelessWidget {
+  const _Item({
+    required this.id,
+    required this.visible,
+    required this.card,
+    required this.onVisible,
+  });
+  final HomeCardId id;
+  final bool visible;
+  final Widget? card;
+  final ValueChanged<bool> onVisible;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final order = layout.order;
-    final id = order[index];
-    final visible = layout.isVisible(id);
-    final muted = theme.colorScheme.onSurfaceVariant;
-    return MoneyCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(4, 6, 12, 6),
-            child: Row(
-              children: [
-                ReorderableDragStartListener(
-                  index: index,
-                  child: Semantics(
-                    label: 'Reorder ${id.label}',
-                    customSemanticsActions: {
-                      if (index > 0)
-                        const CustomSemanticsAction(label: 'Move up'): () =>
-                            layout.move(index, index - 1),
-                      if (index < order.length - 1)
-                        const CustomSemanticsAction(label: 'Move down'): () =>
-                            layout.move(index, index + 1),
-                    },
-                    child: SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: Icon(Icons.drag_indicator_rounded, color: muted),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      // A faint outline keeps each name, switch and card together as one
+      // entry in the list.
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: theme.colorScheme.onSurface.withValues(alpha: .1),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 8, bottom: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(id.label, style: theme.textTheme.titleSmall),
+                        Text(id.description, style: theme.textTheme.bodySmall),
+                      ],
                     ),
                   ),
-                ),
-                Expanded(
-                  child: Text(id.label, style: theme.textTheme.titleSmall),
-                ),
-                const SizedBox(width: 8),
-                Semantics(
-                  label: 'Show ${id.label} on Home',
-                  child: Switch.adaptive(
-                    value: visible,
-                    onChanged: (value) => layout.setVisible(id, value),
+                  const SizedBox(width: 8),
+                  Semantics(
+                    label: 'Show ${id.label} on Home',
+                    child: Switch.adaptive(
+                      value: visible,
+                      onChanged: onVisible,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          AnimatedOpacity(
-            opacity: visible ? 1 : .4,
-            duration: MediaQuery.disableAnimationsOf(context)
-                ? Duration.zero
-                : const Duration(milliseconds: 150),
-            child: IgnorePointer(
-              child: ExcludeSemantics(
-                child: Padding(
-                  padding: const EdgeInsets.all(18),
-                  child: HomeCardPreview(id: id),
-                ),
+                ],
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 0, 18, 16),
-            child: Text(
-              visible ? 'Example preview' : 'Hidden on Home ? example preview',
-              style: theme.textTheme.bodySmall,
+            AnimatedOpacity(
+              opacity: visible ? 1 : .4,
+              duration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 150),
+              // Only an example: nothing on it can be tapped or read aloud.
+              child: IgnorePointer(
+                child: ExcludeSemantics(child: card ?? const SizedBox.shrink()),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -2,7 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart' show usesGlass;
 import 'app_back_button.dart';
+import 'common.dart' show MoneyCard;
 
 import '../theme/sheet_colors.dart';
 import '../theme/surface_style.dart';
@@ -351,6 +353,7 @@ class SheetHeader extends StatelessWidget {
     this.onBack,
     this.trailing,
     this.titleStyle,
+    this.centered,
   }) : _flow = false;
 
   /// The header of one step of a multi-step flow, where [title] names the
@@ -359,17 +362,23 @@ class SheetHeader extends StatelessWidget {
   /// [SheetStepHeading] leads the content below it.
   const SheetHeader.flow(this.title, {super.key, this.onBack, this.trailing})
     : titleStyle = null,
+      centered = false,
       _flow = true;
 
   final String title;
   final VoidCallback? onBack;
   final Widget? trailing;
   final TextStyle? titleStyle;
+
+  /// A small, centred title. By default a sheet's first page (no back arrow
+  /// or action) is centred, so every sheet opens with the same title.
+  final bool? centered;
   final bool _flow;
 
   @override
   Widget build(BuildContext context) => SecondaryHeader(
     title: title,
+    centered: centered ?? (onBack == null && trailing == null && !_flow),
     titleStyle: titleStyle ?? (_flow ? sheetFlowTitleStyle(context) : null),
     leading: onBack == null ? null : AppBackButton(onPressed: onBack),
     actions: [?trailing],
@@ -484,18 +493,28 @@ class SheetCard extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(appCardRadius),
-      boxShadow: appCardShadows(Theme.of(context).brightness),
-    ),
-    child: Material(
-      color: SheetColors.of(context).card,
-      borderRadius: BorderRadius.circular(appCardRadius),
-      clipBehavior: Clip.antiAlias,
-      child: child,
-    ),
-  );
+  Widget build(BuildContext context) {
+    // On the glass styles the card is the same see-through, rimmed surface as
+    // every other card (frosted over a picture), not a solid grey slab.
+    if (usesGlass(context)) {
+      return MoneyCard(
+        padding: EdgeInsets.zero,
+        child: Material(type: MaterialType.transparency, child: child),
+      );
+    }
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(appCardRadius),
+        boxShadow: appCardShadows(Theme.of(context).brightness),
+      ),
+      child: Material(
+        color: SheetColors.of(context).card,
+        borderRadius: BorderRadius.circular(appCardRadius),
+        clipBehavior: Clip.antiAlias,
+        child: child,
+      ),
+    );
+  }
 }
 
 /// The icon tile at the start of a sheet row: a Material [icon] in [color],

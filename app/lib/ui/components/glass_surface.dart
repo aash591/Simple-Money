@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import '../../state/appearance_controller.dart' show AppearanceScope;
 import '../theme/app_theme.dart'
     show AppChrome, auroraDarkPage, usesGlass, usesAurora;
 import 'glass_button.dart' show GlassRim;
@@ -34,6 +37,19 @@ class GlassBackdrop extends StatelessWidget {
     }
     if (usesAurora(context)) {
       final black = theme.extension<AppChrome>()?.cardBorder != null;
+      final appearance = AppearanceScope.maybeOf(context);
+      final wallpaper = appearance?.wallpaperPath;
+      if (wallpaper != null && !black) {
+        return IgnorePointer(
+          child: RepaintBoundary(
+            child: _WallpaperBackdrop(
+              path: wallpaper,
+              dim: appearance!.wallpaperDim,
+              dark: dark,
+            ),
+          ),
+        );
+      }
       return IgnorePointer(
         child: RepaintBoundary(
           child: CustomPaint(
@@ -77,6 +93,52 @@ class GlassBackdrop extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The user's own picture behind Aurora: softened and dimmed (towards black
+/// in dark, white in light) so the glass cards and their text stay readable.
+class _WallpaperBackdrop extends StatelessWidget {
+  const _WallpaperBackdrop({
+    required this.path,
+    required this.dim,
+    required this.dark,
+  });
+  final String path;
+  final double dim;
+  final bool dark;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final pixels = MediaQuery.devicePixelRatioOf(context);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ColoredBox(color: dark ? auroraDarkPage : const Color(0xfff6f5f3)),
+        ImageFiltered(
+          // Light: the page stays recognisable; the cards frost it further.
+          imageFilter: ui.ImageFilter.blur(
+            sigmaX: 6,
+            sigmaY: 6,
+            tileMode: TileMode.mirror,
+          ),
+          child: Image(
+            // Decoded near screen size, not at the photo's full resolution.
+            image: ResizeImage(
+              FileImage(File(path)),
+              width: (size.width * pixels).round(),
+              allowUpscaling: false,
+            ),
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => const SizedBox.shrink(),
+          ),
+        ),
+        ColoredBox(
+          color: (dark ? Colors.black : Colors.white).withValues(alpha: dim),
+        ),
+      ],
     );
   }
 }

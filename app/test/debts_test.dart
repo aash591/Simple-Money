@@ -424,7 +424,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.textContaining('owed to you'), findsOneWidget);
       expect(find.text('+91 98765 43210'), findsOneWidget);
-      // The same shell the Subscription and Loan pages use.
+      // The same shell the Recurring payment and Loan pages use.
       expect(find.byType(DetailHero), findsOneWidget);
       expect(find.byType(DetailFacts), findsOneWidget);
       expect(find.byType(DetailHistoryCard), findsOneWidget);

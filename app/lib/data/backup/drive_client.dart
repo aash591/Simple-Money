@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 
 import 'sync_repository.dart';
+import 'backup_encryption.dart';
 
 class DriveSyncException implements Exception {
   const DriveSyncException(this.message);
@@ -74,12 +75,15 @@ class DriveClient implements MirrorTransport {
   @override
   Future<void> upload(SyncBatch batch) async {
     final boundary = 'simplemoney_${batch.fileId}';
+    final encrypted = backupBatchEncryption(batch.payload) != null;
+    final mime = encrypted ? 'application/octet-stream' : 'application/gzip';
+    final suffix = encrypted ? 'json.enc' : 'json.gz';
     final metadata = jsonEncode({
       'id': batch.fileId,
       'name':
-          'simple-money-${batch.mirrorId}-${batch.sequence.toString().padLeft(12, '0')}.json.gz',
+          'simple-money-${batch.mirrorId}-${batch.sequence.toString().padLeft(12, '0')}.$suffix',
       'parents': ['appDataFolder'],
-      'mimeType': 'application/gzip',
+      'mimeType': mime,
       'appProperties': {
         'format': 'simple-money-mirror-v1',
         'mirrorId': batch.mirrorId,
@@ -89,7 +93,7 @@ class DriveClient implements MirrorTransport {
     final body = <int>[
       ...utf8.encode(
         '--$boundary\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n$metadata\r\n'
-        '--$boundary\r\nContent-Type: application/gzip\r\n\r\n',
+        '--$boundary\r\nContent-Type: $mime\r\n\r\n',
       ),
       ...batch.payload,
       ...utf8.encode('\r\n--$boundary--\r\n'),

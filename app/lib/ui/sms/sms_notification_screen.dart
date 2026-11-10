@@ -173,8 +173,9 @@ class _SmsNotificationScreenState extends State<SmsNotificationPicker> {
       if (value != null && field == 'undo_account') {
         await repository.undoCreatedAccount(widget.id);
         final restored = await repository.load(widget.id);
-        if (restored != null)
+        if (restored != null) {
           await showSmsNotification(widget.database, restored);
+        }
         if (mounted) Navigator.pop(context);
       }
       if (value != null && field.startsWith('undo_category:')) {
@@ -183,8 +184,9 @@ class _SmsNotificationScreenState extends State<SmsNotificationPicker> {
           field.substring('undo_category:'.length),
         );
         final restored = await repository.load(widget.id);
-        if (restored != null)
+        if (restored != null) {
           await showSmsNotification(widget.database, restored);
+        }
         if (mounted) Navigator.pop(context);
       }
     } catch (_) {

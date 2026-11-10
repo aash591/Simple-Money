@@ -7,6 +7,7 @@ import 'package:drift/drift.dart';
 
 import '../db/app_database.dart';
 import 'sync_restore.dart';
+import 'backup_encryption.dart';
 import 'sync_schema.dart';
 
 String newSyncId() {
@@ -28,8 +29,12 @@ class SyncStatus {
     this.error,
     this.retryAt = 0,
     this.busy = false,
+    this.encryption,
+    this.restorePending = false,
   });
   final bool enabled, busy;
+  final bool restorePending;
+  final BackupEncryption? encryption;
   final int pending, retryAt;
   final String? email, displayName, pictureUrl, error;
   final DateTime? lastSynced;
@@ -39,6 +44,8 @@ class SyncStatus {
       other is SyncStatus &&
       enabled == other.enabled &&
       busy == other.busy &&
+      encryption == other.encryption &&
+      restorePending == other.restorePending &&
       pending == other.pending &&
       retryAt == other.retryAt &&
       email == other.email &&
@@ -51,6 +58,8 @@ class SyncStatus {
   int get hashCode => Object.hash(
     enabled,
     busy,
+    encryption,
+    restorePending,
     pending,
     retryAt,
     email,
@@ -104,7 +113,7 @@ class SyncRepository {
       await db.customStatement(
         '''UPDATE sync_state SET enabled = 0, mirror_id = ?,
         next_sequence = 1, last_synced = NULL, error = NULL, retry_at = 0,
-        failures = 0, lease = NULL, lease_until = 0 WHERE id = 1''',
+        failures = 0, lease = NULL, lease_until = 0, restore_pending = 1 WHERE id = 1''',
         [newSyncId()],
       );
       await seedSyncOutbox(db);
@@ -132,8 +141,71 @@ class SyncRepository {
       error: row.readNullable<String>('error'),
       retryAt: row.read<int>('retry_at'),
       busy: row.read<int>('lease_until') > _now,
+      restorePending: row.read<int>('restore_pending') == 1,
+      encryption: _encryption(row.readNullable<String>('encryption_config')),
     );
   }
+
+  static BackupEncryption? _encryption(String? encoded) => encoded == null
+      ? null
+      : BackupEncryption.fromJson(jsonDecode(encoded) as Map<String, dynamic>);
+
+  Future<String?> subject() async =>
+      (await db
+              .customSelect('SELECT subject FROM sync_state WHERE id = 1')
+              .getSingle())
+          .readNullable<String>('subject');
+
+  Future<void> holdUploads(bool hold) => db.customStatement(
+    'UPDATE sync_state SET restore_pending = ? WHERE id = 1',
+    [hold ? 1 : 0],
+  );
+
+  Future<void> changeEncryption(
+    String owner,
+    BackupEncryption? configuration,
+  ) => db.transaction(() async {
+    final row = await db
+        .customSelect(
+          'SELECT lease, restore_pending FROM sync_state WHERE id = 1',
+        )
+        .getSingle();
+    if (row.readNullable<String>('lease') != owner ||
+        row.read<int>('restore_pending') != 0) {
+      throw StateError(
+        'Finish restoring your backup before changing encryption.',
+      );
+    }
+    await db.customStatement(
+      'UPDATE sync_state SET encryption_config = ? WHERE id = 1',
+      [configuration?.encoded],
+    );
+    await _restartMirror();
+  });
+
+  Future<void> resumeUploads(String owner, BackupEncryption? configuration) =>
+      db.transaction(() async {
+        final row = await db
+            .customSelect(
+              'SELECT lease, encryption_config FROM sync_state WHERE id = 1',
+            )
+            .getSingle();
+        if (row.readNullable<String>('lease') != owner) {
+          throw StateError('Sync is busy. Try again.');
+        }
+        if (configuration != null &&
+            row.readNullable<String>('encryption_config') !=
+                configuration.encoded) {
+          await db.customStatement(
+            'UPDATE sync_state SET encryption_config = ? WHERE id = 1',
+            [configuration.encoded],
+          );
+          await _restartMirror();
+        }
+        await db.customStatement(
+          'UPDATE sync_state SET restore_pending = 0 WHERE id = 1',
+        );
+      });
 
   Future<String> mirrorId() async =>
       (await db
@@ -157,6 +229,7 @@ class SyncRepository {
     String subject, {
     String? displayName,
     String? pictureUrl,
+    bool holdUploads = false,
   }) => db.transaction(() async {
     final state = await db
         .customSelect('SELECT * FROM sync_state WHERE id = 1')
@@ -170,7 +243,7 @@ class SyncRepository {
       await db.customStatement('DELETE FROM sync_outbox');
       await db.customStatement(
         '''UPDATE sync_state SET mirror_id = ?,
-        next_sequence = 1, last_synced = NULL WHERE id = 1''',
+        next_sequence = 1, last_synced = NULL, encryption_config = NULL WHERE id = 1''',
         [newSyncId()],
       );
       await seedSyncOutbox(db);
@@ -178,8 +251,8 @@ class SyncRepository {
     await db.customStatement(
       '''UPDATE sync_state SET enabled = 1, email = ?, subject = ?,
       display_name = ?, picture_url = ?, error = NULL, failures = 0,
-      retry_at = 0 WHERE id = 1''',
-      [email, subject, displayName, pictureUrl],
+      retry_at = 0, restore_pending = ? WHERE id = 1''',
+      [email, subject, displayName, pictureUrl, holdUploads ? 1 : 0],
     );
     return linked;
   });
@@ -258,6 +331,12 @@ class SyncRepository {
           transaction_id = excluded.transaction_id, body = NULL,
           candidate = excluded.candidate''',
     );
+    if (backup.encryption != null) {
+      await db.customStatement(
+        'UPDATE sync_state SET encryption_config = ? WHERE id = 1',
+        [backup.encryption!.encoded],
+      );
+    }
     if (defaultCategories) await db.seedDefaultCategories();
     await _restartMirror();
   });
@@ -304,7 +383,7 @@ class SyncRepository {
   /// account. Data already on this phone and in Drive is untouched.
   Future<void> signOut() => db.customStatement(
     '''UPDATE sync_state SET enabled = 0, email = NULL, subject = NULL,
-    display_name = NULL, picture_url = NULL, error = NULL WHERE id = 1''',
+    display_name = NULL, picture_url = NULL, error = NULL, restore_pending = 0, encryption_config = NULL WHERE id = 1''',
   );
 
   /// A persisted lease serializes foreground and WorkManager isolates. A killed
@@ -318,7 +397,7 @@ class SyncRepository {
   }) async =>
       await db.customUpdate(
         '''UPDATE sync_state SET lease = ?, lease_until = ?
-        WHERE id = 1 ${requireEnabled ? 'AND enabled = 1' : ''}
+        WHERE id = 1 ${requireEnabled ? 'AND enabled = 1 AND restore_pending = 0' : ''}
         AND lease_until <= ?
         ${force ? '' : 'AND retry_at <= $_now'}''',
         variables: [Variable(owner), Variable(_now + 120000), Variable(_now)],
@@ -328,7 +407,7 @@ class SyncRepository {
   Future<bool> renew(String owner) async =>
       await db.customUpdate(
         '''UPDATE sync_state SET lease_until = ?
-      WHERE id = 1 AND lease = ? AND enabled = 1''',
+      WHERE id = 1 AND lease = ? AND enabled = 1 AND restore_pending = 0''',
         variables: [Variable(_now + 120000), Variable(owner)],
       ) ==
       1;
@@ -345,68 +424,82 @@ class SyncRepository {
     return row == null ? null : SyncBatch.fromRow(row);
   }
 
-  Future<SyncBatch?> freeze(String owner, String fileId) =>
-      db.transaction(() async {
-        final state = await db
-            .customSelect('SELECT * FROM sync_state WHERE id = 1')
-            .getSingle();
-        if (state.readNullable<String>('lease') != owner ||
-            state.read<int>('enabled') != 1) {
-          return null;
-        }
-        final existing = await pendingBatch();
-        if (existing != null) return existing;
-        final rows = await db
-            .customSelect(
-              'SELECT * FROM sync_outbox ORDER BY table_name, record_key',
-            )
-            .get();
-        if (rows.isEmpty) return null;
-        final mirrorId = state.read<String>('mirror_id');
-        final sequence = state.read<int>('next_sequence');
-        final revision = state.read<int>('revision');
-        final bytes = Uint8List.fromList(
-          gzip.encode(
-            utf8.encode(
-              jsonEncode({
-                'format': 'simple-money-mirror',
-                'formatVersion': 1,
-                'schemaVersion': db.schemaVersion,
-                'mirrorId': mirrorId,
-                'sequence': sequence,
-                'previousSequence': sequence - 1,
-                'createdAt': DateTime.now().toUtc().toIso8601String(),
-                'changes': rows
-                    .map(
-                      (row) => {
-                        'table': row.read<String>('table_name'),
-                        'key': jsonDecode(row.read<String>('record_key')),
-                        'row': row.readNullable<String>('row_json') == null
-                            ? null
-                            : jsonDecode(row.read<String>('row_json')),
-                      },
-                    )
-                    .toList(),
-              }),
-            ),
-          ),
-        );
-        final checksum = md5.convert(bytes).toString();
-        await db.customStatement(
-          '''INSERT INTO sync_batch
+  Future<SyncBatch?> freeze(
+    String owner,
+    String fileId, {
+    Future<Uint8List> Function(Uint8List bytes, String mirrorId, int sequence)?
+    encodePayload,
+  }) => db.transaction(() async {
+    final state = await db
+        .customSelect('SELECT * FROM sync_state WHERE id = 1')
+        .getSingle();
+    if (state.readNullable<String>('lease') != owner ||
+        state.read<int>('enabled') != 1 ||
+        state.read<int>('restore_pending') != 0) {
+      return null;
+    }
+    if (state.readNullable<String>('encryption_config') != null &&
+        encodePayload == null) {
+      throw const BackupEncryptionException(
+        'Unlock your encrypted backups with your PIN to resume sync.',
+      );
+    }
+    final existing = await pendingBatch();
+    if (existing != null) return existing;
+    final rows = await db
+        .customSelect(
+          'SELECT * FROM sync_outbox ORDER BY table_name, record_key',
+        )
+        .get();
+    if (rows.isEmpty) return null;
+    final mirrorId = state.read<String>('mirror_id');
+    final sequence = state.read<int>('next_sequence');
+    final revision = state.read<int>('revision');
+    var bytes = Uint8List.fromList(
+      gzip.encode(
+        utf8.encode(
+          jsonEncode({
+            'format': 'simple-money-mirror',
+            'formatVersion': 1,
+            'schemaVersion': db.schemaVersion,
+            'mirrorId': mirrorId,
+            'sequence': sequence,
+            'previousSequence': sequence - 1,
+            'createdAt': DateTime.now().toUtc().toIso8601String(),
+            'changes': rows
+                .map(
+                  (row) => {
+                    'table': row.read<String>('table_name'),
+                    'key': jsonDecode(row.read<String>('record_key')),
+                    'row': row.readNullable<String>('row_json') == null
+                        ? null
+                        : jsonDecode(row.read<String>('row_json')),
+                  },
+                )
+                .toList(),
+          }),
+        ),
+      ),
+    );
+    if (encodePayload != null) {
+      bytes = await encodePayload(bytes, mirrorId, sequence);
+    }
+    final checksum = md5.convert(bytes).toString();
+    await db.customStatement(
+      '''INSERT INTO sync_batch
       (id, file_id, mirror_id, sequence, revision, payload, checksum)
       VALUES (1, ?, ?, ?, ?, ?, ?)''',
-          [fileId, mirrorId, sequence, revision, bytes, checksum],
-        );
-        return SyncBatch(
-          fileId: fileId,
-          mirrorId: mirrorId,
-          sequence: sequence,
-          revision: revision,
-          payload: bytes,
-          checksum: checksum,
-        );
-      });
+      [fileId, mirrorId, sequence, revision, bytes, checksum],
+    );
+    return SyncBatch(
+      fileId: fileId,
+      mirrorId: mirrorId,
+      sequence: sequence,
+      revision: revision,
+      payload: bytes,
+      checksum: checksum,
+    );
+  });
 
   Future<void> acknowledge(String owner, SyncBatch batch) =>
       db.transaction(() async {

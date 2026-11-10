@@ -93,6 +93,59 @@ void main() {
     expect(await security.authorizeAmountReveal(), isTrue);
   });
 
+  test('amounts are hidden by default and the choice persists', () async {
+    await security.initialize();
+    expect(security.hideAmounts, isTrue);
+    await security.setHideAmounts(false);
+    expect(security.hideAmounts, isFalse);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool(SecurityController.hideAmountsPreferenceKey), isFalse);
+    final restarted = SecurityController(
+      authentication: auth,
+      screenLock: screenLock,
+      now: () => clock,
+    );
+    addTearDown(restarted.dispose);
+    await restarted.initialize();
+    expect(restarted.hideAmounts, isFalse);
+  });
+
+  test(
+    'showing every amount asks for authentication when it is required',
+    () async {
+      await security.initialize();
+      await security.setAuthenticateToRevealAmounts(true);
+      auth.result = false;
+      await security.setHideAmounts(false);
+      expect(security.hideAmounts, isTrue);
+      auth.result = true;
+      await security.setHideAmounts(false);
+      expect(security.hideAmounts, isFalse);
+    },
+  );
+
+  testWidgets('with hiding off, amounts show plainly without an eye', (
+    tester,
+  ) async {
+    await security.initialize();
+    await security.setHideAmounts(false);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SecurityScope(
+          controller: security,
+          child: const Scaffold(
+            body: PrivateAmount(label: 'Total balance', child: Text('12345')),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('12345'), findsOneWidget);
+    expect(find.byTooltip('Show total balance'), findsNothing);
+    await security.setHideAmounts(true);
+    await tester.pump();
+    expect(find.text('12345'), findsNothing);
+  });
+
   testWidgets('amounts start hidden, authenticate, and hide on background', (
     tester,
   ) async {
@@ -734,6 +787,9 @@ void main() {
   testWidgets('Security offers both triggers, separately, once lock is on', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await security.initialize();
     // No pumpEventQueue here: it waits on a real timer the widget binding's
     // fake clock never advances. The screen-lock probe resolves on a

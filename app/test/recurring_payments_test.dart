@@ -8,22 +8,24 @@ import 'package:simple_money/ui/components/charts/charts.dart';
 import 'package:simple_money/data/db/app_database.dart';
 import 'package:simple_money/data/repositories/account_repository.dart';
 import 'package:simple_money/data/repositories/category_repository.dart';
-import 'package:simple_money/data/repositories/subscription_repository.dart';
+import 'package:simple_money/data/repositories/recurring_payment_repository.dart';
 import 'package:simple_money/data/repositories/transaction_repository.dart';
-import 'package:simple_money/domain/subscription.dart';
+import 'package:simple_money/domain/recurring_payment.dart';
+import 'package:simple_money/domain/recurring_suggestions.dart';
+import 'package:simple_money/domain/transaction.dart';
 import 'package:simple_money/state/account_store.dart';
 import 'package:simple_money/state/category_store.dart';
-import 'package:simple_money/state/subscription_store.dart';
+import 'package:simple_money/state/recurring_payment_store.dart';
 import 'package:simple_money/state/transaction_store.dart';
 import 'package:simple_money/ui/components/detail_page.dart';
 import 'package:simple_money/ui/more/loans/loan_review_card.dart';
 import 'package:simple_money/ui/components/number_keypad.dart';
 import 'package:simple_money/ui/more/more_screen.dart';
-import 'package:simple_money/ui/more/subscriptions/subscription_detail_screen.dart';
-import 'package:simple_money/ui/more/subscriptions/subscriptions_screen.dart';
+import 'package:simple_money/ui/more/recurring/recurring_payment_detail_screen.dart';
+import 'package:simple_money/ui/more/recurring/recurring_payments_screen.dart';
 import 'package:simple_money/ui/theme/app_theme.dart';
 
-SubscriptionDraft draft({
+RecurringPaymentDraft draft({
   String name = 'Netflix',
   String? icon,
   int amount = 64900,
@@ -31,7 +33,8 @@ SubscriptionDraft draft({
   DateTime? nextDue,
   int accountId = 1,
   int? categoryId,
-}) => SubscriptionDraft(
+  bool incoming = false,
+}) => RecurringPaymentDraft(
   name: name,
   icon: icon,
   amountMinor: amount,
@@ -40,9 +43,22 @@ SubscriptionDraft draft({
   accountId: accountId,
   categoryId: categoryId,
   remind: false,
+  incoming: incoming,
 );
 
 void main() {
+  test('Names suggest an icon and category, by direction', () {
+    expect(suggestRecurring('Rent', incoming: false)?.category, 'Rent');
+    expect(suggestRecurring('Rent', incoming: true)?.category, 'Rental Income');
+    expect(
+      suggestRecurring('Car insurance', incoming: false)?.category,
+      'Vehicle Insurance',
+    );
+    expect(suggestRecurring('Gym', incoming: false)?.icon, 'gym');
+    expect(suggestRecurring('Salary', incoming: true)?.category, 'Salary');
+    expect(suggestRecurring('Zzz', incoming: false), isNull);
+  });
+
   group('Billing cycles', () {
     test('Month-based renewals keep to the original day', () {
       var due = DateTime(2026, 1, 31);
@@ -79,8 +95,8 @@ void main() {
     });
 
     test('Upcoming renewals land in the months they are charged', () {
-      Subscription sub(BillingCycle cycle, DateTime due, int amount) =>
-          Subscription(
+      RecurringPayment sub(BillingCycle cycle, DateTime due, int amount) =>
+          RecurringPayment(
             id: 1,
             name: 'x',
             icon: null,
@@ -120,21 +136,52 @@ void main() {
         [100, 100, 5100, 400, 100, 100],
         reason: 'Annual fees stay in their renewal month; overdue bills are separate.',
       );
+      // Money coming in is totalled on its own, never mixed with what goes out.
+      final rent = RecurringPayment(
+        id: 9,
+        name: 'Rent',
+        icon: null,
+        amountMinor: 2500,
+        currency: 'INR',
+        digits: 2,
+        cycle: BillingCycle.monthly,
+        nextDue: DateTime(2026, 9, 20),
+        day: 20,
+        accountId: 1,
+        categoryId: null,
+        remind: false,
+        paused: false,
+        incoming: true,
+      );
+      final both = [
+        sub(BillingCycle.monthly, DateTime(2026, 9, 20), 100),
+        rent,
+      ];
+      expect(upcomingRenewals(both, 3, now: DateTime(2026, 9, 16)), [
+        100,
+        100,
+        100,
+      ]);
+      expect(
+        upcomingRenewals(both, 3, now: DateTime(2026, 9, 16), incoming: true),
+        [2500, 2500, 2500],
+      );
     });
   });
 
   group('Repository', () {
     late AppDatabase db;
-    late SubscriptionRepository repository;
+    late RecurringPaymentRepository repository;
     setUp(() async {
       db = AppDatabase(NativeDatabase.memory(), false);
-      repository = SubscriptionRepository(db);
+      repository = RecurringPaymentRepository(db);
       await AccountRepository(
         db,
       ).save(name: 'Cash', currency: 'INR', digits: 2, openingBalance: 1000000);
     });
     tearDown(() => db.close());
-    Future<Subscription> current() async => (await repository.load()).single;
+    Future<RecurringPayment> current() async =>
+        (await repository.load()).single;
 
     test('Adding takes the account currency and renewal day', () async {
       await repository.add(draft());
@@ -153,6 +200,31 @@ void main() {
         throwsA(isA<ArgumentError>()),
       );
     });
+
+    test(
+      'Money coming in is logged as income and credits the account',
+      () async {
+        await repository.add(
+          draft(name: 'Rent', amount: 2500000, incoming: true),
+        );
+        final s = await current();
+        expect(s.incoming, isTrue);
+        await repository.markPaid(s, date: DateTime(2026, 1, 31, 10));
+        final paid = (await TransactionRepository(db).load()).single;
+        expect(paid.type, TransactionType.income);
+        expect(paid.title, 'Rent');
+        final categories = await CategoryRepository(db).load();
+        expect(
+          categories.firstWhere((c) => c.id == paid.categoryId).name,
+          'Rental Income',
+        );
+        expect(
+          (await AccountRepository(db).load()).single.balanceMinor,
+          1000000 + 2500000,
+        );
+        expect((await current()).nextDue, DateTime(2026, 2, 28));
+      },
+    );
 
     test('Mark paid logs one expense and moves to the next renewal', () async {
       await repository.add(draft());
@@ -210,7 +282,7 @@ void main() {
       expect(paid.icon, 'brand:netflix');
       expect(paid.badgeIcon, 'subscriptions');
 
-      // Without a logo of its own it just shows the subscription mark.
+      // Without a logo of its own it just shows the recurring payment mark.
       await repository.add(draft(name: 'Gym'));
       final gym = (await repository.load()).firstWhere((s) => s.name == 'Gym');
       await repository.markPaid(gym, date: DateTime(2026, 1, 31));
@@ -229,7 +301,7 @@ void main() {
       expect(left.icon, isNull);
       expect(left.badgeIcon, isNull);
       expect(
-        await db.customSelect('SELECT * FROM subscription_payments').get(),
+        await db.customSelect('SELECT * FROM recurring_payment_history').get(),
         isEmpty,
       );
     });
@@ -241,13 +313,26 @@ void main() {
       await AccountRepository(
         old,
       ).save(name: 'Cash', currency: 'INR', digits: 2, openingBalance: 500000);
-      final oldRepository = SubscriptionRepository(old);
+      final oldRepository = RecurringPaymentRepository(old);
       await oldRepository.add(draft(icon: 'brand:netflix'));
       await oldRepository.markPaid(
         (await oldRepository.load()).single,
         date: DateTime(2026, 1, 31),
       );
-      await old.customStatement('DROP TABLE subscription_payments');
+      await old.customStatement('DROP TABLE recurring_payment_history');
+      // Back to how a v15 install had it: the old name, no direction column,
+      // and triggers under the old name.
+      for (final operation in ['insert', 'update', 'delete']) {
+        await old.customStatement(
+          'DROP TRIGGER IF EXISTS sync_recurring_payments_$operation',
+        );
+      }
+      await old.customStatement(
+        'ALTER TABLE recurring_payments DROP COLUMN incoming',
+      );
+      await old.customStatement(
+        'ALTER TABLE recurring_payments RENAME TO subscriptions',
+      );
       await old.customStatement('PRAGMA user_version = 15');
       await old.close();
       final upgraded = AppDatabase(NativeDatabase(file), false);
@@ -257,7 +342,7 @@ void main() {
         expect(paid.badgeIcon, 'subscriptions');
         final queued = await upgraded
             .customSelect(
-              "SELECT * FROM sync_outbox WHERE table_name = 'subscription_payments'",
+              "SELECT * FROM sync_outbox WHERE table_name = 'recurring_payment_history'",
             )
             .get();
         expect(queued, hasLength(1));
@@ -350,10 +435,68 @@ void main() {
       await repository.add(draft());
       final queued = await db
           .customSelect(
-            "SELECT * FROM sync_outbox WHERE table_name = 'subscriptions'",
+            "SELECT * FROM sync_outbox WHERE table_name = 'recurring_payments'",
           )
           .get();
       expect(queued, hasLength(1));
+    });
+
+    test('Upgrading a v40 ledger renames the tables and keeps its data', () async {
+      final directory = await Directory.systemTemp.createTemp('subs_');
+      final file = File('${directory.path}/ledger.sqlite');
+      final old = AppDatabase(NativeDatabase(file), false);
+      await AccountRepository(
+        old,
+      ).save(name: 'Cash', currency: 'INR', digits: 2, openingBalance: 500000);
+      final repository = RecurringPaymentRepository(old);
+      await repository.add(draft(icon: 'brand:netflix'));
+      await repository.markPaid(
+        (await repository.load()).single,
+        date: DateTime(2026, 1, 31),
+      );
+      // Back to the v40 shape: old names, no direction column.
+      for (final table in ['recurring_payments', 'recurring_payment_history']) {
+        for (final operation in ['insert', 'update', 'delete']) {
+          await old.customStatement(
+            'DROP TRIGGER IF EXISTS sync_${table}_$operation',
+          );
+        }
+      }
+      await old.customStatement(
+        'ALTER TABLE recurring_payments DROP COLUMN incoming',
+      );
+      await old.customStatement(
+        'ALTER TABLE recurring_payments RENAME TO subscriptions',
+      );
+      await old.customStatement(
+        'ALTER TABLE recurring_payment_history RENAME TO subscription_payments',
+      );
+      await old.customStatement(
+        'ALTER TABLE subscription_payments RENAME COLUMN recurring_payment_id TO subscription_id',
+      );
+      await old.customStatement('PRAGMA user_version = 40');
+      await old.close();
+      final upgraded = AppDatabase(NativeDatabase(file), false);
+      try {
+        final loaded = await RecurringPaymentRepository(upgraded).load();
+        expect(loaded.single.name, 'Netflix');
+        expect(loaded.single.incoming, isFalse);
+        final paid = (await TransactionRepository(upgraded).load()).single;
+        expect(paid.badgeIcon, 'subscriptions');
+        final link = await TransactionRepository(upgraded).link(paid.id);
+        expect(link?.name, 'Netflix');
+        // Changes keep reaching the sync queue under the new name.
+        await RecurringPaymentRepository(upgraded).add(draft(name: 'Gym'));
+        final queued = await upgraded
+            .customSelect(
+              "SELECT * FROM sync_outbox WHERE table_name = 'recurring_payments'",
+            )
+            .get();
+        expect(queued, isNotEmpty);
+      } finally {
+        await upgraded.close();
+        await directory.delete(recursive: true);
+      }
     });
 
     test('Upgrading a v14 ledger adds subscriptions with sync', () async {
@@ -364,7 +507,7 @@ void main() {
         old,
       ).save(name: 'Existing', currency: 'INR', digits: 2, openingBalance: 500);
       // Dropping the table drops its sync triggers too, as on a v14 install.
-      await old.customStatement('DROP TABLE subscriptions');
+      await old.customStatement('DROP TABLE recurring_payments');
       await old.customStatement('PRAGMA user_version = 14');
       await old.close();
       final upgraded = AppDatabase(NativeDatabase(file), false);
@@ -373,10 +516,10 @@ void main() {
           (await AccountRepository(upgraded).load()).single.balanceMinor,
           500,
         );
-        await SubscriptionRepository(upgraded).add(draft());
+        await RecurringPaymentRepository(upgraded).add(draft());
         final queued = await upgraded
             .customSelect(
-              "SELECT * FROM sync_outbox WHERE table_name = 'subscriptions'",
+              "SELECT * FROM sync_outbox WHERE table_name = 'recurring_payments'",
             )
             .get();
         expect(queued, hasLength(1));
@@ -397,15 +540,15 @@ void main() {
     });
     tearDown(() => db.close());
 
-    Future<SubscriptionStore> store() async {
+    Future<RecurringPaymentStore> store() async {
       final accounts = AccountStore(AccountRepository(db));
       final categories = CategoryStore(CategoryRepository(db));
       final transactions = TransactionStore(
         TransactionRepository(db),
         accounts,
       );
-      final subscriptions = SubscriptionStore(
-        SubscriptionRepository(db),
+      final recurringPayments = RecurringPaymentStore(
+        RecurringPaymentRepository(db),
         accountStore: accounts,
         categoryStore: categories,
         transactionStore: transactions,
@@ -415,29 +558,29 @@ void main() {
         categories.load(),
         transactions.load(),
       ]);
-      await subscriptions.load();
+      await recurringPayments.load();
       addTearDown(() {
-        subscriptions.dispose();
+        recurringPayments.dispose();
         transactions.dispose();
         categories.dispose();
         accounts.dispose();
       });
-      return subscriptions;
+      return recurringPayments;
     }
 
-    testWidgets('More lists Subscriptions, with Settings second to last', (
+    testWidgets('More lists Recurring payments, with Settings second to last', (
       tester,
     ) async {
-      final subscriptions = await tester.runAsync(store);
+      final recurringPayments = await tester.runAsync(store);
       await tester.pumpWidget(
         MaterialApp(
           theme: appTheme(Brightness.light),
           home: Scaffold(
             body: MoreScreen(
-              store: subscriptions!.accountStore,
-              categoryStore: subscriptions.categoryStore,
-              transactionStore: subscriptions.transactionStore,
-              subscriptionStore: subscriptions,
+              store: recurringPayments!.accountStore,
+              categoryStore: recurringPayments.categoryStore,
+              transactionStore: recurringPayments.transactionStore,
+              recurringPaymentStore: recurringPayments,
             ),
           ),
         ),
@@ -446,7 +589,7 @@ void main() {
       final titles = [
         'Manage Accounts',
         'Categories',
-        'Subscriptions',
+        'Recurring payments',
         'Settings',
         'About SimpleMoney',
       ];
@@ -454,17 +597,17 @@ void main() {
         for (final title in titles) tester.getTopLeft(find.text(title)).dy,
       ];
       expect(tops, [...tops]..sort());
-      await tester.ensureVisible(find.text('Subscriptions'));
-      await tester.tap(find.text('Subscriptions'));
+      await tester.ensureVisible(find.text('Recurring payments'));
+      await tester.tap(find.text('Recurring payments'));
       await tester.pumpAndSettle();
-      expect(find.byType(SubscriptionsScreen), findsOneWidget);
-      expect(find.text('No subscriptions yet.'), findsOneWidget);
+      expect(find.byType(RecurringPaymentsScreen), findsOneWidget);
+      expect(find.text('No recurring payments yet.'), findsOneWidget);
     });
 
-    testWidgets('Adding one from the list saves it and shows its card', (
+    testWidgets('Typing a name suggests its category, until one is picked', (
       tester,
     ) async {
-      final subscriptions = await tester.runAsync(store);
+      final payments = await tester.runAsync(store);
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -472,11 +615,91 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: appTheme(Brightness.light),
-          home: SubscriptionsScreen(store: subscriptions!),
+          home: RecurringPaymentsScreen(store: payments!),
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.byTooltip('Add subscription'));
+      await tester.tap(find.byTooltip('Add recurring payment'));
+      await tester.pumpAndSettle();
+      for (final digit in '9000'.split('')) {
+        await tester.tap(
+          find.descendant(
+            of: find.byType(NumberKeypad),
+            matching: find.text(digit),
+          ),
+        );
+      }
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'House rent');
+      await tester.pumpAndSettle();
+      expect(find.text('Rent'), findsOneWidget);
+      await tester.enterText(find.byType(TextField).first, 'Electricity bill');
+      await tester.pumpAndSettle();
+      expect(find.text('Electricity'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox());
+    });
+
+    testWidgets('A recurring payment can be money coming in', (tester) async {
+      final recurringPayments = await tester.runAsync(store);
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: appTheme(Brightness.light),
+          home: RecurringPaymentsScreen(store: recurringPayments!),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Add recurring payment'));
+      await tester.pumpAndSettle();
+      for (final digit in '2500'.split('')) {
+        await tester.tap(
+          find.descendant(
+            of: find.byType(NumberKeypad),
+            matching: find.text(digit),
+          ),
+        );
+      }
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'Rent');
+      await tester.tap(find.text('Money coming in'));
+      await tester.pumpAndSettle();
+      expect(find.text('Paid into'), findsOneWidget);
+      expect(find.text('Rental Income'), findsOneWidget);
+      await tester.tap(find.text('Save'));
+      await tester.runAsync(
+        () => Future.delayed(const Duration(milliseconds: 200)),
+      );
+      await tester.pumpAndSettle();
+      final saved = (await tester.runAsync(recurringPayments.repository.load))!
+          .single;
+      expect(saved.incoming, isTrue);
+      expect(find.text('Mark received'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox());
+    });
+
+    testWidgets('Adding one from the list saves it and shows its card', (
+      tester,
+    ) async {
+      final recurringPayments = await tester.runAsync(store);
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: appTheme(Brightness.light),
+          home: RecurringPaymentsScreen(store: recurringPayments!),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Add recurring payment'));
       await tester.pumpAndSettle();
       expect(find.text('How much does it cost?'), findsOneWidget);
       for (final digit in '649'.split('')) {
@@ -497,14 +720,14 @@ void main() {
         () => Future.delayed(const Duration(milliseconds: 200)),
       );
       await tester.pumpAndSettle();
-      final saved = (await tester.runAsync(subscriptions.repository.load))!
+      final saved = (await tester.runAsync(recurringPayments.repository.load))!
           .single;
       expect(saved.name, 'Spotify');
       expect(saved.amountMinor, 64900);
       expect(saved.icon, 'brand:spotify');
       expect(
         find.descendant(
-          of: find.byType(SubscriptionCard),
+          of: find.byType(RecurringPaymentCard),
           matching: find.text('Spotify'),
         ),
         findsOneWidget,
@@ -516,7 +739,7 @@ void main() {
     testWidgets('Tapping one opens its page, not the edit form', (
       tester,
     ) async {
-      final subscriptions = await tester.runAsync(() async {
+      final recurringPayments = await tester.runAsync(() async {
         final s = await store();
         final today = dateOnly(DateTime.now());
         await s.repository.add(
@@ -545,13 +768,13 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: appTheme(Brightness.light),
-          home: SubscriptionsScreen(store: subscriptions!),
+          home: RecurringPaymentsScreen(store: recurringPayments!),
         ),
       );
       await tester.pumpAndSettle();
       // The chart legend names them too, so aim at the card itself.
       Finder card(String name) => find.descendant(
-        of: find.byType(SubscriptionCard),
+        of: find.byType(RecurringPaymentCard),
         matching: find.text(name),
       );
       await tester.ensureVisible(card('Netflix'));
@@ -559,7 +782,7 @@ void main() {
       await tester.tap(card('Netflix'));
       await tester.pumpAndSettle();
 
-      expect(find.byType(SubscriptionDetailScreen), findsOneWidget);
+      expect(find.byType(RecurringPaymentDetailScreen), findsOneWidget);
       // Built from the shell the Loan and Debt pages share.
       expect(find.byType(DetailHero), findsOneWidget);
       expect(find.byType(DetailFacts), findsOneWidget);
@@ -567,7 +790,7 @@ void main() {
       expect(find.byType(DetailHistoryCard), findsOneWidget);
       // The page, not the form: no Save/Cancel pair waiting on the user.
       expect(find.text('Save'), findsNothing);
-      expect(find.text('Next renewal'), findsOneWidget);
+      expect(find.text('Next due'), findsOneWidget);
       expect(find.text('Details'), findsOneWidget);
       expect(find.text('Payments'), findsOneWidget);
       expect(find.text('Monthly'), findsOneWidget);
@@ -617,7 +840,7 @@ void main() {
     testWidgets('Forecast shows future bill months and excludes paused plans', (
       tester,
     ) async {
-      final subscriptions = await tester.runAsync(() async {
+      final recurringPayments = await tester.runAsync(() async {
         final s = await store();
         final today = dateOnly(DateTime.now());
         await s.repository.add(draft(name: 'Netflix', nextDue: today));
@@ -643,11 +866,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: appTheme(Brightness.light),
-          home: SubscriptionsScreen(store: subscriptions!),
+          home: RecurringPaymentsScreen(store: recurringPayments!),
         ),
       );
       await tester.pumpAndSettle();
-      // The list uses the same card Home does. A paused subscription isn't
+      // The list uses the same card Home does. A paused recurring payment isn't
       // owed, so a muted "Paused" chip takes the pay button's place;
       // resuming happens in the edit sheet, behind a tap on the card.
       expect(find.text('Paused'), findsOneWidget);
@@ -661,18 +884,18 @@ void main() {
       expect(find.text('Paid from'), findsOneWidget);
       expect(find.text('Cash'), findsWidgets);
       expect(find.textContaining('Today · '), findsOneWidget);
-      expect(find.text('Next renewal'), findsOneWidget);
+      expect(find.text('Next due'), findsOneWidget);
       expect(find.text('Expense recorded'), findsOneWidget);
       expect(find.text('From Cash'), findsOneWidget);
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
       expect(find.text('Mark as paid'), findsNothing);
-      expect(find.text('Plan for upcoming bills'), findsOneWidget);
+      expect(find.text('Payments by month'), findsOneWidget);
       expect(find.text('Share'), findsNothing);
       expect(find.text('Months'), findsNothing);
       expect(find.byType(BarChart), findsOneWidget);
       final chartWidget = tester.widget<BarChart>(find.byType(BarChart));
-      final active = subscriptions.subscriptions
+      final active = recurringPayments.recurringPayments
           .where((s) => !s.paused)
           .toList();
       expect(
@@ -695,7 +918,7 @@ void main() {
       // Exercise the replacement chart independently of the existing overview.
       final chart = tester.widget(
         find.ancestor(
-          of: find.text('Plan for upcoming bills'),
+          of: find.text('Payments by month'),
           matching: find.byWidgetPredicate(
             (w) => w.runtimeType.toString() == '_ChartCard',
           ),

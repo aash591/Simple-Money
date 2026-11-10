@@ -35,7 +35,7 @@ class TransactionTypePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = SheetColors.of(context);
     return SheetPage(
-      header: const SheetHeader('Add a transaction'),
+      header: const SheetHeader('Add a transaction', centered: true),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -135,7 +135,7 @@ class AmountPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SheetStepHeading(
-            isIncome ? 'What income did you receive?' : 'What is the amount?',
+            isIncome ? 'Amount received' : 'Amount',
             subtitle: recipientLabel,
           ),
           const SizedBox(height: 20),
@@ -285,7 +285,12 @@ class DateStepPage extends StatelessWidget {
         if (summary != null) ...[summary!, const SizedBox(height: 20)],
         SheetStepHeading(question),
         const SizedBox(height: 14),
-        CalendarPicker(initialDate: date, onChanged: onPick),
+        SheetCard(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 4, 10, 10),
+            child: CalendarPicker(initialDate: date, onChanged: onPick),
+          ),
+        ),
       ],
     ),
     actions: ActionButtonBar(

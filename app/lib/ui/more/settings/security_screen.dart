@@ -49,6 +49,23 @@ class SecurityScreen extends StatelessWidget {
           _SettingCard(
             child: SwitchListTile.adaptive(
               secondary: Icon(
+                Icons.visibility_off_outlined,
+                color: theme.colorScheme.primary,
+              ),
+              title: const Text('Hide amounts'),
+              subtitle: const Text(
+                'Balances show as dots until you tap the eye.',
+              ),
+              value: security.hideAmounts,
+              onChanged: security.busy || !security.ready
+                  ? null
+                  : security.setHideAmounts,
+            ),
+          ),
+          const SizedBox(height: 14),
+          _SettingCard(
+            child: SwitchListTile.adaptive(
+              secondary: Icon(
                 Icons.fingerprint_rounded,
                 color: theme.colorScheme.primary,
               ),
@@ -57,7 +74,8 @@ class SecurityScreen extends StatelessWidget {
                 'Use fingerprint, face or PIN to show hidden balances.',
               ),
               value: security.authenticateToRevealAmounts,
-              onChanged: security.busy || !security.ready
+              onChanged:
+                  security.busy || !security.ready || !security.hideAmounts
                   ? null
                   : security.setAuthenticateToRevealAmounts,
             ),

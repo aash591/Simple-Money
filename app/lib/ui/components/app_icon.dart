@@ -23,7 +23,7 @@ ImageProvider? appIconImage(String? iconKey, Brightness brightness) {
 }
 
 /// Renders whichever icon [iconKey] names — one of `appIconKeys` (a category
-/// icon), a `brand:`-prefixed key (a merchant/subscription logo), or a
+/// icon), a `brand:`-prefixed key (a merchant/recurring payment logo), or a
 /// `mark:`-prefixed key (a text wordmark badge for a brand with no
 /// safely-licensable logo file) — so call sites don't need to know which
 /// kind they have.

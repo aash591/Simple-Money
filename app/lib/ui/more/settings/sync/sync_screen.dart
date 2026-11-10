@@ -9,6 +9,7 @@ import '../../../components/feature_page.dart';
 import '../../../components/glass_button.dart';
 import '../../../theme/app_theme.dart';
 import 'backup_widgets.dart';
+import 'backup_encryption_card.dart';
 import 'sync_flow.dart';
 
 class SyncScreen extends StatelessWidget {
@@ -54,11 +55,17 @@ class SyncScreen extends StatelessWidget {
                     ? _Connected(sync: sync, status: status)
                     : _Off(sync: sync, status: status),
               ),
+              if (status.email != null) ...[
+                const SizedBox(height: 16),
+                BackupEncryptionCard(sync: sync),
+              ],
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Text(
-                  'Syncs by itself. On a new phone, sign in with the same Google account to get it all back.',
+                  status.encryption != null
+                      ? 'Syncs by itself. On a new phone, sign in with the same Google account and enter your backup PIN to restore.'
+                      : 'Syncs by itself. On a new phone, sign in with the same Google account to get it all back.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall
                       ?.copyWith(height: 1.5),
@@ -138,7 +145,7 @@ class _Off extends StatelessWidget {
   }
 }
 
-enum _Health { restoring, syncing, error, pending, synced }
+enum _Health { restoring, locked, syncing, error, pending, synced }
 
 class _Connected extends StatelessWidget {
   const _Connected({required this.sync, required this.status});
@@ -152,6 +159,8 @@ class _Connected extends StatelessWidget {
     final pending = status.pending;
     final health = sync.restoring
         ? _Health.restoring
+        : sync.uploadsHeld
+        ? _Health.locked
         : status.busy || sync.uploading || status.lastSynced == null
         ? (error != null ? _Health.error : _Health.syncing)
         : error != null
@@ -166,6 +175,10 @@ class _Connected extends StatelessWidget {
       _Health.restoring => (
         'Restoring your data',
         'Getting everything from Google Drive',
+      ),
+      _Health.locked => (
+        'Backup waiting',
+        error ?? 'Continue restoring before this phone uploads.',
       ),
       _Health.syncing => (
         'Syncing…',
@@ -212,11 +225,13 @@ class _Connected extends StatelessWidget {
         _AccountChip(status: status),
         const SizedBox(height: 18),
         _PrimaryButton(
-          label: 'Sync now',
+          label: sync.uploadsHeld ? 'Continue restore' : 'Sync now',
           busyLabel: sync.restoring ? 'Restoring…' : 'Syncing…',
           icon: Icons.sync_rounded,
           busy: working || sync.connecting || sync.manualSyncing,
-          onPressed: sync.syncNow,
+          onPressed: sync.uploadsHeld
+              ? () => resumeDriveRestore(context, sync)
+              : sync.syncNow,
         ),
         if (status.error != null || sync.actionError != null) ...[
           const SizedBox(height: 10),
@@ -315,6 +330,10 @@ class _HealthBadge extends StatelessWidget {
     final (icon, color) = switch (health) {
       _Health.restoring => (
         Icons.cloud_download_rounded,
+        Theme.of(context).colorScheme.primary,
+      ),
+      _Health.locked => (
+        Icons.lock_outline_rounded,
         Theme.of(context).colorScheme.primary,
       ),
       _Health.syncing => (

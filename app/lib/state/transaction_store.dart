@@ -59,7 +59,7 @@ class TransactionStore extends ChangeNotifier {
     saving = true;
     notifyListeners();
     try {
-      await repository.addExpenseOrIncome(
+      final id = await repository.addExpenseOrIncome(
         type: type,
         amountMinor: amountMinor,
         accountId: accountId,
@@ -68,7 +68,7 @@ class TransactionStore extends ChangeNotifier {
         note: note,
         date: date,
       );
-      await Future.wait([_reload(), accountStore.load()]);
+      await Future.wait([_reloadTransaction(id), accountStore.load()]);
     } finally {
       saving = false;
       notifyListeners();
@@ -99,7 +99,7 @@ class TransactionStore extends ChangeNotifier {
         note: note,
         date: date,
       );
-      await Future.wait([_reload(), accountStore.load()]);
+      await Future.wait([_reloadTransaction(id), accountStore.load()]);
     } finally {
       saving = false;
       notifyListeners();
@@ -134,7 +134,7 @@ class TransactionStore extends ChangeNotifier {
         note: note,
         date: date,
       );
-      await Future.wait([_reload(), accountStore.load()]);
+      await Future.wait([_reloadTransaction(id), accountStore.load()]);
     } finally {
       saving = false;
       notifyListeners();
@@ -153,7 +153,7 @@ class TransactionStore extends ChangeNotifier {
     saving = true;
     notifyListeners();
     try {
-      await repository.addTransfer(
+      final id = await repository.addTransfer(
         amountMinor: amountMinor,
         fromAccountId: fromAccountId,
         toAccountId: toAccountId,
@@ -161,7 +161,7 @@ class TransactionStore extends ChangeNotifier {
         note: note,
         date: date,
       );
-      await Future.wait([_reload(), accountStore.load()]);
+      await Future.wait([_reloadTransaction(id), accountStore.load()]);
     } finally {
       saving = false;
       notifyListeners();
@@ -243,6 +243,26 @@ class TransactionStore extends ChangeNotifier {
   Future<void> refresh() async {
     await _reload();
     notifyListeners();
+  }
+
+  /// Preserve the complete history for consumers, but only requery the row
+  /// changed by a local save. Imports and restore still use a full refresh.
+  Future<void> _reloadTransaction(int id) async {
+    if (loading || loadError != null) {
+      await _reload();
+      return;
+    }
+    final updated = await repository.load(id: id);
+    _transactions =
+        [
+          for (final transaction in _transactions)
+            if (transaction.id != id) transaction,
+          ...updated,
+        ]..sort((a, b) {
+          final date = b.date.compareTo(a.date);
+          return date != 0 ? date : b.id.compareTo(a.id);
+        });
+    _titleSuggestions = null;
   }
 
   Future<void> _reload() async {

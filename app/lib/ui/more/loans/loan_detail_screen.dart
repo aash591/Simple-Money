@@ -839,7 +839,7 @@ enum _RowTone { settled, accent, neutral }
 /// One row of a grouped card; [first] and [last] round the card's corners.
 ///
 /// A thin adapter over [DetailHistoryTile], so a loan payment reads exactly
-/// like a subscription charge or a debt repayment does.
+/// like a recurring payment charge or a debt repayment does.
 class _LoanEntryRow extends StatelessWidget {
   const _LoanEntryRow({
     this.icon,

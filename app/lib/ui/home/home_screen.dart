@@ -23,7 +23,7 @@ import '../../state/sync_controller.dart';
 import '../../state/category_store.dart';
 import '../../state/debt_store.dart';
 import '../../state/loan_store.dart';
-import '../../state/subscription_store.dart';
+import '../../state/recurring_payment_store.dart';
 import '../../state/transaction_store.dart';
 import '../../data/agent/ai_session.dart';
 import '../more/more_screen.dart';
@@ -41,7 +41,7 @@ class HomeScreen extends StatefulWidget {
     required this.budgetStore,
     required this.debtStore,
     this.loanStore,
-    this.subscriptionStore,
+    this.recurringPaymentStore,
     this.syncController,
     this.community,
   });
@@ -53,7 +53,7 @@ class HomeScreen extends StatefulWidget {
   final BudgetStore budgetStore;
   final DebtStore debtStore;
   final LoanStore? loanStore;
-  final SubscriptionStore? subscriptionStore;
+  final RecurringPaymentStore? recurringPaymentStore;
   final SyncController? syncController;
 
   /// Shared fixes from other users; null in tests and launcher sheets.
@@ -418,7 +418,7 @@ class _HomeScreenState extends State<HomeScreen>
               smsStore: _sms,
               onReviewSms: _openSms,
               loanStore: widget.loanStore,
-              subscriptionStore: widget.subscriptionStore,
+              recurringPaymentStore: widget.recurringPaymentStore,
               debtStore: widget.debtStore,
               accountStore: widget.accountStore,
               categoryStore: widget.categoryStore,
@@ -456,7 +456,7 @@ class _HomeScreenState extends State<HomeScreen>
               transactionStore: widget.transactionStore,
               debtStore: widget.debtStore,
               loanStore: widget.loanStore,
-              subscriptionStore: widget.subscriptionStore,
+              recurringPaymentStore: widget.recurringPaymentStore,
               // Approved suggestions can touch the ledger and the SMS queue,
               // which reloads itself when the transactions do.
               onLedgerChanged: _sms.onLedgerChanged,
@@ -513,13 +513,9 @@ class _HomeScreenState extends State<HomeScreen>
               selectedIcon: Icons.home_rounded,
               label: 'Home',
             ),
-            LiquidGlassDestination(
-              icon: Theme.of(context).brightness == Brightness.light
-                  ? Icons.format_list_bulleted_rounded
-                  : Icons.receipt_long_outlined,
-              selectedIcon: Theme.of(context).brightness == Brightness.light
-                  ? Icons.format_list_bulleted_rounded
-                  : Icons.receipt_long_rounded,
+            const LiquidGlassDestination(
+              icon: Icons.list_alt_outlined,
+              selectedIcon: Icons.list_alt_rounded,
               label: 'Transactions',
             ),
             const LiquidGlassDestination(

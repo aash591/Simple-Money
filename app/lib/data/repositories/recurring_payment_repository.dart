@@ -1,37 +1,37 @@
 import 'package:drift/drift.dart';
 
-import '../../domain/subscription.dart';
+import '../../domain/recurring_payment.dart';
 import '../../domain/transaction.dart';
 import '../db/app_database.dart';
 import 'transaction_repository.dart';
 
-class SubscriptionRepository {
-  SubscriptionRepository(this.database);
+class RecurringPaymentRepository {
+  RecurringPaymentRepository(this.database);
   final AppDatabase database;
 
-  /// Unpicks every reference to an account being deleted. A subscription keeps
+  /// Unpicks every reference to an account being deleted. A recurring payment keeps
   /// renewing; it just needs another account to pay from.
   Future<void> detachAccount(int accountId) async {
     await database.customUpdate(
-      'UPDATE subscriptions SET account_id = NULL WHERE account_id = ?',
+      'UPDATE recurring_payments SET account_id = NULL WHERE account_id = ?',
       variables: [Variable(accountId)],
     );
     await database.customUpdate(
-      '''DELETE FROM subscription_payments WHERE transaction_id IN
+      '''DELETE FROM recurring_payment_history WHERE transaction_id IN
       (SELECT id FROM transactions WHERE account_id = ? OR to_account_id = ?)''',
       variables: [Variable(accountId), Variable(accountId)],
     );
   }
 
-  Future<List<Subscription>> load() async => [
+  Future<List<RecurringPayment>> load() async => [
     for (final r
         in await database
-            .customSelect('SELECT * FROM subscriptions ORDER BY id')
+            .customSelect('SELECT * FROM recurring_payments ORDER BY id')
             .get())
       _fromRow(r),
   ];
 
-  Subscription _fromRow(QueryRow r) => Subscription(
+  RecurringPayment _fromRow(QueryRow r) => RecurringPayment(
     id: r.read<int>('id'),
     name: r.read<String>('name'),
     icon: r.readNullable<String>('icon'),
@@ -45,22 +45,25 @@ class SubscriptionRepository {
     categoryId: r.readNullable<int>('category_id'),
     remind: r.read<int>('remind') == 1,
     paused: r.read<int>('paused') == 1,
+    incoming: r.read<int>('incoming') == 1,
   );
 
   /// Re-read inside the write, so an action taken from a stale screen (say,
   /// Mark paid tapped twice) can't apply to a renewal that has moved on.
-  Future<Subscription> _current(Subscription subscription) async {
+  Future<RecurringPayment> _current(RecurringPayment recurringPayment) async {
     final row = await database
         .customSelect(
-          'SELECT * FROM subscriptions WHERE id = ?',
-          variables: [Variable(subscription.id)],
+          'SELECT * FROM recurring_payments WHERE id = ?',
+          variables: [Variable(recurringPayment.id)],
         )
         .getSingleOrNull();
-    if (row == null) throw StateError('This subscription no longer exists.');
+    if (row == null) {
+      throw StateError('This recurring payment no longer exists.');
+    }
     final current = _fromRow(row);
-    if (current.nextDue != subscription.nextDue ||
-        current.paused != subscription.paused) {
-      throw StateError('This subscription changed. Please try again.');
+    if (current.nextDue != recurringPayment.nextDue ||
+        current.paused != recurringPayment.paused) {
+      throw StateError('This recurring payment changed. Please try again.');
     }
     return current;
   }
@@ -76,7 +79,11 @@ class SubscriptionRepository {
     return (row.read<String>('currency'), row.read<int>('digits'));
   }
 
-  List<Variable> _values(SubscriptionDraft draft, String currency, int digits) {
+  List<Variable> _values(
+    RecurringPaymentDraft draft,
+    String currency,
+    int digits,
+  ) {
     final due = dateOnly(draft.nextDue);
     return [
       Variable(draft.name.trim()),
@@ -90,28 +97,31 @@ class SubscriptionRepository {
       Variable(draft.accountId),
       Variable(draft.categoryId),
       Variable(draft.remind ? 1 : 0),
+      Variable(draft.incoming ? 1 : 0),
     ];
   }
 
-  Future<int> add(SubscriptionDraft draft) => database.transaction(() async {
-    draft.validate();
-    final (currency, digits) = await _accountCurrency(draft.accountId);
-    return database.customInsert(
-      '''INSERT INTO subscriptions (name, icon, amount_minor, currency, digits,
-        cycle, next_due, day, account_id, category_id, remind)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-      variables: _values(draft, currency, digits),
-    );
-  });
+  Future<int> add(RecurringPaymentDraft draft) =>
+      database.transaction(() async {
+        draft.validate();
+        final (currency, digits) = await _accountCurrency(draft.accountId);
+        return database.customInsert(
+          '''INSERT INTO recurring_payments (name, icon, amount_minor, currency,
+        digits, cycle, next_due, day, account_id, category_id, remind, incoming)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+          variables: _values(draft, currency, digits),
+        );
+      });
 
-  Future<void> update(int id, SubscriptionDraft draft) =>
+  Future<void> update(int id, RecurringPaymentDraft draft) =>
       database.transaction(() async {
         draft.validate();
         final (currency, digits) = await _accountCurrency(draft.accountId);
         await database.customUpdate(
-          '''UPDATE subscriptions SET name = ?, icon = ?, amount_minor = ?,
+          '''UPDATE recurring_payments SET name = ?, icon = ?, amount_minor = ?,
             currency = ?, digits = ?, cycle = ?, next_due = ?, day = ?,
-            account_id = ?, category_id = ?, remind = ? WHERE id = ?''',
+            account_id = ?, category_id = ?, remind = ?, incoming = ?
+            WHERE id = ?''',
           variables: [..._values(draft, currency, digits), Variable(id)],
         );
       });
@@ -120,11 +130,11 @@ class SubscriptionRepository {
   /// its own account, and moves on to the next one. One that lost its
   /// account keeps the one it was paid from this time.
   Future<int> markPaid(
-    Subscription subscription, {
+    RecurringPayment recurringPayment, {
     required DateTime date,
     int? accountId,
   }) => database.transaction(() async {
-    final current = await _current(subscription);
+    final current = await _current(recurringPayment);
     if (current.paused) throw StateError('Resume it before marking paid.');
     final payFrom = accountId ?? current.accountId;
     if (payFrom == null) {
@@ -135,27 +145,29 @@ class SubscriptionRepository {
       throw ArgumentError(
         accountId == null
             ? 'Its account is no longer in ${current.currency}. Edit the '
-                  'subscription to choose another.'
+                  'recurring payment to choose another.'
             : 'Choose an account in ${current.currency}.',
       );
     }
     if (current.accountId == null) {
       await database.customUpdate(
-        'UPDATE subscriptions SET account_id = ? WHERE id = ?',
+        'UPDATE recurring_payments SET account_id = ? WHERE id = ?',
         variables: [Variable(payFrom), Variable(current.id)],
       );
     }
     final transactionId = await TransactionRepository(database)
         .addExpenseOrIncome(
-          type: TransactionType.expense,
+          type: current.incoming
+              ? TransactionType.income
+              : TransactionType.expense,
           amountMinor: current.amountMinor,
           accountId: payFrom,
-          categoryId: await _category(current.categoryId),
+          categoryId: await _category(current.categoryId, current.incoming),
           title: current.name,
           date: date,
         );
     await database.customInsert(
-      '''INSERT INTO subscription_payments (transaction_id, subscription_id)
+      '''INSERT INTO recurring_payment_history (transaction_id, recurring_payment_id)
       VALUES (?, ?)''',
       variables: [Variable(transactionId), Variable(current.id)],
     );
@@ -163,43 +175,44 @@ class SubscriptionRepository {
     return transactionId;
   });
 
-  /// What has actually been paid for [subscriptionId], newest first. Only
+  /// What has actually been paid for [recurringPaymentId], newest first. Only
   /// renewals marked paid here appear: a skipped one logs nothing, and a
   /// payment whose transaction was deleted drops out with it.
-  Future<List<SubscriptionPayment>> payments(int subscriptionId) async => [
-    for (final row
-        in await database
-            .customSelect(
-              '''SELECT t.id, t.amount_minor, t.date, a.name AS account
-          FROM subscription_payments p
+  Future<List<RecurringPaymentRecord>> payments(int recurringPaymentId) async =>
+      [
+        for (final row
+            in await database
+                .customSelect(
+                  '''SELECT t.id, t.amount_minor, t.date, a.name AS account
+          FROM recurring_payment_history p
           JOIN transactions t ON t.id = p.transaction_id
           LEFT JOIN accounts a ON a.id = t.account_id
-          WHERE p.subscription_id = ?
+          WHERE p.recurring_payment_id = ?
           ORDER BY t.date DESC, t.id DESC''',
-              variables: [Variable(subscriptionId)],
-            )
-            .get())
-      SubscriptionPayment(
-        transactionId: row.read<int>('id'),
-        amountMinor: row.read<int>('amount_minor'),
-        date: DateTime.fromMillisecondsSinceEpoch(row.read<int>('date')),
-        account: row.readNullable<String>('account'),
-      ),
-  ];
+                  variables: [Variable(recurringPaymentId)],
+                )
+                .get())
+          RecurringPaymentRecord(
+            transactionId: row.read<int>('id'),
+            amountMinor: row.read<int>('amount_minor'),
+            date: DateTime.fromMillisecondsSinceEpoch(row.read<int>('date')),
+            account: row.readNullable<String>('account'),
+          ),
+      ];
 
   /// Moves past this renewal without logging a payment, for one that was
   /// already recorded some other way or wasn't charged.
-  Future<void> skip(Subscription subscription) =>
+  Future<void> skip(RecurringPayment recurringPayment) =>
       database.transaction(() async {
-        final current = await _current(subscription);
+        final current = await _current(recurringPayment);
         await _moveTo(current, current.followingDue);
       });
 
   /// Nothing is charged while paused, so resuming picks up at the first
   /// renewal from today on rather than at every one that was missed.
-  Future<void> setPaused(Subscription subscription, bool paused) =>
+  Future<void> setPaused(RecurringPayment recurringPayment, bool paused) =>
       database.transaction(() async {
-        final current = await _current(subscription);
+        final current = await _current(recurringPayment);
         var due = current.nextDue;
         if (!paused) {
           final today = dateOnly(DateTime.now());
@@ -208,7 +221,7 @@ class SubscriptionRepository {
           }
         }
         await database.customUpdate(
-          'UPDATE subscriptions SET paused = ?, next_due = ? WHERE id = ?',
+          'UPDATE recurring_payments SET paused = ?, next_due = ? WHERE id = ?',
           variables: [
             Variable(paused ? 1 : 0),
             Variable(dateToStorage(due)),
@@ -221,24 +234,28 @@ class SubscriptionRepository {
   /// category's icon.
   Future<void> delete(int id) => database.transaction(() async {
     await database.customUpdate(
-      'DELETE FROM subscription_payments WHERE subscription_id = ?',
+      'DELETE FROM recurring_payment_history WHERE recurring_payment_id = ?',
       variables: [Variable(id)],
     );
     await database.customUpdate(
-      'DELETE FROM subscriptions WHERE id = ?',
+      'DELETE FROM recurring_payments WHERE id = ?',
       variables: [Variable(id)],
     );
   });
 
-  Future<void> _moveTo(Subscription subscription, DateTime due) =>
+  Future<void> _moveTo(RecurringPayment recurringPayment, DateTime due) =>
       database.customUpdate(
-        'UPDATE subscriptions SET next_due = ? WHERE id = ?',
-        variables: [Variable(dateToStorage(due)), Variable(subscription.id)],
+        'UPDATE recurring_payments SET next_due = ? WHERE id = ?',
+        variables: [
+          Variable(dateToStorage(due)),
+          Variable(recurringPayment.id),
+        ],
       );
 
-  /// Its own category while that still exists, else the default
-  /// Subscriptions expense category, recreated if it was deleted.
-  Future<int> _category(int? id) async {
+  /// Its own category while that still exists, else the default for its
+  /// direction (Recurring payments for money out, Rental Income for money in),
+  /// recreated if it was deleted.
+  Future<int> _category(int? id, bool incoming) async {
     if (id != null) {
       final row = await database
           .customSelect(
@@ -248,14 +265,19 @@ class SubscriptionRepository {
           .getSingleOrNull();
       if (row != null) return id;
     }
+    final (name, type, icon) = incoming
+        ? ('Rental Income', 'income', 'rent')
+        : ('Subscriptions', 'expense', 'subscriptions');
     final row = await database
         .customSelect(
-          "SELECT id FROM categories WHERE name = 'Subscriptions' AND type = 'expense' ORDER BY parent_id IS NOT NULL, id LIMIT 1",
+          'SELECT id FROM categories WHERE name = ? AND type = ? ORDER BY parent_id IS NOT NULL, id LIMIT 1',
+          variables: [Variable(name), Variable(type)],
         )
         .getSingleOrNull();
     return row?.read<int>('id') ??
         await database.customInsert(
-          "INSERT INTO categories (name, type, icon, sort_order) VALUES ('Subscriptions', 'expense', 'subscriptions', (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM categories))",
+          'INSERT INTO categories (name, type, icon, sort_order) VALUES (?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM categories))',
+          variables: [Variable(name), Variable(type), Variable(icon)],
         );
   }
 }

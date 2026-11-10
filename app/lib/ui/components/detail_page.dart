@@ -5,14 +5,14 @@ import '../theme/app_typography.dart';
 import 'common.dart';
 import 'glass_button.dart';
 
-/// The shared shell the Subscription, Loan and Debt pages are all built from.
+/// The shared shell the Recurring payment, Loan and Debt pages are all built from.
 ///
 /// Those three track different things and offer different actions, but they
 /// answer the same three questions in the same order — what is this and what
 /// does it cost ([DetailHero]), what do I know about it ([DetailFacts]), and
 /// what has actually happened ([DetailHistoryCard]). Keeping the pieces here
 /// means a payment row looks the same whether it settled a loan, a debt or a
-/// subscription, so learning one page teaches all three.
+/// recurring payment, so learning one page teaches all three.
 
 /// The identity of the thing and its one headline figure.
 class DetailHero extends StatelessWidget {

@@ -7,6 +7,7 @@ import '../../components/adaptive_sheet.dart';
 import '../../components/app_icon.dart';
 import '../../components/charts/charts.dart';
 import '../../components/common.dart';
+import '../../components/empty_chart_preview.dart';
 import 'home_card.dart';
 
 /// The month's spending by category as a pie, with the full ranking a tap
@@ -96,7 +97,7 @@ class SpendingCard extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         if (data.spent == 0)
-          const Text('No spending this month.')
+          const _EmptyDonut()
         else
           CalloutDonutChart(
             slices: _segments(context),
@@ -108,4 +109,37 @@ class SpendingCard extends StatelessWidget {
       ],
     ),
   );
+}
+
+/// The donut as it will look, with sample categories, for a month with no
+/// spending yet.
+class _EmptyDonut extends StatelessWidget {
+  const _EmptyDonut();
+
+  static const _sample = [
+    ('Food', 46.0, Icons.restaurant_rounded),
+    ('Shopping', 27.0, Icons.shopping_bag_outlined),
+    ('Transport', 17.0, Icons.directions_car_outlined),
+    ('Bills', 10.0, Icons.receipt_long_outlined),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = ChartPalette.of(context);
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return EmptyChartPreview(
+      title: 'No spending this month.',
+      message: 'Expenses you add will show up here, by category.',
+      sample: CalloutDonutChart(
+        slices: [
+          for (final (i, (name, share, _)) in _sample.indexed)
+            ChartEntry(label: name, value: share, color: palette.series(i)),
+        ],
+        centerLabel: homeMoney(0, const SingleCurrency('INR', 2)),
+        centerCaption: 'spent',
+        badgeBuilder: (context, i) =>
+            Icon(_sample[i].$3, size: 18, color: muted),
+      ),
+    );
+  }
 }

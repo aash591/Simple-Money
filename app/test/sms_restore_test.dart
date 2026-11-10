@@ -108,10 +108,9 @@ void main() {
     return store;
   }
 
-  Future<int> count(AppDatabase db, String table) async => (await db
-          .customSelect('SELECT count(*) AS n FROM $table')
-          .getSingle())
-      .read<int>('n');
+  Future<int> count(AppDatabase db, String table) async =>
+      (await db.customSelect('SELECT count(*) AS n FROM $table').getSingle())
+          .read<int>('n');
 
   test('A restored phone does not save its inbox again', () async {
     final drive = _Drive();
@@ -127,10 +126,7 @@ void main() {
     final accounts = (await AccountRepository(old).load()).length;
     final settled = await count(old, 'sms_history');
     expect(settled, greaterThan(transactions - 1));
-    expect(
-      await count(old, "sms_imports WHERE status != 'pending'"),
-      settled,
-    );
+    expect(await count(old, "sms_imports WHERE status != 'pending'"), settled);
     await oldSync.connect('test@example.com', 'google-user-1');
     expect(
       await SyncEngine(oldSync, openTransport: (_) async => drive).run(),
@@ -140,7 +136,10 @@ void main() {
     final fresh = AppDatabase(NativeDatabase.memory(), false);
     addTearDown(fresh.close);
     final freshSync = SyncRepository(fresh);
-    final freshEngine = SyncEngine(freshSync, openTransport: (_) async => drive);
+    final freshEngine = SyncEngine(
+      freshSync,
+      openTransport: (_) async => drive,
+    );
     await freshSync.connect('test@example.com', 'google-user-1');
     await freshEngine.run();
     await freshEngine.restore((await freshEngine.findBackup())!);
@@ -150,7 +149,10 @@ void main() {
     final second = await scan(fresh);
     expect(await count(fresh, 'transactions'), transactions);
     expect((await AccountRepository(fresh).load()).length, accounts);
-    expect(second.pendingCount, await count(old, "sms_imports WHERE status = 'pending'"));
+    expect(
+      second.pendingCount,
+      await count(old, "sms_imports WHERE status = 'pending'"),
+    );
     expect(second.lastScan?.saved ?? 0, 0);
   });
 
@@ -166,14 +168,16 @@ void main() {
     );
     expect(await count(db, 'sms_history'), before - 1);
     // Cleanup rewrites candidates without changing anything worth uploading.
-    final outbox = await count(db, "sync_outbox WHERE table_name='sms_history'");
+    final outbox = await count(
+      db,
+      "sync_outbox WHERE table_name='sms_history'",
+    );
     await db.customStatement(
       "UPDATE sms_imports SET candidate=json_object('notificationKey',json_extract(candidate,'\$.notificationKey'),'isCreditCard',json_extract(candidate,'\$.isCreditCard')) WHERE status!='pending'",
     );
-    final revision = (await db
-            .customSelect('SELECT revision FROM sync_state')
-            .getSingle())
-        .read<int>('revision');
+    final revision =
+        (await db.customSelect('SELECT revision FROM sync_state').getSingle())
+            .read<int>('revision');
     await db.customStatement(
       "UPDATE sms_imports SET candidate=candidate WHERE status!='pending'",
     );

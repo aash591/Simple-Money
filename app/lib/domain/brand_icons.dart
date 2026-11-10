@@ -457,6 +457,14 @@ const brandIcons = <BrandIcon>[
     isOriginal: true,
   ),
   BrandIcon(
+    'bajajfinance',
+    "Bajaj Finance",
+    Color(0xFF085FAC),
+    isBank: true,
+    bankCountry: "India",
+    isOriginal: true,
+  ),
+  BrandIcon(
     'federalbank',
     "Federal Bank",
     Color(0xFF7B2D8E),

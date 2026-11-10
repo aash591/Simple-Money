@@ -88,8 +88,9 @@ and an Others slice on the ring chart. Different currencies are selected
 separately; no exchange conversion is performed. Reusable, data-driven charts
 live in `app/lib/ui/components/charts/`. Backup & Sync now provides optional
 automatic incremental Google Drive uploads with a persistent offline queue.
-See [Google Drive setup and sync behavior](GOOGLE_DRIVE_SYNC.md). Snapshots and
-restore are planned for a later update.
+See [Google Drive setup and sync behavior](GOOGLE_DRIVE_SYNC.md). Restore is
+available after reinstalling or on a new phone. Snapshots and merging changes
+between devices are not yet implemented.
 
 Run `flutter test` from `app/` for account persistence and widget-flow tests.
 `flutter test tool/screenshots_test.dart` generates layout-review images under

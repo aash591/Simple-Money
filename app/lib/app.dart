@@ -23,9 +23,9 @@ import 'state/budget_store.dart';
 import 'state/category_store.dart';
 import 'state/debt_store.dart';
 import 'state/loan_store.dart';
-import 'state/subscription_store.dart';
+import 'state/recurring_payment_store.dart';
 import 'data/repositories/loan_repository.dart';
-import 'data/repositories/subscription_repository.dart';
+import 'data/repositories/recurring_payment_repository.dart';
 import 'state/transaction_store.dart';
 import 'state/sync_controller.dart';
 import 'state/security_controller.dart';
@@ -118,8 +118,8 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     categoryStore: _categories,
     transactionStore: _transactions,
   );
-  late final SubscriptionStore _subscriptions = SubscriptionStore(
-    SubscriptionRepository(_database ?? _transactions.repository.database),
+  late final RecurringPaymentStore _recurringPayments = RecurringPaymentStore(
+    RecurringPaymentRepository(_database ?? _transactions.repository.database),
     accountStore: _accounts,
     categoryStore: _categories,
     transactionStore: _transactions,
@@ -139,7 +139,7 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     if (_transactions.loading) _transactions.load();
     _debts.load();
     _loans.load();
-    _subscriptions.load();
+    _recurringPayments.load();
     _startSync();
     _themeMode.restore();
     _upiSettings.restore();
@@ -190,7 +190,7 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
       budgetStore: _budgets,
       debtStore: _debts,
       loanStore: _loans,
-      subscriptionStore: _subscriptions,
+      recurringPaymentStore: _recurringPayments,
       syncController: _sync,
       themeMode: _themeMode,
       onChangeThemeMode: _changeThemeMode,
@@ -211,7 +211,7 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     _budgets.reload();
     _debts.load();
     _loans.load();
-    _subscriptions.load();
+    _recurringPayments.load();
   }
 
   @override
@@ -219,6 +219,7 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     // A launcher sheet uses a separate engine and may have changed the ledger.
     if (state == AppLifecycleState.resumed && _quickAction == null) {
       _reloadLedger();
+      _themeMode.expirePreviews();
       if (_monetized) ProController.instance.refresh();
     }
   }
@@ -242,7 +243,7 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     if (widget.budgetStore == null) _budgets.dispose();
     _debts.dispose();
     _loans.dispose();
-    _subscriptions.dispose();
+    _recurringPayments.dispose();
     if (widget.accountStore == null) _database?.close();
     super.dispose();
   }
@@ -254,6 +255,7 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
       navigatorKey: _navigator,
       title: 'SimpleMoney',
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const _NoEdgeGlow(),
       onGenerateInitialRoutes: _showOnboarding
           ? (_) => [
               PageRouteBuilder<void>(
@@ -322,4 +324,17 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
       onGenerateRoute: (_) => _homeRoute(),
     ),
   );
+}
+
+/// Lists end with no overscroll glow: its tinted patch darkened the glass
+/// cards and the picture behind them at the top and bottom.
+class _NoEdgeGlow extends MaterialScrollBehavior {
+  const _NoEdgeGlow();
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) => child;
 }

@@ -31,7 +31,9 @@ class HomeCard extends StatelessWidget {
       tween: Tween(begin: 0, end: 1),
       duration: const Duration(milliseconds: 320),
       curve: Curves.easeOutCubic,
-      child: card,
+      // Its own layer: the entrance fades and slides pixels already painted
+      // instead of repainting the card (charts and all) on every frame.
+      child: RepaintBoundary(child: card),
       builder: (context, progress, child) => Opacity(
         opacity: progress,
         child: Transform.translate(

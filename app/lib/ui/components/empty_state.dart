@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'empty_art.dart';
 
 /// The one "nothing here yet" page for list screens (Accounts, Categories,
-/// Debts, Loans, Subscriptions): hand-drawn 3D artwork resting in a glass
+/// Debts, Loans, Recurring payments): hand-drawn 3D artwork resting in a glass
 /// lens that overlaps a dashed panel, a short title, one line on what the
 /// page is for, and an optional button to add the first item — or, through
 /// [actions], a few buttons of the page's own.

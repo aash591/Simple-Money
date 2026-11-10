@@ -1,5 +1,5 @@
 param(
-  [string]$CaptureDirectory = (Join-Path $PSScriptRoot '..\build\playstore-captures'),
+  [string]$CaptureDirectory = (Join-Path $PSScriptRoot '..\..\assets_raw\playstoreAssets\captures'),
   [string]$OutputDirectory = (Join-Path $PSScriptRoot '..\..\assets_raw\playstoreAssets')
 )
 
@@ -8,10 +8,10 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 
 $masterIcon = Join-Path $PSScriptRoot '..\..\assets_raw\app_icon_master.png'
-$backgroundA = Join-Path $OutputDirectory 'backgrounds\generated-ribbon-a.png'
-$backgroundB = Join-Path $OutputDirectory 'backgrounds\generated-ribbon-b.png'
-$featureBackground = Join-Path $OutputDirectory 'backgrounds\generated-feature.png'
-foreach ($required in @($masterIcon, $backgroundA, $backgroundB, $featureBackground)) {
+$backgroundLight = Join-Path $OutputDirectory 'backgrounds\gold-chart-light.png'
+$backgroundDark = Join-Path $OutputDirectory 'backgrounds\gold-chart-aurora.png'
+$featureBackground = Join-Path $OutputDirectory 'backgrounds\gold-chart-feature.png'
+foreach ($required in @($masterIcon, $backgroundLight, $backgroundDark, $featureBackground)) {
   if (-not (Test-Path -LiteralPath $required)) { throw "Missing creative source: $required" }
 }
 
@@ -101,8 +101,8 @@ public static class PlayStoreCreativeGenerator {
   }
 
   private static Bitmap MakePhone(Bitmap screenshot) {
-    if (screenshot.Width != 1080 || screenshot.Height != 2400)
-      throw new InvalidOperationException("Expected a 1080x2400 Pixel capture; got " + screenshot.Width + "x" + screenshot.Height + ".");
+    if (screenshot.Width != 1080 || screenshot.Height < 2000)
+      throw new InvalidOperationException("Expected a 1080px-wide portrait capture; got " + screenshot.Width + "x" + screenshot.Height + ".");
 
     var phone = new Bitmap(707, 1532, PixelFormat.Format32bppArgb);
     using (var g = Canvas(phone)) {
@@ -119,7 +119,7 @@ public static class PlayStoreCreativeGenerator {
       using (var screenPath = RoundRect(screen, 50)) {
         var state = g.Save();
         g.SetClip(screenPath);
-        g.DrawImage(screenshot, screen, new RectangleF(0, 0, 1080, 2400), GraphicsUnit.Pixel);
+        g.DrawImage(screenshot, screen, new RectangleF(0, 0, screenshot.Width, screenshot.Height), GraphicsUnit.Pixel);
         g.Restore(state);
       }
       using (var screenPath = RoundRect(screen, 50))
@@ -230,7 +230,7 @@ public static class PlayStoreCreativeGenerator {
       using (var featureFill = new SolidBrush(Color.FromArgb(30, Purple))) g.FillPath(featureFill, featurePath);
       using (var featureFont = new Font("Segoe UI", 17, FontStyle.Bold, GraphicsUnit.Pixel))
       using (var featureBrush = new SolidBrush(DeepPurple))
-        g.DrawString("MULTI-CURRENCY  \u2022  BUDGETS  \u2022  BILLS", featureFont, featureBrush, 67, 314);
+        g.DrawString("ACCOUNTS  \u2022  BUDGETS  \u2022  PAYMENTS", featureFont, featureBrush, 67, 314);
 
       g.DrawImage(phone, new Rectangle(766, 3, 228, 494), 0, 0, phone.Width, phone.Height, GraphicsUnit.Pixel);
       output.Save(outputPath, ImageFormat.Png);
@@ -244,9 +244,10 @@ $screenshots = @(
   @{ Source = '02-transactions.png'; Output = 'phone-2.png'; Eyebrow = 'Effortless tracking'; LineOne = 'Transactions,'; LineTwo = 'without the noise.'; Subtitle = 'Money in and money out, clear at a glance.' },
   @{ Source = '03-budgets.png'; Output = 'phone-3.png'; Eyebrow = 'Smart budgets'; LineOne = 'Budgets that'; LineTwo = 'keep you on track.'; Subtitle = 'Set limits by category and always know what remains.' },
   @{ Source = '05-loans.png'; Output = 'phone-4.png'; Eyebrow = 'Loans made clear'; LineOne = 'Loans, minus'; LineTwo = 'the guesswork.'; Subtitle = 'Track balances, repayments and every upcoming EMI.' },
-  @{ Source = '06-subscriptions.png'; Output = 'phone-5.png'; Eyebrow = 'Stay ahead'; LineOne = 'Bills before'; LineTwo = 'they surprise you.'; Subtitle = 'See renewals and recurring costs months ahead.' },
+  @{ Source = '06-recurring-payments.png'; Output = 'phone-5.png'; Eyebrow = 'Stay ahead'; LineOne = 'Recurring bills,'; LineTwo = 'already planned.'; Subtitle = 'See upcoming payments and what each month costs.' },
   @{ Source = '07-ai-assistant.png'; Output = 'phone-6.png'; Eyebrow = 'AI assistant'; LineOne = 'Ask your money'; LineTwo = 'anything.'; Subtitle = 'Share context only when you choose, for a limited time.' },
-  @{ Source = '04-more.png'; Output = 'phone-7.png'; Eyebrow = 'Everything together'; LineOne = 'Everything money.'; LineTwo = 'One calm place.'; Subtitle = 'Accounts, debts, statements, loans and more.' }
+  @{ Source = '04-more-aurora.png'; Output = 'phone-7.png'; Eyebrow = 'Aurora Glass'; LineOne = 'A little more'; LineTwo = 'your style.'; Subtitle = 'Luminous glass surfaces with a beautiful dark glow.' },
+  @{ Source = '08-customization.png'; Output = 'phone-8.png'; Eyebrow = 'Make it yours'; LineOne = 'Light, dark,'; LineTwo = 'and all yours.'; Subtitle = 'Choose a theme, glass style and accent color.' }
 )
 
 $screenshotsDirectory = Join-Path $OutputDirectory 'screenshots'
@@ -258,7 +259,7 @@ for ($index = 0; $index -lt $screenshots.Count; $index++) {
   if (-not (Test-Path -LiteralPath $source)) { throw "Missing fresh profile capture: $source" }
   [PlayStoreCreativeGenerator]::Screenshot(
     $source,
-    $(if (($index % 2) -eq 0) { $backgroundA } else { $backgroundB }),
+    $(if ($index -ge 6) { $backgroundDark } else { $backgroundLight }),
     (Join-Path $screenshotsDirectory $item.Output),
     $item.Eyebrow,
     $item.LineOne,
@@ -279,4 +280,4 @@ for ($index = 0; $index -lt $screenshots.Count; $index++) {
   (Join-Path $OutputDirectory 'feature-graphic-1024x500.png')
 )
 
-Write-Host "Generated white-background Play Store assets in $OutputDirectory"
+Write-Host "Generated Play Store assets in $OutputDirectory"

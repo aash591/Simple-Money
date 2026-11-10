@@ -281,7 +281,7 @@ class _PersonDebtsScreenState extends State<PersonDebtsScreen> {
   Account? _accountOf(DebtEntry entry) =>
       store.accountStore.byId(entry.accountId);
 
-  /// Primary-first actions shared with subscriptions and loans.
+  /// Primary-first actions shared with recurring payments and loans.
   Widget _actions(BuildContext context, PersonDebts debts) {
     if (debts.settled) {
       return DetailActions(
@@ -370,7 +370,7 @@ class _PersonDebtsScreenState extends State<PersonDebtsScreen> {
   }
 }
 
-/// Who this is and what it comes to, in the same shape the subscription and
+/// Who this is and what it comes to, in the same shape the recurring payment and
 /// loan pages open with.
 class _Summary extends StatelessWidget {
   const _Summary({required this.debts});

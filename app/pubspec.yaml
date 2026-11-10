@@ -36,6 +36,8 @@ dependencies:
   google_mobile_ads: ^9.2.0
   in_app_purchase: ^3.3.1
   in_app_purchase_android: ^0.5.5
+  cryptography: ^2.9.0
+  flutter_secure_storage: ^11.2.0
 
 dev_dependencies:
   flutter_test:

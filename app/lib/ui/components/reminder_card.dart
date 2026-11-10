@@ -9,7 +9,7 @@ import 'common.dart';
 /// A payment coming up — an EMI, a renewal, a debt: what it is, what it
 /// costs, when it's due, and a clearly still-to-do way to settle it.
 ///
-/// Shared by Home's reminder sections and by the Subscriptions, Loans and
+/// Shared by Home's reminder sections and by the Recurring payments, Loans and
 /// Debts screens, so an EMI looks the same wherever it is listed.
 ///
 /// Three states, in order of precedence: [completedLabel] for something

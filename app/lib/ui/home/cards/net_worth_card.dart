@@ -9,7 +9,10 @@ import '../../../domain/debt.dart';
 import '../../../domain/loan.dart';
 import '../../../state/debt_store.dart';
 import '../../../state/loan_store.dart';
+import '../../components/animated_amount.dart';
 import '../../components/charts/charts.dart';
+import '../../components/common.dart';
+import '../../components/empty_chart_preview.dart';
 import '../../components/currency_notice.dart';
 import 'home_card.dart';
 import '../../components/private_amount.dart';
@@ -105,6 +108,40 @@ class NetWorthCard extends StatelessWidget {
                 _loansBefore(ends[i], conversion);
           }(),
       ];
+      // No balance, loan or debt anywhere: show the chart as it will look.
+      if (worth.every((v) => v == 0)) {
+        return HomeCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SectionTitle('Net worth'),
+              const SizedBox(height: 14),
+              EmptyChartPreview(
+                title: 'No net worth yet.',
+                message:
+                    'Add an account with a balance, and what you own will '
+                    'build up here.',
+                sample: LineChart(
+                  height: 150,
+                  filled: true,
+                  series: [
+                    ChartSeries(
+                      label: 'Net worth',
+                      values: const [42, 44, 43, 49, 52, 58],
+                      color: primary,
+                    ),
+                  ],
+                  labels: [
+                    for (final f in flows) DateFormat.MMM().format(f.month),
+                  ],
+                  formatValue: (v) => '',
+                  formatAxis: (v) => '',
+                ),
+              ),
+            ],
+          ),
+        );
+      }
       final (owedToYou, youOwe) = _debtsBefore(ends.last, conversion);
       final loans = _loansBefore(ends.last, conversion);
       final change = worth.last - worth.first;
@@ -121,11 +158,16 @@ class NetWorthCard extends StatelessWidget {
             CurrencyNotice(scope: currency, missing: conversion.missing),
             PrivateAmount(
               label: 'Net worth',
-              child: Text(
-                _money(worth.last),
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: worth.last < 0 ? palette.expense : null,
+              child: Semantics(
+                label: _money(worth.last),
+                excludeSemantics: true,
+                child: AnimatedAmount(
+                  value: worth.last,
+                  format: _money,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: worth.last < 0 ? palette.expense : null,
+                  ),
                 ),
               ),
             ),
@@ -145,36 +187,40 @@ class NetWorthCard extends StatelessWidget {
               formatValue: _money,
               formatAxis: (v) => homeCompactMoney(v, currency),
             ),
-            const SizedBox(height: 14),
-            ChartLegend(
-              direction: Axis.vertical,
-              formatValue: _money,
-              entries: [
-                ChartEntry(
-                  label: 'In your accounts',
-                  value: balances.last.toDouble(),
-                  color: primary,
-                ),
-                if (owedToYou > 0)
+            // With only accounts behind it the row would just repeat the
+            // net worth; the breakdown appears once loans or debts exist.
+            if (owedToYou > 0 || loans > 0 || youOwe > 0) ...[
+              const SizedBox(height: 14),
+              ChartLegend(
+                direction: Axis.vertical,
+                formatValue: _money,
+                entries: [
                   ChartEntry(
-                    label: 'Owed to you',
-                    value: owedToYou.toDouble(),
-                    color: palette.income,
+                    label: 'In your accounts',
+                    value: balances.last.toDouble(),
+                    color: primary,
                   ),
-                if (loans > 0)
-                  ChartEntry(
-                    label: 'Loans',
-                    value: -loans.toDouble(),
-                    color: palette.expense,
-                  ),
-                if (youOwe > 0)
-                  ChartEntry(
-                    label: 'You owe people',
-                    value: -youOwe.toDouble(),
-                    color: palette.series(3),
-                  ),
-              ],
-            ),
+                  if (owedToYou > 0)
+                    ChartEntry(
+                      label: 'Owed to you',
+                      value: owedToYou.toDouble(),
+                      color: palette.income,
+                    ),
+                  if (loans > 0)
+                    ChartEntry(
+                      label: 'Loans',
+                      value: -loans.toDouble(),
+                      color: palette.expense,
+                    ),
+                  if (youOwe > 0)
+                    ChartEntry(
+                      label: 'You owe people',
+                      value: -youOwe.toDouble(),
+                      color: palette.series(3),
+                    ),
+                ],
+              ),
+            ],
           ],
         ),
       );

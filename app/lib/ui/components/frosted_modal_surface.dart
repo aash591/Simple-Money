@@ -3,8 +3,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../data/device_performance.dart';
+import 'glass_surface.dart' show glassCardFill;
 import 'inner_glow.dart';
-import '../theme/app_theme.dart' show usesAurora, usesGlass;
+import '../../state/appearance_controller.dart' show AppearanceScope;
+import '../theme/app_theme.dart' show auroraDarkPage, usesAurora, usesGlass;
 import 'native_modal_blur.dart';
 import 'popup_zoom.dart';
 
@@ -18,7 +20,7 @@ class FrostedModalSurface extends StatelessWidget {
     super.key,
     required this.borderRadius,
     required this.child,
-    this.blurSigma = 40,
+    this.blurSigma = 28,
     this.shadows = const [],
   });
 
@@ -55,23 +57,32 @@ class FrostedModalSurface extends StatelessWidget {
     final dark = Theme.of(context).brightness == Brightness.dark;
     // The native blur behind Quick Entry still needs a see-through tint.
     final solid = DevicePerformance.lowEnd && !NativeModalBlur.enabled;
-    // The frost is about the app's surface colour, so the sheet's cards
-    // (that surface, lifted) sit on it as one family: charcoal for Glassy,
-    // navy for Aurora.
+    // The frost is made from the theme itself: the page's own base colour
+    // with a wash of the accent, so a menu, alert or sheet reads as part of
+    // the same glass as the cards. Over a chosen picture it lets more of the
+    // picture's colour through.
+    final scheme = Theme.of(context).colorScheme;
+    final picture = AppearanceScope.maybeOf(context)?.wallpaperPath != null;
     final tint = dark
-        ? (usesAurora(context)
-                  ? Theme.of(context).colorScheme.surface
-                  : const Color(0xff2a2a2a))
-              .withValues(alpha: solid ? .97 : .78)
-        : Colors.white.withValues(alpha: solid ? .96 : .66);
+        ? Color.alphaBlend(
+            scheme.primary.withValues(alpha: usesAurora(context) ? .16 : .10),
+            usesAurora(context) ? auroraDarkPage : const Color(0xff1e1e20),
+          ).withValues(alpha: solid ? .97 : (picture ? .56 : .72))
+        : Color.alphaBlend(
+            scheme.primary.withValues(alpha: .06),
+            Colors.white,
+          ).withValues(alpha: solid ? .96 : (picture ? .58 : .7));
     Widget surface = CustomPaint(
       foregroundPainter: _GlassRim(borderRadius, dark, visibility),
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: borderRadius,
-          // Uniform frost keeps the top just as glassy as the bottom.
-          // Opaque cards and controls above it retain their contrast.
-          color: tint.withValues(alpha: tint.a * visibility),
+          // No tint of its own: the blur and the cards' own glass fill. Only
+          // phones that can't blur get a near-opaque colour instead.
+          color: solid ? tint.withValues(alpha: tint.a * visibility) : null,
+          gradient: solid
+              ? null
+              : (glassCardFill(context) as LinearGradient).scale(visibility),
         ),
         // Fully opaque, this paints its child directly with no extra layer.
         child: Opacity(opacity: visibility, child: content),

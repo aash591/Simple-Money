@@ -1,5 +1,8 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 
+import '../../state/appearance_controller.dart' show AppearanceScope;
 import '../theme/app_theme.dart' show AppChrome, usesGlass, usesAurora;
 import '../theme/surface_style.dart';
 import 'glass_surface.dart';
@@ -58,9 +61,25 @@ class MoneyCard extends StatelessWidget {
         child: _clipped(radius),
       );
     }
-    final body = color != null
+    var body = color != null
         ? _clipped(radius)
         : GlassCardWash(radius: radius, child: _clipped(radius));
+    // Over a picture, the card frosts what is behind it.
+    if (usesAurora(context) &&
+        border == null &&
+        AppearanceScope.maybeOf(context)?.wallpaperPath != null) {
+      body = ClipRRect(
+        borderRadius: radius,
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(
+            sigmaX: 22,
+            sigmaY: 22,
+            tileMode: TileMode.mirror,
+          ),
+          child: body,
+        ),
+      );
+    }
     return DecoratedBox(
       // Glass: a see-through, top-lit fill over the page's soft backdrop.
       // The true-black theme keeps its plain hairline instead of the glass

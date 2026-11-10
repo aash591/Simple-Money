@@ -1,6 +1,7 @@
 // The tools a small model can use to teach the app: label_sms (copy values
 // out of a missed SMS) and map_statement (name a statement's columns).
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -83,11 +84,17 @@ void main() {
     'Suggestions made before statement layouts survive the upgrade',
     () async {
       await db.close();
-      db = AppDatabase(
-        NativeDatabase.memory(
-          setup: (raw) {
-            // Version 34's table, which allowed four kinds.
-            raw.execute('''CREATE TABLE agent_suggestions (
+      final directory = await Directory.systemTemp.createTemp('agent_upgrade_');
+      addTearDown(() async {
+        await db.close();
+        await directory.delete(recursive: true);
+      });
+      final file = File('${directory.path}/ledger.sqlite');
+      db = AppDatabase(NativeDatabase(file));
+      // A complete ledger keeps the fixture valid for unrelated migrations.
+      await db.customSelect('SELECT 1').get();
+      await db.customStatement('DROP TABLE agent_suggestions');
+      await db.customStatement('''CREATE TABLE agent_suggestions (
             id INTEGER PRIMARY KEY AUTOINCREMENT, batch_id TEXT NOT NULL,
             kind TEXT NOT NULL CHECK(kind IN ('new_category', 'sms_correction',
               'transaction_edit', 'parser_rule')),
@@ -96,15 +103,14 @@ void main() {
             status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending',
               'applied', 'rejected', 'undone')),
             error TEXT, created_at INTEGER NOT NULL, decided_at INTEGER)''');
-            raw.execute(
-              """INSERT INTO agent_suggestions
+      await db.customStatement(
+        """INSERT INTO agent_suggestions
             (batch_id, kind, target, payload, summary, detail, created_at)
             VALUES ('b', 'new_category', 'Food', '{}', 'New category', '', 1)""",
-            );
-            raw.userVersion = 34;
-          },
-        ),
       );
+      await db.customStatement('PRAGMA user_version = 34');
+      await db.close();
+      db = AppDatabase(NativeDatabase(file));
       final kinds = await db
           .customSelect('SELECT kind FROM agent_suggestions')
           .map((r) => r.read<String>('kind'))

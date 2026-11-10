@@ -353,6 +353,9 @@ class _LoanActionSheetState extends State<LoanActionSheet> {
               const SizedBox(height: 16),
               AdvancePaymentNotice(
                 due: loan.nextDue,
+                following: loan.schedule.length > 1
+                    ? loan.schedule[1].due
+                    : null,
                 payment: '${loan.terms.mode.paymentNoun} ${loan.paid + 1}',
                 accepted: _advanceAccepted,
                 onChanged: (value) => setState(() => _advanceAccepted = value),

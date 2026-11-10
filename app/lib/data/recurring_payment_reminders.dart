@@ -2,12 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../domain/account.dart';
-import '../domain/subscription.dart';
+import '../domain/recurring_payment.dart';
 import 'reminder_sync.dart';
 
-/// Separate notification namespace: rescheduling subscriptions must not
+/// Separate notification namespace: rescheduling recurring payments must not
 /// cancel loan or debt reminders.
-class SubscriptionReminders {
+class RecurringPaymentReminders {
   final _plugin = FlutterLocalNotificationsPlugin();
   Future<void> _queue = Future.value();
   Future<void>? _ready;
@@ -48,17 +48,17 @@ class SubscriptionReminders {
   /// list is worth applying.
   int _requested = 0;
 
-  Future<void> reschedule(List<Subscription> subscriptions) {
+  Future<void> reschedule(List<RecurringPayment> recurringPayments) {
     final request = ++_requested;
     return _run(() async {
       await afterLaunch();
       if (request != _requested) return;
       final now = DateTime.now();
       final planned = <PlannedReminder>[];
-      for (final subscription in subscriptions.where(
+      for (final recurringPayment in recurringPayments.where(
         (s) => s.remind && !s.paused,
       )) {
-        var due = subscription.nextDue;
+        var due = recurringPayment.nextDue;
         for (var renewal = 0; renewal < _ahead; renewal++) {
           for (final days in [2, 0]) {
             final at = DateTime(due.year, due.month, due.day - days, 9);
@@ -67,22 +67,23 @@ class SubscriptionReminders {
               PlannedReminder(
                 id:
                     200000000 +
-                    subscription.id * 32 +
+                    recurringPayment.id * 32 +
                     renewal * 2 +
                     (days == 0 ? 1 : 0),
-                owner: '$_prefix${subscription.id}',
+                owner: '$_prefix${recurringPayment.id}',
                 at: at,
-                title:
-                    '${subscription.name} renews ${days == 0 ? 'today' : 'in 2 days'}',
+                title: recurringPayment.incoming
+                    ? '${recurringPayment.name} is expected ${days == 0 ? 'today' : 'in 2 days'}'
+                    : '${recurringPayment.name} is due ${days == 0 ? 'today' : 'in 2 days'}',
                 body: formatAccountMoney(
-                  subscription.amountMinor,
-                  digits: subscription.digits,
-                  currency: subscription.currency,
+                  recurringPayment.amountMinor,
+                  digits: recurringPayment.digits,
+                  currency: recurringPayment.currency,
                 ),
               ),
             );
           }
-          due = subscription.cycle.after(due, subscription.day);
+          due = recurringPayment.cycle.after(due, recurringPayment.day);
         }
       }
       await syncReminders(
@@ -99,9 +100,9 @@ class SubscriptionReminders {
   static const _details = NotificationDetails(
     android: AndroidNotificationDetails(
       'subscription_due',
-      'Subscription reminders',
+      'Recurring payment reminders',
       channelDescription:
-          'Two days before a subscription renews and on the day',
+          'Two days before a recurring payment is due and on the day',
     ),
   );
 }

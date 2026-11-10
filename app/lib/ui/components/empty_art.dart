@@ -1,6 +1,11 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+
+import '../../state/appearance_controller.dart' show AppearanceScope;
+import '../theme/app_theme.dart' show AppChrome, usesAurora, usesGlass;
+import 'glass_surface.dart' show glassCardFill;
 
 /// Hand-drawn 3D artwork for the app's empty states: chunky, extruded
 /// shapes with a lit front face, a darker body showing their depth, a
@@ -402,6 +407,10 @@ class GlassLens extends StatelessWidget {
     final theme = Theme.of(context);
     final dark = theme.brightness == Brightness.dark;
     final accent = theme.colorScheme.primary;
+    if (usesGlass(context) &&
+        theme.extension<AppChrome>()?.cardBorder == null) {
+      return _glass(context, dark, accent);
+    }
     final fill = dark
         ? [
             Color.lerp(const Color(0xff2a2a30), accent, .28)!,
@@ -438,6 +447,74 @@ class GlassLens extends StatelessWidget {
       child: child,
     );
   }
+
+  /// The glass styles: a pale disc of the accent with a soft light ring and a
+  /// faint glow. The page colour sits under the tint so the panel's dashed
+  /// edge never shows through; over a picture the disc is frosted as well.
+  Widget _glass(BuildContext context, bool dark, Color accent) {
+    final theme = Theme.of(context);
+    final frosted =
+        usesAurora(context) &&
+        AppearanceScope.maybeOf(context)?.wallpaperPath != null;
+    Color white(double a) => Colors.white.withValues(alpha: a);
+    final base = theme.scaffoldBackgroundColor.withValues(
+      alpha: frosted ? .5 : 1,
+    );
+    Widget disc = DecoratedBox(
+      decoration: BoxDecoration(shape: BoxShape.circle, color: base),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          // A pale wash of the accent, lit from the top left.
+          gradient: RadialGradient(
+            center: const Alignment(-.35, -.5),
+            radius: 1.1,
+            colors: dark
+                ? [
+                    Color.alphaBlend(accent.withValues(alpha: .30), white(.07)),
+                    accent.withValues(alpha: .09),
+                  ]
+                : [
+                    Color.lerp(accent, Colors.white, .9)!,
+                    Color.lerp(accent, Colors.white, .78)!,
+                  ],
+          ),
+        ),
+        child: Center(child: child),
+      ),
+    );
+    disc = ClipOval(
+      child: frosted
+          ? BackdropFilter(
+              filter: ui.ImageFilter.blur(
+                sigmaX: 22,
+                sigmaY: 22,
+                tileMode: TileMode.mirror,
+              ),
+              child: disc,
+            )
+          : disc,
+    );
+    return Container(
+      width: size,
+      height: size,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        // A soft light ring round the glass, and a faint glow under it.
+        color: white(dark ? .26 : .95),
+        boxShadow: [
+          BoxShadow(
+            color: accent.withValues(alpha: dark ? .22 : .18),
+            blurRadius: size * .4,
+            offset: Offset(0, size * .08),
+            spreadRadius: -size * .1,
+          ),
+        ],
+      ),
+      child: disc,
+    );
+  }
 }
 
 /// A dashed rounded outline with a small speech-bubble notch at the bottom
@@ -451,22 +528,66 @@ class DashedNotchPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final dark = theme.brightness == Brightness.dark;
-    return CustomPaint(
+    final glass =
+        usesGlass(context) && theme.extension<AppChrome>()?.cardBorder == null;
+    final frosted =
+        glass &&
+        usesAurora(context) &&
+        AppearanceScope.maybeOf(context)?.wallpaperPath != null;
+    Widget panel = CustomPaint(
       painter: _DashedNotchPainter(
         stroke: theme.colorScheme.onSurface.withValues(alpha: dark ? .2 : .18),
         fill: Colors.white.withValues(alpha: dark ? .03 : .4),
+        // On glass: the same see-through fill as the cards around it.
+        gradient: glass ? glassCardFill(context) : null,
       ),
       child: Padding(
         padding: padding ?? const EdgeInsets.fromLTRB(24, 24, 24, 32),
         child: child,
       ),
     );
+    if (frosted) {
+      panel = ClipPath(
+        clipper: const _NotchClipper(),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(
+            sigmaX: 22,
+            sigmaY: 22,
+            tileMode: TileMode.mirror,
+          ),
+          child: panel,
+        ),
+      );
+    }
+    return panel;
   }
 }
 
+/// The panel's outline, without the notch, for clipping the frosted blur.
+class _NotchClipper extends CustomClipper<Path> {
+  const _NotchClipper();
+
+  @override
+  Path getClip(Size size) => Path()
+    ..addRRect(
+      RRect.fromRectAndRadius(
+        Offset.zero & size,
+        const Radius.circular(_DashedNotchPainter._radius),
+      ),
+    );
+
+  @override
+  bool shouldReclip(_NotchClipper oldClipper) => false;
+}
+
 class _DashedNotchPainter extends CustomPainter {
-  const _DashedNotchPainter({required this.stroke, required this.fill});
+  const _DashedNotchPainter({
+    required this.stroke,
+    required this.fill,
+    this.gradient,
+  });
   final Color stroke, fill;
+  final Gradient? gradient;
 
   static const _radius = 28.0;
   static const _notch = 9.0;
@@ -489,7 +610,12 @@ class _DashedNotchPainter extends CustomPainter {
       ..lineTo(0, r)
       ..arcToPoint(Offset(r, 0), radius: corner)
       ..close();
-    canvas.drawPath(path, Paint()..color = fill);
+    canvas.drawPath(
+      path,
+      gradient == null
+          ? (Paint()..color = fill)
+          : (Paint()..shader = gradient!.createShader(Offset.zero & size)),
+    );
 
     final dash = Paint()
       ..color = stroke
@@ -504,5 +630,5 @@ class _DashedNotchPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_DashedNotchPainter old) =>
-      stroke != old.stroke || fill != old.fill;
+      stroke != old.stroke || fill != old.fill || gradient != old.gradient;
 }

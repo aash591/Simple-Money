@@ -10,7 +10,7 @@ import 'pro_controller.dart';
 
 /// The only places an ad may follow. Everyday use (opening the app, adding
 /// transactions, browsing) never shows one.
-enum AdMoment { budget, statementImport, theme, loan, subscription }
+enum AdMoment { budget, statementImport, theme, loan, recurringPayment }
 
 /// Decides whether a finished action earns an interstitial, and keeps one
 /// loaded so it can show at once rather than popping up late.

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../domain/account.dart';
 import '../../../domain/currency_scope.dart';
-import '../../components/app_icon.dart';
+import '../../components/account_tile.dart';
 import '../../components/common.dart';
 
 /// Shared presentation for saved accounts and SMS account previews.
@@ -69,6 +69,8 @@ class _AccountCardState extends State<AccountCard> {
             currency: account.currency,
           );
     final colors = Theme.of(context).colorScheme;
+    const radius = BorderRadius.all(Radius.circular(appCardRadius));
+    final dark = Theme.of(context).brightness == Brightness.dark;
     return AnimatedScale(
       scale: pressed ? .985 : 1,
       duration: Duration(
@@ -77,7 +79,7 @@ class _AccountCardState extends State<AccountCard> {
       curve: Curves.easeOutCubic,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(appCardRadius),
+          borderRadius: radius,
           border: Border.all(
             color: widget.selected
                 ? colors.primary.withValues(alpha: .45)
@@ -86,172 +88,194 @@ class _AccountCardState extends State<AccountCard> {
           ),
         ),
         child: MoneyCard(
-          color: widget.selected
-              ? Color.alphaBlend(
-                  colors.primary.withValues(alpha: .045),
-                  colors.surface,
-                )
-              : null,
           padding: EdgeInsets.zero,
           child: Material(
             color: Colors.transparent,
-            borderRadius: BorderRadius.circular(appCardRadius),
+            borderRadius: radius,
             clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: onTap,
-              onTapDown: onTap == null
-                  ? null
-                  : (_) => setState(() => pressed = true),
-              onTapUp: onTap == null
-                  ? null
-                  : (_) => setState(() => pressed = false),
-              onTapCancel: () => setState(() => pressed = false),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        AppIcon(account.icon, size: 36),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                account.name,
-                                style: text.titleMedium,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 3),
-                              Text(account.type.label, style: text.bodySmall),
-                            ],
-                          ),
-                        ),
-                        ?leading,
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Icon(
-                              switch (account.type) {
-                                AccountType.bank =>
-                                  Icons.account_balance_outlined,
-                                AccountType.creditCard =>
-                                  Icons.credit_card_outlined,
-                                AccountType.cash =>
-                                  Icons.account_balance_wallet_outlined,
-                              },
-                              size: 20,
-                              color: colors.onSurfaceVariant,
-                              semanticLabel: account.type.label,
-                            ),
-                            if (account.lastDigits != null) ...[
-                              const SizedBox(height: 6),
-                              Text(
-                                '\u2022\u2022 ${account.lastDigits}',
-                                style: text.bodySmall?.copyWith(
-                                  letterSpacing: 1,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ],
+            // The same soft tint as the account cards on Home.
+            child: Ink(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    colors.primary.withValues(
+                      alpha: widget.selected
+                          ? (dark ? .24 : .16)
+                          : (dark ? .16 : .10),
                     ),
-                    const SizedBox(height: 22),
-                    Text(
-                      card
-                          ? 'Available limit'
-                          : 'Balance \u00b7 ${account.currency}',
-                      style: text.bodySmall,
-                    ),
-                    const SizedBox(height: 5),
-                    balanceEditor ??
-                        Text(
-                          card
-                              ? money(account.availableCreditLimitMinor)
-                              : balanceKnown
-                              ? account.formattedBalance
-                              : 'Set balance',
-                          style: text.headlineSmall?.copyWith(
-                            color: !card && !balanceKnown
-                                ? colors.onSurface.withValues(alpha: .38)
-                                : null,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -.5,
-                          ),
-                        ),
-                    if (!card && balanceKnown)
-                      _AccountEquivalent(account: account, scope: scope),
-                    if (card) ...[
-                      const SizedBox(height: 14),
+                    colors.onSurface.withValues(alpha: dark ? .05 : .025),
+                  ],
+                ),
+              ),
+              child: InkWell(
+                onTap: onTap,
+                onTapDown: onTap == null
+                    ? null
+                    : (_) => setState(() => pressed = true),
+                onTapUp: onTap == null
+                    ? null
+                    : (_) => setState(() => pressed = false),
+                onTapCancel: () => setState(() => pressed = false),
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                       Row(
                         children: [
-                          Text('Credit limit', style: text.bodySmall),
-                          const SizedBox(width: 8),
+                          AccountLogo(account.icon),
+                          const SizedBox(width: 12),
                           Expanded(
-                            child:
-                                creditLimitEditor ??
-                                Text(
-                                  money(account.creditLimitMinor),
-                                  textAlign: TextAlign.end,
-                                  style: text.labelLarge,
-                                ),
-                          ),
-                        ],
-                      ),
-                      if (used != null) ...[
-                        const SizedBox(height: 10),
-                        LinearProgressIndicator(
-                          value: used,
-                          minHeight: 4,
-                          backgroundColor: colors.primary.withValues(alpha: .1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ],
-                    ],
-                    if (subtitle != null ||
-                        showTransactionCount ||
-                        card ||
-                        handle != null) ...[
-                      const SizedBox(height: 14),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: Wrap(
-                              alignment: WrapAlignment.spaceBetween,
-                              spacing: 12,
-                              runSpacing: 6,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (subtitle != null || showTransactionCount)
-                                  Text(
-                                    subtitle ??
-                                        '${account.transactionCount} ${account.transactionCount == 1 ? 'transaction' : 'transactions'}',
-                                    style: text.bodySmall,
-                                  ),
-                                if (card)
-                                  Text(
-                                    used == null
-                                        ? 'Utilization unavailable'
-                                        : '${(used * 100).toStringAsFixed(1)}% used',
-                                    style: text.bodySmall,
-                                  ),
+                                // The kind-of-account icon shares the name's
+                                // line, so the two sit level.
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        account.name,
+                                        style: text.titleSmall?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    ?leading,
+                                    const SizedBox(width: 8),
+                                    Icon(
+                                      accountTypeIcon(account.type),
+                                      size: 20,
+                                      color: colors.onSurfaceVariant,
+                                      semanticLabel: account.type.label,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        account.type.label,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: text.bodySmall,
+                                      ),
+                                    ),
+                                    if (account.lastDigits != null) ...[
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '•••• ${account.lastDigits}',
+                                        style: text.bodySmall?.copyWith(
+                                          letterSpacing: .4,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
                               ],
                             ),
                           ),
-                          ?handle,
                         ],
                       ),
+                      const SizedBox(height: 22),
+                      Text(
+                        card
+                            ? 'Available limit'
+                            : 'Balance \u00b7 ${account.currency}',
+                        style: text.bodySmall,
+                      ),
+                      const SizedBox(height: 5),
+                      balanceEditor ??
+                          Text(
+                            card
+                                ? money(account.availableCreditLimitMinor)
+                                : balanceKnown
+                                ? account.formattedBalance
+                                : 'Set balance',
+                            style: text.headlineSmall?.copyWith(
+                              color: !card && !balanceKnown
+                                  ? colors.onSurface.withValues(alpha: .38)
+                                  : null,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -.5,
+                            ),
+                          ),
+                      if (!card && balanceKnown)
+                        _AccountEquivalent(account: account, scope: scope),
+                      if (card) ...[
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Text('Credit limit', style: text.bodySmall),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child:
+                                  creditLimitEditor ??
+                                  Text(
+                                    money(account.creditLimitMinor),
+                                    textAlign: TextAlign.end,
+                                    style: text.labelLarge,
+                                  ),
+                            ),
+                          ],
+                        ),
+                        if (used != null) ...[
+                          const SizedBox(height: 10),
+                          LinearProgressIndicator(
+                            value: used,
+                            minHeight: 4,
+                            backgroundColor: colors.primary.withValues(
+                              alpha: .1,
+                            ),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ],
+                      ],
+                      if (subtitle != null ||
+                          showTransactionCount ||
+                          card ||
+                          handle != null) ...[
+                        const SizedBox(height: 14),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              child: Wrap(
+                                alignment: WrapAlignment.spaceBetween,
+                                spacing: 12,
+                                runSpacing: 6,
+                                children: [
+                                  if (subtitle != null || showTransactionCount)
+                                    Text(
+                                      subtitle ??
+                                          '${account.transactionCount} ${account.transactionCount == 1 ? 'transaction' : 'transactions'}',
+                                      style: text.bodySmall,
+                                    ),
+                                  if (card)
+                                    Text(
+                                      used == null
+                                          ? 'Utilization unavailable'
+                                          : '${(used * 100).toStringAsFixed(1)}% used',
+                                      style: text.bodySmall,
+                                    ),
+                                ],
+                              ),
+                            ),
+                            ?handle,
+                          ],
+                        ),
+                      ],
+                      if (actions != null) ...[
+                        const SizedBox(height: 12),
+                        actions,
+                      ],
                     ],
-                    if (actions != null) ...[
-                      const SizedBox(height: 12),
-                      actions,
-                    ],
-                  ],
+                  ),
                 ),
               ),
             ),

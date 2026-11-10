@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 
 import '../../../domain/account.dart';
 import '../../../state/account_store.dart';
@@ -10,6 +11,7 @@ import '../../components/app_toast.dart';
 import '../../components/empty_state.dart';
 import '../../components/feature_page.dart';
 import '../../components/more_popup_button.dart';
+import '../../components/reorder_lift.dart';
 import '../../components/skeleton.dart';
 import 'edit_account_screen.dart';
 import 'account_card.dart';
@@ -122,7 +124,7 @@ class AccountsScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              'Drag to reorder',
+                              'Press and hold to reorder',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.bodySmall,
@@ -151,8 +153,8 @@ class AccountsScreen extends StatelessWidget {
                     onTap: store.saving ? null : () => _open(context),
                   ),
                 ),
-          proxyDecorator: (child, index, animation) =>
-              Material(color: Colors.transparent, elevation: 0, child: child),
+          onReorderStart: (_) => HapticFeedback.mediumImpact(),
+          proxyDecorator: reorderLift,
           itemCount: accounts.length,
           onReorderItem: (oldIndex, newIndex) async {
             if (archived) return;
@@ -169,46 +171,32 @@ class AccountsScreen extends StatelessWidget {
           },
           itemBuilder: (context, index) {
             final account = accounts[index];
-            return Padding(
+            // Press and hold a card to lift it, then drag it into place.
+            return ReorderableDelayedDragStartListener(
               key: ValueKey(account.id),
-              padding: const EdgeInsets.only(bottom: 16),
-              child: AccountCard(
-                account: account,
-                scope: scope,
-                onTap: store.saving ? null : () => _open(context, account),
-                handle: archived
-                    ? null
-                    : ReorderableDragStartListener(
-                        index: index,
-                        enabled: !store.saving,
-                        child: Semantics(
-                          label: 'Reorder ${account.name}',
-                          customSemanticsActions: {
-                            if (index > 0)
-                              const CustomSemanticsAction(
-                                label: 'Move up',
-                              ): () =>
-                                  store.reorder(index, index - 1),
-                            if (index < store.accounts.length - 1)
-                              const CustomSemanticsAction(
-                                label: 'Move down',
-                              ): () =>
-                                  store.reorder(index, index + 1),
-                          },
-                          child: SizedBox(
-                            width: 40,
-                            height: 28,
-                            child: Icon(
-                              Icons.drag_indicator_rounded,
-                              size: 20,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant
-                                  .withValues(alpha: .5),
-                            ),
-                          ),
-                        ),
-                      ),
+              index: index,
+              enabled: !archived && !store.saving,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Semantics(
+                  customSemanticsActions: archived
+                      ? null
+                      : {
+                          if (index > 0)
+                            const CustomSemanticsAction(label: 'Move up'): () =>
+                                store.reorder(index, index - 1),
+                          if (index < store.accounts.length - 1)
+                            const CustomSemanticsAction(
+                              label: 'Move down',
+                            ): () =>
+                                store.reorder(index, index + 1),
+                        },
+                  child: AccountCard(
+                    account: account,
+                    scope: scope,
+                    onTap: store.saving ? null : () => _open(context, account),
+                  ),
+                ),
               ),
             );
           },

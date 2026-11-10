@@ -1,6 +1,8 @@
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_money/state/security_controller.dart';
 import 'package:simple_money/ui/components/glass_button.dart';
 import 'package:simple_money/app.dart';
 import 'package:simple_money/data/db/app_database.dart';
@@ -24,6 +26,10 @@ void main() {
   late TransactionStore transactionStore;
 
   setUp(() async {
+    SharedPreferences.setMockInitialValues({
+      'upi.intro_seen': true,
+      SecurityController.hideAmountsPreferenceKey: false,
+    });
     database = AppDatabase(NativeDatabase.memory());
     accountStore = AccountStore(AccountRepository(database));
     categoryStore = CategoryStore(CategoryRepository(database));
@@ -80,8 +86,8 @@ void main() {
         expect(
           find.text(
             action == 'income'
-                ? 'What income did you receive?'
-                : 'What is the amount?',
+                ? 'Amount received'
+                : 'Amount',
           ),
           findsOneWidget,
         );
@@ -270,7 +276,7 @@ void main() {
       await tester.tap(find.text('Add expense'));
       await tester.pumpAndSettle();
 
-      expect(find.text('What is the amount?'), findsOneWidget);
+      expect(find.text('Amount'), findsOneWidget);
       expect(find.text('0.00'), findsOneWidget);
       expect(tester.widget<GlassButton>(continueButton()).onPressed, isNull);
       await tapDigits(tester, '50');
@@ -305,7 +311,8 @@ void main() {
       await tester.pump();
       expect(find.byType(ListTile).evaluate().length, lessThan(allRows));
       expect(inSheet(find.text('₹50')), findsOneWidget);
-      expect(find.text('Cafe'), findsNothing);
+      // Searching a parent also includes its child categories.
+      expect(find.text('Cafe'), findsOneWidget);
       await tapChoice(tester, 'Food & Beverage');
       expect(find.text('Choose subcategory'), findsOneWidget);
       expect(inSheet(find.text('₹50')), findsOneWidget);
@@ -396,7 +403,7 @@ void main() {
 
       await tester.tap(find.text('Add income'));
       await tester.pumpAndSettle();
-      expect(find.text('What income did you receive?'), findsOneWidget);
+      expect(find.text('Amount received'), findsOneWidget);
       await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle();
       expect(find.text('Add a transaction'), findsOneWidget);
@@ -444,7 +451,7 @@ void main() {
       );
 
       await pumpApp(tester);
-      await tester.tap(find.byIcon(Icons.receipt_long_outlined));
+      await tester.tap(find.text('Transactions'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Groceries'));
       await tester.pumpAndSettle();
@@ -509,7 +516,7 @@ void main() {
       );
 
       await pumpApp(tester);
-      await tester.tap(find.byIcon(Icons.receipt_long_outlined));
+      await tester.tap(find.text('Transactions'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('ATM'));
       await tester.pumpAndSettle();
@@ -553,7 +560,7 @@ void main() {
       );
 
       await pumpApp(tester);
-      await tester.tap(find.byIcon(Icons.receipt_long_outlined));
+      await tester.tap(find.text('Transactions'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Groceries'));
       await tester.pumpAndSettle();
@@ -659,10 +666,11 @@ void main() {
       await saveCash();
 
       await pumpApp(tester);
-      await tester.tap(find.byIcon(Icons.receipt_long_outlined));
+      await tester.tap(find.text('Transactions'));
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Transaction options'));
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Adjust balance'));
       await tester.tap(find.text('Adjust balance'));
       await tester.pumpAndSettle();
 

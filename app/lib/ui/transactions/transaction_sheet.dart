@@ -204,7 +204,7 @@ class _TransactionSheetState extends State<TransactionSheet> {
             : TransactionStep.amount)
       : TransactionStep.view;
   var _forward = true;
-  late TransactionDraft _draft = _freshDraft();
+  late final TransactionDraft _draft = _freshDraft();
   final _calculator = AmountCalculator();
   bool _saving = false;
   String? _error;
@@ -498,7 +498,7 @@ class _TransactionSheetState extends State<TransactionSheet> {
 
   /// Edit opens the same review sheet as SMS and statement rows, where any
   /// transaction can change kind — an expense can become a transfer and
-  /// back. What an owning loan, debt or subscription depends on stays
+  /// back. What an owning loan, debt or recurring payment depends on stays
   /// locked, and a transfer between currencies keeps its amounts and
   /// accounts, since there is no rate here to redo them.
   Future<void> _editInReview() async {
@@ -546,7 +546,7 @@ class _TransactionSheetState extends State<TransactionSheet> {
       accounts: widget.accountStore,
       categories: widget.categoryStore,
       locks: locks,
-      // One a loan, debt or subscription already owns can't become a payment.
+      // One a loan, debt or recurring payment already owns can't become a payment.
       loans: link == null && transaction.type != TransactionType.transfer
           ? _activeLoans
           : const [],

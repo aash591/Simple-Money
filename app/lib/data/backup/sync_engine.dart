@@ -5,14 +5,21 @@ import 'package:drive_authorization/drive_authorization.dart';
 import 'package:flutter/services.dart';
 
 import 'drive_client.dart';
+import 'backup_encryption.dart';
+import 'backup_key_store.dart';
 import 'sync_repository.dart';
 import 'sync_restore.dart';
 
 typedef OpenMirrorTransport = Future<MirrorTransport> Function(String email);
 
 class SyncEngine {
-  SyncEngine(this.repository, {OpenMirrorTransport? openTransport})
-    : _openTransport = openTransport ?? _googleTransport;
+  SyncEngine(
+    this.repository, {
+    OpenMirrorTransport? openTransport,
+    BackupKeyStore? keyStore,
+  }) : _openTransport = openTransport ?? _googleTransport,
+       keyStore = keyStore ?? const SecureBackupKeyStore();
+  final BackupKeyStore keyStore;
   final SyncRepository repository;
   final OpenMirrorTransport _openTransport;
 
@@ -24,14 +31,25 @@ class SyncEngine {
       );
 
   /// The newest backup on the connected account from another installation.
-  Future<SyncBackup?> findBackup() async {
+  Future<SyncBackup?> findBackup({bool requirePin = false}) async {
     final status = await repository.status();
     if (!status.enabled) return null;
     final transport = await _openTransport(status.email!);
+    final subject = await repository.subject();
+    final keys = <String, BackupKey>{};
     try {
       return await findLatestBackup(
         transport,
         excludeMirrorId: await repository.mirrorId(),
+        keyLookup: (configuration) async {
+          if (requirePin || subject == null) return null;
+          if (keys.containsKey(configuration.encoded)) {
+            return keys[configuration.encoded];
+          }
+          final key = await keyStore.read(subject, configuration);
+          if (key != null) keys[configuration.encoded] = key;
+          return key;
+        },
       );
     } finally {
       transport.close();
@@ -39,8 +57,68 @@ class SyncEngine {
   }
 
   /// Replaces the ledger with [backup] — synced data or an imported file.
-  Future<void> restore(SyncBackup backup) =>
-      _owning((owner) => repository.replaceLedger(owner, backup));
+  Future<void> restore(SyncBackup backup) => _owning((owner) async {
+    if (backup.encryption case final configuration?) {
+      final subject = await repository.subject();
+      if (subject == null ||
+          await keyStore.read(subject, configuration) == null) {
+        throw BackupPinRequired(configuration);
+      }
+    }
+    await repository.replaceLedger(owner, backup);
+  });
+
+  Future<void> unlockEncryption(
+    String pin,
+    BackupEncryption configuration,
+  ) async {
+    final subject = await repository.subject();
+    if (subject == null) throw StateError('Sign in to Google Drive first.');
+    final key = await configuration.unlock(pin);
+    await keyStore.save(subject, key);
+  }
+
+  Future<void> resumeUploads({BackupEncryption? encryption}) => _owning((
+    owner,
+  ) async {
+    if (encryption != null) {
+      final subject = await repository.subject();
+      if (subject == null || await keyStore.read(subject, encryption) == null) {
+        throw BackupPinRequired(encryption);
+      }
+    }
+    await repository.resumeUploads(owner, encryption);
+  });
+
+  Future<void> enableEncryption(String pin) async {
+    final key = await BackupEncryption.create(pin);
+    await _owning((owner) async {
+      final subject = await repository.subject();
+      final status = await repository.status();
+      if (subject == null || !status.enabled) {
+        throw StateError('Sign in to Google Drive first.');
+      }
+      if (status.restorePending) {
+        throw StateError('Finish restoring your backup first.');
+      }
+      // Persist the secret before atomically activating it and reseeding a full
+      // mirror. A failed secure-storage write leaves the current backup intact.
+      await keyStore.save(subject, key);
+      await repository.changeEncryption(owner, key.configuration);
+    });
+  }
+
+  Future<void> disableEncryption(String pin) async {
+    final configuration = (await repository.status()).encryption;
+    if (configuration == null) return;
+    await configuration.unlock(pin);
+    await _owning((owner) async {
+      if ((await repository.status()).encryption != configuration) {
+        throw StateError('Backup settings changed. Try again.');
+      }
+      await repository.changeEncryption(owner, null);
+    });
+  }
 
   /// Deletes everything on this phone; categories go back to the defaults.
   /// The Drive copy is untouched: the phone continues on a new mirror.
@@ -111,14 +189,24 @@ class SyncEngine {
   Future<bool> run({bool force = false}) async {
     final owner = newSyncId();
     final initial = await repository.status();
-    if (!initial.enabled || initial.pending == 0) return true;
+    if (!initial.enabled) return true;
+    if (initial.restorePending) return false;
+    if (initial.pending == 0) return true;
     if (!await repository.acquire(owner, force: force)) return false;
     MirrorTransport? transport;
     try {
       // Re-read after acquiring ownership: an account change could have happened
       // between the initial status check and the lease acquisition.
       final current = await repository.status();
-      if (!current.enabled) return true;
+      if (!current.enabled || current.restorePending) return true;
+      BackupKey? key;
+      if (current.encryption case final configuration?) {
+        final subject = await repository.subject();
+        key = subject == null
+            ? null
+            : await keyStore.read(subject, configuration);
+        if (key == null) throw BackupPinRequired(configuration);
+      }
       transport = await _openTransport(current.email!);
       // Bound each background run. A later run drains any remaining edits.
       for (var count = 0; count < 8; count++) {
@@ -127,7 +215,11 @@ class SyncEngine {
         if (batch == null) {
           if ((await repository.status()).pending == 0) return true;
           final fileId = await transport.newFileId();
-          batch = await repository.freeze(owner, fileId);
+          batch = await repository.freeze(
+            owner,
+            fileId,
+            encodePayload: key?.encrypt,
+          );
         }
         if (batch == null || !await repository.renew(owner)) return true;
         await transport.upload(batch);
@@ -137,6 +229,7 @@ class SyncEngine {
     } catch (error) {
       final message = switch (error) {
         DriveSyncException(:final message) => message,
+        BackupEncryptionException(:final message) => message,
         PlatformException(code: 'authorization_required') =>
           'Reconnect your Google account to resume sync.',
         _ => 'Waiting for a connection. Your changes are saved on this device.',

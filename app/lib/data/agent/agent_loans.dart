@@ -203,9 +203,7 @@ class AgentLoans {
       for (var i = 0; i < paid.length; i++) paid[i] - fees[i] - interests[i],
     ];
     final cleared = principal - repaid.fold<int>(0, (n, p) => n + p);
-    if (payments.isNotEmpty &&
-        outstanding != null &&
-        cleared != outstanding) {
+    if (payments.isNotEmpty && outstanding != null && cleared != outstanding) {
       throw ArgumentError(
         'These payments leave ${_plain(cleared, digits)} of the principal, '
         'but outstanding is ${_plain(outstanding, digits)}. Give the fee '
@@ -430,8 +428,7 @@ class AgentLoans {
     final fixed = p.emi > 0;
     final months = input.months;
     final maturity =
-        input.endDate ??
-        (months > 0 ? loanMonth(day, months, day.day) : null);
+        input.endDate ?? (months > 0 ? loanMonth(day, months, day.day) : null);
     var firstDue = input.firstDue ?? loanMonth(day, 1, day.day);
     final today = _dayOnly(DateTime.now());
     final asOf = p.snapshot ? input.asOf ?? today : day;
@@ -529,8 +526,7 @@ class AgentLoans {
           '${fixed ? ' · ${money(p.emi)} a month' : ''}',
       'Paid from ${account.name}',
       if (repaid > 0) 'Repaid ${money(repaid)} · ${money(p.left)} left',
-      if (p.left == p.principal && p.payments.isEmpty)
-        '${money(p.left)} left',
+      if (p.left == p.principal && p.payments.isEmpty) '${money(p.left)} left',
       if (p.fees.any((f) => f > 0) || p.charges > 0)
         'Charges ${money(p.charges + p.fees.fold<int>(0, (n, f) => n + f))}',
       if (next != null) 'Next ${money(p.emi)} on ${_shown(next)}',
@@ -746,7 +742,9 @@ class AgentLoans {
     }
     final who = person?.person.name ?? name;
 
-    final type = kind.paysOut ? TransactionType.expense : TransactionType.income;
+    final type = kind.paysOut
+        ? TransactionType.expense
+        : TransactionType.income;
     final today = _dayOnly(DateTime.now());
     if (_dayOnly(date).isAfter(today)) {
       throw ArgumentError('The date can’t be in the future.');
@@ -777,21 +775,23 @@ class AgentLoans {
         date.subtract(margin),
         date.add(margin).add(const Duration(days: 1)),
       );
-      final near = ledger.where(
-        (t) =>
-            t.free &&
-            t.type == type &&
-            t.amountMinor == minor &&
-            (accountId == null || t.accountId == accountId) &&
-            accounts
-                .where(
-                  (a) =>
-                      a.id == t.accountId &&
-                      a.currency == money &&
-                      a.digits == digits,
-                )
-                .isNotEmpty,
-      ).toList();
+      final near = ledger
+          .where(
+            (t) =>
+                t.free &&
+                t.type == type &&
+                t.amountMinor == minor &&
+                (accountId == null || t.accountId == accountId) &&
+                accounts
+                    .where(
+                      (a) =>
+                          a.id == t.accountId &&
+                          a.currency == money &&
+                          a.digits == digits,
+                    )
+                    .isNotEmpty,
+          )
+          .toList();
       final firstName = who.split(RegExp(r'\s+')).first;
       final named = near.where((t) => t.mentions(firstName)).toList();
       if (named.length == 1) {
@@ -969,7 +969,6 @@ class _Plan {
 
   /// The principal still owed.
   final int left;
-
 
   /// No payment history: the loan is picked up at its current balance.
   final bool snapshot;

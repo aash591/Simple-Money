@@ -17,7 +17,7 @@ class PlannedReminder {
   });
   final int id;
 
-  /// Payload prefix plus the loan/debt/subscription id, e.g. `loan:3`.
+  /// Payload prefix plus the loan/debt/recurring payment id, e.g. `loan:3`.
   final String owner;
   final DateTime at;
   final String title, body;

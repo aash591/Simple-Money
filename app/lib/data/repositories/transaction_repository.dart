@@ -10,11 +10,12 @@ import '../db/app_database.dart';
 class TransactionRepository {
   TransactionRepository(this.database);
 
-  /// The badge on a subscription payment's logo.
-  static const _subscriptionBadge = 'subscriptions';
+  /// The badge on a recurring payment payment's logo.
+  static const _recurringPaymentBadge = 'subscriptions';
   final AppDatabase database;
 
   Future<List<MoneyTransaction>> load({
+    int? id,
     DateTime? start,
     DateTime? end,
     String? currency,
@@ -36,17 +37,19 @@ class TransactionRepository {
                                   WHERE e.transaction_id = t.id)
                    LIMIT 1) AS loan_payload,
                   (SELECT coalesce(s.icon, 'subscriptions')
-                   FROM subscription_payments p
-                   JOIN subscriptions s ON s.id = p.subscription_id
+                   FROM recurring_payment_history p
+                   JOIN recurring_payments s ON s.id = p.recurring_payment_id
                    WHERE p.transaction_id = t.id) AS subscription_icon
                 FROM transactions t JOIN accounts a ON a.id = t.account_id
                 WHERE 1 = 1
+                ${id != null ? 'AND t.id = ?' : ''}
                 ${start != null ? 'AND t.date >= ?' : ''}
                 ${end != null ? 'AND t.date < ?' : ''}
                 ${currency != null ? 'AND a.currency = ?' : ''}
                 ${digits != null ? 'AND a.digits = ?' : ''}
                 ORDER BY t.date DESC, t.id DESC ${limit != null ? 'LIMIT ?' : ''}''',
               variables: [
+                if (id != null) Variable(id),
                 if (start != null) Variable(start.millisecondsSinceEpoch),
                 if (end != null) Variable(end.millisecondsSinceEpoch),
                 if (currency != null) Variable(currency),
@@ -61,14 +64,16 @@ class TransactionRepository {
               ? null
               : loans[payload] ??= LoanTerms.fromJson(jsonDecode(payload));
           // A loan's payment shows what it paid for with the lender as a
-          // badge; a subscription's its logo, badged as a subscription.
-          final subscriptionIcon = r.readNullable<String>('subscription_icon');
-          final icon = loan?.displayIcon ?? subscriptionIcon;
+          // badge; a recurring payment's its logo, badged as a recurring payment.
+          final recurringPaymentIcon = r.readNullable<String>(
+            'subscription_icon',
+          );
+          final icon = loan?.displayIcon ?? recurringPaymentIcon;
           final badge = loan != null
               ? loan.icon
-              : subscriptionIcon == null
+              : recurringPaymentIcon == null
               ? null
-              : _subscriptionBadge;
+              : _recurringPaymentBadge;
           return MoneyTransaction(
             id: r.read<int>('id'),
             type: TransactionTypeStorage.fromStorage(r.read<String>('type')),
@@ -353,7 +358,7 @@ class TransactionRepository {
   }
 
   /// What else, besides the ledger, records [id]: its loan, debt or
-  /// subscription. Null when nothing does.
+  /// recurring payment. Null when nothing does.
   Future<TransactionLink?> link(int id) async {
     final loanId = await linkedLoanId(id);
     if (loanId != null) {
@@ -385,19 +390,19 @@ class TransactionRepository {
         debt.read<String>('name'),
       );
     }
-    final subscription = await database
+    final recurringPayment = await database
         .customSelect(
-          '''SELECT s.id, s.name FROM subscription_payments p
-          JOIN subscriptions s ON s.id = p.subscription_id
+          '''SELECT s.id, s.name FROM recurring_payment_history p
+          JOIN recurring_payments s ON s.id = p.recurring_payment_id
           WHERE p.transaction_id = ?''',
           variables: [Variable(id)],
         )
         .getSingleOrNull();
-    if (subscription != null) {
+    if (recurringPayment != null) {
       return TransactionLink(
-        TransactionLinkKind.subscription,
-        subscription.read<int>('id'),
-        subscription.read<String>('name'),
+        TransactionLinkKind.recurringPayment,
+        recurringPayment.read<int>('id'),
+        recurringPayment.read<String>('name'),
       );
     }
     return null;
@@ -458,7 +463,7 @@ class TransactionRepository {
           locks.transfer && transfer) {
         throw StateError(
           'Part of this transaction is managed by its loan, debt or '
-          'subscription. Change it from there.',
+          'recurring payment. Change it from there.',
         );
       }
       // A transfer between currencies keeps what reached the other side,
@@ -657,7 +662,7 @@ class TransactionRepository {
       variables: [Variable(id)],
     );
     await database.customUpdate(
-      'DELETE FROM subscription_payments WHERE transaction_id = ?',
+      'DELETE FROM recurring_payment_history WHERE transaction_id = ?',
       variables: [Variable(id)],
     );
     // A debt's transaction takes its debt entry along, and the person too
@@ -696,7 +701,7 @@ class TransactionRepository {
   }
 }
 
-enum TransactionLinkKind { loan, debt, subscription }
+enum TransactionLinkKind { loan, debt, recurringPayment }
 
 /// A transaction a loan or debt took over, and what it was before.
 class AdoptedTransaction {
@@ -745,7 +750,7 @@ class TransactionLocks {
   bool get any => type || amount || accounts || date || category || transfer;
 }
 
-/// The loan, debt or subscription a transaction belongs to.
+/// The loan, debt or recurring payment a transaction belongs to.
 class TransactionLink {
   const TransactionLink(this.kind, this.ownerId, this.name);
   final TransactionLinkKind kind;
@@ -754,7 +759,7 @@ class TransactionLink {
 
   /// A loan's schedule and a debt's balance are built from the amount,
   /// accounts and dates of their transactions, so those stay theirs; a debt
-  /// keeps its category too. A subscription renewal may be corrected freely
+  /// keeps its category too. A recurring payment renewal may be corrected freely
   /// but stays a payment.
   TransactionLocks get locks => switch (kind) {
     TransactionLinkKind.loan ||
@@ -766,6 +771,8 @@ class TransactionLink {
       category: true,
       transfer: true,
     ),
-    TransactionLinkKind.subscription => const TransactionLocks(transfer: true),
+    TransactionLinkKind.recurringPayment => const TransactionLocks(
+      transfer: true,
+    ),
   };
 }

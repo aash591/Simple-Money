@@ -174,78 +174,82 @@ class _CalloutDonutChartState extends State<CalloutDonutChart>
             child: SizedBox(
               width: width,
               height: widget.height,
-              child: AnimatedBuilder(
-                animation: Listenable.merge([_reveal, _pop]),
-                child: _center(context, g),
-                builder: (context, center) {
-                  final reveal = Curves.easeOutCubic.transform(_reveal.value);
-                  final labels = const Interval(
-                    .55,
-                    1,
-                    curve: Curves.easeOut,
-                  ).transform(_reveal.value);
-                  final t = Curves.easeOutCubic.transform(_pop.value);
-                  final alphas = [
-                    for (var i = 0; i < slices.length; i++)
-                      lerpDouble(
-                        _alpha(_previous, i),
-                        _alpha(_selected, i),
-                        t,
-                      )!,
-                  ];
-                  final explode = [
-                    for (var i = 0; i < slices.length; i++)
-                      lerpDouble(
-                        _previous == i ? 1 : 0,
-                        _selected == i ? 1 : 0,
-                        t,
-                      )!,
-                  ];
-                  final hole = g.radius - widget.thickness;
-                  return Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Positioned.fill(
-                        child: CustomPaint(
-                          painter: _CalloutDonutPainter(
-                            geometry: g,
-                            slices: slices,
-                            thickness: widget.thickness,
-                            reveal: reveal,
-                            lines: labels,
-                            alphas: alphas,
-                            explode: explode,
-                            track: palette.track,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: g.center.dx - hole * .85,
-                        top: g.center.dy - hole * .72,
-                        width: hole * 1.7,
-                        height: hole * 1.44,
-                        child: IgnorePointer(
-                          child: Center(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: center,
+              // Its own layer, so the sweep repaints the donut alone.
+              child: RepaintBoundary(
+                child: AnimatedBuilder(
+                  animation: Listenable.merge([_reveal, _pop]),
+                  child: _center(context, g),
+                  builder: (context, center) {
+                    final reveal = Curves.easeOutCubic.transform(_reveal.value);
+                    final labels = const Interval(
+                      .55,
+                      1,
+                      curve: Curves.easeOut,
+                    ).transform(_reveal.value);
+                    final t = Curves.easeOutCubic.transform(_pop.value);
+                    final alphas = [
+                      for (var i = 0; i < slices.length; i++)
+                        lerpDouble(
+                          _alpha(_previous, i),
+                          _alpha(_selected, i),
+                          t,
+                        )!,
+                    ];
+                    final explode = [
+                      for (var i = 0; i < slices.length; i++)
+                        lerpDouble(
+                          _previous == i ? 1 : 0,
+                          _selected == i ? 1 : 0,
+                          t,
+                        )!,
+                    ];
+                    final hole = g.radius - widget.thickness;
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned.fill(
+                          child: CustomPaint(
+                            painter: _CalloutDonutPainter(
+                              geometry: g,
+                              slices: slices,
+                              thickness: widget.thickness,
+                              reveal: reveal,
+                              lines: labels,
+                              alphas: alphas,
+                              explode: explode,
+                              track: palette.track,
                             ),
                           ),
                         ),
-                      ),
-                      for (final callout in g.callouts)
                         Positioned(
-                          left: g.badgeCenter(callout).dx - g.boxWidth / 2,
-                          top: g.badgeCenter(callout).dy - _Geometry.badge / 2,
-                          width: g.boxWidth,
-                          child: Opacity(
-                            opacity: labels * alphas[callout.index],
-                            child: badges[callout.index],
+                          left: g.center.dx - hole * .85,
+                          top: g.center.dy - hole * .72,
+                          width: hole * 1.7,
+                          height: hole * 1.44,
+                          child: IgnorePointer(
+                            child: Center(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: center,
+                              ),
+                            ),
                           ),
                         ),
-                    ],
-                  );
-                },
+                        for (final callout in g.callouts)
+                          Positioned(
+                            left: g.badgeCenter(callout).dx - g.boxWidth / 2,
+                            top:
+                                g.badgeCenter(callout).dy - _Geometry.badge / 2,
+                            width: g.boxWidth,
+                            child: Opacity(
+                              opacity: labels * alphas[callout.index],
+                              child: badges[callout.index],
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),

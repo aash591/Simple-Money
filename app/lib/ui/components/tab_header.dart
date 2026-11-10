@@ -13,8 +13,12 @@ class TabHeader extends StatelessWidget {
     this.actions = const [],
     this.roundActions = false,
     this.trailing,
+    this.leading,
   });
   final String title;
+
+  /// A back button when the tab's page is pushed on top of another.
+  final Widget? leading;
   final List<Widget> actions;
 
   /// A wider control at the end, such as a [GlassPillButton] month picker,
@@ -41,6 +45,7 @@ class TabHeader extends StatelessWidget {
       height: 48,
       child: Row(
         children: [
+          ?leading,
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(left: 4),

@@ -19,9 +19,11 @@ import { fileURLToPath } from 'node:url';
 import { homedir } from 'node:os';
 
 const APP = dirname(dirname(fileURLToPath(import.meta.url)));
+const PUB_CACHE =
+  process.env.PUB_CACHE || join(homedir(), 'AppData/Local/Pub/Cache');
 const SVG_DIR = join(
-  homedir(),
-  'AppData/Local/Pub/Cache/hosted/pub.dev/country_flags-4.1.2/res/svg',
+  PUB_CACHE,
+  'hosted/pub.dev/country_flags-4.1.2/res/svg',
 );
 const OUT = join(APP, 'assets/flags');
 const HEIGHT = 128;

@@ -57,7 +57,9 @@ void main() {
     await tester.tap(find.text('Customization'));
     await tester.pumpAndSettle();
     expect(find.byType(CustomizationScreen), findsOneWidget);
-    await tester.tap(find.text('Dark'));
+    await tester.ensureVisible(find.text('Black'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Black'));
     await tester.pumpAndSettle();
     final context = tester.element(find.byType(CustomizationScreen));
     expect(Theme.of(context).brightness, Brightness.dark);

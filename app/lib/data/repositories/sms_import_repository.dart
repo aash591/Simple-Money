@@ -752,8 +752,9 @@ class SmsImportRepository {
                   a.type != AccountType.cash,
             )
             .firstOrNull;
-        if (account == null)
+        if (account == null) {
           throw StateError('Choose an active bank account or card.');
+        }
         for (final id in ids) {
           await _requirePending(id);
           final row = await database
@@ -803,12 +804,14 @@ class SmsImportRepository {
   }
 
   /// The transaction a saved message became.
-  Future<int?> transactionOf(String id) async => (await database
-      .customSelect(
-        'SELECT transaction_id FROM sms_imports WHERE fingerprint=?',
-        variables: [Variable(id)],
-      )
-      .getSingleOrNull())?.readNullable<int>('transaction_id');
+  Future<int?> transactionOf(String id) async =>
+      (await database
+              .customSelect(
+                'SELECT transaction_id FROM sms_imports WHERE fingerprint=?',
+                variables: [Variable(id)],
+              )
+              .getSingleOrNull())
+          ?.readNullable<int>('transaction_id');
 
   /// The balance update and queue consumption commit together, including on retries.
   Future<void> save(

@@ -11,6 +11,7 @@ class SecondaryHeader extends StatelessWidget {
     required this.title,
     this.leading,
     this.titleStyle,
+    this.centered = false,
     this.actions = const [],
   });
 
@@ -21,6 +22,10 @@ class SecondaryHeader extends StatelessWidget {
   static const _roundInset = TabHeader.sideMargin - GlassCircleButton.edgeInset;
   final String title;
   final TextStyle? titleStyle;
+
+  /// A smaller title in the middle, for a plain sheet with nothing at its
+  /// sides.
+  final bool centered;
   final Widget? leading;
   final List<Widget> actions;
 
@@ -30,7 +35,8 @@ class SecondaryHeader extends StatelessWidget {
     return IconTheme(
       data: IconThemeData(size: 22, color: scheme.onSurface),
       child: SizedBox(
-        height: height,
+        // A centred sheet title sits tighter under the drag handle.
+        height: centered ? 40 : height,
         child: Padding(
           padding: EdgeInsets.only(
             left: leading == null ? 4 : _roundInset,
@@ -49,10 +55,11 @@ class SecondaryHeader extends StatelessWidget {
                     child: Text(
                       title,
                       maxLines: 1,
+                      textAlign: centered ? TextAlign.center : null,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleLarge
                           ?.copyWith(
-                            fontSize: 22,
+                            fontSize: centered ? 17 : 22,
                             fontWeight: FontWeight.w600,
                             letterSpacing: -0.3,
                             height: 1.2,

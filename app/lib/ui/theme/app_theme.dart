@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'legible_color.dart';
 import 'surface_style.dart';
 import 'app_typography.dart';
 
@@ -150,6 +151,15 @@ ThemeData appTheme(
       thumbVisibility: WidgetStatePropertyAll(false),
       trackVisibility: WidgetStatePropertyAll(false),
     ),
+    // Text buttons are drawn in the accent; on dark it is lifted until it
+    // reads, whatever colour was picked.
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: dark
+            ? legibleOn(accent, const Color(0xff1b1b22))
+            : accent,
+      ),
+    ),
     scaffoldBackgroundColor: scaffold,
     appBarTheme: AppBarTheme(
       backgroundColor: scaffold,
@@ -193,6 +203,9 @@ ThemeData appTheme(
       ),
     ),
     listTileTheme: ListTileThemeData(
+      // A selected row's text and icon are the accent; on dark it is lifted
+      // until it reads on glass, whatever colour was picked.
+      selectedColor: dark ? legibleOn(accent, const Color(0xff1b1b22)) : accent,
       minVerticalPadding: 12,
       horizontalTitleGap: 12,
       titleTextStyle: AppTypography.body.copyWith(

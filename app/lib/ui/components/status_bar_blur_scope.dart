@@ -1,7 +1,10 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../state/appearance_controller.dart' show AppearanceScope;
 import '../theme/app_theme.dart' show AppChrome;
 
 /// Wraps a screen whose main content is a scroll view that starts right at
@@ -100,6 +103,17 @@ class _StatusBarScrim extends StatelessWidget {
       // The page's own top colour, so the scrim reads as more page rather
       // than a grey band laid over the backdrop.
       final theme = Theme.of(context);
+      // Over a picture a solid band would look like a dark bar; instead the
+      // strip frosts what scrolls under it, strongest at the top.
+      if (AppearanceScope.maybeOf(context)?.wallpaperPath != null) {
+        return IgnorePointer(
+          child: _FrostFade(
+            height: totalHeight,
+            blend: blend,
+            tint: theme.scaffoldBackgroundColor,
+          ),
+        );
+      }
       final tint =
           theme.extension<AppChrome>()?.pageTop ?? theme.colorScheme.surface;
       return IgnorePointer(
@@ -123,4 +137,46 @@ class _StatusBarScrim extends StatelessWidget {
       );
     },
   );
+}
+
+/// A fade from blurred to clear in three steps. Each step is a thin strip
+/// with its own blur, so a full-height mask layer is never needed; only
+/// the status bar's height is ever blurred, and only while scrolled.
+class _FrostFade extends StatelessWidget {
+  const _FrostFade({
+    required this.height,
+    required this.blend,
+    required this.tint,
+  });
+  final double height, blend;
+  final Color tint;
+
+  @override
+  Widget build(BuildContext context) {
+    const sigmas = [14.0, 7.0, 3.0];
+    final step = height / sigmas.length;
+    return SizedBox(
+      height: height,
+      child: Column(
+        children: [
+          for (var i = 0; i < sigmas.length; i++)
+            SizedBox(
+              height: step,
+              child: ClipRect(
+                child: BackdropFilter(
+                  filter: ui.ImageFilter.blur(
+                    sigmaX: sigmas[i] * blend,
+                    sigmaY: sigmas[i] * blend,
+                    tileMode: TileMode.mirror,
+                  ),
+                  child: ColoredBox(
+                    color: tint.withValues(alpha: .34 * blend * (1 - i / 3)),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }

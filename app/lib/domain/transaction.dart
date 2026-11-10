@@ -68,8 +68,8 @@ class MoneyTransaction {
   final String? note;
   final DateTime date;
 
-  /// Artwork of the loan or subscription that recorded this, shown instead of
-  /// the category's: what it paid for, with the lender (or a subscription
+  /// Artwork of the loan or recurring payment that recorded this, shown instead of
+  /// the category's: what it paid for, with the lender (or a recurring payment
   /// mark) as [badgeIcon] when they differ.
   final String? icon, badgeIcon;
 }

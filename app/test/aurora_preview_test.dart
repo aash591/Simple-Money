@@ -1,8 +1,7 @@
-// Temporary visual preview of the calm glass styling; not part of the suite.
-import 'dart:io';
+// Golden coverage of the current glass styling.
+import 'preview_fonts.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simple_money/ui/components/app_back_button.dart';
 import 'package:simple_money/ui/components/common.dart';
@@ -10,12 +9,6 @@ import 'package:simple_money/ui/components/glass_surface.dart';
 import 'package:simple_money/ui/components/menu_list.dart';
 import 'package:simple_money/ui/components/secondary_header.dart';
 import 'package:simple_money/ui/theme/app_theme.dart';
-
-Future<void> _font(String family, String path) async {
-  final loader = FontLoader(family)
-    ..addFont(Future.value(ByteData.sublistView(File(path).readAsBytesSync())));
-  await loader.load();
-}
 
 void _noop() {}
 
@@ -139,11 +132,7 @@ Widget _screen(Brightness b, Color accent, AppStyle style) {
 
 void main() {
   testWidgets('Aurora preview', (tester) async {
-    await _font('Manrope', 'assets/fonts/Manrope.ttf');
-    await _font(
-      'MaterialIcons',
-      '${File(Platform.resolvedExecutable).parent.parent.parent.path}/material_fonts/materialicons-regular.otf',
-    );
+    await loadPreviewFonts();
     tester.view.physicalSize = const Size(4 * 400, 820);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);

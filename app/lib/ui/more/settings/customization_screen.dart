@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'dart:io';
+
+import '../../../data/aurora_wallpaper.dart';
 import '../../../state/appearance_controller.dart';
 import '../../../state/pro_controller.dart';
 import '../../components/action_buttons.dart';
@@ -36,7 +39,6 @@ class CustomizationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = AppearanceScope.of(context);
-    final text = Theme.of(context).textTheme;
     return FeaturePage(
       title: 'Customization',
       child: ListenableBuilder(
@@ -46,10 +48,9 @@ class CustomizationScreen extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.fromLTRB(18, 20, 18, 32),
             children: [
-              const _SectionHeader(
-                'Style',
-                'Every style works in light and dark.',
-              ),
+              if (!pro && settings.nextPreviewEnd != null)
+                _PreviewNotice(end: settings.nextPreviewEnd!),
+              const _SectionHeader('Style', ''),
               MenuGroup(
                 children: [
                   for (final style in AppStyle.values)
@@ -74,6 +75,8 @@ class CustomizationScreen extends StatelessWidget {
                           AppStyle.aurora =>
                             'Luminous edges and pools of your accent color',
                         },
+                        proBadge:
+                            !pro && style != AppearanceController.freeStyle,
                         onTap: () => _pickStyle(context, settings, style),
                         trailing: Icon(
                           settings.style == style
@@ -87,11 +90,12 @@ class CustomizationScreen extends StatelessWidget {
                     ),
                 ],
               ),
+              if (settings.style == AppStyle.aurora) ...[
+                const SizedBox(height: appCardGap),
+                _AuroraBackground(settings: settings),
+              ],
               const SizedBox(height: appCardGap),
-              const _SectionHeader(
-                'Theme',
-                'Pick how SimpleMoney looks, or follow your device.',
-              ),
+              const _SectionHeader('Theme', ''),
               MenuGroup(
                 children: [
                   for (final choice in _ThemeChoice.values)
@@ -115,7 +119,8 @@ class CustomizationScreen extends StatelessWidget {
                             name: entry.key,
                             color: entry.value,
                             selected: settings.accentColor == entry.value,
-                            onTap: () => _pickFree(context, settings, entry),
+                            onTap: () =>
+                                _pickColor(context, settings, entry.value),
                           ),
                       ],
                     ),
@@ -127,40 +132,22 @@ class CustomizationScreen extends StatelessWidget {
                           _AccentSwatch(
                             name: entry.key,
                             color: entry.value,
-                            locked: !pro,
+                            pro: !pro,
                             selected: settings.accentColor == entry.value,
-                            onTap: () => pro
-                                ? settings.setAccent(entry.value)
-                                : _offerPro(context),
+                            onTap: () =>
+                                _pickColor(context, settings, entry.value),
                           ),
                         _PaletteSwatch(
                           locked: !pro,
                           custom: colors.containsValue(settings.accentColor)
                               ? null
                               : settings.accentColor,
-                          onTap: () => pro
-                              ? _pickCustom(context, settings)
-                              : _offerPro(context),
+                          onTap: () => _pickCustom(context, settings),
                         ),
                       ],
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                pro
-                    ? 'Every color is yours, and the last one picks any shade.'
-                    : 'First row: free, with a short ad each time you switch. '
-                          'Second row and your own color: Pro.',
-                textAlign: TextAlign.center,
-                style: text.bodySmall,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Saved on this phone. Applies across the app.',
-                textAlign: TextAlign.center,
-                style: text.bodySmall,
               ),
             ],
           );
@@ -169,78 +156,70 @@ class CustomizationScreen extends StatelessWidget {
     );
   }
 
-  /// A style other than the default (Glassy) takes a short ad each time it is
-  /// picked, like a first-row colour; Pro never sees one.
+  /// Every change takes a short ad unless this is Pro. [preview] says the
+  /// look is a Pro one, so the ad buys an hour of it, not a keeper.
+  static Future<bool> _watchFor(
+    BuildContext context, {
+    required String what,
+    required bool preview,
+  }) async {
+    if (ProController.instance.featuresUnlocked) return true;
+    void openPro() =>
+        Navigator.of(context).push(FeatureRoute<void>(const ProScreen()));
+    final watch = await showConfirmationAlert(
+      context,
+      title: 'Watch a short ad to change $what',
+      message: preview
+          ? 'This is a Pro look. Watch a short ad to use it for an hour, '
+                'then it goes back to your free look. Pro keeps it for good, '
+                'with no ads.'
+          : 'Each change shows a short ad. With Pro, no ads.',
+      confirmLabel: 'Watch ad',
+      extraActionLabel: 'Get Pro instead',
+      onExtraAction: openPro,
+      destructive: false,
+    );
+    if (!watch || !context.mounted) return false;
+    // Offline, or the user declined: nothing changes.
+    return watchAd(context);
+  }
+
   static Future<void> _pickStyle(
     BuildContext context,
     AppearanceController settings,
     AppStyle style,
   ) async {
     if (settings.style == style) return;
-    if (style != AppStyle.glassy && !ProController.instance.isPro) {
-      void openPro() =>
-          Navigator.of(context).push(FeatureRoute<void>(const ProScreen()));
-      final watch = await showConfirmationAlert(
-        context,
-        title: 'Watch a short ad to switch style',
-        message:
-            'Styles other than Glassy show a short ad each time you switch. '
-            'With Pro, use every style, with no ads.',
-        confirmLabel: 'Watch ad',
-        extraActionLabel: 'Get Pro instead',
-        onExtraAction: openPro,
-        destructive: false,
-      );
-      if (!watch || !context.mounted) return;
-      // Offline, or the user declined: the style stays as it was.
-      if (!await watchAd(context)) return;
+    final free = style == AppearanceController.freeStyle;
+    if (!await _watchFor(context, what: 'style', preview: !free)) return;
+    await settings.setStyle(
+      style,
+      preview: !free && !ProController.instance.featuresUnlocked,
+    );
+    // Aurora is made for dark: switch to it so the real look shows at once.
+    if (style == AppStyle.aurora &&
+        (settings.value != ThemeMode.dark || settings.black)) {
+      await settings.setMode(ThemeMode.dark);
     }
-    await settings.setStyle(style);
   }
 
-  /// A first-row colour: free, after a short ad unless it's the default or
-  /// this is Pro.
-  static Future<void> _pickFree(
+  /// A colour from either row. The first row (and Purple, the default) is
+  /// free; the rest, and any shade, are a Pro look tried for an hour.
+  static Future<void> _pickColor(
     BuildContext context,
     AppearanceController settings,
-    MapEntry<String, Color> entry,
+    Color color,
   ) async {
-    if (settings.accentColor == entry.value) return;
-    if (entry.value != accent && !ProController.instance.featuresUnlocked) {
-      void openPro() =>
-          Navigator.of(context).push(FeatureRoute<void>(const ProScreen()));
-      final watch = await showConfirmationAlert(
-        context,
-        title: 'Watch a short ad to switch color',
-        message:
-            'Free colors show a short ad each time you switch. With Pro, use '
-            'every color, with no ads.',
-        confirmLabel: 'Watch ad',
-        extraActionLabel: 'Get Pro instead',
-        onExtraAction: openPro,
-        destructive: false,
-      );
-      if (!watch || !context.mounted) return;
-      // Offline, or the user declined: the color stays as it was.
-      if (!await watchAd(context)) return;
+    if (settings.accentColor == color) return;
+    final free = freeColors.containsValue(color);
+    if (color != accent &&
+        !await _watchFor(context, what: 'color', preview: !free)) {
+      return;
     }
-    await settings.setAccent(entry.value);
-  }
-
-  static Future<void> _offerPro(BuildContext context) async {
-    if (await showConfirmationAlert(
-          context,
-          title: 'A Pro color',
-          message:
-              'Pro unlocks every color and a picker for any shade, with no '
-              'ads.',
-          confirmLabel: 'See Pro',
-          cancelLabel: 'Not now',
-          destructive: false,
-        ) &&
-        context.mounted) {
-      await Navigator.of(context).push(FeatureRoute<void>(const ProScreen()));
-    }
+    await settings.setAccent(
+      color,
+      preview: !free && !ProController.instance.featuresUnlocked,
+    );
   }
 
   static Future<void> _pickCustom(
@@ -251,7 +230,47 @@ class CustomizationScreen extends StatelessWidget {
       context,
       builder: (_) => _AccentPicker(initial: settings.accentColor),
     );
-    if (picked != null) await settings.setAccent(picked);
+    if (picked == null || !context.mounted) return;
+    await _pickColor(context, settings, picked);
+  }
+}
+
+/// While a Pro look is being tried: what it is, how long is left, and the
+/// way to keep it.
+class _PreviewNotice extends StatelessWidget {
+  const _PreviewNotice({required this.end});
+  final DateTime end;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final left = end.difference(DateTime.now());
+    final minutes = left.inMinutes + (left.inSeconds % 60 > 0 ? 1 : 0);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: appCardGap),
+      child: MoneyCard(
+        padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+        child: Row(
+          children: [
+            Icon(Icons.timer_outlined, color: theme.colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Trying a Pro look. It goes back to your free look in '
+                '${minutes < 1 ? 'under a minute' : '$minutes min'}.',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(context)
+                      .push(FeatureRoute<void>(const ProScreen())),
+              child: const Text('Keep it'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -267,8 +286,10 @@ class _SectionHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionTitle(title),
-        const SizedBox(height: 4),
-        Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+        if (subtitle.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+        ],
       ],
     ),
   );
@@ -381,25 +402,15 @@ class _Ring extends StatelessWidget {
 }
 
 /// A small lock in a swatch's corner, for a Pro colour.
-class _Lock extends StatelessWidget {
-  const _Lock();
+/// A small "PRO" tag on the corner of a Pro look.
+class _ProBadge extends StatelessWidget {
+  const _ProBadge();
 
   @override
-  Widget build(BuildContext context) => Positioned(
-    right: -2,
-    bottom: -2,
-    child: Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        Icons.lock_rounded,
-        size: 13,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-    ),
+  Widget build(BuildContext context) => const Positioned(
+    right: -6,
+    bottom: -4,
+    child: IgnorePointer(child: MenuProBadge()),
   );
 }
 
@@ -409,18 +420,18 @@ class _AccentSwatch extends StatelessWidget {
     required this.color,
     required this.selected,
     required this.onTap,
-    this.locked = false,
+    this.pro = false,
   });
   final String name;
   final Color color;
-  final bool selected, locked;
+  final bool selected, pro;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
     selected: selected,
-    label: locked ? '$name accent, Pro' : '$name accent',
+    label: '$name accent',
     child: Tooltip(
       message: name,
       child: InkWell(
@@ -440,7 +451,7 @@ class _AccentSwatch extends StatelessWidget {
                     )
                   : null,
             ),
-            if (locked) const _Lock(),
+            if (pro) const _ProBadge(),
           ],
         ),
       ),
@@ -500,7 +511,7 @@ class _PaletteSwatch extends StatelessWidget {
                   size: 22,
                 ),
               ),
-              if (locked) const _Lock(),
+              if (locked) const _ProBadge(),
             ],
           ),
         ),
@@ -627,6 +638,129 @@ class _AccentPickerState extends State<_AccentPicker> {
         primaryLabel: 'Use this color',
         onPrimary: () => Navigator.pop(context, _color),
       ),
+    );
+  }
+}
+
+/// What sits behind the Aurora style: its own glow, or a picture of the
+/// user's choosing, such as the wallpaper from their home screen.
+class _AuroraBackground extends StatelessWidget {
+  const _AuroraBackground({required this.settings});
+  final AppearanceController settings;
+
+  Future<void> _choose(BuildContext context) async {
+    final previous = settings.wallpaperPath;
+    final path = await AuroraWallpaper.choose();
+    if (path == null || !context.mounted) return;
+    if (!await CustomizationScreen._watchFor(
+      context,
+      what: 'background',
+      preview: true,
+    )) {
+      await AuroraWallpaper.tidy(keep: previous);
+      return;
+    }
+    await settings.setWallpaper(
+      path,
+      preview: !ProController.instance.featuresUnlocked,
+    );
+    if (previous != null) await AuroraWallpaper.tidy(keep: path);
+  }
+
+  Future<void> _useGlow() async {
+    await settings.setWallpaper(null);
+    await AuroraWallpaper.tidy();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final picture = settings.wallpaperPath;
+    Widget check(bool on) => Icon(
+      on ? Icons.check_circle_rounded : Icons.circle_outlined,
+      color: on ? scheme.primary : scheme.onSurfaceVariant,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _SectionHeader(
+          'Aurora background',
+          'Use the glow, or a picture such as your home screen wallpaper.',
+        ),
+        MenuGroup(
+          children: [
+            Semantics(
+              selected: picture == null,
+              button: true,
+              child: MenuRow(
+                icon: Icons.auto_awesome_outlined,
+                title: 'Aurora glow',
+                subtitle: 'Pools of your accent color',
+                onTap: picture == null ? null : _useGlow,
+                trailing: check(picture == null),
+              ),
+            ),
+            Semantics(
+              selected: picture != null,
+              button: true,
+              child: MenuRow(
+                icon: Icons.wallpaper_outlined,
+                title: picture == null ? 'Choose a picture' : 'Change picture',
+                subtitle: 'Pick your wallpaper or any photo from your phone',
+                onTap: () => _choose(context),
+                trailing: picture == null
+                    ? check(false)
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(
+                          File(picture),
+                          width: 36,
+                          height: 36,
+                          fit: BoxFit.cover,
+                          cacheWidth: 108,
+                          errorBuilder: (_, _, _) => check(true),
+                        ),
+                      ),
+              ),
+            ),
+            if (picture != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Dim the picture',
+                            style: theme.textTheme.titleSmall,
+                          ),
+                        ),
+                        Text(
+                          '${(settings.wallpaperDim * 100).round()}%',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                    Slider(
+                      value: settings.wallpaperDim,
+                      max: .85,
+                      divisions: 17,
+                      label: '${(settings.wallpaperDim * 100).round()}%',
+                      onChanged: settings.setWallpaperDim,
+                    ),
+                    Text(
+                      'Darker (or lighter, in light mode) keeps text easy to read.',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

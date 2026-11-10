@@ -6,10 +6,14 @@ import 'package:intl/intl.dart';
 import '../../domain/account.dart';
 import '../../domain/app_icons.dart';
 import '../../domain/category.dart';
+import '../../domain/recurring_payment.dart';
+import '../../domain/recurring_suggestions.dart';
+import '../../domain/service_icon.dart';
 import '../../domain/transaction.dart';
 import '../db/app_database.dart';
 import '../repositories/account_repository.dart';
 import '../repositories/category_repository.dart';
+import '../repositories/recurring_payment_repository.dart';
 import '../repositories/sms_import_repository.dart';
 import '../repositories/statement_import_repository.dart';
 import '../repositories/transaction_repository.dart';
@@ -28,7 +32,8 @@ enum AgentSuggestionKind {
   statementLayout('statement_layout'),
   newLoan('new_loan'),
   debtEntry('debt_entry'),
-  transactionAdd('transaction_add');
+  transactionAdd('transaction_add'),
+  recurringPayment('recurring_payment');
 
   const AgentSuggestionKind(this.storageValue);
   final String storageValue;
@@ -95,7 +100,8 @@ class AgentSuggestion {
           kind == AgentSuggestionKind.statementLayout ||
           kind == AgentSuggestionKind.newLoan ||
           kind == AgentSuggestionKind.debtEntry ||
-          kind == AgentSuggestionKind.transactionAdd);
+          kind == AgentSuggestionKind.transactionAdd ||
+          kind == AgentSuggestionKind.recurringPayment);
 }
 
 class AgentSuggestionDraft {
@@ -390,7 +396,10 @@ class AgentSuggestionRepository {
     if (account == null || account.isArchived) {
       throw ArgumentError('Account $accountId isn’t an active account.');
     }
-    final minor = parseAccountAmount(amount.replaceAll(',', ''), account.digits);
+    final minor = parseAccountAmount(
+      amount.replaceAll(',', ''),
+      account.digits,
+    );
     if (minor == null || minor <= 0) {
       throw ArgumentError('amount must be an amount like 250.00.');
     }
@@ -429,7 +438,11 @@ class AgentSuggestionRepository {
               Variable(minor),
               Variable(day.millisecondsSinceEpoch),
               Variable(
-                DateTime(day.year, day.month, day.day + 1).millisecondsSinceEpoch,
+                DateTime(
+                  day.year,
+                  day.month,
+                  day.day + 1,
+                ).millisecondsSinceEpoch,
               ),
             ],
           )
@@ -492,9 +505,9 @@ class AgentSuggestionRepository {
       payload,
     );
     final accountId = payload['accountId'] as int;
-    final account = (await AccountRepository(database).load())
-        .where((a) => a.id == accountId && !a.isArchived)
-        .firstOrNull;
+    final account = (await AccountRepository(
+      database,
+    ).load()).where((a) => a.id == accountId && !a.isArchived).firstOrNull;
     if (account == null) throw StateError('That account is no longer active.');
     final id = await TransactionRepository(database).addExpenseOrIncome(
       type: type,
@@ -506,6 +519,138 @@ class AgentSuggestionRepository {
       date: DateTime.parse(payload['date'] as String),
     );
     return {'transactionId': id};
+  }
+
+  /// A recurring payment to set up, in or out: rent, a subscription, a
+  /// premium. The icon and category follow its name when not given.
+  Future<AgentSuggestionDraft> prepareRecurringPayment({
+    required String name,
+    required String amount,
+    required int accountId,
+    String cycle = 'monthly',
+    DateTime? nextDue,
+    bool incoming = false,
+    int? categoryId,
+    String? categoryName,
+    String? icon,
+    bool remind = true,
+    String? reason,
+  }) async {
+    final cleanName = name.trim();
+    if (cleanName.isEmpty || cleanName.length > 40) {
+      throw ArgumentError('Give a name of up to 40 characters.');
+    }
+    final billing = BillingCycle.values
+        .where((c) => c.name == cycle)
+        .firstOrNull;
+    if (billing == null) {
+      throw ArgumentError(
+        'cycle must be one of ${[for (final c in BillingCycle.values) c.name].join(', ')}.',
+      );
+    }
+    final accounts = await AccountRepository(database).load();
+    final account = accounts.where((a) => a.id == accountId).firstOrNull;
+    if (account == null || account.isArchived) {
+      throw ArgumentError('Account $accountId isn’t an active account.');
+    }
+    final minor = parseAccountAmount(
+      amount.replaceAll(',', ''),
+      account.digits,
+    );
+    if (minor == null || minor <= 0) {
+      throw ArgumentError('amount must be an amount like 250.00.');
+    }
+    final existing = await database
+        .customSelect(
+          'SELECT id FROM recurring_payments WHERE lower(name) = ? AND incoming = ? LIMIT 1',
+          variables: [
+            Variable(cleanName.toLowerCase()),
+            Variable(incoming ? 1 : 0),
+          ],
+        )
+        .getSingleOrNull();
+    if (existing != null) {
+      throw ArgumentError(
+        '“$cleanName” is already set up (id ${existing.read<int>('id')}). '
+        'Check list_recurring_payments before suggesting another.',
+      );
+    }
+    final suggested = suggestRecurring(cleanName, incoming: incoming);
+    final categories = await CategoryRepository(database).load();
+    final type = incoming ? CategoryType.income : CategoryType.expense;
+    // Asked for by id or name, it must exist. Otherwise the name decides, if
+    // the user still has a category by that name.
+    final automatic =
+        suggested?.category ?? (incoming ? 'Rental Income' : 'Subscriptions');
+    final choice = categoryId != null || categoryName != null
+        ? await _categoryChoice(categories, type, categoryId, categoryName)
+        : _byName(categories, type, automatic) == null
+        ? null
+        : await _categoryChoice(categories, type, null, automatic);
+    final day = nextDue == null ? dateOnly(DateTime.now()) : dateOnly(nextDue);
+    final shown = formatAccountMoney(
+      minor,
+      digits: account.digits,
+      currency: account.currency,
+    );
+    final artwork =
+        icon ??
+        serviceIcon(cleanName) ??
+        suggested?.icon ??
+        (incoming ? 'rent' : 'subscriptions');
+    return AgentSuggestionDraft(
+      kind: AgentSuggestionKind.recurringPayment,
+      target: jsonEncode([cleanName.toLowerCase(), incoming]),
+      payload: {
+        'name': cleanName,
+        'icon': artwork,
+        'amount': minor,
+        'accountId': accountId,
+        'cycle': billing.name,
+        'nextDue': day.toIso8601String(),
+        'incoming': incoming,
+        'remind': remind,
+        ...?choice?.payload,
+      },
+      summary:
+          '${incoming ? 'Add money coming in' : 'Add recurring payment'}'
+          ' · $cleanName · $shown ${billing.label.toLowerCase()}',
+      detail: [
+        'Next due ${_day(day)}',
+        '${incoming ? 'Paid into' : 'Paid from'} ${account.name}',
+        if (choice != null) 'Category: ${choice.label}',
+        if (remind) 'Reminds two days before and on the day',
+      ],
+      reason: _reason(reason),
+    );
+  }
+
+  /// Sets the recurring payment up. Returns what undoing needs.
+  Future<Map<String, Object?>> _applyRecurringPayment(
+    Map<String, Object?> payload,
+  ) async {
+    final incoming = payload['incoming'] == true;
+    final category =
+        payload.containsKey('categoryId') || payload.containsKey('categoryName')
+        ? await _resolveCategory(
+            incoming ? CategoryType.income : CategoryType.expense,
+            payload,
+          )
+        : null;
+    final id = await RecurringPaymentRepository(database).add(
+      RecurringPaymentDraft(
+        name: payload['name'] as String,
+        icon: payload['icon'] as String?,
+        amountMinor: payload['amount'] as int,
+        cycle: BillingCycleLabels.fromStorage(payload['cycle'] as String),
+        nextDue: DateTime.parse(payload['nextDue'] as String),
+        accountId: payload['accountId'] as int,
+        categoryId: category?.id,
+        remind: payload['remind'] != false,
+        incoming: incoming,
+      ),
+    );
+    return {'recurringPaymentId': id};
   }
 
   // ── Storing and reading. ──
@@ -680,6 +825,11 @@ class AgentSuggestionRepository {
               id,
               await _applyTransactionAdd(suggestion.payload),
             );
+          case AgentSuggestionKind.recurringPayment:
+            await _keepForUndo(
+              id,
+              await _applyRecurringPayment(suggestion.payload),
+            );
         }
         await _decide(id, AgentSuggestionStatus.applied);
       });
@@ -737,7 +887,9 @@ class AgentSuggestionRepository {
       'UPDATE agent_suggestions SET payload = ?, detail = ? WHERE id = ?',
       [
         jsonEncode(payload),
-        on ? detail.replaceAll(counted, adds) : detail.replaceAll(adds, counted),
+        on
+            ? detail.replaceAll(counted, adds)
+            : detail.replaceAll(adds, counted),
         id,
       ],
     );
@@ -760,7 +912,7 @@ class AgentSuggestionRepository {
       await database.transaction(() async {
         final row = await database
             .customSelect(
-              "SELECT kind, target, before FROM agent_suggestions WHERE id = ? AND status = 'applied' AND kind IN ('transaction_edit', 'parser_rule', 'statement_layout', 'new_loan', 'debt_entry', 'transaction_add')",
+              "SELECT kind, target, before FROM agent_suggestions WHERE id = ? AND status = 'applied' AND kind IN ('transaction_edit', 'parser_rule', 'statement_layout', 'new_loan', 'debt_entry', 'transaction_add', 'recurring_payment')",
               variables: [Variable(id)],
             )
             .getSingleOrNull();
@@ -772,10 +924,12 @@ class AgentSuggestionRepository {
           await _loans.undoLoan(before);
         } else if (row.read<String>('kind') == 'debt_entry') {
           await _loans.undoDebtEntry(before);
+        } else if (row.read<String>('kind') == 'recurring_payment') {
+          await RecurringPaymentRepository(database)
+              .delete(before['recurringPaymentId'] as int);
         } else if (row.read<String>('kind') == 'transaction_add') {
-          await TransactionRepository(
-            database,
-          ).delete(before['transactionId'] as int);
+          await TransactionRepository(database)
+              .delete(before['transactionId'] as int);
         } else if (row.read<String>('kind') == 'parser_rule') {
           await UserSmsRuleRepository(database).delete(before['ruleId'] as int);
         } else if (row.read<String>('kind') == 'statement_layout') {
@@ -938,7 +1092,7 @@ class AgentSuggestionRepository {
   // ── Shared checks. ──
 
   static const _managed =
-      'Part of this transaction is managed by its loan, debt or subscription. '
+      'Part of this transaction is managed by its loan, debt or recurring payment. '
       'Change it from there.';
 
   Future<MoneyTransaction> _transaction(int id) async {

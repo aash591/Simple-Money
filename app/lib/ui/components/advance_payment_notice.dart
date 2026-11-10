@@ -16,12 +16,16 @@ class AdvancePaymentNotice extends StatelessWidget {
     super.key,
     required this.due,
     required this.payment,
+    this.following,
     required this.accepted,
     required this.onChanged,
   });
 
   final DateTime due;
   final String payment;
+
+  /// When the one after this falls due, once this is paid. Null when unknown.
+  final DateTime? following;
   final bool accepted;
   final ValueChanged<bool>? onChanged;
 
@@ -29,6 +33,7 @@ class AdvancePaymentNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final dueText = DateFormat('d MMM yyyy').format(due);
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
       decoration: BoxDecoration(
@@ -58,8 +63,11 @@ class AdvancePaymentNotice extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            '$payment is due ${DateFormat('d MMM yyyy').format(due)}. '
-            'This moves the schedule forward.',
+            following == null
+                ? '$payment is not due until $dueText. Paying it now moves '
+                      'the schedule on.'
+                : '$payment is not due until $dueText. Paying it now moves '
+                      'the next one to ${DateFormat('d MMM yyyy').format(following!)}.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: scheme.onTertiaryContainer,
             ),

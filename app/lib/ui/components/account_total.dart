@@ -6,6 +6,7 @@ import '../../state/account_store.dart';
 import '../../state/main_currency_controller.dart';
 import '../theme/sheet_colors.dart';
 import 'adaptive_sheet.dart';
+import 'animated_amount.dart';
 import 'currency_notice.dart';
 import 'common.dart';
 import 'private_amount.dart';
@@ -13,9 +14,18 @@ import 'private_amount.dart';
 /// Every account's balance added up. One conversion per currency group;
 /// individual account balances stay in their own currency.
 class AccountTotal extends StatelessWidget {
-  const AccountTotal({super.key, required this.store, this.prominent = false});
+  const AccountTotal({
+    super.key,
+    required this.store,
+    this.prominent = false,
+    this.onTap,
+  });
   final AccountStore store;
   final bool prominent;
+
+  /// Replaces opening the per-currency breakdown, e.g. to go to the accounts
+  /// page instead.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +57,20 @@ class AccountTotal extends StatelessWidget {
           currency: scope.code,
         );
         final formatted = '${estimated ? '≈ ' : ''}$amount';
+        // The same text, from the number itself, for the rolling digits.
+        String money(int minor) =>
+            '${estimated ? '≈ ' : ''}${formatAccountMoney(minor, digits: scope.digits, currency: scope.code)}';
+        // "≈" is punctuation most screen readers skip, which would announce
+        // an estimate as an exact figure.
+        Widget rolling(TextStyle? style) => Semantics(
+          label: estimated ? 'Approximately $amount' : amount,
+          excludeSemantics: true,
+          child: AnimatedAmount(
+            value: totals.total,
+            format: money,
+            style: style,
+          ),
+        );
         if (prominent) {
           final theme = Theme.of(context);
           final scheme = theme.colorScheme;
@@ -99,12 +123,8 @@ class AccountTotal extends StatelessWidget {
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
-                          child: Text(
-                            formatted,
-                            semanticsLabel: estimated
-                                ? 'Approximately $amount'
-                                : null,
-                            style: theme.textTheme.headlineLarge?.copyWith(
+                          child: rolling(
+                            theme.textTheme.headlineLarge?.copyWith(
                               fontSize: 40,
                               fontWeight: FontWeight.w700,
                             ),
@@ -138,7 +158,8 @@ class AccountTotal extends StatelessWidget {
           );
         }
         return InkWell(
-          onTap: () => _open(context, scope, groups, totals, formatted),
+          onTap:
+              onTap ?? () => _open(context, scope, groups, totals, formatted),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Column(
@@ -154,15 +175,13 @@ class AccountTotal extends StatelessWidget {
                     Expanded(
                       child: PrivateAmount(
                         label: 'Total balance',
-                        child: Text(
-                          formatted,
-                          // "≈" is punctuation most screen readers skip, which
-                          // would announce an estimate as an exact figure.
-                          semanticsLabel: estimated
-                              ? 'Approximately $amount'
-                              : null,
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.w700),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: rolling(
+                            Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
                         ),
                       ),
                     ),

@@ -11,9 +11,9 @@ import '../../../state/sync_controller.dart';
 import '../../../state/upi_settings.dart';
 import '../../../state/vibration_settings.dart';
 import '../../components/app_toast.dart';
-import '../../components/confirmation_alert.dart';
 import '../../components/menu_list.dart';
 import '../../components/feature_page.dart';
+import '../../welcome/onboarding_screen.dart';
 import '../home_layout_screen.dart';
 import 'customization_screen.dart';
 import 'data/data_screen.dart';
@@ -46,26 +46,20 @@ class SettingsScreen extends StatelessWidget {
       await sms.disable();
       return;
     }
-    final ok = await showConfirmationAlert(
-      context,
-      title: 'Read bank SMS?',
-      message:
-          'Simple Money will read the SMS on your phone, including new ones '
-          'as they arrive, and pick out the ones from your bank to add as '
-          'transactions. Messages stay on your device and are never sold or '
-          'shared. OTPs and personal messages are ignored.',
-      confirmLabel: 'Continue',
-      destructive: false,
+    // The same setup screen as the first run: what is read, the Android
+    // prompt, then the accounts found.
+    await Navigator.of(context).push(
+      FeatureRoute<void>(
+        Builder(
+          builder: (context) => OnboardingScreen(
+            database: sms.repository.database,
+            sms: sms,
+            smsOnly: true,
+            onDone: () => Navigator.of(context).pop(),
+          ),
+        ),
+      ),
     );
-    if (!ok) return;
-    await sms.enable();
-    if (context.mounted && !sms.enabled) {
-      showAppToast(
-        context,
-        'SMS access wasn’t allowed. You can allow it in Android Settings › '
-        'Apps › Simple Money › Permissions.',
-      );
-    }
   }
 
   @override

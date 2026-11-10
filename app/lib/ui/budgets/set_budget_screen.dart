@@ -358,7 +358,7 @@ class _SetBudgetScreenState extends State<SetBudgetScreen> {
 
   Future<void> _save() async {
     if (!await _mayAdd()) return;
-    final saved = await _write(
+    await _write(
       _existing == null ? 'Budget set' : 'Budget updated',
       () async => BudgetEditResult.saved(
         widget.total

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../data/repositories/sms_import_repository.dart';
 import '../../state/sms_import_store.dart';
-import '../sms/sms_pending_card.dart';
 import '../../data/repositories/home_repository.dart';
 import '../../data/repositories/insights_repository.dart';
 import '../../domain/budget.dart';
@@ -15,7 +14,7 @@ import '../../state/debt_store.dart';
 import '../../state/home_layout.dart';
 import '../../state/loan_store.dart';
 import '../../state/main_currency_controller.dart';
-import '../../state/subscription_store.dart';
+import '../../state/recurring_payment_store.dart';
 import '../../state/transaction_store.dart';
 import '../components/currency_notice.dart';
 import '../components/feature_page.dart';
@@ -23,23 +22,11 @@ import '../more/home_layout_screen.dart';
 import '../theme/surface_style.dart';
 import '../components/month_picker_popup.dart';
 import '../components/status_bar_blur_scope.dart';
-import 'cards/accounts_card.dart';
-import 'cards/cash_flow_card.dart';
-import 'cards/category_changes_card.dart';
-import 'cards/committed_card.dart';
 import 'cards/currency_scope_bar.dart';
 import 'cards/home_card.dart';
 import 'cards/home_skeleton.dart';
+import 'home_cards.dart';
 import 'cards/home_header.dart';
-import 'cards/loan_payoff_card.dart';
-import 'cards/net_worth_card.dart';
-import 'cards/overview_card.dart';
-import 'cards/recent_transactions_card.dart';
-import 'cards/spending_card.dart';
-import 'cards/spending_pace_card.dart';
-import 'cards/upcoming_debts_card.dart';
-import 'cards/upcoming_emis_card.dart';
-import 'cards/upcoming_subscriptions_card.dart';
 
 class HomeDashboard extends StatefulWidget {
   const HomeDashboard({
@@ -53,13 +40,13 @@ class HomeDashboard extends StatefulWidget {
     required this.onOpenTransactions,
     required this.onOpenBudgets,
     this.loanStore,
-    this.subscriptionStore,
+    this.recurringPaymentStore,
     this.debtStore,
     this.smsStore,
     this.onReviewSms,
   });
   final LoanStore? loanStore;
-  final SubscriptionStore? subscriptionStore;
+  final RecurringPaymentStore? recurringPaymentStore;
   final DebtStore? debtStore;
   final SmsImportStore? smsStore;
   final ValueChanged<PendingSmsImport>? onReviewSms;
@@ -99,7 +86,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
     widget.budgetStore,
     ?widget.loanStore,
     ?widget.debtStore,
-    ?widget.subscriptionStore,
+    ?widget.recurringPaymentStore,
   ]);
   List<SingleCurrency> get currencies => widget.accountStore.accounts
       .map((a) => SingleCurrency(a.currency, a.digits))
@@ -145,10 +132,18 @@ class _HomeDashboardState extends State<HomeDashboard> {
     _reload();
   }
 
+  // The review card joins the page the moment the waiting messages are read.
+  bool _smsShown = false;
+  void _smsChanged() {
+    final loaded = widget.smsStore?.loaded ?? true;
+    if (loaded != _smsShown && mounted) setState(() => _smsShown = loaded);
+  }
+
   @override
   void initState() {
     super.initState();
     stores.addListener(_reload);
+    widget.smsStore?.addListener(_smsChanged);
     _reload();
   }
 
@@ -156,6 +151,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
   void dispose() {
     generation++;
     stores.removeListener(_reload);
+    widget.smsStore?.removeListener(_smsChanged);
     _mainCurrency?.removeListener(_currencyChanged);
     super.dispose();
   }
@@ -269,7 +265,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
     for (final l in widget.loanStore?.loans ?? []) {
       check(l.terms.currency, l.terms.digits);
     }
-    for (final s in widget.subscriptionStore?.subscriptions ?? []) {
+    for (final s in widget.recurringPaymentStore?.recurringPayments ?? []) {
       check(s.currency, s.digits);
     }
     for (final p in widget.debtStore?.people ?? []) {
@@ -302,102 +298,31 @@ class _HomeDashboardState extends State<HomeDashboard> {
   /// The card [id] stands for, or null when it has nothing to show: what's
   /// due soon only matters while looking at the present, and the month's
   /// charts wait for its summary to load.
-  Widget? _card(HomeCardId id, bool viewingPast, CurrencyScope currency) {
-    final data = error == null ? summary : null;
-    final trends = error == null ? insights : null;
-    Widget spaced(Widget card) => Padding(
-      padding: const EdgeInsets.only(top: homeCardGap),
-      child: card,
-    );
-    return switch (id) {
-      HomeCardId.smsHistory
-          when widget.smsStore != null && widget.onReviewSms != null =>
-        SmsPendingCard(
-          store: widget.smsStore!,
-          accounts: widget.accountStore,
-          categories: widget.categoryStore,
-          transactions: widget.transactionStore,
-          onReview: widget.onReviewSms!,
-        ),
-      HomeCardId.upcomingEmis when !viewingPast && widget.loanStore != null =>
-        UpcomingEmisCard(store: widget.loanStore!),
-      HomeCardId.upcomingSubscriptions
-          when !viewingPast && widget.subscriptionStore != null =>
-        UpcomingSubscriptionsCard(store: widget.subscriptionStore!),
-      HomeCardId.upcomingDebts when !viewingPast && widget.debtStore != null =>
-        UpcomingDebtsCard(store: widget.debtStore!),
-      HomeCardId.committed when !viewingPast && data != null => spaced(
-        CommittedCard(
-          accountStore: widget.accountStore,
-          loanStore: widget.loanStore,
-          subscriptionStore: widget.subscriptionStore,
-          debtStore: widget.debtStore,
-          currency: currency,
-        ),
-      ),
-      HomeCardId.overview when data != null => spaced(
-        OverviewCard(
-          data: data,
-          budget: budget?.total,
-          currency: currency,
-          onOpenTransactions: _transactions,
-          onOpenBudgets: () =>
-              widget.onOpenBudgets(month, (currency.code, currency.digits)),
-        ),
-      ),
-      HomeCardId.spendingPace when data != null && trends != null => spaced(
-        SpendingPaceCard(
-          month: month,
-          daily: data.dailyExpenses,
-          previousDaily: trends.previousDailyExpenses,
-          budget: budget?.total,
-          currency: currency,
-        ),
-      ),
-      HomeCardId.spending when data != null => spaced(
-        SpendingCard(data: data, month: month, currency: currency),
-      ),
-      HomeCardId.categoryChanges when trends != null => spaced(
-        CategoryChangesCard(
-          changes: trends.categoryChanges,
-          comparedMonths: trends.comparedMonths,
-          currency: currency,
-        ),
-      ),
-      HomeCardId.cashFlow when trends != null => spaced(
-        CashFlowCard(flows: trends.flows, currency: currency),
-      ),
-      HomeCardId.accounts when data != null => spaced(
-        AccountsCard(
-          accountStore: widget.accountStore,
-          transactionStore: widget.transactionStore,
-        ),
-      ),
-      HomeCardId.netWorth when trends != null => spaced(
-        NetWorthCard(
-          flows: trends.flows,
-          balances: trends.balances,
-          loanStore: widget.loanStore,
-          debtStore: widget.debtStore,
-          currency: currency,
-        ),
-      ),
-      // Hides itself, spacing included, while there are no open loans.
-      HomeCardId.loanPayoff when widget.loanStore != null && data != null =>
-        LoanPayoffCard(store: widget.loanStore!, currency: currency),
-      HomeCardId.recentTransactions when data != null => spaced(
-        RecentTransactionsCard(
-          transactions: data.recent,
-          currency: currency,
-          accountStore: widget.accountStore,
-          categoryStore: widget.categoryStore,
-          transactionStore: widget.transactionStore,
-          onSeeAll: _transactions,
-        ),
-      ),
-      _ => null,
-    };
-  }
+  Widget? _card(HomeCardId id, bool viewingPast, CurrencyScope currency) =>
+      id == HomeCardId.smsHistory && !(widget.smsStore?.loaded ?? true)
+      ? null
+      : buildHomeCard(
+          id,
+          HomeCardContext(
+            accountStore: widget.accountStore,
+            categoryStore: widget.categoryStore,
+            transactionStore: widget.transactionStore,
+            loanStore: widget.loanStore,
+            recurringPaymentStore: widget.recurringPaymentStore,
+            debtStore: widget.debtStore,
+            smsStore: widget.smsStore,
+            onReviewSms: widget.onReviewSms,
+            month: month,
+            currency: currency,
+            viewingPast: viewingPast,
+            summary: error == null ? summary : null,
+            insights: error == null ? insights : null,
+            budget: budget,
+            onOpenTransactions: _transactions,
+            onOpenBudgets: () =>
+                widget.onOpenBudgets(month, (currency.code, currency.digits)),
+          ),
+        );
 
   @override
   Widget build(BuildContext context) {

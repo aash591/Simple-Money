@@ -40,10 +40,10 @@ class LedgerCandidate {
   final String references;
 
   /// Whether this expense or income may become a transfer: a plain rupee
-  /// transaction that no loan, debt or subscription is built on.
+  /// transaction that no loan, debt or recurring payment is built on.
   final bool transferable;
 
-  /// Whether no loan, debt or subscription is built on this transaction yet.
+  /// Whether no loan, debt or recurring payment is built on this transaction yet.
   final bool free;
 
   /// Whether the transaction's title or note contains [text], ignoring case.
@@ -120,7 +120,7 @@ Future<List<LedgerCandidate>> ledgerBetween(
                 WHERE t.id IN (l.disbursal_id, l.charges_id))
               AND NOT EXISTS (SELECT 1 FROM debt_entries d
                 WHERE d.transaction_id = t.id)
-              AND NOT EXISTS (SELECT 1 FROM subscription_payments p
+              AND NOT EXISTS (SELECT 1 FROM recurring_payment_history p
                 WHERE p.transaction_id = t.id)) AS free
           FROM transactions t JOIN accounts a ON a.id = t.account_id
           WHERE t.date >= ? AND t.date <= ?''',

@@ -218,7 +218,7 @@ void main() {
           IssueReporter(
             client: server.client,
             baseUrl: 'https://tg.example',
-        credentials: _creds,
+            credentials: _creds,
           ).send('hi'),
           throwsA(
             isA<IssueReportException>().having(
@@ -251,7 +251,7 @@ void main() {
                     reporter: IssueReporter(
                       client: server.client,
                       baseUrl: 'https://tg.example',
-        credentials: _creds,
+                      credentials: _creds,
                     ),
                     pickFiles: pick,
                   ),
@@ -346,9 +346,14 @@ void main() {
     ) async {
       final server = await open(
         tester,
-        pick: () async => [_Picked('log.txt', Uint8List.fromList([65, 66]))],
+        pick: () async => [
+          _Picked('log.txt', Uint8List.fromList([65, 66])),
+        ],
       );
-      await tester.enterText(find.byType(TextField).first, 'The balance is off');
+      await tester.enterText(
+        find.byType(TextField).first,
+        'The balance is off',
+      );
       await tester.tap(find.text('Add attachment'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Submit'));
@@ -380,7 +385,7 @@ void main() {
             reporter: IssueReporter(
               client: slow,
               baseUrl: 'https://tg.example',
-        credentials: _creds,
+              credentials: _creds,
             ),
             pickFiles: () async => [_Picked('clip.mov', Uint8List(40))],
           ),
@@ -410,7 +415,10 @@ void main() {
 
     testWidgets('a failure keeps the text and says so', (tester) async {
       await open(tester, status: 502);
-      await tester.enterText(find.byType(TextField).first, 'The balance is off');
+      await tester.enterText(
+        find.byType(TextField).first,
+        'The balance is off',
+      );
       await tester.pump();
       await tester.tap(find.text('Submit'));
       await settle(tester);

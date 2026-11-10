@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../components/transactions/transaction_day_group.dart';
 import '../components/transactions/transaction_list_row.dart';
 
@@ -20,6 +22,7 @@ import '../../state/transaction_store.dart';
 import '../../state/main_currency_controller.dart';
 import 'transaction_currency_sheet.dart';
 import 'currency_summary_carousel.dart';
+import '../components/animated_amount.dart';
 import '../components/app_icon.dart';
 import '../components/info_guide.dart';
 import '../components/common.dart';
@@ -39,6 +42,8 @@ import 'adjust_balance_sheet.dart';
 import 'transaction_sheet.dart';
 import 'transaction_widgets.dart';
 import 'transfer_sheet.dart';
+
+part 'transaction_groups.dart';
 
 typedef _RangeKind = PeriodKind;
 
@@ -97,6 +102,8 @@ class TransactionsScreen extends StatefulWidget {
     required this.onAddTransaction,
     this.initialMonth,
     this.monthRequest = 0,
+    this.initialAccountId,
+    this.initialPeriod,
     this.parentHandlesBack = false,
     this.preview,
   });
@@ -106,6 +113,15 @@ class TransactionsScreen extends StatefulWidget {
   final VoidCallback onAddTransaction;
   final DateTime? initialMonth;
   final int monthRequest;
+
+  /// An account to filter to, as an account's page asks for when it opens
+  /// this screen on top of itself.
+  final int? initialAccountId;
+
+  /// The period to open on with [initialAccountId]: its kind, range and
+  /// place in it are copied, so the list covers what the page was showing.
+  /// All time when null.
+  final PeriodController? initialPeriod;
   final bool parentHandlesBack;
   final TransactionPreview? preview;
 
@@ -259,6 +275,18 @@ class TransactionsScreenState extends State<TransactionsScreen>
       _period.select(PeriodKind.month, anchor: widget.initialMonth);
       _grouping = _Grouping.category;
       if (widget.preview!.load != null) _readyToSaveOnly = false;
+    } else if (widget.initialAccountId != null) {
+      _accountId = widget.initialAccountId;
+      final from = widget.initialPeriod;
+      if (from == null) {
+        _period.select(PeriodKind.all);
+      } else {
+        _period.select(
+          from.kind,
+          customRange: from.customRange,
+          anchor: from.anchor,
+        );
+      }
     } else if (widget.initialMonth != null) {
       _period.select(PeriodKind.month, anchor: widget.initialMonth);
     } else {
@@ -298,7 +326,11 @@ class TransactionsScreenState extends State<TransactionsScreen>
   /// the user picked last time, so the screen doesn't always reset to Month.
   Future<void> _restoreSavedRange() async {
     final prefs = await SharedPreferences.getInstance();
-    if (!mounted || widget.initialMonth != null) return;
+    if (!mounted ||
+        widget.initialMonth != null ||
+        widget.initialAccountId != null) {
+      return;
+    }
     final savedName = prefs.getString(_rangeKindPrefsKey);
     if (savedName == null) return;
     _RangeKind? saved;
@@ -350,6 +382,8 @@ class TransactionsScreenState extends State<TransactionsScreen>
     widget.accountStore.removeListener(_onStoreChanged);
     widget.categoryStore.removeListener(_onStoreChanged);
     widget.transactionStore.removeListener(_onTransactionStoreChanged);
+    _settle.dispose();
+    _fold.dispose();
     _searchController.dispose();
     _searchFocus.dispose();
     _period
@@ -627,7 +661,7 @@ class TransactionsScreenState extends State<TransactionsScreen>
     try {
       unassigned = await widget.preview?.loadUnassigned?.call() ?? {};
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -635,6 +669,7 @@ class TransactionsScreenState extends State<TransactionsScreen>
             ),
           ),
         );
+      }
     }
     if (!mounted) return;
     final selection = await pickAccountFilter(
@@ -802,38 +837,68 @@ class TransactionsScreenState extends State<TransactionsScreen>
                     child: _buildHeader(context),
                   ),
                 ),
-                if (widget.preview == null)
-                  AnimatedPadding(
-                    duration: duration,
-                    curve: Curves.easeInOutCubic,
-                    padding: EdgeInsets.fromLTRB(18, _isSearch ? 0 : 4, 18, 0),
-                    child: Column(
+                // The card sits above the pager, but the pager is always laid
+                // out at the full height below it and only moved as the card
+                // folds. Its lists never change size mid-drag, so scrolling
+                // stays smooth: a fold costs a repaint, not a relayout of the
+                // list (which used to fight the finger and stutter).
+                Expanded(
+                  child: ClipRect(
+                    child: CustomMultiChildLayout(
+                      delegate: _CardOverList(),
                       children: [
-                        ClipRect(
-                          child: AnimatedSize(
-                            duration: duration,
-                            curve: Curves.easeInOutCubic,
-                            alignment: Alignment.topCenter,
-                            child: _isSearch
-                                ? const SizedBox(width: double.infinity)
-                                : widget.preview != null
-                                ? const SizedBox.shrink()
-                                : _buildBalanceHeader(context),
+                        LayoutId(
+                          id: _CardOverList.list,
+                          child: NotificationListener<ScrollNotification>(
+                            onNotification: _onListScroll,
+                            child: PeriodPager(
+                              controller: _period,
+                              onSelectRange: _selectRange,
+                              pageBuilder: _buildPeriodPage,
+                            ),
                           ),
                         ),
-                        AnimatedContainer(
-                          duration: duration,
-                          curve: Curves.easeInOutCubic,
-                          height: _isSearch ? 0 : 4,
-                        ),
+                        if (widget.preview == null)
+                          LayoutId(
+                            id: _CardOverList.card,
+                            child: AnimatedPadding(
+                              duration: duration,
+                              curve: Curves.easeInOutCubic,
+                              padding: EdgeInsets.fromLTRB(
+                                18,
+                                _isSearch ? 0 : 4,
+                                18,
+                                0,
+                              ),
+                              child: Column(
+                                children: [
+                                  // Opening search still slides the card away on a
+                                  // timer; its own shrinking follows the scroll
+                                  // directly, with no easing in between.
+                                  TweenAnimationBuilder<double>(
+                                    duration: duration,
+                                    curve: Curves.easeInOutCubic,
+                                    tween: Tween(end: _isSearch ? 0.0 : 1.0),
+                                    builder: (context, open, child) => ClipRect(
+                                      child: Align(
+                                        alignment: Alignment.topCenter,
+                                        heightFactor: open,
+                                        child: child,
+                                      ),
+                                    ),
+                                    child: _buildBalanceHeader(context),
+                                  ),
+                                  AnimatedContainer(
+                                    duration: duration,
+                                    curve: Curves.easeInOutCubic,
+                                    height: _isSearch ? 0 : 4,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                       ],
                     ),
-                  ),
-                Expanded(
-                  child: PeriodPager(
-                    controller: _period,
-                    onSelectRange: _selectRange,
-                    pageBuilder: _buildPeriodPage,
                   ),
                 ),
               ],
@@ -842,6 +907,62 @@ class TransactionsScreenState extends State<TransactionsScreen>
         ),
       ),
     );
+  }
+
+  /// How far the balance card is folded, from 0 (open) to 1 (folded).
+  ///
+  /// While a finger is on the list it drives the fold directly: dragging up
+  /// folds, dragging down unfolds, in step with the movement and whether or
+  /// not the list has anything to scroll. When the list comes to rest, the
+  /// card settles to whichever end is nearer, so it is never left half way.
+  /// Nothing else moves it: swiping to another period keeps it as it was.
+  final _fold = ValueNotifier<double>(0);
+  static const _foldDistance = 56.0;
+
+  /// The pager runs this far past the bottom while the card is open, so
+  /// the lists end with that much more room.
+  double get _cardRoom => widget.preview == null ? 120 : 0;
+
+  late final _settle = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 220),
+  )..addListener(_settleTick);
+  double _settleFrom = 0, _settleTo = 0;
+  double _lastPixels = 0;
+
+  void _settleTick() => _fold.value =
+      _settleFrom +
+      (_settleTo - _settleFrom) * Curves.easeOutCubic.transform(_settle.value);
+
+  void _foldBy(double pixels) {
+    final next = (_fold.value + pixels / _foldDistance).clamp(0.0, 1.0);
+    if (next != _fold.value) _fold.value = next;
+  }
+
+  bool _onListScroll(ScrollNotification n) {
+    // The list sits inside the horizontal pager, so it arrives one scrollable
+    // deep; only vertical scrolling counts.
+    if (n.depth > 1 || n.metrics.axis != Axis.vertical) return false;
+    switch (n) {
+      case ScrollStartNotification():
+        _settle.stop();
+        _lastPixels = n.metrics.pixels;
+      case ScrollUpdateNotification():
+        _foldBy(n.metrics.pixels - _lastPixels);
+        _lastPixels = n.metrics.pixels;
+      case OverscrollNotification():
+        // Past an end of the list, which is where a short list always is.
+        _foldBy(n.overscroll);
+      case ScrollEndNotification():
+        final value = _fold.value;
+        if (value > 0 && value < 1) {
+          _settleFrom = value;
+          _settleTo = value >= .5 ? 1 : 0;
+          _settle.forward(from: 0);
+        }
+      default:
+    }
+    return false;
   }
 
   final _previewLoads =
@@ -1033,6 +1154,9 @@ class TransactionsScreenState extends State<TransactionsScreen>
       onRefresh: _refresh,
       child: SheetScrollIndicator(
         child: CustomScrollView(
+          // Always draggable, so a page with little in it still folds and
+          // unfolds the balance card.
+          physics: const AlwaysScrollableScrollPhysics(),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: [
             SliverPadding(
@@ -1086,13 +1210,13 @@ class TransactionsScreenState extends State<TransactionsScreen>
                       _query.isNotEmpty ||
                       _filter != _TransactionFilter.all ||
                       _categoryId != null,
-                  onAdd: widget.onAddTransaction,
                 ),
               )
             else if (_grouping == _Grouping.category)
               SliverPadding(
                 padding: EdgeInsets.only(
-                  bottom: 100 + MediaQuery.paddingOf(context).bottom,
+                  bottom:
+                      100 + _cardRoom + MediaQuery.paddingOf(context).bottom,
                 ),
                 sliver: SliverList.builder(
                   itemCount: byCategory.length,
@@ -1103,7 +1227,8 @@ class TransactionsScreenState extends State<TransactionsScreen>
             else
               SliverPadding(
                 padding: EdgeInsets.only(
-                  bottom: 100 + MediaQuery.paddingOf(context).bottom,
+                  bottom:
+                      100 + _cardRoom + MediaQuery.paddingOf(context).bottom,
                 ),
                 sliver: SliverList.builder(
                   itemCount: byDate.length,
@@ -1168,6 +1293,10 @@ class TransactionsScreenState extends State<TransactionsScreen>
     }
     return TabHeader(
       title: 'Transactions',
+      // A tab has nothing to go back to; a page opened from an account does.
+      leading: !widget.parentHandlesBack && Navigator.of(context).canPop()
+          ? const AppBackButton()
+          : null,
       roundActions: true,
       actions: [
         if (!_isSearch)
@@ -1228,123 +1357,218 @@ class TransactionsScreenState extends State<TransactionsScreen>
     ],
   );
 
-  Widget _buildBalanceHeader(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+  /// One surface for the account being looked at: its icon, name and last
+  /// digits, and the balance. Tapping it opens the account selector.
+  Widget _buildBalanceHeader(BuildContext context) =>
+      ValueListenableBuilder<double>(
+        valueListenable: _fold,
+        builder: (context, fold, _) => _balanceCard(context, fold),
+      );
+
+  /// Text sizes for the card, measured once per text and style rather than on
+  /// every frame of a fold.
+  final _measured = <(String, TextStyle, double), Size>{};
+
+  Size _measure(BuildContext context, String text, TextStyle style) {
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+    if (_measured.length > 24) _measured.clear();
+    return _measured.putIfAbsent((text, style, scale), () {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      final size = painter.size;
+      painter.dispose();
+      return size;
+    });
+  }
+
+  /// [fold] runs from 0 (full card) to 1 (folded). Open, the name, detail
+  /// and balance stack. Folded, they share one row: the name gives way (and
+  /// is cut off) so the balance always shows in full. When even that leaves
+  /// the name too little room, the balance stays on a second row instead.
+  ///
+  /// The balance is laid out once at its full size and only scaled while it
+  /// folds, so a fold costs a repaint, not a fresh layout of every digit.
+  Widget _balanceCard(BuildContext context, double fold) {
+    double lerp(double open, double folded) => open + (folded - open) * fold;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final account = _selectedAccount;
     final currency = _currencyFor(_activeRange);
     final mixed =
         widget.accountStore.accounts.map(_accountCurrency).toSet().length > 1;
-    return Container(
-      constraints: const BoxConstraints(minHeight: 56),
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  account == null
-                      ? (mixed ? 'Balance · ${currency.$1}' : 'Total balance')
-                      : '${account.name} balance',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                PrivateAmount(
-                  height: 40,
-                  label: account == null
-                      ? (mixed
-                            ? 'Balance \u00b7 ${currency.$1}'
-                            : 'Total balance')
-                      : '${account.name} balance',
-                  maskStyle: TextStyle(
-                    color: scheme.primary,
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  key: ValueKey((account?.id, currency)),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      _money(_currentBalance(currency), currency),
-                      style: TextStyle(
-                        color: scheme.primary,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.4,
-                      ),
-                      maxLines: 1,
+    final title = account?.name ?? 'All accounts';
+    final detail = account == null
+        ? (mixed ? 'Balance · ${currency.$1}' : 'Total balance')
+        : [
+            if (account.lastDigits != null) '•••• ${account.lastDigits}',
+            if (mixed || account.currency != currency.$1) currency.$1,
+          ].join('  ·  ');
+    final label = account == null
+        ? (mixed ? 'Balance · ${currency.$1}' : 'Total balance')
+        : '${account.name} balance';
+    final balance = _currentBalance(currency);
+    final titleStyle = theme.textTheme.titleSmall!.copyWith(
+      fontWeight: FontWeight.w600,
+    );
+    final detailStyle = theme.textTheme.bodySmall!;
+    final amountStyle = theme.textTheme.bodyMedium!.copyWith(
+      fontSize: 28,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.4,
+      color: scheme.onSurface,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    // The eye that hides the balance sits beside it, inside the same block.
+    const eye = 30.0, foldedScale = 22 / 28;
+    final titleH = _measure(context, 'Ag', titleStyle).height;
+    final detailH = detail.isEmpty
+        ? 0.0
+        : _measure(context, 'Ag', detailStyle).height;
+    final text = _measure(context, _money(balance, currency), amountStyle);
+    // The balance block at full size: digits plus the eye.
+    final blockW = text.width + eye, blockH = text.height;
+    final iconSize = lerp(40, 28);
+    final gap = lerp(14, 10);
+    final padLeft = lerp(16, 14);
+    final padV = lerp(14, 8);
+    const chevron = 20.0, chevronGap = 4.0;
+    return Padding(
+      padding: EdgeInsets.only(bottom: lerp(4, 0)),
+      child: MoneyCard(
+        padding: EdgeInsets.zero,
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            key: const Key('transaction-account-filter'),
+            onTap: _selectAccount,
+            child: LayoutBuilder(
+              builder: (context, box) {
+                final textLeft = iconSize + gap;
+                final avail =
+                    box.maxWidth -
+                    padLeft -
+                    12 -
+                    textLeft -
+                    chevron -
+                    chevronGap;
+                // Row mode: the name keeps at least a little room beside the
+                // balance. Otherwise the balance stays under the name.
+                const nameMin = 72.0, between = 10.0;
+                final foldedW = blockW * foldedScale;
+                final rowMode = foldedW + between + nameMin <= avail;
+                // Two phases, so it never looks half-way between two
+                // layouts: first the detail line closes up, then the balance
+                // slides across onto the name's row.
+                final f1 = (fold / .5).clamp(0.0, 1.0);
+                final f2 = ((fold - .5) / .5).clamp(0.0, 1.0);
+                // Shrunk with the fold, and further only if it would not fit.
+                final scale = math.min(lerp(1, foldedScale), avail / blockW);
+                final amountW = blockW * scale, amountH = blockH * scale;
+                final foldedRowH = math.max(titleH, blockH * foldedScale);
+                final gapV = lerp(6, 2);
+                final stackedY = titleH + detailH * (1 - f1) + gapV;
+                final stackH = stackedY + amountH;
+                final textH = rowMode
+                    ? stackH + (foldedRowH - stackH) * f2
+                    : stackH;
+                final amountX = rowMode ? (avail - amountW) * f2 : 0.0;
+                final amountY = rowMode
+                    ? stackedY + ((foldedRowH - amountH) / 2 - stackedY) * f2
+                    : stackedY;
+                final titleW = rowMode
+                    ? avail - (foldedW + between) * f2
+                    : avail;
+                final titleY = rowMode ? (foldedRowH - titleH) / 2 * f2 : 0.0;
+                final height = math.max(iconSize, textH);
+                final top = (height - textH) / 2;
+                return Padding(
+                  padding: EdgeInsets.fromLTRB(padLeft, padV, 12, padV),
+                  child: SizedBox(
+                    height: height,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned(
+                          left: 0,
+                          top: (height - iconSize) / 2,
+                          child: account == null
+                              ? AllAccountsIcon(size: iconSize)
+                              : AppIcon(account.icon, size: iconSize),
+                        ),
+                        Positioned(
+                          left: textLeft,
+                          top: top + titleY,
+                          width: titleW,
+                          child: Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: titleStyle,
+                          ),
+                        ),
+                        if (detail.isNotEmpty && f1 < 1)
+                          Positioned(
+                            left: textLeft,
+                            top: top + titleH,
+                            width: avail,
+                            child: Opacity(
+                              opacity: 1 - f1,
+                              child: Text(
+                                detail,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: detailStyle,
+                              ),
+                            ),
+                          ),
+                        Positioned(
+                          left: textLeft + amountX,
+                          top: top + amountY,
+                          width: amountW,
+                          height: amountH,
+                          // Laid out once at full size, then only scaled.
+                          child: FittedBox(
+                            alignment: Alignment.centerLeft,
+                            child: SizedBox(
+                              width: blockW,
+                              height: blockH,
+                              child: PrivateAmount(
+                                height: blockH,
+                                label: label,
+                                maskStyle: amountStyle,
+                                key: ValueKey((account?.id, currency)),
+                                child: AnimatedAmount(
+                                  // Rolls only when the eye reveals it.
+                                  rollOnlyOnReveal: true,
+                                  value: balance,
+                                  format: (minor) => _money(minor, currency),
+                                  style: amountStyle,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 0,
+                          top: (height - chevron) / 2,
+                          child: Icon(
+                            Icons.unfold_more_rounded,
+                            size: chevron,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                );
+              },
             ),
           ),
-
-          const SizedBox(width: 8),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 140),
-            child: TextButton(
-              key: const Key('transaction-account-filter'),
-              onPressed: _selectAccount,
-              style: TextButton.styleFrom(
-                backgroundColor: scheme.surface,
-                foregroundColor: scheme.onSurfaceVariant,
-                elevation: 1.5,
-                shadowColor: Colors.black.withValues(alpha: .16),
-                surfaceTintColor: Colors.transparent,
-                minimumSize: const Size(48, 34),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 7,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                tapTargetSize: MaterialTapTargetSize.padded,
-                visualDensity: VisualDensity.standard,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  account == null
-                      ? const AllAccountsIcon(size: 20)
-                      : AppIcon(account.icon, size: 20),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      account?.name ?? 'All accounts',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: scheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 2),
-                  Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 16,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -1833,436 +2057,28 @@ class TransactionsScreenState extends State<TransactionsScreen>
   }
 }
 
-class _BalanceMetric extends StatelessWidget {
-  const _BalanceMetric(this.label, this.value, {this.alignEnd = false});
-  final String label;
-  final String value;
-  final bool alignEnd;
+/// Lays the balance card at the top and the pager right under it, at the
+/// full height of the space whatever the card's size. Only the pager's
+/// position follows the card, so its lists are never resized by a fold.
+class _CardOverList extends MultiChildLayoutDelegate {
+  _CardOverList();
+
+  static const card = 'card', list = 'list';
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: alignEnd
-        ? CrossAxisAlignment.end
-        : CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: Theme.of(context).textTheme.bodySmall
-            ?.copyWith(fontSize: 11, height: 1),
-      ),
-      const SizedBox(height: 3),
-      Text(
-        value,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.titleSmall
-            ?.copyWith(fontWeight: FontWeight.w700),
-      ),
-    ],
-  );
-}
-
-class _FlowMetric extends StatelessWidget {
-  const _FlowMetric({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: .08),
-      borderRadius: BorderRadius.circular(13),
-    ),
-    child: Row(
-      children: [
-        Icon(icon, size: 14, color: color),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(fontSize: 10, height: 1),
-              ),
-              Text(
-                value,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: color,
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-class _DatedTransactions {
-  const _DatedTransactions(this.date, this.transactions, {this.totals});
-  final (int, int)? totals;
-  final DateTime date;
-  final List<MoneyTransaction> transactions;
-}
-
-class _CategorizedTransactions {
-  const _CategorizedTransactions({
-    required this.key,
-    required this.category,
-    required this.transactions,
-    required this.income,
-    required this.expenses,
-    this.count,
-  });
-  final int? count;
-
-  /// The grouped category's id, or `_transfersGroupKey` for the transfers
-  /// that have no category to group by.
-  final int key;
-  final Category? category;
-
-  /// Newest first, so a truncated group previews the latest activity.
-  final List<MoneyTransaction> transactions;
-  final int income;
-  final int expenses;
-
-  String get label => category?.name ?? 'Transfers';
-
-  /// How much the category moved either way — what the groups are ranked on.
-  int get magnitude => income + expenses;
-}
-
-/// One category's transactions within the selected period, headed by the
-/// category's own total. A long group previews its most recent transactions
-/// and expands in place.
-class _CategoryGroup extends StatelessWidget {
-  const _CategoryGroup({
-    required this.title,
-    required this.showHeader,
-    required this.icon,
-    required this.count,
-    required this.transactions,
-    required this.income,
-    required this.expenses,
-    required this.expanded,
-    required this.onToggleExpanded,
-    required this.accountById,
-    required this.categoryById,
-    required this.formatAmount,
-    required this.onOpen,
-  });
-  final String title;
-  final bool showHeader;
-  final Widget icon;
-
-  /// Everything the group holds, which [transactions] shows only the most
-  /// recent of until the group is expanded.
-  final int count;
-  final List<MoneyTransaction> transactions;
-
-  /// The group's formatted totals in the selected currency, or null for a
-  /// side that is zero — most categories move money only one way, and a zero
-  /// reads as a figure rather than as an absence.
-  final String? income;
-  final String? expenses;
-  final bool expanded;
-  final VoidCallback onToggleExpanded;
-  final Account? Function(int?) accountById;
-  final Category? Function(int?) categoryById;
-  final String Function(MoneyTransaction) formatAmount;
-  final ValueChanged<MoneyTransaction> onOpen;
-
-  Widget _headerTotal(String amount, Color color) => FittedBox(
-    fit: BoxFit.scaleDown,
-    alignment: Alignment.centerRight,
-    child: Text(
-      amount,
-      maxLines: 1,
-      textAlign: TextAlign.end,
-      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color),
-    ),
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    // Inset to match the rows' own trailing padding, so the group's total
-    // sits in the same column as the amounts it adds up.
-    final header = Padding(
-      padding: const EdgeInsets.fromLTRB(8, 4, 16, 14),
-      child: Row(
-        children: [
-          SizedBox.square(dimension: 30, child: Center(child: icon)),
-          const SizedBox(width: 12),
-          // Tight, so the row has no slack left to strand on its right: a
-          // merely flexible title would take only the width it needs and
-          // leave the rest between the total and the edge.
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: scheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  count == 1 ? '1 transaction' : '$count transactions',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          // Keep totals in a bounded column so labels retain room on phones.
-          if (income != null || expenses != null)
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (income != null) _headerTotal('+ $income', green),
-                  if (expenses != null) _headerTotal('- $expenses', coral),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (showHeader) header,
-          MoneyCard(
-            padding: EdgeInsets.zero,
-            // Transparent Material so the rows' ripples paint above the
-            // card's own color rather than under it.
-            child: Material(
-              type: MaterialType.transparency,
-              child: Column(
-                children: [
-                  // Grows and shrinks from the top, so the rows past the
-                  // preview unroll rather than appearing all at once.
-                  AnimatedSize(
-                    duration: MediaQuery.disableAnimationsOf(context)
-                        ? Duration.zero
-                        : const Duration(milliseconds: 280),
-                    curve: Curves.easeInOutCubic,
-                    alignment: Alignment.topCenter,
-                    child: Column(
-                      children: [
-                        for (
-                          var index = 0;
-                          index < transactions.length;
-                          index++
-                        ) ...[
-                          TransactionListRow(
-                            transaction: transactions[index],
-                            account: accountById(transactions[index].accountId),
-                            toAccount: accountById(
-                              transactions[index].toAccountId,
-                            ),
-                            category: categoryById(
-                              transactions[index].categoryId,
-                            ),
-                            parentCategory: categoryById(
-                              categoryById(transactions[index].categoryId)
-                                  ?.parentId,
-                            ),
-                            formattedAmount: formatAmount(transactions[index]),
-                            onTap: () => onOpen(transactions[index]),
-                            // A category group spans the whole period, so the
-                            // day is what places a row, not the hour.
-                            showDate: true,
-                          ),
-                          if (index < transactions.length - 1)
-                            const Divider(height: 1),
-                        ],
-                      ],
-                    ),
-                  ),
-                  if (expanded || transactions.length < count) ...[
-                    const Divider(height: 1),
-                    InkWell(
-                      onTap: onToggleExpanded,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 13),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              expanded ? 'Show less' : 'Show all $count',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: scheme.primary,
-                              ),
-                            ),
-                            const SizedBox(width: 3),
-                            Icon(
-                              expanded
-                                  ? Icons.expand_less_rounded
-                                  : Icons.expand_more_rounded,
-                              size: 18,
-                              color: scheme.primary,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  void performLayout(Size size) {
+    var top = 0.0;
+    if (hasChild(card)) {
+      top = layoutChild(
+        card,
+        BoxConstraints(minWidth: size.width, maxWidth: size.width),
+      ).height;
+      positionChild(card, Offset.zero);
+    }
+    layoutChild(list, BoxConstraints.tight(size));
+    positionChild(list, Offset(0, top));
   }
-}
-
-class _TransactionGroup extends StatelessWidget {
-  const _TransactionGroup({
-    required this.date,
-    required this.transactions,
-    required this.income,
-    required this.expenses,
-    required this.accountById,
-    required this.categoryById,
-    required this.formatAmount,
-    required this.onOpen,
-  });
-  final DateTime date;
-  final List<MoneyTransaction> transactions;
-
-  /// The day's formatted income/expense totals in the selected currency, or
-  /// null for a side that is zero — a day may have moved money only in another
-  /// currency, or only between accounts.
-  final String? income;
-  final String? expenses;
-  final Account? Function(int?) accountById;
-  final Category? Function(int?) categoryById;
-  final String Function(MoneyTransaction) formatAmount;
-  final ValueChanged<MoneyTransaction> onOpen;
 
   @override
-  Widget build(BuildContext context) => TransactionDayGroup(
-    date: date,
-    income: income,
-    expenses: expenses,
-    rows: [
-      for (final transaction in transactions)
-        TransactionListRow(
-          transaction: transaction,
-          account: accountById(transaction.accountId),
-          toAccount: accountById(transaction.toAccountId),
-          category: categoryById(transaction.categoryId),
-          parentCategory: categoryById(
-            categoryById(transaction.categoryId)?.parentId,
-          ),
-          formattedAmount: formatAmount(transaction),
-          onTap: () => onOpen(transaction),
-        ),
-    ],
-  );
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.filtered, required this.onAdd});
-  final bool filtered;
-  final VoidCallback onAdd;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(28, 4, 28, 96),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        GlassLens(
-          size: 104,
-          child: EmptyArtwork(
-            filtered ? EmptyArt.search : EmptyArt.transfer,
-            size: 56,
-          ),
-        ),
-        const SizedBox(height: 22),
-        Text(
-          filtered
-              ? 'No matching transactions'
-              : 'No transactions in this period',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 7),
-        Text(
-          filtered
-              ? 'Try another search or transaction filter.'
-              : 'Your expenses, income, and transfers will appear here.',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.5),
-        ),
-        if (!filtered) ...[
-          const SizedBox(height: 18),
-          FilledButton.icon(
-            onPressed: onAdd,
-            icon: const Icon(Icons.add_rounded),
-            label: const Text('Add transaction'),
-          ),
-        ],
-      ],
-    ),
-  );
-}
-
-class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.message, required this.onRetry});
-  final String message;
-  final Future<void> Function() onRetry;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.all(28),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          Icons.cloud_off_outlined,
-          size: 42,
-          color: Theme.of(context).colorScheme.error,
-        ),
-        const SizedBox(height: 14),
-        Text(message, textAlign: TextAlign.center),
-        const SizedBox(height: 14),
-        OutlinedButton(onPressed: onRetry, child: const Text('Try again')),
-      ],
-    ),
-  );
+  bool shouldRelayout(_CardOverList oldDelegate) => false;
 }

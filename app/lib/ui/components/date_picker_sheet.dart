@@ -24,9 +24,14 @@ class DatePickerSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SheetPage(
     header: const SheetHeader('Select date'),
-    body: CalendarPicker(
-      initialDate: initialDate,
-      onChanged: (date) => Navigator.pop(context, date),
+    body: SheetCard(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 4, 10, 10),
+        child: CalendarPicker(
+          initialDate: initialDate,
+          onChanged: (date) => Navigator.pop(context, date),
+        ),
+      ),
     ),
   );
 }

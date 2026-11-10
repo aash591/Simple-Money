@@ -96,7 +96,10 @@ void main() {
       expect(find.text('≈ ₹1,800'), findsNothing);
       await tester.tap(find.byTooltip('Show total balance'));
       await tester.pumpAndSettle();
-      expect(find.text('≈ ₹1,800'), findsOneWidget);
+      // The digits roll as separate reels, so the total is read by its label.
+      final semantics = tester.ensureSemantics();
+      expect(find.bySemanticsLabel('Approximately ₹1,800'), findsOneWidget);
+      semantics.dispose();
       expect(find.textContaining('Incomplete · Excludes JPY'), findsOneWidget);
       expect(find.textContaining('more than 7 days old'), findsOneWidget);
       expect(find.text('10'), findsOneWidget);

@@ -9,9 +9,11 @@ set "EXIT_CODE=%ERRORLEVEL%"
 if not "%EXIT_CODE%"=="0" (
   echo.
   echo Setup failed with exit code %EXIT_CODE%.
+  pause
   exit /b %EXIT_CODE%
 )
 
 echo.
 echo SimpleMoney setup is complete. Open a new terminal before developing.
+pause
 exit /b 0

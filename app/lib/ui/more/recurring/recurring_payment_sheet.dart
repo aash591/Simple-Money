@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import '../../../domain/account.dart';
 import '../../../domain/service_icon.dart';
 import '../../../domain/category.dart';
-import '../../../domain/subscription.dart';
+import '../../../domain/recurring_suggestions.dart';
+import '../../components/transactions/review_pickers.dart';
+import '../../../domain/recurring_payment.dart';
 import '../../../state/ad_gate.dart';
-import '../../../state/subscription_store.dart';
+import '../../../state/recurring_payment_store.dart';
 import '../../components/action_buttons.dart';
 import '../../components/adaptive_sheet.dart';
 import '../../components/app_icon.dart';
@@ -24,31 +26,31 @@ import '../../transactions/quick_add_helpers.dart';
 import '../../transactions/transaction_widgets.dart';
 
 /// Adding one: how much → the details. Editing opens on the details.
-Future<void> showSubscriptionSheet(
+Future<void> showRecurringPaymentSheet(
   BuildContext context, {
-  required SubscriptionStore store,
-  Subscription? existing,
+  required RecurringPaymentStore store,
+  RecurringPayment? existing,
 }) => showAdaptiveSheet<void>(
   context,
   entrance: SheetEntrance.fadeRise,
   dismissible: false,
   avoidKeyboard: existing != null,
-  builder: (_) => SubscriptionSheet(store: store, existing: existing),
+  builder: (_) => RecurringPaymentSheet(store: store, existing: existing),
 );
 
 enum _Step { amount, details }
 
-class SubscriptionSheet extends StatefulWidget {
-  const SubscriptionSheet({super.key, required this.store, this.existing});
-  final SubscriptionStore store;
-  final Subscription? existing;
+class RecurringPaymentSheet extends StatefulWidget {
+  const RecurringPaymentSheet({super.key, required this.store, this.existing});
+  final RecurringPaymentStore store;
+  final RecurringPayment? existing;
 
   @override
-  State<SubscriptionSheet> createState() => _SubscriptionSheetState();
+  State<RecurringPaymentSheet> createState() => _RecurringPaymentSheetState();
 }
 
-class _SubscriptionSheetState extends State<SubscriptionSheet> {
-  late final Subscription? _existing = widget.existing;
+class _RecurringPaymentSheetState extends State<RecurringPaymentSheet> {
+  late final RecurringPayment? _existing = widget.existing;
   late final _firstStep = _existing == null ? _Step.amount : _Step.details;
   late var _step = _firstStep;
   var _forward = true;
@@ -58,12 +60,16 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
       ? ''
       : AmountTyping.fromMinor(_existing.amountMinor, _existing.digits);
   late String? _pickedIcon = _existing?.icon;
+  late var _incoming = _existing?.incoming ?? false;
   late var _cycle = _existing?.cycle ?? BillingCycle.monthly;
   late DateTime? _pickedDue = _existing?.nextDue;
   late int? _accountId =
       _existing?.accountId ??
       widget.store.accountStore.accounts.firstOrNull?.id;
-  late int? _categoryId = _existing?.categoryId ?? _defaultCategory?.id;
+  late int? _categoryId = _existing?.categoryId ?? _suggestedCategory?.id;
+
+  /// Once a category is chosen by hand, typing a name stops changing it.
+  late var _categoryPicked = _existing != null;
   late var _remind = _existing?.remind ?? true;
   var _saving = false;
   String? _error;
@@ -76,11 +82,30 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
 
   List<Account> get _accounts => widget.store.accountStore.accounts;
   List<Category> get _categories => widget.store.categoryStore.categories
-      .where((c) => c.type == CategoryType.expense)
+      .where((c) => c.type == _categoryType)
       .toList();
 
-  Category? get _defaultCategory =>
-      _categories.where((c) => c.name == 'Subscriptions').firstOrNull;
+  CategoryType get _categoryType =>
+      _incoming ? CategoryType.income : CategoryType.expense;
+
+  Category? get _defaultCategory => _categories
+      .where((c) => c.name == (_incoming ? 'Rental Income' : 'Subscriptions'))
+      .firstOrNull;
+
+  RecurringSuggestion? get _suggestion =>
+      suggestRecurring(_name.text, incoming: _incoming);
+
+  /// What the name points at, else the default for the direction.
+  Category? get _suggestedCategory {
+    final name = _suggestion?.category;
+    return _categories.where((c) => c.name == name).firstOrNull ??
+        _defaultCategory;
+  }
+
+  /// Follows the name while no category has been picked by hand.
+  void _nameChanged() => setState(() {
+    if (!_categoryPicked) _categoryId = _suggestedCategory?.id;
+  });
 
   Account? get _account =>
       _accounts.where((a) => a.id == _accountId).firstOrNull;
@@ -94,7 +119,9 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
   /// A known service's logo once its name is typed, until one is picked.
   String get _icon {
     if (_pickedIcon != null) return _pickedIcon!;
-    return serviceIcon(_name.text) ?? 'subscriptions';
+    return serviceIcon(_name.text) ??
+        _suggestion?.icon ??
+        (_incoming ? 'rent' : 'subscriptions');
   }
 
   /// One cycle from today, until a date is picked.
@@ -179,38 +206,26 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
   }
 
   Future<void> _pickCategory() async {
-    final parents = _categories.where((c) => c.parentId == null);
-    final picked = await showChoiceListSheet<int>(
+    final pick = await showReviewCategoryPicker(
       context,
-      title: 'Category',
-      items: [
-        for (final parent in parents) ...[
-          ChoiceItem(
-            value: parent.id,
-            icon: AppIcon(parent.icon, size: 28),
-            label: parent.name,
-          ),
-          for (final child in _categories.where((c) => c.parentId == parent.id))
-            ChoiceItem(
-              value: child.id,
-              icon: AppIcon(child.icon, size: 28),
-              label: child.name,
-              indent: true,
-            ),
-        ],
-      ],
+      title: _existing == null
+          ? 'Add recurring payment'
+          : 'Edit recurring payment',
+      categories: widget.store.categoryStore.categories,
+      store: widget.store.categoryStore,
+      type: _categoryType,
       selected: _categoryId,
-      addLabel: 'Add category',
-      onAdd: (context) async => (await addCategoryAndSelect(
-        context,
-        widget.store.categoryStore,
-        CategoryType.expense,
-      ))?.id,
     );
-    if (picked != null && mounted) setState(() => _categoryId = picked);
+    final id = pick?.categoryId;
+    if (id != null && mounted) {
+      setState(() {
+        _categoryId = id;
+        _categoryPicked = true;
+      });
+    }
   }
 
-  SubscriptionDraft get _draft => SubscriptionDraft(
+  RecurringPaymentDraft get _draft => RecurringPaymentDraft(
     name: _name.text,
     icon: _icon,
     amountMinor: _amountMinor ?? 0,
@@ -219,6 +234,7 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
     accountId: _accountId ?? -1,
     categoryId: _categoryId,
     remind: _remind,
+    incoming: _incoming,
   );
 
   Future<void> _save() async {
@@ -240,10 +256,12 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
       if (!mounted) return;
       showAppToast(
         context,
-        _existing == null ? 'Subscription added' : 'Subscription saved',
+        _existing == null
+            ? 'Recurring payment added'
+            : 'Recurring payment saved',
       );
       _close();
-      unawaited(AdGate.instance.after(AdMoment.subscription));
+      unawaited(AdGate.instance.after(AdMoment.recurringPayment));
     } catch (error) {
       if (mounted) {
         setState(() {
@@ -288,7 +306,7 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
   Future<void> _togglePause() {
     final s = _existing!;
     return _run(
-      s.paused ? 'Subscription resumed' : 'Subscription paused',
+      s.paused ? 'Recurring payment resumed' : 'Recurring payment paused',
       () => widget.store.repository.setPaused(s, !s.paused),
     );
   }
@@ -302,7 +320,7 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
     );
     if (!confirmed || !mounted) return;
     await _run(
-      'Subscription deleted',
+      'Recurring payment deleted',
       () => widget.store.repository.delete(s.id),
     );
   }
@@ -329,7 +347,7 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
     final editing = _existing != null;
     return SheetPage(
       header: SheetHeader(
-        editing ? 'Edit subscription' : 'Add subscription',
+        editing ? 'Edit recurring payment' : 'Add recurring payment',
         onBack: editing ? _back : null,
       ),
       body: Column(
@@ -391,7 +409,7 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
     VoidCallback? edit(VoidCallback onEdit) => _saving ? null : onEdit;
     return SheetPage(
       header: SheetHeader(
-        existing == null ? 'Add subscription' : 'Edit subscription',
+        existing == null ? 'Add recurring payment' : 'Edit recurring payment',
         onBack: existing == null ? _back : null,
       ),
       body: Column(
@@ -399,14 +417,28 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
         children: [
           TransactionDetailsCard(
             rows: [
+              TransactionSwitchRow(
+                icon: Icons.south_west_rounded,
+                label: 'Money coming in',
+                value: 'Like rent you receive',
+                on: _incoming,
+                onChanged: _saving
+                    ? null
+                    : (value) => setState(() {
+                        _incoming = value;
+                        if (!_categoryPicked) {
+                          _categoryId = _suggestedCategory?.id;
+                        }
+                      }),
+              ),
               TransactionTextRow(
                 icon: Icons.label_outline_rounded,
                 label: 'Name',
-                hintText: 'Netflix, gym, cloud storage…',
+                hintText: 'Netflix, rent, gym…',
                 controller: _name,
                 maxLength: 40,
                 enabled: !_saving,
-                onChanged: (_) => setState(() {}),
+                onChanged: (_) => _nameChanged(),
               ),
               TransactionDetailRow(
                 leading: SheetIconTile(child: AppIcon(_icon, size: 28)),
@@ -430,7 +462,7 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
               ),
               TransactionDetailRow(
                 leading: const SheetIconTile(icon: Icons.event_repeat_rounded),
-                label: 'Next renewal',
+                label: 'Next due',
                 value: formatTransactionDate(_due),
                 onTap: edit(_pickDue),
               ),
@@ -440,7 +472,7 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
                   iconKey: account?.icon,
                   fallback: Icons.account_balance_wallet_outlined,
                 ),
-                label: 'Paid from',
+                label: _incoming ? 'Paid into' : 'Paid from',
                 value: account?.name ?? 'Choose an account',
                 placeholder: account == null,
                 onTap: edit(_pickAccount),
@@ -452,7 +484,9 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
                   fallback: Icons.grid_view_rounded,
                 ),
                 label: 'Category',
-                value: category?.name ?? 'Subscriptions',
+                value:
+                    category?.name ??
+                    (_incoming ? 'Rental Income' : 'Subscriptions'),
                 placeholder: category == null,
                 onTap: edit(_pickCategory),
               ),
@@ -475,7 +509,7 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
                   if (!existing.paused) ...[
                     _ActionRow(
                       icon: Icons.skip_next_rounded,
-                      label: 'Skip this renewal',
+                      label: 'Skip this one',
                       onTap: edit(_skip),
                     ),
                     Divider(height: 1, indent: 66, color: colors.divider),
@@ -485,14 +519,14 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
                         ? Icons.play_circle_outline_rounded
                         : Icons.pause_circle_outline_rounded,
                     label: existing.paused
-                        ? 'Resume subscription'
-                        : 'Pause subscription',
+                        ? 'Resume recurring payment'
+                        : 'Pause recurring payment',
                     onTap: edit(_togglePause),
                   ),
                   Divider(height: 1, indent: 66, color: colors.divider),
                   _ActionRow(
                     icon: Icons.delete_outline_rounded,
-                    label: 'Delete subscription',
+                    label: 'Delete recurring payment',
                     color: colors.expense,
                     onTap: edit(_delete),
                   ),

@@ -174,7 +174,7 @@ void main() {
       expect(find.byTooltip('Show balance · inr'), findsOneWidget);
       await tester.tap(find.byTooltip('Show balance · inr'));
       await tester.pumpAndSettle();
-      expect(find.text('₹893'), findsOneWidget);
+      expect(find.bySemanticsLabel('₹893'), findsOneWidget);
       expect(find.text('₹900'), findsOneWidget);
       expect(find.text('₹1,000'), findsOneWidget);
       expect(find.text('Riyal purchase'), findsOneWidget);
@@ -188,10 +188,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Summary · SAR').hitTestable(), findsOneWidget);
       expect(find.text('Balance · SAR'), findsOneWidget);
-      expect(find.byTooltip('Show balance · sar'), findsOneWidget);
-      await tester.tap(find.byTooltip('Show balance · sar'));
-      await tester.pumpAndSettle();
-      expect(find.text('SAR 950'), findsNWidgets(2));
+      // Revealed once, it stays revealed across the whole app.
+      expect(find.byTooltip('Hide balance · sar'), findsOneWidget);
+      expect(find.bySemanticsLabel('SAR 950'), findsNWidgets(2));
       expect(find.text('SAR 50'), findsOneWidget);
       expect(find.text('- SAR 50'), findsOneWidget);
       expect(find.text('Rupee purchase'), findsOneWidget);
@@ -200,15 +199,20 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('INR account'));
       await tester.pumpAndSettle();
-      expect(find.text('INR account balance'), findsOneWidget);
-      expect(find.byTooltip('Show inr account balance'), findsOneWidget);
-      await tester.tap(find.byTooltip('Show inr account balance'));
-      await tester.pumpAndSettle();
+      // The header is one surface: the account's name, then its balance.
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('transaction-account-filter')),
+          matching: find.text('INR account'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byTooltip('Hide inr account balance'), findsOneWidget);
       expect(
         find.byKey(const Key('transaction-currency-summary')),
         findsNothing,
       );
-      expect(find.text('₹100'), findsOneWidget);
+      expect(find.bySemanticsLabel('₹100'), findsOneWidget);
       expect(find.text('Riyal purchase'), findsNothing);
     },
   );

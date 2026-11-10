@@ -1200,9 +1200,14 @@ class _DueDateSheet extends StatelessWidget {
           style: TextStyle(fontSize: 13, color: SheetColors.of(context).muted),
         ),
         const SizedBox(height: 8),
-        CalendarPicker(
-          initialDate: initialDate,
-          onChanged: (date) => Navigator.pop(context, (date,)),
+        SheetCard(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 4, 10, 10),
+            child: CalendarPicker(
+              initialDate: initialDate,
+              onChanged: (date) => Navigator.pop(context, (date,)),
+            ),
+          ),
         ),
       ],
     ),

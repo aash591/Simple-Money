@@ -74,7 +74,10 @@ class ProController extends ChangeNotifier {
 
   /// Whether the AI assistant's questions and fixes are open: for Pro, and
   /// for everyone while [aiNeedsPro] is off.
-  bool get aiUnlocked => isPro || !aiNeedsPro;
+  bool get aiUnlocked => isPro || !aiRequiresPro;
+
+  /// The effective AI policy, including overrides used by UI tests.
+  bool get aiRequiresPro => aiNeedsPro;
 
   /// [MonetizationConfig.enforceProLimits] and
   /// [MonetizationConfig.aiNeedsPro]; tests change them to check each case.

@@ -71,7 +71,7 @@ void main() {
   test('Net worth over time drops the archived account entirely', () async {
     Future<List<int>> balances() async => (await InsightsRepository(
       db,
-    ).load(DateTime(2026, 3), 'INR', 2, now: DateTime(2026, 3, 31))).balances;
+    ).load(DateTime(2026, 3), 'INR', 2)).balances;
     final before = await balances();
     expect(before.last, 580000);
     await transactions.archiveAccount(wallet);

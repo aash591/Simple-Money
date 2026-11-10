@@ -57,9 +57,8 @@ Future<List<Category>> upiCategorySuggestions(
       ),
     );
   } catch (_) {}
-  final frequent = await RealtimeSmsRepository(
-    db,
-  ).frequentCategories(credit: false);
+  final frequent = await RealtimeSmsRepository(db)
+      .frequentCategories(credit: false);
   for (final id in frequent) {
     add(expense.where((c) => c.id == id).firstOrNull);
   }

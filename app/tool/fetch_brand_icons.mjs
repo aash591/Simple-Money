@@ -59,6 +59,13 @@ function inlineClassFills(svg) {
 
 function isolateBankMark(key, svg) {
   svg = inlineClassFills(svg);
+  if (key === 'bajajfinance') {
+    // CompaniesLogo's square source is the white reverse mark on a blue tile.
+    // Drop the tile and use the same mark in its official blue for transparent
+    // light surfaces, matching the positive form used by the brand wordmark.
+    svg = svg.replace(/<path\b(?=[^>]*fill="#085fac")[^>]*\/>/i, '');
+    svg = svg.replace(/fill="#fff"/gi, 'fill="#085fac"');
+  }
   if (key === 'bni') {
     // The provider's square symbol has a solid white canvas as its first path.
     // Remove the canvas so the actual orange mark remains transparent.
@@ -234,6 +241,7 @@ const BRANDS = [
   { key: 'ksfe', title: 'KSFE', bank: true, country: 'India', source: 'inline', hex: '007A3D' },
   { key: 'keralagramin', title: 'Kerala Gramin Bank', bank: true, country: 'India', source: 'raster', image: 'https://img.mathrubhumi.com/view/acePublic/alias/contentid/1i4jbp05wyki2l1j4pc/1/kerala-gramin-bank.webp?f=3%3A2&q=0.75&w=900', hex: '006B54' },
   { key: 'manappuram', title: 'Manappuram Finance', bank: true, country: 'India', source: 'inline', hex: 'F5A623' },
+  { key: 'bajajfinance', title: 'Bajaj Finance', bank: true, country: 'India', source: 'remote-svg', url: 'https://companieslogo.com/img/orig/BAJFINANCE.NS-1c491b90.svg?download=true&t=1729491498', hex: '085FAC' },
   { key: 'federalbank', title: 'Federal Bank', bank: true, country: 'India', source: 'remote-svg', url: 'https://companieslogo.com/img/orig/FEDERALBNK.NS-7c827449.svg?t=1768446273&download=true', hex: '7B2D8E' },
   { key: 'bandhanbank', title: 'Bandhan Bank', bank: true, country: 'India', source: 'remote-svg', url: 'https://companieslogo.com/img/orig/BANDHANBNK.NS-0cc3da43.svg?t=1745810711&download=true', hex: 'B6202A' },
   { key: 'bankofindia', title: 'Bank of India', bank: true, country: 'India', source: 'raster', image: 'https://companieslogo.com/img/orig/BANKINDIA.NS-e3d88e01.png?t=1720244490', hex: '0067A5' },

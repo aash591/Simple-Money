@@ -95,9 +95,13 @@ class MenuRow extends StatelessWidget {
     this.external = false,
     this.highlight = false,
     this.tint,
+    this.proBadge = false,
   });
   final IconData icon;
   final String title;
+
+  /// A small PRO tag on the icon: this row is a Pro feature.
+  final bool proBadge;
   final String? subtitle;
 
   /// Without it, and without a [trailing] control, the row is dimmed: it
@@ -121,7 +125,19 @@ class MenuRow extends StatelessWidget {
           ),
           child: Row(
             children: [
-              MenuIconTile(icon, filled: highlight, tint: tint),
+              proBadge
+                  ? Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        MenuIconTile(icon, filled: highlight, tint: tint),
+                        const Positioned(
+                          right: -5,
+                          bottom: -3,
+                          child: IgnorePointer(child: MenuProBadge()),
+                        ),
+                      ],
+                    )
+                  : MenuIconTile(icon, filled: highlight, tint: tint),
               const SizedBox(width: _tileGap),
               Expanded(
                 child: Column(
@@ -195,4 +211,32 @@ class MenuSwitchRow extends StatelessWidget {
     onTap: onChanged == null ? null : () => onChanged!(!value),
     trailing: Switch.adaptive(value: value, onChanged: onChanged),
   );
+}
+
+/// The small "PRO" tag shown on a Pro feature's icon or swatch.
+class MenuProBadge extends StatelessWidget {
+  const MenuProBadge({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+      decoration: BoxDecoration(
+        color: scheme.primary,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: scheme.surface, width: 1.5),
+      ),
+      child: Text(
+        'PRO',
+        style: TextStyle(
+          color: scheme.onPrimary,
+          fontSize: 8,
+          height: 1.1,
+          fontWeight: FontWeight.w800,
+          letterSpacing: .3,
+        ),
+      ),
+    );
+  }
 }

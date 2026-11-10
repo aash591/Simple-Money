@@ -118,7 +118,11 @@ void main() {
 
   group('The shortcut rows', () {
     final top = [
-      const Category(id: 1, name: 'Credit Card Repayment', type: CategoryType.expense),
+      const Category(
+        id: 1,
+        name: 'Credit Card Repayment',
+        type: CategoryType.expense,
+      ),
       const Category(id: 2, name: 'Food', type: CategoryType.expense),
     ];
 
@@ -144,7 +148,9 @@ void main() {
 
     test('replace the card category, which otherwise leads', () {
       expect(
-        const CategoryShortcuts(cardRepayment: true).topLevel(top).map((c) => c.name),
+        const CategoryShortcuts(cardRepayment: true)
+            .topLevel(top)
+            .map((c) => c.name),
         ['Food'],
       );
       expect(
@@ -429,9 +435,11 @@ void main() {
     }
 
     Future<void> openPicker(WidgetTester tester) async {
-      await tester.tap(find.text(categories.categories
-          .firstWhere((c) => c.id == expense)
-          .name).first);
+      await tester.tap(
+        find
+            .text(categories.categories.firstWhere((c) => c.id == expense).name)
+            .first,
+      );
       await settle(tester);
     }
 
@@ -446,9 +454,7 @@ void main() {
       expect(find.text('Between your accounts'), findsOneWidget);
     });
 
-    testWidgets('Credit card repayment fills in the only card', (
-      tester,
-    ) async {
+    testWidgets('Credit card repayment fills in the only card', (tester) async {
       await open(tester);
       await openPicker(tester);
       await tester.tap(find.text('Credit card repayment'));

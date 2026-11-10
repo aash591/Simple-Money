@@ -5,7 +5,9 @@ import 'package:intl/intl.dart';
 
 import '../../../domain/budget.dart';
 import '../../../domain/currency_scope.dart';
+import '../../components/animated_amount.dart';
 import '../../components/charts/charts.dart';
+import '../../components/empty_chart_preview.dart';
 import 'home_card.dart';
 import '../../theme/app_theme.dart' show usesAurora;
 
@@ -47,31 +49,117 @@ class SpendingPaceCard extends StatelessWidget {
       DateTime(month.year, month.month - 1),
     );
     final budget = this.budget;
-    final String headline;
-    if (spent == 0 && before == 0) {
-      headline = 'Nothing spent yet this month or last by this point.';
-    } else if (running) {
-      final projected = (spent / days * daily.length).round();
-      final gap = spent - before;
-      final pace = gap == 0
-          ? 'Level with $previousName'
-          : '${_money(gap.abs())} ${gap > 0 ? 'more' : 'less'} than '
-                '$previousName by day $days';
-      headline = budget != null && projected > budget.limit
-          ? '$pace · on track for ${_money(projected)}, over budget'
-          : '$pace · on track for ${_money(projected)}';
-    } else {
-      final gap = spent - before;
-      headline = gap == 0
-          ? 'Same as $previousName'
-          : '${_money(gap.abs())} ${gap > 0 ? 'more' : 'less'} than '
-                '$previousName';
+    final monthName = DateFormat.MMM().format(month);
+    final gap = spent - before;
+    final hasData = spent != 0 || before != 0;
+
+    final theme = Theme.of(context);
+    // Nothing spent this month or last: show the chart as it will look.
+    if (!hasData) {
+      final length = math.max(daily.length, 1);
+      final lastMonth = [for (var i = 0; i < length; i++) 80 + (i * 37) % 90];
+      final thisMonth = [for (var i = 0; i < days; i++) 60 + (i * 53) % 100];
+      return HomeCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Spending pace', style: theme.textTheme.titleMedium),
+            const SizedBox(height: 14),
+            EmptyChartPreview(
+              title: 'No spending yet.',
+              message:
+                  'Once you add expenses, this month will be drawn against '
+                  'last month here.',
+              sample: LineChart(
+                height: 150,
+                cumulative: true,
+                filled: usesAurora(context),
+                series: [
+                  ChartSeries(
+                    label: monthName,
+                    values: thisMonth,
+                    color: primary,
+                  ),
+                  ChartSeries(
+                    label: previousName,
+                    values: lastMonth,
+                    color: palette.other.withValues(alpha: .55),
+                    dashed: true,
+                  ),
+                ],
+                labels: [for (var d = 1; d <= length; d++) '$d'],
+                formatValue: (v) => '',
+                formatAxis: (v) => '',
+              ),
+            ),
+          ],
+        ),
+      );
     }
+    final (chip, chipColor) = !hasData
+        ? (null, null)
+        : gap == 0
+        ? ('Same as $previousName', theme.colorScheme.onSurfaceVariant)
+        : gap > 0
+        ? ('Above $previousName', palette.expense)
+        : ('Below $previousName', palette.income);
+    final amountStyle = theme.textTheme.headlineMedium?.copyWith(
+      fontWeight: FontWeight.w700,
+      letterSpacing: -.5,
+    );
+
     return HomeCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          HomeChartHeader(title: 'Spending pace', headline: headline),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Spending pace',
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
+              if (chip != null && chipColor != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: chipColor.withValues(alpha: .14),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    chip,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: chipColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            running ? 'Spent so far in $monthName' : 'Spent in $monthName',
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Semantics(
+              label: _money(spent),
+              excludeSemantics: true,
+              child: AnimatedAmount(
+                value: spent,
+                format: _money,
+                style: amountStyle,
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
           LineChart(
             height: 150,
             cumulative: true,

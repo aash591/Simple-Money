@@ -119,7 +119,11 @@ class _Inbox extends SmsInboxPlatform {
       if (i + 1 > afterId)
         InboxSms(
           i + 1,
-          BankSms(sender: 'VM-ZETAPY-S', body: body, receivedAt: DateTime.now()),
+          BankSms(
+            sender: 'VM-ZETAPY-S',
+            body: body,
+            receivedAt: DateTime.now(),
+          ),
         ),
   ];
 }
@@ -184,30 +188,33 @@ void main() {
   });
   tearDown(() => db.close());
 
-  test('downloads usable fixes and reads SMS and statements with them', () async {
-    expect((await parse(_sms)).candidate, isNull);
-    expect(await sync().refresh(), isTrue);
+  test(
+    'downloads usable fixes and reads SMS and statements with them',
+    () async {
+      expect((await parse(_sms)).candidate, isNull);
+      expect(await sync().refresh(), isTrue);
 
-    final fixes = await CommunityFixRepository(db).load();
-    expect(fixes.map((f) => f.hash), unorderedEquals([_hashA, _hashC]));
+      final fixes = await CommunityFixRepository(db).load();
+      expect(fixes.map((f) => f.hash), unorderedEquals([_hashA, _hashC]));
 
-    final parsed = await parse(_other);
-    expect(parsed.candidate?.amountMinor, 8900);
-    expect(parsed.ruleId, startsWith('community.zeta.r'));
-    // The background path finds it for this sender alone.
-    expect(
-      await loadBundledSmsEngineFor(
-        'ZETAPY',
-        communityPack: await communitySmsPack(db),
-      ),
-      isNotNull,
-    );
+      final parsed = await parse(_other);
+      expect(parsed.candidate?.amountMinor, 8900);
+      expect(parsed.ruleId, startsWith('community.zeta.r'));
+      // The background path finds it for this sender alone.
+      expect(
+        await loadBundledSmsEngineFor(
+          'ZETAPY',
+          communityPack: await communitySmsPack(db),
+        ),
+        isNotNull,
+      );
 
-    final statements = StatementImportRepository(db);
-    expect((await statements.knownMappings())[_signature], isNotNull);
-    // Shared layouts are never copied into the device's own.
-    expect(await statements.columnMappings(), isEmpty);
-  });
+      final statements = StatementImportRepository(db);
+      expect((await statements.knownMappings())[_signature], isNotNull);
+      // Shared layouts are never copied into the device's own.
+      expect(await statements.columnMappings(), isEmpty);
+    },
+  );
 
   test('checks about once a day, and a 304 changes nothing', () async {
     final community = sync();
@@ -245,7 +252,10 @@ void main() {
     await community.refresh();
     await community.turnOff(_hashA);
     expect(server.reported.single['hash'], _hashA);
-    expect(server.reported.single['install'], matches(RegExp(r'^[a-f0-9]{32}$')));
+    expect(
+      server.reported.single['install'],
+      matches(RegExp(r'^[a-f0-9]{32}$')),
+    );
     expect((await parse(_other)).candidate, isNull);
 
     // A new download doesn't bring it back.
@@ -364,7 +374,10 @@ void main() {
     final community = sync(inbox: [_sms, _other]);
     await openPrompt(tester, community);
     expect(find.text('Nice, it’s fixed!'), findsOneWidget);
-    expect(find.textContaining('Your Zeta SMS will now be added'), findsOneWidget);
+    expect(
+      find.textContaining('Your Zeta SMS will now be added'),
+      findsOneWidget,
+    );
     expect(find.textContaining('never your messages'), findsOneWidget);
     await tester.tap(find.text('Share'));
     await tester.runAsync(() async {

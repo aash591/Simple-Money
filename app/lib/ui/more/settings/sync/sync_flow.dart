@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../state/sync_controller.dart';
+import '../../../../data/backup/sync_restore.dart';
+import 'backup_pin_screen.dart';
 import '../../../components/app_toast.dart';
 import '../../../components/confirmation_alert.dart';
 
@@ -10,7 +12,39 @@ import '../../../components/confirmation_alert.dart';
 /// True once sync is on.
 Future<bool> connectDrive(BuildContext context, SyncController sync) async {
   final backup = await sync.connect();
-  if (backup != null) {
+  if (!context.mounted) return false;
+  return _finishRestore(context, sync, backup);
+}
+
+/// Also used after cancellation or an app restart while a backup was locked.
+Future<bool> resumeDriveRestore(
+  BuildContext context,
+  SyncController sync,
+) async {
+  final backup = await sync.findBackup(requirePin: true);
+  if (!context.mounted) return false;
+  return _finishRestore(context, sync, backup);
+}
+
+Future<bool> _finishRestore(
+  BuildContext context,
+  SyncController sync,
+  SyncBackup? backup,
+) async {
+  if (!context.mounted) return false;
+  if (sync.pinRequired != null) {
+    final unlocked = await showBackupPinFlow(
+      context,
+      purpose: BackupPinPurpose.unlock,
+      onSubmit: (pin) async {
+        backup = await sync.unlockBackup(pin);
+        if (sync.actionError != null) throw StateError(sync.actionError!);
+      },
+    );
+    if (!unlocked || !context.mounted) return false;
+  }
+  final selectedBackup = backup;
+  if (selectedBackup != null) {
     final useSynced =
         !await sync.hasLocalData() ||
         (context.mounted &&
@@ -24,13 +58,19 @@ Future<bool> connectDrive(BuildContext context, SyncController sync) async {
             ));
     if (!useSynced) {
       await sync.skipRestore();
-    } else if (await sync.restore(backup) && context.mounted) {
+    } else if (await sync.restore(selectedBackup) && context.mounted) {
       showAppToast(context, 'Your data is back', icon: Icons.check_rounded);
     }
-  } else if (sync.status?.enabled == true && context.mounted) {
+  } else if (sync.status?.enabled == true &&
+      sync.actionError == null &&
+      context.mounted) {
+    if (sync.uploadsHeld) await sync.skipRestore();
+    if (!context.mounted) return false;
     showAppToast(context, 'Sync is on', icon: Icons.cloud_done_outlined);
   }
-  return sync.status?.enabled == true;
+  return sync.status?.enabled == true &&
+      !sync.uploadsHeld &&
+      sync.actionError == null;
 }
 
 /// Turns sync off and forgets the connected Google account, after

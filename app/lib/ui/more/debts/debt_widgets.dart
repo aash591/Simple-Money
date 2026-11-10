@@ -167,25 +167,28 @@ class DueChip extends StatelessWidget {
         color: color.withValues(alpha: .12),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.schedule_rounded, size: 12, color: color),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
+      // Scales down instead of overflowing when the space left beside a
+      // neighbouring button is tighter than the label.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.schedule_rounded, size: 12, color: color),
+            const SizedBox(width: 4),
+            Text(
               label,
               maxLines: 1,
               softWrap: false,
-              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 11.5,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

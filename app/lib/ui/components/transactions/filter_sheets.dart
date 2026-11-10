@@ -194,13 +194,14 @@ class SelectionSheet<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 22),
+      // The same top spacing as every other sheet: header, then the body.
+      padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           FilterSheetHeader(title),
-          const SizedBox(height: 14),
+          const SizedBox(height: 4),
           Flexible(
             child: SheetCard(
               child: SingleChildScrollView(
@@ -263,13 +264,14 @@ class AccountSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 22),
+      // The same top spacing as every other sheet: header, then the body.
+      padding: const EdgeInsets.fromLTRB(18, 0, 18, 22),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const FilterSheetHeader('Select account'),
-          const SizedBox(height: 14),
+          const SizedBox(height: 4),
           Flexible(
             child: SheetCard(
               child: SingleChildScrollView(
@@ -402,14 +404,6 @@ class FilterSheetHeader extends StatelessWidget {
   final String title;
 
   @override
-  Widget build(BuildContext context) => SecondaryHeader(
-    title: title,
-    actions: [
-      IconButton(
-        tooltip: 'Close',
-        onPressed: () => Navigator.pop(context),
-        icon: const Icon(Icons.close_rounded),
-      ),
-    ],
-  );
+  Widget build(BuildContext context) =>
+      SecondaryHeader(title: title, centered: true);
 }

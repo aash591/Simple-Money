@@ -107,7 +107,7 @@ Future<void> showTransactionReviewSheet(
 /// what saving means (a database edit, or keeping it on a statement row).
 ///
 /// [types] are what it may be recorded as; [locks] are fields an owning
-/// loan, debt or subscription keeps.
+/// loan, debt or recurring payment keeps.
 class TransactionReviewSheet extends StatefulWidget {
   const TransactionReviewSheet({
     super.key,
@@ -547,8 +547,8 @@ class TransactionLinkNotice extends StatelessWidget {
         Icons.handshake_outlined,
         'Its amount, account and date come from the debt.',
       ),
-      TransactionLinkKind.subscription => (
-        'subscription',
+      TransactionLinkKind.recurringPayment => (
+        'recurring payment',
         Icons.autorenew_rounded,
         'It stays a payment; correct the amount or date here.',
       ),

@@ -167,8 +167,8 @@ class _ProScreenState extends State<ProScreen> {
     _Perk(
       Icons.palette_rounded,
       Color(0xffe0457b),
-      'All colors',
-      'Every accent, plus your own shade',
+      'Every look',
+      'All styles and colors, your own shade and picture',
     ),
     _Perk(
       Icons.web_asset_off_rounded,
@@ -243,9 +243,19 @@ class _ProScreenState extends State<ProScreen> {
     final scheme = Theme.of(context).colorScheme;
     final saving = _yearlySaving;
     return [
-      if (!ProController.aiNeedsPro) const _FreeForNow(),
-      for (final perk in _perks) perk,
-      const SizedBox(height: 22),
+      Text(
+        'Free is complete. Pro is nicer.',
+        style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+      ),
+      const SizedBox(height: 6),
+      Text(
+        'Tracking your money is free, forever. Pro adds a few extras and '
+        'helps keep SimpleMoney going.',
+        style: text.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+      ),
+      const SizedBox(height: 18),
+      _Compare(aiFree: !_pro.aiRequiresPro),
+      const SizedBox(height: 26),
       if (_pro.loadingPlans)
         const Padding(
           padding: EdgeInsets.all(24),
@@ -511,37 +521,139 @@ class _Hero extends StatelessWidget {
 }
 
 /// A perk: a tinted rounded square, a bold line and a quiet one.
-/// While Pro's features are open to everyone, say so, so nobody wonders
-/// what they'd be paying for.
-class _FreeForNow extends StatelessWidget {
-  const _FreeForNow();
+/// Free and Pro side by side. Every row is ticked or filled in for Free,
+/// so it reads as complete on its own; the Pro column is lit in the accent,
+/// so it reads as the nicer one.
+class _Compare extends StatelessWidget {
+  const _Compare({required this.aiFree});
+  final bool aiFree;
+
+  static const _column = 84.0;
 
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final green = dark ? Colors.greenAccent : Colors.green.shade800;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.green.withValues(alpha: .14),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.card_giftcard_rounded, size: 20, color: green),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'The AI assistant is free for now. Pro supports the app.',
-                style: Theme.of(context).textTheme.bodyMedium
-                    ?.copyWith(color: green, fontWeight: FontWeight.w600),
-              ),
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final text = theme.textTheme;
+    final dark = theme.brightness == Brightness.dark;
+    final rows = <(String, Object, Object)>[
+      ('Track spending, accounts, loans and debts', true, true),
+      ('Backups to Google Drive', true, true),
+      ('Budgets', 'Up to ${ProController.freeBudgets}', 'Unlimited'),
+      ('Looks', 'Simple, 4 colors', 'Every look'),
+      ('AI assistant', aiFree ? 'Free for now' : false, true),
+      ('Ads', 'A few, short', 'None'),
+    ];
+    Widget cell(Object value, {required bool pro}) {
+      final color = pro ? scheme.primary : scheme.onSurfaceVariant;
+      return Center(
+        child: switch (value) {
+          true => Icon(Icons.check_rounded, size: 20, color: color),
+          false => Icon(
+            Icons.remove_rounded,
+            size: 18,
+            color: scheme.onSurfaceVariant.withValues(alpha: .5),
+          ),
+          _ => Text(
+            '$value',
+            textAlign: TextAlign.center,
+            style: text.bodySmall?.copyWith(
+              color: pro ? scheme.primary : scheme.onSurfaceVariant,
+              fontWeight: pro ? FontWeight.w700 : FontWeight.w500,
             ),
-          ],
+          ),
+        },
+      );
+    }
+
+    Widget proBand({
+      required Widget child,
+      bool top = false,
+      bool end = false,
+    }) => Container(
+      width: _column,
+      decoration: BoxDecoration(
+        color: scheme.primary.withValues(alpha: dark ? .14 : .08),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(top ? 16 : 0),
+          bottom: Radius.circular(end ? 16 : 0),
         ),
       ),
+      child: child,
+    );
+
+    return Column(
+      children: [
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Spacer(),
+              SizedBox(
+                width: _column,
+                child: Center(
+                  child: Text(
+                    'Free',
+                    style: text.labelLarge?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              proBand(
+                top: true,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Center(
+                    child: Text(
+                      'Pro',
+                      style: text.labelLarge?.copyWith(
+                        color: scheme.primary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        for (var i = 0; i < rows.length; i++)
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      border: i == 0
+                          ? null
+                          : Border(
+                              top: BorderSide(
+                                color: scheme.outlineVariant.withValues(
+                                  alpha: .5,
+                                ),
+                              ),
+                            ),
+                    ),
+                    alignment: Alignment.centerLeft,
+                    child: Text(rows[i].$1, style: text.bodyMedium),
+                  ),
+                ),
+                SizedBox(width: _column, child: cell(rows[i].$2, pro: false)),
+                proBand(
+                  end: i == rows.length - 1,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: cell(rows[i].$3, pro: true),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

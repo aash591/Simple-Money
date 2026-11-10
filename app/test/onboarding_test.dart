@@ -186,10 +186,7 @@ void main() {
     await waitFor(tester, () => shows('Welcome to Simple Money'));
     await tester.tap(find.text('Get started'));
     await waitFor(tester, () => shows('Enable Automatic Detection'));
-    expect(
-      shows('Simple Money reads the SMS on your phone'),
-      isTrue,
-    );
+    expect(shows('Bank transactions are picked out of your SMS'), isTrue);
     expect(find.text('Your Privacy Matters'), findsOneWidget);
     expect(
       find.text('Only bank transaction messages are used'),
@@ -200,9 +197,9 @@ void main() {
       findsOneWidget,
     );
     expect(shows('ask to allow SMS and notifications'), isTrue);
-    // Skip is at the top right; Enable Permissions is the one bottom button.
+    // Skip is at the top right; Setup Permissions is the one bottom button.
     expect(find.text('Skip'), findsOneWidget);
-    expect(find.text('Enable Permissions'), findsOneWidget);
+    expect(find.text('Setup Permissions'), findsOneWidget);
     // Nothing is asked until the button is tapped.
     expect(inbox.requests, 0);
   });
@@ -215,19 +212,19 @@ void main() {
     await waitFor(tester, () => shows('Welcome to Simple Money'));
     await tester.tap(find.text('Get started'));
     await waitFor(tester, () => shows('Enable Automatic Detection'));
-    await tester.tap(find.text('Enable Permissions'));
-    await waitFor(tester, () => shows('SMS access wasn’t allowed'));
+    await tester.tap(find.text('Setup Permissions'));
+    await waitFor(tester, () => shows('Permission wasn’t given'));
     // Still on the same page, nothing finished, SMS off.
     expect(inbox.requests, 1);
     expect(done, isFalse);
     expect(store.enabled, isFalse);
     expect((await prefs()).getBool(Onboarding.doneKey), isNull);
-    expect(find.text('Enable Permissions'), findsOneWidget);
+    expect(find.text('Setup Permissions'), findsOneWidget);
 
     // Trying again asks again, and is refused again.
-    await tester.tap(find.text('Enable Permissions'));
+    await tester.tap(find.text('Setup Permissions'));
     await waitFor(tester, () => inbox.requests == 2);
-    await waitFor(tester, () => shows('SMS access wasn’t allowed'));
+    await waitFor(tester, () => shows('Permission wasn’t given'));
     expect(done, isFalse);
 
     await tester.tap(find.text('Skip'));
@@ -253,14 +250,18 @@ void main() {
     await waitFor(tester, () => shows('Welcome to Simple Money'));
     await tester.tap(find.text('Get started'));
     await waitFor(tester, () => shows('Enable Automatic Detection'));
-    await tester.tap(find.text('Enable Permissions'));
+    await tester.tap(find.text('Setup Permissions'));
     await waitFor(tester, () => inbox.requests == 1);
     await waitFor(tester, () => store.enabled);
-    await waitFor(tester, () => shows('Check your balances'));
+    // The scan ends on its result; the balances wait for the person to go on.
+    await waitFor(tester, () => shows('Scan complete'));
+    expect(shows('Check your balances'), isFalse);
     expect(inbox.requests, 1);
     expect(store.enabled, isTrue);
     expect(find.bySemanticsLabel('Step 3 of 3'), findsOneWidget);
     expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Check accounts'));
+    await waitFor(tester, () => shows('Check your balances'));
 
     final accounts = await tester.runAsync(() => AccountRepository(db).load());
     final bank = accounts!.single;

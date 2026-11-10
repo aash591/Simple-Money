@@ -863,7 +863,7 @@ void main() {
       reason: 'The outgoing scanner must not restart during its slide.',
     );
     expect(find.byType(MobileScanner), findsNothing);
-    // Scanner disposal awaits cancellation of its barcode subscription.
+    // Scanner disposal awaits cancellation of its barcode recurring payment.
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     expect(scanner.stops + scanner.disposals, greaterThan(0));
     final uri = Uri.parse(platform.launchedUri!);
@@ -1025,25 +1025,26 @@ void main() {
     },
   );
 
-  testUpiWidgets('the first time, a full-screen intro comes before the scanner', (
-    tester,
-  ) async {
-    platform
-      ..seenIntro = false
-      ..granted = const UpiPermissions();
-    await pump(tester);
-    expect(find.byType(UpiIntroScreen), findsOneWidget);
-    expect(find.text('Pay with Google Pay'), findsOneWidget);
-    expect(find.text('How it works'), findsOneWidget);
-    expect(find.byType(MobileScanner), findsNothing);
-    await tester.tap(find.text('Set up permissions'));
-    await tester.pumpAndSettle();
-    expect(platform.permissionRequests, 1);
-    expect(platform.seenIntro, isTrue);
-    expect(find.byType(UpiIntroScreen), findsNothing);
-    expect(find.text('Scan a UPI QR code'), findsOneWidget);
-    expect(find.byType(MobileScanner), findsOneWidget);
-  });
+  testUpiWidgets(
+    'the first time, a full-screen intro comes before the scanner',
+    (tester) async {
+      platform
+        ..seenIntro = false
+        ..granted = const UpiPermissions();
+      await pump(tester);
+      expect(find.byType(UpiIntroScreen), findsOneWidget);
+      expect(find.text('Pay with Google Pay'), findsOneWidget);
+      expect(find.text('How it works'), findsOneWidget);
+      expect(find.byType(MobileScanner), findsNothing);
+      await tester.tap(find.text('Set up permissions'));
+      await tester.pumpAndSettle();
+      expect(platform.permissionRequests, 1);
+      expect(platform.seenIntro, isTrue);
+      expect(find.byType(UpiIntroScreen), findsNothing);
+      expect(find.text('Scan a UPI QR code'), findsOneWidget);
+      expect(find.byType(MobileScanner), findsOneWidget);
+    },
+  );
 
   testUpiWidgets('Skip leaves the permissions alone but opens the scanner', (
     tester,

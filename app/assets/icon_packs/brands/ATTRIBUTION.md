@@ -25,6 +25,12 @@ The mark-only `uco`, `ksfe`, and `manappuram` vectors were reconstructed from
 high-resolution original logo references found through image search. The
 `keralagramin` SVG embeds isolated source artwork from the same research.
 
+Bajaj Finance uses the standalone symbol from
+[CompaniesLogo](https://companieslogo.com/bajaj-finance/logo/). The source's
+blue tile is removed and its white reverse mark is rendered in the same
+official blue as a 256px transparent WebP. Regenerate it from `app/` with
+`node tool/fetch_brand_icons.mjs --only bajajfinance`.
+
 The added service marks use original artwork, resized onto transparent 256 px
 WebP canvases. [Ola](https://commons.wikimedia.org/wiki/File:Ola_Cabs_logo.svg),
 [KSEB](https://commons.wikimedia.org/wiki/File:KSEB_Logo_2022.svg),

@@ -44,6 +44,11 @@ class SecurityController extends ChangeNotifier {
   static const appClosePreferenceKey = 'app_lock_on_app_close';
   static const hidePreviewPreferenceKey = 'hide_app_preview';
   static const revealAmountsPreferenceKey = 'authenticate_to_reveal_amounts';
+  static const hideAmountsPreferenceKey = 'hide_amounts';
+
+  /// Whether balances and totals show as dots until tapped. On unless the
+  /// user turns it off, so a fresh install never shows money by surprise.
+  bool hideAmounts = true;
   bool authenticateToRevealAmounts = false;
   int amountPrivacyRevision = 0;
 
@@ -103,7 +108,10 @@ class SecurityController extends ChangeNotifier {
   /// Covered only to keep Recents private: the app can show blurred rather
   /// than gone. Never while a lock rule or startup has the ledger hidden.
   bool get blursPreview =>
-      ready && hideAppPreview && !_foreground && !(enabled && (locked || _checking));
+      ready &&
+      hideAppPreview &&
+      !_foreground &&
+      !(enabled && (locked || _checking));
 
   /// True when nothing short of a restart will ask again — worth saying out
   /// loud in the UI.
@@ -128,6 +136,7 @@ class SecurityController extends ChangeNotifier {
       lockOnScreenOff = prefs.getBool(screenOffPreferenceKey) ?? true;
       lockOnAppClose = prefs.getBool(appClosePreferenceKey) ?? true;
       hideAppPreview = prefs.getBool(hidePreviewPreferenceKey) ?? false;
+      hideAmounts = prefs.getBool(hideAmountsPreferenceKey) ?? true;
       authenticateToRevealAmounts =
           prefs.getBool(revealAmountsPreferenceKey) ?? false;
       locked = enabled && _startsLocked(prefs.getInt(leftAtPreferenceKey));
@@ -365,6 +374,28 @@ class SecurityController extends ChangeNotifier {
         throw StateError('Could not save app preview preference');
       }
       hideAppPreview = value;
+    } catch (_) {
+      error = 'Could not save security settings. Please try again.';
+    }
+    _changed();
+  }
+
+  /// Turning hiding off shows every amount at once, so it asks for the same
+  /// authentication as revealing one when that protection is on.
+  Future<void> setHideAmounts(bool value) async {
+    if (_disposed || !ready || busy || covered || value == hideAmounts) return;
+    if (!value && !await authorizeAmountReveal()) {
+      _changed();
+      return;
+    }
+    error = null;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (!await prefs.setBool(hideAmountsPreferenceKey, value)) {
+        throw StateError('Could not save');
+      }
+      hideAmounts = value;
+      amountPrivacyRevision++;
     } catch (_) {
       error = 'Could not save security settings. Please try again.';
     }

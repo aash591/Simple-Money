@@ -8,7 +8,9 @@ import '../../../state/account_store.dart';
 import '../../../state/category_store.dart';
 import '../../../state/transaction_store.dart';
 import '../../components/app_icon.dart';
+import '../../components/charts/charts.dart';
 import '../../components/common.dart';
+import '../../components/empty_chart_preview.dart';
 import '../../theme/app_theme.dart';
 import '../../transactions/transaction_sheet.dart';
 import 'home_card.dart';
@@ -35,11 +37,19 @@ class RecentTransactionsCard extends StatelessWidget {
   Widget build(BuildContext context) => HomeCard(
     child: Column(
       children: [
-        SectionTitle('Recent transactions', action: 'See all', onTap: onSeeAll),
+        SectionTitle(
+          'Recent transactions',
+          action: transactions.isEmpty ? null : 'See all',
+          onTap: onSeeAll,
+        ),
         if (transactions.isEmpty)
           const Padding(
-            padding: EdgeInsets.only(top: 12),
-            child: Text('No transactions this month.'),
+            padding: EdgeInsets.only(top: 8),
+            child: EmptyChartPreview(
+              title: "You haven't added anything this month.",
+              message: 'Transactions will show up here, latest first.',
+              sample: _SampleRows(),
+            ),
           ),
         for (final transaction in transactions) _row(context, transaction),
       ],
@@ -99,6 +109,74 @@ class RecentTransactionsCard extends StatelessWidget {
         categoryStore: categoryStore,
         transactionStore: transactionStore,
       ),
+    );
+  }
+}
+
+/// Three made-up rows, shaped like real ones, for the empty state to blur.
+class _SampleRows extends StatelessWidget {
+  const _SampleRows();
+
+  static const _rows = [
+    (
+      Icons.shopping_cart_outlined,
+      'Groceries',
+      'Cash · Today',
+      '- ₹850',
+      false,
+    ),
+    (Icons.payments_outlined, 'Salary', 'Bank · Yesterday', '+ ₹45,000', true),
+    (Icons.local_cafe_outlined, 'Coffee', 'Cash · Yesterday', '- ₹180', false),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final palette = ChartPalette.of(context);
+    return Column(
+      children: [
+        for (final (i, (icon, title, subtitle, amount, income))
+            in _rows.indexed)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: palette.series(i).withValues(alpha: .2),
+                  ),
+                  child: Icon(icon, size: 18, color: palette.series(i)),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(subtitle, style: theme.textTheme.bodySmall),
+                    ],
+                  ),
+                ),
+                Text(
+                  amount,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: income ? green : null,
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

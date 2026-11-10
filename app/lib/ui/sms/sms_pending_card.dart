@@ -1,3 +1,4 @@
+import 'sms_review_card.dart';
 import 'sms_scan_card.dart';
 import '../../state/account_store.dart';
 import '../../state/category_store.dart';
@@ -37,6 +38,69 @@ class SmsPendingTile extends StatelessWidget {
     stamp: transactionStamp(sms.receivedAt),
     onTap: onTap,
   );
+}
+
+/// One waiting message on a single line, for the Home card: the bank's icon,
+/// who and which bank, and the amount at the right.
+class SmsCompactTile extends StatelessWidget {
+  const SmsCompactTile({super.key, required this.sms, required this.onTap});
+  final PendingSmsImport sms;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            AppIcon(smsBankIcon(sms), size: 36),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    sms.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    '${sms.credit ? 'Received' : 'Paid'} · ${sms.bankName}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 110),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '${sms.credit ? '+' : '−'}'
+                  '${formatAccountMoney(sms.amountMinor, currency: sms.currency, digits: 2)}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: smsAmountColor(sms),
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class SmsPendingCard extends StatelessWidget {
@@ -93,15 +157,28 @@ class SmsPendingCard extends StatelessWidget {
                 .map((sms) => sms.bankKey)
                 .toSet()
                 .length;
+      // Only what still needs you earns a place on Home: a scan underway,
+      // then the messages and banks waiting on an answer. When that is
+      // nothing the card steps aside.
+      final waiting = store.pendingCount > 0 || unlinked > 0;
+      if (!store.scanning && !waiting) return const SizedBox.shrink();
       return Padding(
         padding: const EdgeInsets.only(top: 14),
         child: HomeCard(
-          child: SmsScanCard(
-            store: store,
-            onScan: _scanAgain,
-            onReview: () => open(context),
-            unlinked: unlinked,
-          ),
+          child: store.scanning
+              ? SmsScanCard(
+                  store: store,
+                  onScan: _scanAgain,
+                  onReview: () => open(context),
+                  unlinked: unlinked,
+                )
+              : SmsReviewCard(
+                  store: store,
+                  unlinked: unlinked,
+                  onOpen: () => open(context),
+                  onReview: onReview,
+                  onScan: _scanAgain,
+                ),
         ),
       );
     },

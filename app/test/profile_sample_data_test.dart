@@ -4,11 +4,11 @@ import 'package:simple_money/data/db/app_database.dart';
 import 'package:simple_money/data/repositories/account_repository.dart';
 import 'package:simple_money/data/repositories/debt_repository.dart';
 import 'package:simple_money/data/repositories/loan_repository.dart';
-import 'package:simple_money/data/repositories/subscription_repository.dart';
+import 'package:simple_money/data/repositories/recurring_payment_repository.dart';
 import 'package:simple_money/data/repositories/transaction_repository.dart';
 import 'package:simple_money/domain/debt.dart';
 import 'package:simple_money/domain/loan.dart';
-import 'package:simple_money/domain/subscription.dart';
+import 'package:simple_money/domain/recurring_payment.dart';
 
 void main() {
   test('release data has no sample accounts, transactions or loans', () async {
@@ -18,7 +18,7 @@ void main() {
       expect(await TransactionRepository(releaseDb).load(), isEmpty);
       expect(await LoanRepository(releaseDb).load(), isEmpty);
       expect(await DebtRepository(releaseDb).load(), isEmpty);
-      expect(await SubscriptionRepository(releaseDb).load(), isEmpty);
+      expect(await RecurringPaymentRepository(releaseDb).load(), isEmpty);
     } finally {
       await releaseDb.close();
     }
@@ -149,23 +149,26 @@ void main() {
         final sneha = named('Sneha Iyer');
         expect(sneha.settled, isTrue);
 
-        final subscriptions = await SubscriptionRepository(profileDb).load();
-        expect(subscriptions.map((s) => s.name), [
+        final recurringPayments = await RecurringPaymentRepository(profileDb)
+            .load();
+        expect(recurringPayments.map((s) => s.name), [
           'Netflix',
           'Spotify',
           "Gold's Gym",
           'iCloud storage',
           'Crunchyroll',
         ]);
-        expect(subscriptions.where((s) => s.paused).map((s) => s.name), [
+        expect(recurringPayments.where((s) => s.paused).map((s) => s.name), [
           'Crunchyroll',
         ]);
         expect(
-          subscriptions.firstWhere((s) => s.name == 'iCloud storage').remind,
+          recurringPayments
+              .firstWhere((s) => s.name == 'iCloud storage')
+              .remind,
           isFalse,
         );
         expect(
-          subscriptions.firstWhere((s) => s.name == "Gold's Gym").cycle,
+          recurringPayments.firstWhere((s) => s.name == "Gold's Gym").cycle,
           BillingCycle.quarterly,
         );
       } finally {

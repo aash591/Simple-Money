@@ -69,15 +69,17 @@ class _UnassignedSmsPageState extends State<UnassignedSmsPage> {
   Future<void> load() async {
     try {
       final result = await loadUnassignedSms(widget.store);
-      if (mounted)
+      if (mounted) {
         setState(() {
           rows = result;
           selected.clear();
           if (!result.any((s) => groupOf(s) == group)) group = null;
         });
+      }
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() => error = 'Could not load messages. Please try again.');
+      }
     }
   }
 
@@ -135,7 +137,7 @@ class _UnassignedSmsPageState extends State<UnassignedSmsPage> {
       await widget.store.repository.assignAccounts(Set.of(selected), id);
       await widget.store.reload();
       await load();
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -143,9 +145,11 @@ class _UnassignedSmsPageState extends State<UnassignedSmsPage> {
             ),
           ),
         );
+      }
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() => error = 'Could not assign messages. Please try again.');
+      }
     } finally {
       if (mounted) setState(() => saving = false);
     }

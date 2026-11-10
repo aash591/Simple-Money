@@ -551,7 +551,10 @@ class TransactionDetailRow extends StatelessWidget {
             ),
             if (trailing != null) ...[
               const SizedBox(width: 10),
-              Flexible(
+              // Takes only the width its text needs, so it sits at the
+              // row's right edge and balances line up down the card.
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 140),
                 child: Text(
                   trailing!,
                   maxLines: 1,

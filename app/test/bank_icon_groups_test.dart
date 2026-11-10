@@ -7,6 +7,7 @@ import 'package:simple_money/data/repositories/sms_import_repository.dart';
 import 'package:simple_money/ui/sms/sms_suggestions.dart';
 import 'package:simple_money/domain/brand_icons.dart';
 import 'package:simple_money/domain/brand_dark_icons.dart';
+import 'package:simple_money/domain/service_icon.dart';
 import 'package:simple_money/ui/components/app_icon.dart';
 import 'package:simple_money/ui/components/select_icon_screen.dart';
 import 'package:simple_money/ui/components/settings_icon.dart';
@@ -105,6 +106,7 @@ void main() {
         'CSB Bank',
         'Central Bank of India',
         'Punjab & Sind Bank',
+        'Bajaj Finance',
       ]),
     );
     expect(
@@ -112,6 +114,14 @@ void main() {
           .where((bank) => bank.bankCountry == 'Indonesia')
           .map((bank) => bank.title),
       containsAll(['BRI', 'BCA', 'BNI', 'BTN', 'Mandiri']),
+    );
+  });
+
+  test('Bajaj Finance merchant aliases resolve to its brand icon', () {
+    expect(serviceIcon('Bajaj Finance'), brandIconKey('bajajfinance'));
+    expect(
+      serviceIcon('BAJAJ FINSERV EMI PAYMENT'),
+      brandIconKey('bajajfinance'),
     );
   });
 

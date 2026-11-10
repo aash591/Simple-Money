@@ -1,4 +1,5 @@
 import 'loan_suggestion_card.dart';
+import 'recurring_suggestion_card.dart';
 import 'share_fix_prompt.dart';
 import '../../../data/community/community_fixes.dart';
 
@@ -98,6 +99,7 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
       if (suggestions.any(
         (s) =>
             s.kind == AgentSuggestionKind.transactionEdit ||
+            s.kind == AgentSuggestionKind.recurringPayment ||
             s.kind == AgentSuggestionKind.newLoan,
       )) {
         try {
@@ -228,6 +230,17 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
                 await _repository.setUpdatesBalance(s.id, on);
                 return false;
               }),
+      );
+    }
+    if (s.kind == AgentSuggestionKind.recurringPayment) {
+      return RecurringSuggestionPreview(
+        payload: s.payload,
+        account: _stores ? _account(s.payload['accountId'] as int?) : null,
+        category: _stores
+            ? _categories.categories
+                  .where((c) => c.id == s.payload['categoryId'])
+                  .firstOrNull
+            : null,
       );
     }
     if (s.kind != AgentSuggestionKind.transactionEdit || !_stores) return null;
@@ -538,6 +551,7 @@ class _SuggestionCard extends StatelessWidget {
     AgentSuggestionKind.newLoan => Icons.account_balance_outlined,
     AgentSuggestionKind.debtEntry => Icons.handshake_outlined,
     AgentSuggestionKind.transactionAdd => Icons.add_card_rounded,
+    AgentSuggestionKind.recurringPayment => Icons.autorenew_rounded,
   };
 
   @override

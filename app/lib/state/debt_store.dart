@@ -48,6 +48,14 @@ class DebtStore extends ChangeNotifier {
   var _generation = 0;
   var _disposed = false;
 
+  /// Fills the store with [people] without touching the database, for
+  /// screens that show example data. Nothing is saved.
+  void usePreview(List<PersonDebts> people) {
+    _people = people;
+    loading = false;
+    _notify();
+  }
+
   PersonDebts? personById(int id) =>
       _people.where((debts) => debts.person.id == id).firstOrNull;
 

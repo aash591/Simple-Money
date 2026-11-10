@@ -79,11 +79,35 @@ Sources: [Android authorization](https://developer.android.com/identity/authoriz
 
 ## Restore
 
+### Optional backup encryption
+
+The Sync screen has an **Encrypt Drive backups** switch, off by default.
+Enabling it asks for exactly six ASCII letters or digits, confirmation, and
+acknowledgement that the PIN must be saved. Letters are case-sensitive.
+Signing in again to restore an encrypted backup asks for its PIN. An incorrect
+PIN, cancellation, or failed download leaves phone data unchanged and uploads
+paused; **Continue restore** resumes the flow, including after an app restart.
+
+Payloads use AES-256-GCM with fresh nonces and authenticated mirror/sequence
+identifiers. PBKDF2-HMAC-SHA256 derives the key with a random 16-byte salt and
+600,000 iterations. Only public recovery parameters accompany the backup;
+the PIN is never saved and the derived key stays in platform secure storage,
+excluded from Android backup. A six-character PIN has less guessing resistance
+than a long password. There is no forgotten-PIN recovery for encrypted copies.
+
+Changing protection starts a new complete mirror. Existing Drive files are
+preserved, so enabling encryption does not retroactively protect older
+unencrypted copies. Disabling encryption requires the current PIN; older
+encrypted copies still require their original PIN. Legacy backups remain
+readable. This setting does not encrypt the local SQLite database or exports.
+
+### Selecting data to restore
+
 When a device links to a Google account for the first time (fresh install,
 cleared data, new phone), or turns sync on with nothing entered yet, uploads
 are held and Drive is checked for synced data before anything is sent. If the
 phone has no accounts, transactions or budgets, that data is restored straight
-away with no prompt. A phone with entries of its own is asked once whether to
+away after any required backup PIN is entered. A phone with entries of its own is asked once whether to
 use the synced data or keep its own. There is no manual restore button.
 
 - Drive files are listed by `appProperties`, grouped by mirror ID and ordered by
@@ -127,7 +151,8 @@ transaction as the ledger. Repeated offline changes to a record are coalesced;
 deletions retain tombstones. Preferences such as temporary transaction filters
 are not part of the database mirror.
 
-Each upload freezes the whole committed outbox into an immutable gzip JSON batch.
+Each upload freezes the whole committed outbox into an immutable gzip JSON batch,
+wrapped in an authenticated encrypted envelope when encryption is enabled.
 Its Drive file ID and exact bytes are saved before network upload. A successful
 upload is acknowledged only after checking its file ID, byte count and MD5
 against Drive metadata. A lost response retries the same ID; HTTP 409 is checked

@@ -4,7 +4,7 @@ import '../../domain/account.dart';
 import '../db/app_database.dart';
 import 'debt_repository.dart';
 import 'loan_repository.dart';
-import 'subscription_repository.dart';
+import 'recurring_payment_repository.dart';
 
 class AccountRepository {
   AccountRepository(this.database);
@@ -210,7 +210,7 @@ class AccountRepository {
     // this repository's to know.
     await LoanRepository(database).detachAccount(id);
     await DebtRepository(database).detachAccount(id);
-    await SubscriptionRepository(database).detachAccount(id);
+    await RecurringPaymentRepository(database).detachAccount(id);
     await database.customUpdate(
       '''DELETE FROM transactions WHERE account_id = ? OR to_account_id = ?''',
       variables: [Variable(id), Variable(id)],

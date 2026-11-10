@@ -121,20 +121,23 @@ class _LineChartState extends State<LineChart> {
           onHorizontalDragStart: (d) => pick(d.localPosition),
           onHorizontalDragUpdate: (d) => pick(d.localPosition),
           onHorizontalDragEnd: (_) => _select(null),
-          child: CustomPaint(
-            painter: _LinePainter(
-              series: series,
-              slots: slots,
-              bounds: bounds,
-              filled: widget.filled,
-              showEndMarkers: widget.showEndMarkers,
-              referenceLines: widget.referenceLines,
-              palette: palette,
-              selected: _selected,
-              labels: widget.labels,
-              formatValue: widget.formatValue,
-              style: chartLabelStyle(context),
-              scaler: MediaQuery.textScalerOf(context),
+          // Its own layer: scrubbing repaints the plot, not the whole card.
+          child: RepaintBoundary(
+            child: CustomPaint(
+              painter: _LinePainter(
+                series: series,
+                slots: slots,
+                bounds: bounds,
+                filled: widget.filled,
+                showEndMarkers: widget.showEndMarkers,
+                referenceLines: widget.referenceLines,
+                palette: palette,
+                selected: _selected,
+                labels: widget.labels,
+                formatValue: widget.formatValue,
+                style: chartLabelStyle(context),
+                scaler: MediaQuery.textScalerOf(context),
+              ),
             ),
           ),
         );

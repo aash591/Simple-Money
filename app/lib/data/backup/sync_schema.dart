@@ -13,8 +13,8 @@ const syncTables = {
   'debt_entries': ['id'],
   'loans': ['id'],
   'loan_events': ['id'],
-  'subscriptions': ['id'],
-  'subscription_payments': ['transaction_id'],
+  'recurring_payments': ['id'],
+  'recurring_payment_history': ['transaction_id'],
   // Which bank SMS are already saved or dismissed, and which account each
   // bank's messages go to: without them a restored phone saves its inbox again.
   'sms_history': ['fingerprint'],
@@ -25,6 +25,8 @@ Future<void> createSyncSchema(GeneratedDatabase db) async {
   await db.customStatement('''CREATE TABLE sync_state (
     id INTEGER PRIMARY KEY CHECK(id = 1),
     enabled INTEGER NOT NULL DEFAULT 0,
+    encryption_config TEXT,
+    restore_pending INTEGER NOT NULL DEFAULT 0,
     email TEXT, subject TEXT, display_name TEXT, picture_url TEXT,
     installation_id TEXT,
     mirror_id TEXT NOT NULL,

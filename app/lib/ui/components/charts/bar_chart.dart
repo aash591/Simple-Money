@@ -110,19 +110,22 @@ class _BarChartState extends State<BarChart> {
                     .floor()
                     .clamp(0, _slots - 1),
               ),
-        child: CustomPaint(
-          painter: _BarPainter(
-            series: widget.series,
-            slots: _slots,
-            bounds: bounds,
-            layout: widget.layout,
-            maxBarThickness: widget.maxBarThickness,
-            palette: palette,
-            selected: _selected,
-            labels: widget.labels,
-            formatValue: widget.formatValue,
-            style: chartLabelStyle(context),
-            scaler: MediaQuery.textScalerOf(context),
+        // Its own layer: a tap repaints the plot, not the whole card.
+        child: RepaintBoundary(
+          child: CustomPaint(
+            painter: _BarPainter(
+              series: widget.series,
+              slots: _slots,
+              bounds: bounds,
+              layout: widget.layout,
+              maxBarThickness: widget.maxBarThickness,
+              palette: palette,
+              selected: _selected,
+              labels: widget.labels,
+              formatValue: widget.formatValue,
+              style: chartLabelStyle(context),
+              scaler: MediaQuery.textScalerOf(context),
+            ),
           ),
         ),
       ),

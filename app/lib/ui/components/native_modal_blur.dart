@@ -22,10 +22,11 @@ class NativeModalBlur extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    covariant _ModalBlurBounds renderObject,
+    covariant RenderObject renderObject,
   ) {
-    renderObject.density = MediaQuery.devicePixelRatioOf(context);
-    renderObject.radius = radius;
+    final bounds = renderObject as _ModalBlurBounds;
+    bounds.density = MediaQuery.devicePixelRatioOf(context);
+    bounds.radius = radius;
   }
 }
 

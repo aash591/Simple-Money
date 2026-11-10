@@ -4,6 +4,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'drive_client.dart';
+import 'backup_encryption.dart';
 import 'sync_schema.dart';
 
 /// The latest state of one installation's mirror, rebuilt from its batches.
@@ -13,10 +14,12 @@ class SyncBackup {
     required this.updatedAt,
     required this.schemaVersion,
     required this.tables,
+    this.encryption,
   });
   final String mirrorId;
   final DateTime updatedAt;
   final int schemaVersion;
+  final BackupEncryption? encryption;
 
   /// Complete rows per synced table, exactly as they were uploaded.
   final Map<String, List<Map<String, Object?>>> tables;
@@ -31,7 +34,7 @@ class SyncBackup {
           count('budgets') +
           count('debt_entries') +
           count('loans') +
-          count('subscriptions') >
+          count('recurring_payments') >
       0;
 }
 
@@ -40,6 +43,7 @@ class SyncBackup {
 Future<SyncBackup?> findLatestBackup(
   MirrorTransport transport, {
   String? excludeMirrorId,
+  BackupKeyLookup? keyLookup,
 }) async {
   final mirrors = <String, List<MirrorFile>>{};
   for (final file in await transport.listFiles()) {
@@ -51,7 +55,7 @@ Future<SyncBackup?> findLatestBackup(
   final ordered = mirrors.values.toList()
     ..sort((a, b) => latest(b).compareTo(latest(a)));
   for (final files in ordered) {
-    final backup = await _rebuild(transport, files);
+    final backup = await _rebuild(transport, files, keyLookup);
     if (backup != null && backup.hasLedgerData) return backup;
   }
   return null;
@@ -63,6 +67,7 @@ Future<SyncBackup?> findLatestBackup(
 Future<SyncBackup?> _rebuild(
   MirrorTransport transport,
   List<MirrorFile> files,
+  BackupKeyLookup? keyLookup,
 ) async {
   final bySequence = {for (final file in files) file.sequence: file};
   final chain = [
@@ -73,8 +78,21 @@ Future<SyncBackup?> _rebuild(
   final payloads = await _downloadAll(transport, chain);
   final tables = <String, Map<String, Map<String, Object?>>>{};
   var schemaVersion = 0;
+  final encryption = backupBatchEncryption(payloads.first);
   for (var i = 0; i < chain.length; i++) {
-    final batch = _decode(payloads[i]);
+    if (backupBatchEncryption(payloads[i]) != encryption) {
+      throw const DriveSyncException(
+        'The backup encryption settings do not match. Your phone data has not changed.',
+      );
+    }
+    final batch = _decode(
+      await decryptBackupBatch(
+        payloads[i],
+        chain[i].mirrorId,
+        chain[i].sequence,
+        keyLookup,
+      ),
+    );
     if (batch['format'] != 'simple-money-mirror' ||
         batch['mirrorId'] != chain[i].mirrorId ||
         batch['sequence'] != chain[i].sequence) {
@@ -101,6 +119,7 @@ Future<SyncBackup?> _rebuild(
     mirrorId: chain.first.mirrorId,
     updatedAt: chain.last.modified,
     schemaVersion: schemaVersion,
+    encryption: encryption,
     tables: {
       for (final MapEntry(:key, :value) in tables.entries)
         key: value.values.toList(),

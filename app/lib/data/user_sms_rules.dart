@@ -53,11 +53,8 @@ String userSmsBankId(String bankName, {String prefix = 'user'}) {
 }
 
 /// The rule ID a format gets: its bank's ID and its row (or any label).
-String userSmsRuleId(
-  String bankName,
-  Object label, {
-  String prefix = 'user',
-}) => '${userSmsBankId(bankName, prefix: prefix)}.r$label';
+String userSmsRuleId(String bankName, Object label, {String prefix = 'user'}) =>
+    '${userSmsBankId(bankName, prefix: prefix)}.r$label';
 
 /// Compiles [rules] into one runtime pack. [extra] is a rule being tried,
 /// keyed by its label. Throws [RuleValidationException] for a bad format.

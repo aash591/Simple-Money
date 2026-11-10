@@ -8,19 +8,25 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../data/backup/drive_client.dart';
+import '../data/backup/backup_encryption.dart';
 import '../data/backup/sync_background.dart';
 import '../data/backup/sync_engine.dart';
 import '../data/backup/sync_repository.dart';
 import '../data/backup/sync_restore.dart';
 
 class SyncController extends ChangeNotifier with WidgetsBindingObserver {
-  SyncController(this.repository) : engine = SyncEngine(repository);
+  SyncController(this.repository, {SyncEngine? engine})
+    : engine = engine ?? SyncEngine(repository);
   final SyncRepository repository;
   final SyncEngine engine;
   final _background = SyncBackground();
   SyncStatus? status;
   String? actionError;
   bool connecting = false;
+  bool changingEncryption = false;
+  BackupEncryption? pinRequired;
+  BackupEncryption? _restoreEncryption;
+  bool get uploadsHeld => _uploadsHeld || status?.restorePending == true;
 
   /// Looking for or applying a backup from Drive.
   bool restoring = false;
@@ -87,7 +93,8 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
         connecting ||
         restoring ||
         managingData ||
-        _uploadsHeld ||
+        changingEncryption ||
+        uploadsHeld ||
         !supported) {
       return;
     }
@@ -120,12 +127,18 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
   /// this phone is new to it, returns that data and holds uploads until
   /// [restore] or [skipRestore].
   Future<SyncBackup?> connect() async {
-    if (connecting || !supported) return null;
+    if (connecting ||
+        changingEncryption ||
+        managingData ||
+        restoring ||
+        !supported) {
+      return null;
+    }
     connecting = true;
     actionError = null;
     _notify();
     DriveClient? client;
-    var linked = false;
+    var needsRestore = false;
     _uploadsHeld = false;
     try {
       await _running;
@@ -146,9 +159,14 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
       }
       final displayName = account['name'];
       final pictureUrl = account['picture'];
-      linked = await repository.connect(
+      needsRestore =
+          await repository.subject() != subject ||
+          status?.restorePending == true ||
+          !await repository.hasLedgerData();
+      await repository.connect(
         email,
         subject,
+        holdUploads: needsRestore,
         displayName: displayName is String && displayName.trim().isNotEmpty
             ? displayName.trim()
             : null,
@@ -159,7 +177,7 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
       );
       // A new link, or a phone with nothing entered yet, first checks Drive
       // for data to restore; nothing uploads until that is settled.
-      _uploadsHeld = linked || !await repository.hasLedgerData();
+      _uploadsHeld = needsRestore;
       if (!_uploadsHeld) await _background.enable();
       await refresh();
     } on PlatformException catch (error) {
@@ -177,8 +195,9 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
       _notify();
     }
     if (_uploadsHeld) {
-      final backup = await findBackup();
+      final backup = await findBackup(requirePin: true);
       if (backup != null) return backup;
+      if (actionError != null || pinRequired != null) return null;
       await skipRestore();
       return null;
     }
@@ -188,14 +207,21 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
 
   /// The newest backup from another installation, or null when there is none
   /// or Drive could not be checked (then [actionError] says why).
-  Future<SyncBackup?> findBackup() async {
+  Future<SyncBackup?> findBackup({bool requirePin = false}) async {
     if (restoring || !supported) return null;
     restoring = true;
     actionError = null;
     _notify();
     try {
       await _running;
-      return await engine.findBackup();
+      final backup = await engine.findBackup(requirePin: requirePin);
+      pinRequired = null;
+      _restoreEncryption = backup?.encryption;
+      return backup;
+    } on BackupPinRequired catch (error) {
+      pinRequired = error.configuration;
+      actionError = error.message;
+      return null;
     } catch (error) {
       actionError = describeError(
         error,
@@ -228,12 +254,66 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
       return false;
     } finally {
       restoring = false;
-      await skipRestore();
+      if (actionError == null) {
+        await skipRestore();
+      } else {
+        await refresh();
+        _notify();
+      }
+    }
+  }
+
+  Future<SyncBackup?> unlockBackup(String pin) async {
+    final configuration = pinRequired;
+    if (configuration == null) return findBackup();
+    await engine.unlockEncryption(pin, configuration);
+    return findBackup();
+  }
+
+  Future<void> unlockUploads(String pin) async {
+    final configuration = status?.encryption;
+    if (configuration == null) {
+      throw StateError('No encrypted backup is configured.');
+    }
+    await engine.unlockEncryption(pin, configuration);
+    actionError = null;
+    unawaited(_tick(force: true));
+  }
+
+  Future<void> setEncryption(bool enabled, String pin) async {
+    if (changingEncryption ||
+        connecting ||
+        restoring ||
+        managingData ||
+        uploadsHeld) {
+      throw StateError('Finish the current sync action first.');
+    }
+    changingEncryption = true;
+    _notify();
+    try {
+      await _running;
+      if (enabled) {
+        await engine.enableEncryption(pin);
+      } else {
+        await engine.disableEncryption(pin);
+      }
+      actionError = null;
+      await refresh();
+    } finally {
+      changingEncryption = false;
+      _notify();
+      unawaited(_tick(force: true));
     }
   }
 
   /// Keeps this device's data and resumes uploading it.
   Future<void> skipRestore() async {
+    // A locked backup cannot be skipped into an unencrypted upload by mistake.
+    if (pinRequired != null) {
+      throw StateError('Unlock your backup before continuing.');
+    }
+    await engine.resumeUploads(encryption: _restoreEncryption);
+    _restoreEncryption = null;
     _uploadsHeld = false;
     try {
       await refresh();
@@ -263,7 +343,7 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Uploads wait while [action] runs; screens reload afterwards.
   Future<void> _manageData(Future<void> Function() action) async {
-    if (managingData || restoring || connecting) {
+    if (managingData || restoring || connecting || changingEncryption) {
       throw StateError('Sync is busy. Try again shortly.');
     }
     managingData = true;
@@ -284,7 +364,7 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> disconnect() async {
-    if (connecting) return;
+    if (connecting || changingEncryption || managingData || restoring) return;
     connecting = true;
     _notify();
     try {
@@ -304,16 +384,22 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Turns sync off and forgets the connected Google account.
   Future<void> signOut() async {
-    if (connecting) return;
+    if (connecting || changingEncryption || managingData || restoring) return;
     connecting = true;
     _notify();
     try {
+      final subject = await repository.subject();
       await repository.signOut();
       await _background.disable();
       await _running;
+      if (subject != null) await engine.keyStore.forget(subject);
+      pinRequired = null;
+      _uploadsHeld = false;
+      _restoreEncryption = null;
       actionError = null;
       await refresh();
     } catch (_) {
+      await refresh();
       actionError = 'Could not sign out. Please try again.';
       _notify();
     } finally {
@@ -323,7 +409,14 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> syncNow() async {
-    if (manualSyncing || connecting || restoring || !supported) return;
+    if (manualSyncing ||
+        connecting ||
+        restoring ||
+        changingEncryption ||
+        uploadsHeld ||
+        !supported) {
+      return;
+    }
     manualSyncing = true;
     actionError = null;
     _notify();
@@ -388,6 +481,7 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
 
   String describeError(Object error, String fallback) => switch (error) {
     DriveSyncException(:final message) => message,
+    BackupEncryptionException(:final message) => message,
     StateError(:final message) => message,
     PlatformException(code: 'authorization_required') =>
       'Reconnect your Google account to resume sync.',
