@@ -101,7 +101,7 @@ class SheetColors {
     // frosted sheet, not opaque slabs, so the sheet's glass shows through.
     final card = dark
         ? (glass
-              ? Colors.white.withValues(alpha: .08)
+              ? Colors.white.withValues(alpha: .05)
               : _lift(theme.colorScheme.surface, .025))
         : glass
         ? Colors.white.withValues(alpha: .6)

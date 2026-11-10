@@ -86,13 +86,15 @@ class FrostedModalSurface extends StatelessWidget {
               ? (dark ? tint : SheetColors.lightSheetBase(context))
                     .withValues(alpha: (dark ? tint.a : .96) * visibility)
               : (dark
-                    ? null
+                    // A dark underlay cancels the whitish haze that the glass
+                    // fill and a sheet stacked behind this one add up to.
+                    ? Colors.black.withValues(alpha: .5 * visibility)
                     : SheetColors.lightSheetBase(
                         context,
                       ).withValues(alpha: (picture ? .72 : .84) * visibility)),
           gradient: solid || !dark
               ? null
-              : (glassCardFill(context) as LinearGradient).scale(visibility),
+              : (glassCardFill(context) as LinearGradient).scale(.55 * visibility),
         ),
         // Fully opaque, this paints its child directly with no extra layer.
         child: Opacity(opacity: visibility, child: content),
@@ -153,9 +155,9 @@ class _GlassRim extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          white(dark ? .075 : .22),
-          white(dark ? .015 : .04),
-          white(dark ? .09 : .28),
+          white(dark ? .04 : .22),
+          white(dark ? .01 : .04),
+          white(dark ? .05 : .28),
         ],
         stops: const [0, .5, 1],
       ).createShader(rect),
