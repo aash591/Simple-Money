@@ -498,6 +498,17 @@ class _TransactionReviewSheetState extends State<TransactionReviewSheet> {
                 ),
               ),
             ],
+            if (widget.editTitle && !d.transfer) ...[
+              divider,
+              ReviewChoiceRow(
+                label: 'Title',
+                value: d.title.trim().isNotEmpty
+                    ? d.title.trim()
+                    : 'Add a title',
+                icon: Icon(Icons.edit_outlined, color: colors.primary),
+                onTap: unless(false, editTitle),
+              ),
+            ],
             if (widget.editNote) ...[
               divider,
               ReviewChoiceRow(
