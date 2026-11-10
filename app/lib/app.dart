@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'data/rates/exchange_rates.dart';
 import 'state/main_currency_controller.dart';
 
+import 'ui/theme/app_motion.dart';
 import 'ui/home/home_screen.dart';
 import 'ui/quick_entry_screen.dart';
 import 'ui/sms/sms_notification_screen.dart';
@@ -255,7 +256,7 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
       navigatorKey: _navigator,
       title: 'SimpleMoney',
       debugShowCheckedModeBanner: false,
-      scrollBehavior: const _NoEdgeGlow(),
+      scrollBehavior: const _AppScrollBehavior(),
       onGenerateInitialRoutes: _showOnboarding
           ? (_) => [
               PageRouteBuilder<void>(
@@ -327,9 +328,20 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
 }
 
 /// Lists end with no overscroll glow: its tinted patch darkened the glass
-/// cards and the picture behind them at the top and bottom.
-class _NoEdgeGlow extends MaterialScrollBehavior {
-  const _NoEdgeGlow();
+/// cards and the picture behind them at the top and bottom. Instead a list
+/// runs softly past its end and springs back.
+class _AppScrollBehavior extends MaterialScrollBehavior {
+  const _AppScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) => switch (getPlatform(
+    context,
+  )) {
+    // Already bounce, with their own fling.
+    TargetPlatform.iOS ||
+    TargetPlatform.macOS => super.getScrollPhysics(context),
+    _ => const ElasticScrollPhysics(parent: RangeMaintainingScrollPhysics()),
+  };
 
   @override
   Widget buildOverscrollIndicator(

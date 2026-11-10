@@ -55,7 +55,7 @@ Future<DateTime?> _showCalendarPickerPopup(
       barrierDismissible: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: Colors.transparent,
-      transitionDuration: const Duration(milliseconds: 260),
+      transitionDuration: const Duration(milliseconds: 320),
       pageBuilder: (context, animation, _) {
         final media = MediaQuery.of(context);
         final safe = Rect.fromLTRB(

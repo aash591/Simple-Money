@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart' show kMinFlingVelocity;
 import 'package:flutter/material.dart';
-import 'package:flutter/physics.dart';
 
 /// The app's shared motion: how things open, close and come to rest.
 abstract final class AppMotion {
@@ -58,9 +57,6 @@ class ElasticScrollPhysics extends BouncingScrollPhysics {
 
   @override
   double carriedMomentum(double existingVelocity) => 0;
-
-  @override
-  double? get dragStartDistanceMotionThreshold => null;
 
   @override
   Simulation? createBallisticSimulation(

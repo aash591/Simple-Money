@@ -2,6 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'package:flutter/physics.dart';
+
+import '../theme/app_motion.dart';
 import '../theme/app_theme.dart' show usesGlass;
 import 'app_back_button.dart';
 import 'common.dart' show MoneyCard;
@@ -50,7 +53,7 @@ Future<T?> showAdaptiveSheet<T>(
 /// as its content but never taller than the space below the status bar
 /// (and above the keyboard), over a clear barrier. Content that outgrows
 /// it scrolls. It can be dragged down to close: past 72dp or on a fast
-/// fling it dismisses, otherwise it eases back into place.
+/// fling it dismisses, otherwise it springs back into place.
 class AdaptiveSheetRoute<T> extends PopupRoute<T> {
   AdaptiveSheetRoute({
     required this.builder,
@@ -121,7 +124,7 @@ class AdaptiveSheetRoute<T> extends PopupRoute<T> {
   Color get barrierColor => Colors.transparent;
 
   @override
-  Curve get barrierCurve => ModalTransition.curve;
+  Curve get barrierCurve => Curves.easeOut;
 
   @override
   bool get barrierDismissible => _dismissible;
@@ -136,6 +139,9 @@ class AdaptiveSheetRoute<T> extends PopupRoute<T> {
 
   @override
   Duration get transitionDuration => ModalTransition.duration;
+
+  @override
+  Duration get reverseTransitionDuration => ModalTransition.reverseDuration;
 
   /// The sheet route [context] was built in, if it is one.
   static AdaptiveSheetRoute<Object?>? of(BuildContext context) {
@@ -212,15 +218,20 @@ class _SheetFrameState extends State<_SheetFrame>
     if ((flung || _drag.value > _dismissDistance) && widget.route.isCurrent) {
       Navigator.of(context).pop();
     } else {
-      _settle();
+      _settle(details.primaryVelocity ?? 0);
     }
   }
 
-  void _settle() => _drag.animateTo(
-    0,
-    duration: const Duration(milliseconds: 220),
-    curve: Curves.fastOutSlowIn,
-  );
+  /// Springs back into place, carrying on from the speed it was let go at.
+  void _settle([double velocity = 0]) {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _drag.value = 0;
+      return;
+    }
+    _drag.animateWith(
+      SpringSimulation(AppMotion.settle, _drag.value, 0, velocity),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

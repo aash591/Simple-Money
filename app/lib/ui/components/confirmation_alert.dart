@@ -29,34 +29,50 @@ Future<bool> showConfirmationAlert(
     'An alert needs something under its title.',
   );
   VibrationSettings.lightImpact();
-  return await showGeneralDialog<bool>(
-        context: context,
-        barrierColor: Colors.transparent,
-        barrierDismissible: true,
-        barrierLabel: MaterialLocalizations.of(context)
-            .modalBarrierDismissLabel,
-        transitionDuration: ModalTransition.duration,
-        transitionBuilder: (context, animation, secondaryAnimation, child) =>
-            ModalTransition(animation: animation, child: child),
-        pageBuilder: (_, animation, secondaryAnimation) => SafeArea(
-          child: ConfirmationAlert(
-            title: title,
-            message: message,
-            content: content,
-            confirmLabel: confirmLabel,
-            cancelLabel: cancelLabel,
-            onCancel: onCancel,
-            extraActionLabel: extraActionLabel,
-            onExtraAction: onExtraAction,
-            destructive: destructive,
-            confirmFirst: confirmFirst,
-            confirmEnabled: confirmEnabled,
-            autofocusCancel: autofocusCancel,
-            showCancel: showCancel,
+  return await Navigator.of(context, rootNavigator: true).push<bool>(
+        _AlertRoute<bool>(
+          barrierColor: Colors.transparent,
+          barrierDismissible: true,
+          barrierLabel: MaterialLocalizations.of(context)
+              .modalBarrierDismissLabel,
+          transitionDuration: ModalTransition.duration,
+          transitionBuilder: (context, animation, secondaryAnimation, child) =>
+              ModalTransition(animation: animation, child: child),
+          pageBuilder: (_, animation, secondaryAnimation) => SafeArea(
+            child: ConfirmationAlert(
+              title: title,
+              message: message,
+              content: content,
+              confirmLabel: confirmLabel,
+              cancelLabel: cancelLabel,
+              onCancel: onCancel,
+              extraActionLabel: extraActionLabel,
+              onExtraAction: onExtraAction,
+              destructive: destructive,
+              confirmFirst: confirmFirst,
+              confirmEnabled: confirmEnabled,
+              autofocusCancel: autofocusCancel,
+              showCancel: showCancel,
+            ),
           ),
         ),
       ) ??
       false;
+}
+
+/// A dialog route that closes faster than it opens.
+class _AlertRoute<T> extends RawDialogRoute<T> {
+  _AlertRoute({
+    required super.pageBuilder,
+    super.barrierDismissible,
+    super.barrierColor,
+    super.barrierLabel,
+    super.transitionDuration,
+    super.transitionBuilder,
+  });
+
+  @override
+  Duration get reverseTransitionDuration => ModalTransition.reverseDuration;
 }
 
 /// A notice with one button, for telling the user something went well.

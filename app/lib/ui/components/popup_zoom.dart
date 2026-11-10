@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_motion.dart';
+
 /// Zooms from the corner nearest its trigger with a small, smooth overshoot,
 /// while [PopupReveal] fades the glass in.
 class PopupZoom extends StatefulWidget {
@@ -50,12 +52,12 @@ class PopupZoomState extends State<PopupZoom> {
   void _bind() {
     _scale = CurvedAnimation(
       parent: widget.animation,
-      curve: const Cubic(.2, .9, .3, 1.08),
+      curve: AppMotion.spring,
       reverseCurve: Curves.easeInCubic.flipped,
     );
     _reveal = CurvedAnimation(
       parent: widget.animation,
-      curve: const Interval(0, .6, curve: Curves.easeOut),
+      curve: const Interval(0, .4, curve: Curves.easeOut),
       reverseCurve: const Interval(0, .75, curve: Curves.easeOut),
     );
   }

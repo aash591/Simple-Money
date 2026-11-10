@@ -948,8 +948,16 @@ class TransactionsScreenState extends State<TransactionsScreen>
         _settle.stop();
         _lastPixels = n.metrics.pixels;
       case ScrollUpdateNotification():
-        _foldBy(n.metrics.pixels - _lastPixels);
-        _lastPixels = n.metrics.pixels;
+        // Dragging past an end still folds (a short list is always there),
+        // but the list springing back from it on its own doesn't unfold.
+        final m = n.metrics;
+        final bouncing =
+            n.dragDetails == null &&
+            (m.outOfRange ||
+                _lastPixels < m.minScrollExtent ||
+                _lastPixels > m.maxScrollExtent);
+        if (!bouncing) _foldBy(m.pixels - _lastPixels);
+        _lastPixels = m.pixels;
       case OverscrollNotification():
         // Past an end of the list, which is where a short list always is.
         _foldBy(n.overscroll);

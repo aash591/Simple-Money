@@ -6,11 +6,15 @@ import 'glass_surface.dart';
 import 'secondary_header.dart';
 
 /// Both pages slide together; reduced-motion settings skip the transition.
+/// The slide moves off quickly and glides to a stop, going in and coming back.
 class FeatureRoute<T> extends PageRouteBuilder<T> {
+  static const _curve = Curves.fastEaseInToSlowEaseOut;
+  static final _reverseCurve = Curves.fastEaseInToSlowEaseOut.flipped;
+
   FeatureRoute(Widget page)
     : super(
-        transitionDuration: const Duration(milliseconds: 320),
-        reverseTransitionDuration: const Duration(milliseconds: 280),
+        transitionDuration: const Duration(milliseconds: 420),
+        reverseTransitionDuration: const Duration(milliseconds: 360),
         pageBuilder: (_, animation, secondaryAnimation) => page,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           if (MediaQuery.disableAnimationsOf(context)) return child;
@@ -19,7 +23,8 @@ class FeatureRoute<T> extends PageRouteBuilder<T> {
                 .animate(
                   CurvedAnimation(
                     parent: secondaryAnimation,
-                    curve: Curves.easeInOutCubic,
+                    curve: _curve,
+                    reverseCurve: _reverseCurve,
                   ),
                 ),
             child: SlideTransition(
@@ -27,7 +32,8 @@ class FeatureRoute<T> extends PageRouteBuilder<T> {
                   .animate(
                     CurvedAnimation(
                       parent: animation,
-                      curve: Curves.easeInOutCubic,
+                      curve: _curve,
+                      reverseCurve: _reverseCurve,
                     ),
                   ),
               child: child,
