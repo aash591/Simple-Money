@@ -1,0 +1,1723 @@
+{
+  "format": "sms-rules-runtime",
+  "schemaVersion": "0.3",
+  "minEngineVersion": "0.3.0",
+  "packVersion": 1,
+  "rules": [
+    {
+      "id": "jo.jordanislamicbank.template001",
+      "bankId": "jo.jordanislamicbank",
+      "bankName": "Jordan Islamic Bank",
+      "country": "JO",
+      "senders": [
+        "ATM WITHDRAWAL",
+        "ELECTRONIC PAYMENT",
+        "ELECTRONIC TRANSFER",
+        "JIB",
+        "PROFIT CREDIT"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "JOD": 3,
+          "USD": 2
+        },
+        "denominations": {},
+        "currency": "JOD"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "رمز التحقق",
+              "كلمة المرور لمرة واحدة"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "تفويض حركة على حسابكم "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " بقيمة "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني من "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " AMMAN JO الرصيد المتوفر "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "jo.jordanislamicbank.template002",
+      "bankId": "jo.jordanislamicbank",
+      "bankName": "Jordan Islamic Bank",
+      "country": "JO",
+      "senders": [
+        "ATM WITHDRAWAL",
+        "ELECTRONIC PAYMENT",
+        "ELECTRONIC TRANSFER",
+        "JIB",
+        "PROFIT CREDIT"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "JOD": 3,
+          "USD": 2
+        },
+        "denominations": {},
+        "currency": "JOD"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "رمز التحقق",
+              "كلمة المرور لمرة واحدة"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "تفويض حركة على حسابكم "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " بقيمة "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني من MILITARY CONSUMER EST SWIAMMAN JORDAN JO الرصيد المتوفر "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "value": "MILITARY CONSUMER EST SWI"
+        }
+      }
+    },
+    {
+      "id": "jo.jordanislamicbank.template003",
+      "bankId": "jo.jordanislamicbank",
+      "bankName": "Jordan Islamic Bank",
+      "country": "JO",
+      "senders": [
+        "ATM WITHDRAWAL",
+        "ELECTRONIC PAYMENT",
+        "ELECTRONIC TRANSFER",
+        "JIB",
+        "PROFIT CREDIT"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "JOD": 3,
+          "USD": 2
+        },
+        "denominations": {},
+        "currency": "JOD"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "رمز التحقق",
+              "كلمة المرور لمرة واحدة"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "تفويض حركة على حسابكم "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " بقيمة "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني من "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " IE الرصيد المتوفر "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "jo.jordanislamicbank.template004",
+      "bankId": "jo.jordanislamicbank",
+      "bankName": "Jordan Islamic Bank",
+      "country": "JO",
+      "senders": [
+        "ATM WITHDRAWAL",
+        "ELECTRONIC PAYMENT",
+        "ELECTRONIC TRANSFER",
+        "JIB",
+        "PROFIT CREDIT"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "JOD": 3,
+          "USD": 2
+        },
+        "denominations": {},
+        "currency": "JOD"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "رمز التحقق",
+              "كلمة المرور لمرة واحدة"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "حوالة كليك صادرة بمبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني من حسابكم "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " الى "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " الرصيد المتوفر "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "jo.jordanislamicbank.template005",
+      "bankId": "jo.jordanislamicbank",
+      "bankName": "Jordan Islamic Bank",
+      "country": "JO",
+      "senders": [
+        "ATM WITHDRAWAL",
+        "ELECTRONIC PAYMENT",
+        "ELECTRONIC TRANSFER",
+        "JIB",
+        "PROFIT CREDIT"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "JOD": 3,
+          "USD": 2
+        },
+        "denominations": {},
+        "currency": "JOD"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "رمز التحقق",
+              "كلمة المرور لمرة واحدة"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "حوالة كليك واردة بمبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني لحسابكم "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " من "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " الرصيد المتوفر "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "jo.jordanislamicbank.template006",
+      "bankId": "jo.jordanislamicbank",
+      "bankName": "Jordan Islamic Bank",
+      "country": "JO",
+      "senders": [
+        "ATM WITHDRAWAL",
+        "ELECTRONIC PAYMENT",
+        "ELECTRONIC TRANSFER",
+        "JIB",
+        "PROFIT CREDIT"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "JOD": 3,
+          "USD": 2
+        },
+        "denominations": {},
+        "currency": "JOD"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "رمز التحقق",
+              "كلمة المرور لمرة واحدة"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "تحويل الكتروني لحسابكم "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " بقيمة "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني الرصيد المتوفر "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "value": "Electronic Transfer"
+        }
+      }
+    },
+    {
+      "id": "jo.jordanislamicbank.template007",
+      "bankId": "jo.jordanislamicbank",
+      "bankName": "Jordan Islamic Bank",
+      "country": "JO",
+      "senders": [
+        "ATM WITHDRAWAL",
+        "ELECTRONIC PAYMENT",
+        "ELECTRONIC TRANSFER",
+        "JIB",
+        "PROFIT CREDIT"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "JOD": 3,
+          "USD": 2
+        },
+        "denominations": {},
+        "currency": "JOD"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "رمز التحقق",
+              "كلمة المرور لمرة واحدة"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "تحويل الكتروني من حسابكم "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " بقيمة "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني الرصيد المتوفر "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "value": "Electronic Transfer"
+        }
+      }
+    },
+    {
+      "id": "jo.jordanislamicbank.template008",
+      "bankId": "jo.jordanislamicbank",
+      "bankName": "Jordan Islamic Bank",
+      "country": "JO",
+      "senders": [
+        "ATM WITHDRAWAL",
+        "ELECTRONIC PAYMENT",
+        "ELECTRONIC TRANSFER",
+        "JIB",
+        "PROFIT CREDIT"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "JOD": 3,
+          "USD": 2
+        },
+        "denominations": {},
+        "currency": "JOD"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "رمز التحقق",
+              "كلمة المرور لمرة واحدة"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "تسديد الكتروني من حسابكم "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " بقيمة "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني الرصيد المتوفر "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "value": "Electronic Payment"
+        }
+      }
+    },
+    {
+      "id": "jo.jordanislamicbank.template009",
+      "bankId": "jo.jordanislamicbank",
+      "bankName": "Jordan Islamic Bank",
+      "country": "JO",
+      "senders": [
+        "ATM WITHDRAWAL",
+        "ELECTRONIC PAYMENT",
+        "ELECTRONIC TRANSFER",
+        "JIB",
+        "PROFIT CREDIT"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "JOD": 3,
+          "USD": 2
+        },
+        "denominations": {},
+        "currency": "JOD"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "رمز التحقق",
+              "كلمة المرور لمرة واحدة"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "حركة صراف آلي على حسابكم "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " بقيمة "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني بتاريخ "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " على الصراف الالي عريفة مول "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " رقم التفويض "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta4",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " ليصبح رصيدكم "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta5",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "value": "ATM Withdrawal"
+        }
+      }
+    },
+    {
+      "id": "jo.jordanislamicbank.template010",
+      "bankId": "jo.jordanislamicbank",
+      "bankName": "Jordan Islamic Bank",
+      "country": "JO",
+      "senders": [
+        "ATM WITHDRAWAL",
+        "ELECTRONIC PAYMENT",
+        "ELECTRONIC TRANSFER",
+        "JIB",
+        "PROFIT CREDIT"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "JOD": 3,
+          "USD": 2
+        },
+        "denominations": {},
+        "currency": "JOD"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "رمز التحقق",
+              "كلمة المرور لمرة واحدة"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "قيد ارباح بمبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني لحسابكم "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " الرصيد المتوفر -"
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار اردني"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "value": "Profit Credit"
+        }
+      }
+    }
+  ],
+  "senderIndex": {
+    "ATM WITHDRAWAL": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "ELECTRONIC PAYMENT": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "ELECTRONIC TRANSFER": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "JIB": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "PROFIT CREDIT": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ]
+  },
+  "categoryRules": [],
+  "counterpartyRules": []
+}

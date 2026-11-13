@@ -1,0 +1,64 @@
+[
+  {
+    "id": "keystonebank-ported-001",
+    "country": "NG",
+    "bankId": "ng.keystonebank",
+    "provenance": "PennyWise KeystoneBankParser (Debit transaction (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "KEYSTONE",
+      "body": "Debit!\nAcct:602****370\nAmt:NGN-57,000.00\nDesc:TRF IFO WILSPLENDOR LIMITED FRM OBA\nDate:26-05-2026 0:0\nBal:NGN1,929.24\nDownload Keymobile bit.ly/31MJj1s",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.keystonebank.template001",
+      "candidate": {
+        "amountMinor": 5700000,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Keystone Bank",
+        "countryCode": "NG",
+        "accountLast4": "2370",
+        "reference": null,
+        "counterparty": "TRF IFO WILSPLENDOR LIMITED FRM OBA",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "keystonebank-ported-002",
+    "country": "NG",
+    "bankId": "ng.keystonebank",
+    "provenance": "PennyWise KeystoneBankParser (Credit transaction (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "KEYSTONE",
+      "body": "Credit!\nAcct:602****370\nAmt:NGN3,000.00\nDesc:NXG :MOBILE TRF TO KSB  OBAYUWANA C\nDate:26-05-2026 0:0\nBal:NGN59,030.84\nDownload Keymobile bit.ly/31MJj1s",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.keystonebank.template002",
+      "candidate": {
+        "amountMinor": 300000,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Keystone Bank",
+        "countryCode": "NG",
+        "accountLast4": "2370",
+        "reference": null,
+        "counterparty": "NXG :MOBILE TRF TO KSB  OBAYUWANA C",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

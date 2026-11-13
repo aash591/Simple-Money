@@ -6,6 +6,177 @@
   "signature": null,
   "packs": [
     {
+      "id": "bd.bkash",
+      "countries": [
+        "BD"
+      ],
+      "path": "packs/bangladesh/bkash.json",
+      "sha256": "4d1c48ae8a705ca68e15a5fd232edc05789b8af8f89901b0bd3dece464d21a7c",
+      "sizeBytes": 14352
+    },
+    {
+      "id": "bd.bracbank",
+      "countries": [
+        "BD"
+      ],
+      "path": "packs/bangladesh/bracbank.json",
+      "sha256": "80cd9c1b6944331cea1a394ce53ff49729680339b872b2a9a1beadfeaa3d2ea3",
+      "sizeBytes": 22670
+    },
+    {
+      "id": "cz.mbankcz",
+      "countries": [
+        "CZ"
+      ],
+      "path": "packs/czechia/mbankcz.json",
+      "sha256": "255fd406f680b8e318dc2cbeea32472662b7a5e3b91914e6cd379b536606c81d",
+      "sizeBytes": 8878
+    },
+    {
+      "id": "eg.arabbank",
+      "countries": [
+        "EG"
+      ],
+      "path": "packs/egypt/arabbank.json",
+      "sha256": "4965bd912fbed948df2610b9344b9c9b56fec7b5ed7549890c8a75bb13590331",
+      "sizeBytes": 25836
+    },
+    {
+      "id": "eg.cibegypt",
+      "countries": [
+        "EG"
+      ],
+      "path": "packs/egypt/cibegypt.json",
+      "sha256": "0ab7c60beaff995792e61d209ea7eee024db1589bc9a8f58477c6dafd0fe5bd5",
+      "sizeBytes": 11910
+    },
+    {
+      "id": "eg.nationalbankofegypt",
+      "countries": [
+        "EG"
+      ],
+      "path": "packs/egypt/nationalbankofegypt.json",
+      "sha256": "f6a7a67357f5dbe1acfe7756b0499dfc2279b7342cd863c4d3ae7b817942b2c9",
+      "sizeBytes": 12900
+    },
+    {
+      "id": "sv.bancoagricola",
+      "countries": [
+        "SV"
+      ],
+      "path": "packs/elsalvador/bancoagricola.json",
+      "sha256": "0205fbf8f0a63b1ea8ad52a70fca7dea61f9a2b88f53f413d9a23de04820c58d",
+      "sizeBytes": 3295
+    },
+    {
+      "id": "sv.bancopromerica",
+      "countries": [
+        "SV"
+      ],
+      "path": "packs/elsalvador/bancopromerica.json",
+      "sha256": "06e1eeeed1bc47a758a134af19190a60d905cf01bfea9ee66964f8a1ec0ca0f0",
+      "sizeBytes": 9632
+    },
+    {
+      "id": "et.apollo",
+      "countries": [
+        "ET"
+      ],
+      "path": "packs/ethiopia/apollo.json",
+      "sha256": "eb20d10c7f8bca42e867b5c9def51e0ce1ea0fa69650de4094b4069a03ffc8ff",
+      "sizeBytes": 7990
+    },
+    {
+      "id": "et.awashbank",
+      "countries": [
+        "ET"
+      ],
+      "path": "packs/ethiopia/awashbank.json",
+      "sha256": "9857e0c0ab4b6696f442767bc15e2b397024559f97385f6d5b0e3a436165a8d8",
+      "sizeBytes": 12939
+    },
+    {
+      "id": "et.bankofabyssinia",
+      "countries": [
+        "ET"
+      ],
+      "path": "packs/ethiopia/bankofabyssinia.json",
+      "sha256": "d4027e682fc0870d0ba7c1c67de190b61fee22e598cc63deb1bc9cc9b16b9f98",
+      "sizeBytes": 8190
+    },
+    {
+      "id": "et.commercialbankofethiopia",
+      "countries": [
+        "ET"
+      ],
+      "path": "packs/ethiopia/commercialbankofethiopia.json",
+      "sha256": "01402fba8c7c49cdce681294322478d6af6937ffc7073fcf26b203eafd8e02ff",
+      "sizeBytes": 51845
+    },
+    {
+      "id": "et.dashenbank",
+      "countries": [
+        "ET"
+      ],
+      "path": "packs/ethiopia/dashenbank.json",
+      "sha256": "c01ca347f7af18c637e3c9636fe04ebb16ce973bf4704ea6ff9d644f33caa5fa",
+      "sizeBytes": 12752
+    },
+    {
+      "id": "et.siketbank",
+      "countries": [
+        "ET"
+      ],
+      "path": "packs/ethiopia/siketbank.json",
+      "sha256": "fecaae0e1359ea724967a3c7c459f578e96cb5b0d3f6d6818a002e9b71a3c457",
+      "sizeBytes": 11522
+    },
+    {
+      "id": "et.telebirr",
+      "countries": [
+        "ET"
+      ],
+      "path": "packs/ethiopia/telebirr.json",
+      "sha256": "4463cd278a054dbc1c5233c430d7c9812b4315e616e0093de5cfa14561667beb",
+      "sizeBytes": 32927
+    },
+    {
+      "id": "et.zamzambank",
+      "countries": [
+        "ET"
+      ],
+      "path": "packs/ethiopia/zamzambank.json",
+      "sha256": "e4bb722b58e20b6ea6aeccb4c807b580714a84a430dbfa99f72ccbea55f0447b",
+      "sizeBytes": 7369
+    },
+    {
+      "id": "et.zemenbank",
+      "countries": [
+        "ET"
+      ],
+      "path": "packs/ethiopia/zemenbank.json",
+      "sha256": "92ab57120936c54d53512e313c2f1f897c1033489f7a72e7a7993e536e17cca9",
+      "sizeBytes": 29037
+    },
+    {
+      "id": "fr.bpce",
+      "countries": [
+        "FR"
+      ],
+      "path": "packs/france/bpce.json",
+      "sha256": "a3b2c8e84aaf61c83762dba2a1d97c8a05b5f8610bb4833d041fbb35f3366d2e",
+      "sizeBytes": 3399
+    },
+    {
+      "id": "de.sparkasserheinmaas",
+      "countries": [
+        "DE"
+      ],
+      "path": "packs/germany/sparkasserheinmaas.json",
+      "sha256": "e938d29ec4de353be75e318a7ee4e1cff87a54b11905d713bdbcb93bd0ae681e",
+      "sizeBytes": 7423
+    },
+    {
       "id": "in.airtel",
       "countries": [
         "IN"
@@ -492,6 +663,33 @@
       "sizeBytes": 73239
     },
     {
+      "id": "ir.bankino",
+      "countries": [
+        "IR"
+      ],
+      "path": "packs/iran/bankino.json",
+      "sha256": "67d699bb5b9298c0deec73d1ec2027da3f2fc5cc57efe69bd87a18602f9a74b2",
+      "sizeBytes": 15061
+    },
+    {
+      "id": "ir.mellatbank",
+      "countries": [
+        "IR"
+      ],
+      "path": "packs/iran/mellatbank.json",
+      "sha256": "883d6ae0456073075d9e6e49dd13a330a7a654bff89d29c66f812fae558ac4bb",
+      "sizeBytes": 23503
+    },
+    {
+      "id": "ir.mellibank",
+      "countries": [
+        "IR"
+      ],
+      "path": "packs/iran/mellibank.json",
+      "sha256": "1c612c0fc5049880b9947c99e3340eb73493b39925fd47d4c2be5708293aeb0c",
+      "sizeBytes": 17154
+    },
+    {
       "id": "ir.parsian",
       "countries": [
         "IR"
@@ -501,6 +699,456 @@
       "sizeBytes": 8796
     },
     {
+      "id": "jo.bankaletihad",
+      "countries": [
+        "JO"
+      ],
+      "path": "packs/jordan/bankaletihad.json",
+      "sha256": "9023b2ce42423267983f21100bddca2493ff952736a454bb7cdd6060ebdc00fe",
+      "sizeBytes": 6214
+    },
+    {
+      "id": "jo.islamicinternationalarabbank",
+      "countries": [
+        "JO"
+      ],
+      "path": "packs/jordan/islamicinternationalarabbank.json",
+      "sha256": "2fb03a3521567c96dc35e8266266805522368f41a3e4fd0c5fc7913900966320",
+      "sizeBytes": 37288
+    },
+    {
+      "id": "jo.jordanislamicbank",
+      "countries": [
+        "JO"
+      ],
+      "path": "packs/jordan/jordanislamicbank.json",
+      "sha256": "95ec5cfa3ba3092887d20dab7ea490b3d7989225ef1bfc4c57c0ae145ecbb625",
+      "sizeBytes": 38079
+    },
+    {
+      "id": "jo.orangemoney",
+      "countries": [
+        "JO"
+      ],
+      "path": "packs/jordan/orangemoney.json",
+      "sha256": "7b88eb2ec80137a3f349c63436527a2f384041febf2caca49a8441443b3a0019",
+      "sizeBytes": 16265
+    },
+    {
+      "id": "jo.safwaislamicbank",
+      "countries": [
+        "JO"
+      ],
+      "path": "packs/jordan/safwaislamicbank.json",
+      "sha256": "f52b9d82118ca70b89286874ed4e962df158b3c97195f0259c2883dbc345f70d",
+      "sizeBytes": 6226
+    },
+    {
+      "id": "ke.equitybank",
+      "countries": [
+        "KE"
+      ],
+      "path": "packs/kenya/equitybank.json",
+      "sha256": "34049ac2206333a04f2b275477c28e15dfb62080789463c0a022a827cb3393ec",
+      "sizeBytes": 4565
+    },
+    {
+      "id": "mz.emola",
+      "countries": [
+        "MZ"
+      ],
+      "path": "packs/mozambique/emola.json",
+      "sha256": "c51c7ea9fe06efa57a013143eecf797d9048eef4108a22e530627a00b9234052",
+      "sizeBytes": 13018
+    },
+    {
+      "id": "mz.millenniumbim",
+      "countries": [
+        "MZ"
+      ],
+      "path": "packs/mozambique/millenniumbim.json",
+      "sha256": "f9c7010182d3269102ee8b0317774a0f8b8ddee62e9182aa699e22169286fa53",
+      "sizeBytes": 11103
+    },
+    {
+      "id": "mz.mpesamozambique",
+      "countries": [
+        "MZ"
+      ],
+      "path": "packs/mozambique/mpesamozambique.json",
+      "sha256": "b316224abb65ab314fe201004c41fe26c27ad9f0b41e72ef2e8d0ecb2cc3fcc3",
+      "sizeBytes": 21523
+    },
+    {
+      "id": "mz.standardbankmozambique",
+      "countries": [
+        "MZ"
+      ],
+      "path": "packs/mozambique/standardbankmozambique.json",
+      "sha256": "841776edd475a48fa23699363e9389f02e8ef22fc77109a8c8db8c9a9fb66542",
+      "sizeBytes": 12972
+    },
+    {
+      "id": "np.citizensbank",
+      "countries": [
+        "NP"
+      ],
+      "path": "packs/nepal/citizensbank.json",
+      "sha256": "3f1aaf6e50cf43878f2a591174dbb6070c11c5079d7def4bcd0f61eed9b2721c",
+      "sizeBytes": 7770
+    },
+    {
+      "id": "np.everestbank",
+      "countries": [
+        "NP"
+      ],
+      "path": "packs/nepal/everestbank.json",
+      "sha256": "bfc7750a02c167d0e530e2e0ff0da9779cea52de227a0f934073c276879a4059",
+      "sizeBytes": 25130
+    },
+    {
+      "id": "np.laxmisunrisebank",
+      "countries": [
+        "NP"
+      ],
+      "path": "packs/nepal/laxmisunrisebank.json",
+      "sha256": "45229d1fe9195a7d93d4a1ad85bc71ff4b479e7b5f8dd938dee68694253f36f6",
+      "sizeBytes": 14220
+    },
+    {
+      "id": "np.lumbinibikashbank",
+      "countries": [
+        "NP"
+      ],
+      "path": "packs/nepal/lumbinibikashbank.json",
+      "sha256": "eb01c54287cd68cc098ece0b06e0752ec7387852fbfe527e12eb1a049ed9ef0b",
+      "sizeBytes": 7115
+    },
+    {
+      "id": "np.machchhapuchchhrebank",
+      "countries": [
+        "NP"
+      ],
+      "path": "packs/nepal/machchhapuchchhrebank.json",
+      "sha256": "eb8ca8c1d9a93d4f50bad83e40e79d0e2c06bac3c4ca86f807876eb9eb040494",
+      "sizeBytes": 7642
+    },
+    {
+      "id": "np.manjushreefinance",
+      "countries": [
+        "NP"
+      ],
+      "path": "packs/nepal/manjushreefinance.json",
+      "sha256": "e4418ed39e3f457f0de8112bc1d42059298af03bddfb22b1358eeb03e28d1d37",
+      "sizeBytes": 3791
+    },
+    {
+      "id": "np.nabilbank",
+      "countries": [
+        "NP"
+      ],
+      "path": "packs/nepal/nabilbank.json",
+      "sha256": "eb690a0385adef834e551dfb95bd81cff0521ad2e3a5f70ea81d163c639392c2",
+      "sizeBytes": 7060
+    },
+    {
+      "id": "np.nepalbanklimited",
+      "countries": [
+        "NP"
+      ],
+      "path": "packs/nepal/nepalbanklimited.json",
+      "sha256": "dbec93d6d91ee49c40b0ae0ca7689e1e9221bd24ddd9d79a43d815f41850bdfc",
+      "sizeBytes": 7133
+    },
+    {
+      "id": "np.nepalsbibank",
+      "countries": [
+        "NP"
+      ],
+      "path": "packs/nepal/nepalsbibank.json",
+      "sha256": "a5bd4a5993e529cd1681c318c31c4b4c7dc893b3d2dc7b7ea58bc5bbb773c2cd",
+      "sizeBytes": 7323
+    },
+    {
+      "id": "np.primecommercialbank",
+      "countries": [
+        "NP"
+      ],
+      "path": "packs/nepal/primecommercialbank.json",
+      "sha256": "30841927ac490d01eaf18adf4c048861da00dfac3f5b577dd3d4b8677dbf6716",
+      "sizeBytes": 7490
+    },
+    {
+      "id": "np.siddharthabank",
+      "countries": [
+        "NP"
+      ],
+      "path": "packs/nepal/siddharthabank.json",
+      "sha256": "a38f8ec124d6d78fe8ef20afadd29efc427d82d76e6df1e9df1fe2ed45091bd2",
+      "sizeBytes": 14002
+    },
+    {
+      "id": "np.standardcharteredbanknepal",
+      "countries": [
+        "NP"
+      ],
+      "path": "packs/nepal/standardcharteredbanknepal.json",
+      "sha256": "53231c316b72031e41ce066a6e3cbd8ce5bab5b0e9623c79cffa67d92700a67b",
+      "sizeBytes": 8841
+    },
+    {
+      "id": "ng.accessbank",
+      "countries": [
+        "NG"
+      ],
+      "path": "packs/nigeria/accessbank.json",
+      "sha256": "14aa8f636a2b9dcd73c35f8800185e6d091ca77441c201e77d6f5788a3edfc08",
+      "sizeBytes": 7660
+    },
+    {
+      "id": "ng.gtbank",
+      "countries": [
+        "NG"
+      ],
+      "path": "packs/nigeria/gtbank.json",
+      "sha256": "3d5939de82477f8c52fae134b279a25e866b8404fd412207ca4d8a6a05f9f4ed",
+      "sizeBytes": 17586
+    },
+    {
+      "id": "ng.jaizbank",
+      "countries": [
+        "NG"
+      ],
+      "path": "packs/nigeria/jaizbank.json",
+      "sha256": "4017f51928b252cc5dab4b2575ecae20e4c3fa520f8bc4e506bdaa3fa1f10b22",
+      "sizeBytes": 8032
+    },
+    {
+      "id": "ng.keystonebank",
+      "countries": [
+        "NG"
+      ],
+      "path": "packs/nigeria/keystonebank.json",
+      "sha256": "bfa36f834e07e096d27e7f6abd327aa7924c729b005fe6482eef895d554f3c21",
+      "sizeBytes": 7334
+    },
+    {
+      "id": "ng.moniepoint",
+      "countries": [
+        "NG"
+      ],
+      "path": "packs/nigeria/moniepoint.json",
+      "sha256": "89968c94e4ca41770c482c01c89098932da23069075043bd7c7cf2f4d35f4650",
+      "sizeBytes": 11158
+    },
+    {
+      "id": "ng.opay",
+      "countries": [
+        "NG"
+      ],
+      "path": "packs/nigeria/opay.json",
+      "sha256": "12575ce74c008a71d9406ac7d8bd5a2a564634b20c1d7d65a602027b3c1bc18a",
+      "sizeBytes": 3151
+    },
+    {
+      "id": "ng.standardcharteredbanknigeria",
+      "countries": [
+        "NG"
+      ],
+      "path": "packs/nigeria/standardcharteredbanknigeria.json",
+      "sha256": "a66891906cd0084d41dca6faaa08f469398cfa52741f4fcf99ec86ef51c2fac4",
+      "sizeBytes": 7811
+    },
+    {
+      "id": "ng.vfdmicrofinancebank",
+      "countries": [
+        "NG"
+      ],
+      "path": "packs/nigeria/vfdmicrofinancebank.json",
+      "sha256": "9a5ecc5b2f84f3849ce19cadc24af18e940b89bf1973276234f75be2d45efec4",
+      "sizeBytes": 14934
+    },
+    {
+      "id": "ng.zenithbank",
+      "countries": [
+        "NG"
+      ],
+      "path": "packs/nigeria/zenithbank.json",
+      "sha256": "b3e9159adce72338aac2b5daedcf0bad131bf996dd7aca995bb3bfcb87a2c1db",
+      "sizeBytes": 7524
+    },
+    {
+      "id": "om.bankmuscat",
+      "countries": [
+        "OM"
+      ],
+      "path": "packs/oman/bankmuscat.json",
+      "sha256": "44890f03fc253f3502dcf478974f5a4461360f138b22800502b4b2e147051713",
+      "sizeBytes": 11758
+    },
+    {
+      "id": "pk.faysalbank",
+      "countries": [
+        "PK"
+      ],
+      "path": "packs/pakistan/faysalbank.json",
+      "sha256": "83e8a53d8ff6c057eae96cfeddfe4bace17e106a64b0746e4b31a232a75d714d",
+      "sizeBytes": 14583
+    },
+    {
+      "id": "ru.tbank",
+      "countries": [
+        "RU"
+      ],
+      "path": "packs/russia/tbank.json",
+      "sha256": "7b0749cb768ffd71d7ece9739a67ce83617996a5facbe0666474a63dd83b5cc9",
+      "sizeBytes": 9909
+    },
+    {
+      "id": "sa.alrajhibank",
+      "countries": [
+        "SA"
+      ],
+      "path": "packs/saudiarabia/alrajhibank.json",
+      "sha256": "213fd980642165374adb5f90c1741c463877955cf5745f956475a8e6ce1ee0c3",
+      "sizeBytes": 60317
+    },
+    {
+      "id": "sa.banquesaudifransi",
+      "countries": [
+        "SA"
+      ],
+      "path": "packs/saudiarabia/banquesaudifransi.json",
+      "sha256": "ef30f90b44bf5b86efd60d2d74492d3e4676ae0d1dbe8a6b3bcf058f94f73a38",
+      "sizeBytes": 7970
+    },
+    {
+      "id": "sa.d360bank",
+      "countries": [
+        "SA"
+      ],
+      "path": "packs/saudiarabia/d360bank.json",
+      "sha256": "efc9021ef4741ae4eb8acd0f4e57c9d2af5a11ae91529ac548133425911576cc",
+      "sizeBytes": 21127
+    },
+    {
+      "id": "sa.sabb",
+      "countries": [
+        "SA"
+      ],
+      "path": "packs/saudiarabia/sabb.json",
+      "sha256": "3b0560da6bae33f706f08efc6ffd4be4e1a7e8a44351124c23f35a9f87caf902",
+      "sizeBytes": 18356
+    },
+    {
+      "id": "sa.saudinationalbank",
+      "countries": [
+        "SA"
+      ],
+      "path": "packs/saudiarabia/saudinationalbank.json",
+      "sha256": "5547e633a6af641fd82df1fbe61e4a23b0038c27a0a7b1c6104fe0b03bb57681",
+      "sizeBytes": 13330
+    },
+    {
+      "id": "sa.stcbank",
+      "countries": [
+        "SA"
+      ],
+      "path": "packs/saudiarabia/stcbank.json",
+      "sha256": "79b59efdfaa64d1b59583399c680a574597d70b3f5e1859d18ee3874e15fee2f",
+      "sizeBytes": 11835
+    },
+    {
+      "id": "lk.commercialbankofceylon",
+      "countries": [
+        "LK"
+      ],
+      "path": "packs/srilanka/commercialbankofceylon.json",
+      "sha256": "76ec0fb6d9efc292e960c97da6f6dfcdf39a2ce6bb45cdc94a192758df84084a",
+      "sizeBytes": 13527
+    },
+    {
+      "id": "lk.nationaldevelopmentbank",
+      "countries": [
+        "LK"
+      ],
+      "path": "packs/srilanka/nationaldevelopmentbank.json",
+      "sha256": "a8171db2c5dfdd2d2ff68f2f5dfd325f59b07fd7f6f805dde5c8dabc74725e20",
+      "sizeBytes": 13016
+    },
+    {
+      "id": "lk.nationalsavingsbank",
+      "countries": [
+        "LK"
+      ],
+      "path": "packs/srilanka/nationalsavingsbank.json",
+      "sha256": "a203bc6c8c3f206faba2ddbf2e1b147d5715a723479d9da7debf2f284140f147",
+      "sizeBytes": 3848
+    },
+    {
+      "id": "lk.nationstrustbank",
+      "countries": [
+        "LK"
+      ],
+      "path": "packs/srilanka/nationstrustbank.json",
+      "sha256": "7848b1794c88616a94f1381c595f6f95e2945d59ca032c6cbd77e156820f20ca",
+      "sizeBytes": 3795
+    },
+    {
+      "id": "lk.sampathbank",
+      "countries": [
+        "LK"
+      ],
+      "path": "packs/srilanka/sampathbank.json",
+      "sha256": "230caa6a8ecd8991dc004e05f7ddcd0ed5e04536522035bcfda378e67108e613",
+      "sizeBytes": 15326
+    },
+    {
+      "id": "tz.crdbbank",
+      "countries": [
+        "TZ"
+      ],
+      "path": "packs/tanzania/crdbbank.json",
+      "sha256": "01a4795465ddf792aba995d89904cae694b69eb4641cc08fcaab2eb66146dafd",
+      "sizeBytes": 35981
+    },
+    {
+      "id": "tz.diamondtrustbank",
+      "countries": [
+        "TZ"
+      ],
+      "path": "packs/tanzania/diamondtrustbank.json",
+      "sha256": "318e744f6ed18929ed59f94cf5298bf846d33824436d8914d97309eab124af31",
+      "sizeBytes": 9588
+    },
+    {
+      "id": "tz.mixxbyyas",
+      "countries": [
+        "TZ"
+      ],
+      "path": "packs/tanzania/mixxbyyas.json",
+      "sha256": "6bb4b2aa99bb3177e827909bca57e730e598915f338c0f1d03dc10cfe89c6ceb",
+      "sizeBytes": 34572
+    },
+    {
+      "id": "tz.nmbbanktanzania",
+      "countries": [
+        "TZ"
+      ],
+      "path": "packs/tanzania/nmbbanktanzania.json",
+      "sha256": "95c9b2b985d9ced874a9db7adad36347c541a58d584f496320cd3e409417164a",
+      "sizeBytes": 10580
+    },
+    {
+      "id": "th.baac",
+      "countries": [
+        "TH"
+      ],
+      "path": "packs/thailand/baac.json",
+      "sha256": "2a5ff7983d3292cd5aa3cb7c6b7c4e37b3bedbee577f307311c26d929f2e592f",
+      "sizeBytes": 3326
+    },
+    {
       "id": "th.bangkok",
       "countries": [
         "TH"
@@ -508,6 +1156,231 @@
       "path": "packs/thailand/bangkok.json",
       "sha256": "defb9f238b953874655f6a81baeec9ab6d3b8e46d59e82e5786b576045544509",
       "sizeBytes": 3056
+    },
+    {
+      "id": "th.cimbthai",
+      "countries": [
+        "TH"
+      ],
+      "path": "packs/thailand/cimbthai.json",
+      "sha256": "e831c6fe978ebf43110f1eae4551b113ac654e504857578e7477a2644482267d",
+      "sizeBytes": 3355
+    },
+    {
+      "id": "th.governmentsavingsbank",
+      "countries": [
+        "TH"
+      ],
+      "path": "packs/thailand/governmentsavingsbank.json",
+      "sha256": "3e4d5796af05b52ca0eeb718b916b0f640f3a2357c37f24316893e6cba3bb9b5",
+      "sizeBytes": 6320
+    },
+    {
+      "id": "th.kasikornbank",
+      "countries": [
+        "TH"
+      ],
+      "path": "packs/thailand/kasikornbank.json",
+      "sha256": "fef6718b90365ec5411779b414f8bb46e2f939f748b084080ad7044f2e3737a4",
+      "sizeBytes": 9636
+    },
+    {
+      "id": "th.krungsri",
+      "countries": [
+        "TH"
+      ],
+      "path": "packs/thailand/krungsri.json",
+      "sha256": "8f8bff8a76017131aa014a5ec0e317605df56c5bebdba7b6c501ff16c2494cb9",
+      "sizeBytes": 9219
+    },
+    {
+      "id": "th.krungthaibank",
+      "countries": [
+        "TH"
+      ],
+      "path": "packs/thailand/krungthaibank.json",
+      "sha256": "ab8a49d6d2d063be6d695400e162ffb04d1f69c3a3a87e79e033c884aec7f2fa",
+      "sizeBytes": 9384
+    },
+    {
+      "id": "th.ktc",
+      "countries": [
+        "TH"
+      ],
+      "path": "packs/thailand/ktc.json",
+      "sha256": "765673364a36d595ed1e4094b9a7c9be3c28aafcedbb2e59790d791ed84cbc47",
+      "sizeBytes": 2790
+    },
+    {
+      "id": "th.siamcommercialbank",
+      "countries": [
+        "TH"
+      ],
+      "path": "packs/thailand/siamcommercialbank.json",
+      "sha256": "44a95dfa68ab675d80e60012f63ac279436c62fbc911b8ee585fc4ac70cf8a08",
+      "sizeBytes": 9644
+    },
+    {
+      "id": "th.ttb",
+      "countries": [
+        "TH"
+      ],
+      "path": "packs/thailand/ttb.json",
+      "sha256": "1780a17255f6df9f40d46832d0f3beb2384d9185716e2a57ff890b13bdd44afb",
+      "sizeBytes": 6218
+    },
+    {
+      "id": "th.uobthailand",
+      "countries": [
+        "TH"
+      ],
+      "path": "packs/thailand/uobthailand.json",
+      "sha256": "29053c8fbf12203ec3cb7af9d018061f97d6b81c97e5a559f541e595194e43a0",
+      "sizeBytes": 3284
+    },
+    {
+      "id": "tr.enpara",
+      "countries": [
+        "TR"
+      ],
+      "path": "packs/turkey/enpara.json",
+      "sha256": "ca2517c6964fd75350325f9581f701ed396a6b2bb5917fe05b817c35d8b4b73a",
+      "sizeBytes": 7294
+    },
+    {
+      "id": "ae.dubaifirst",
+      "countries": [
+        "AE"
+      ],
+      "path": "packs/uae/dubaifirst.json",
+      "sha256": "9dfab43d26a7e64e9e1b9d6437503e02580251fa6cec22faa165fe62c6eda446",
+      "sizeBytes": 10939
+    },
+    {
+      "id": "ae.emiratesislamic",
+      "countries": [
+        "AE"
+      ],
+      "path": "packs/uae/emiratesislamic.json",
+      "sha256": "c6b68fca1a4c297d2c646d3ed4abb295505b9af57d5fffb5d74494c5066e0a1d",
+      "sizeBytes": 33390
+    },
+    {
+      "id": "ae.emiratesnbd",
+      "countries": [
+        "AE"
+      ],
+      "path": "packs/uae/emiratesnbd.json",
+      "sha256": "e19ca06e0dfc1a0201ec5e6851231ea937974b94ea9b79e3015ba826b11607de",
+      "sizeBytes": 20990
+    },
+    {
+      "id": "ae.firstabudhabibank",
+      "countries": [
+        "AE"
+      ],
+      "path": "packs/uae/firstabudhabibank.json",
+      "sha256": "65611cff9bf8598b19da653809ab188601fd466abdd1848772a9985e95053dd6",
+      "sizeBytes": 31872
+    },
+    {
+      "id": "ae.livbank",
+      "countries": [
+        "AE"
+      ],
+      "path": "packs/uae/livbank.json",
+      "sha256": "3fbb89e9350d323ab721aab0b35a14d65f084bb5cd891427c1806c156c05ef3e",
+      "sizeBytes": 14236
+    },
+    {
+      "id": "gb.chaseuk",
+      "countries": [
+        "GB"
+      ],
+      "path": "packs/uk/chaseuk.json",
+      "sha256": "9fb72278df80a1e748307fec21d2bc14f44b9c7f64bbaf621be6ab4d974d5098",
+      "sizeBytes": 2901
+    },
+    {
+      "id": "gb.trading212",
+      "countries": [
+        "GB"
+      ],
+      "path": "packs/uk/trading212.json",
+      "sha256": "a0c4889d6113dfa9e399f5bfa783ebcde0c4ee026859a283a859f44de40ef30c",
+      "sizeBytes": 2826
+    },
+    {
+      "id": "us.adelfi",
+      "countries": [
+        "US"
+      ],
+      "path": "packs/usa/adelfi.json",
+      "sha256": "4008b1fb4bac9a8baba1c5415d5f64da31e199e84ea3a5290be5137a6fe55071",
+      "sizeBytes": 3779
+    },
+    {
+      "id": "us.charlesschwab",
+      "countries": [
+        "US"
+      ],
+      "path": "packs/usa/charlesschwab.json",
+      "sha256": "6596fd2b5ecc606bb6707516a61bf4d4a317391961f0aac20a7f43d573782e3e",
+      "sizeBytes": 25301
+    },
+    {
+      "id": "us.chase",
+      "countries": [
+        "US"
+      ],
+      "path": "packs/usa/chase.json",
+      "sha256": "9f7777d9b18cce98ac8d3e1d980e55d8e4b38104da2c353a3361187a0d1fbefa",
+      "sizeBytes": 3571
+    },
+    {
+      "id": "us.citibank",
+      "countries": [
+        "US"
+      ],
+      "path": "packs/usa/citibank.json",
+      "sha256": "85ed5f369ada658afa51f2cbeaa1f82a33b105754d56cffa974dbae8361aff90",
+      "sizeBytes": 10016
+    },
+    {
+      "id": "us.discovercard",
+      "countries": [
+        "US"
+      ],
+      "path": "packs/usa/discovercard.json",
+      "sha256": "721038c4bc34791f4846cbb7edead2d146978a1aa9d87f1bc4791d40f0bb1bff",
+      "sizeBytes": 3752
+    },
+    {
+      "id": "us.huntingtonbank",
+      "countries": [
+        "US"
+      ],
+      "path": "packs/usa/huntingtonbank.json",
+      "sha256": "20daab6ce12d086c861426be6d5accdae1a61746838dc4a1f065c8fa44851ae7",
+      "sizeBytes": 18716
+    },
+    {
+      "id": "us.navyfederalcreditunion",
+      "countries": [
+        "US"
+      ],
+      "path": "packs/usa/navyfederalcreditunion.json",
+      "sha256": "3fa702b3cafb0a898681452a9133ad265d67681c254da412ea3c56516aab446f",
+      "sizeBytes": 30527
+    },
+    {
+      "id": "us.oldhickorycreditunion",
+      "countries": [
+        "US"
+      ],
+      "path": "packs/usa/oldhickorycreditunion.json",
+      "sha256": "97bc6069acdb7be9ced6e7f66070c77769536adf05cbfd9f331882cb25be0d57",
+      "sizeBytes": 20748
     }
   ]
 }

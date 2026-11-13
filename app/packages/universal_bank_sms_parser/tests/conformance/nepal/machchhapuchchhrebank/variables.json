@@ -1,0 +1,64 @@
+[
+  {
+    "id": "machchhapuchchhrebank-variables-001",
+    "country": "NP",
+    "bankId": "np.machchhapuchchhrebank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MBL_ALERT",
+      "body": "Dear CUSTOMER,NPR 321.09 Withdrawn from your A/C ###9988 on 02-DEC-2027 Remarks: 556677/88 Available Bal: 9876.54. For app: http://bit.ly/META998877",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.machchhapuchchhrebank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Machchhapuchchhre Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": "medicine",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "machchhapuchchhrebank-variables-002",
+    "country": "NP",
+    "bankId": "np.machchhapuchchhrebank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MBL_ALERT",
+      "body": "Dear CUSTOMER,NPR 321.09 Deposited in your A/C ###9988 on 02-DEC-2027 Remarks: 556677/88 Available Bal: 9876.54. For app: http://bit.ly/META998877",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.machchhapuchchhrebank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Machchhapuchchhre Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

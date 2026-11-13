@@ -1,0 +1,690 @@
+{
+  "format": "sms-rules-runtime",
+  "schemaVersion": "0.3",
+  "minEngineVersion": "0.3.0",
+  "packVersion": 1,
+  "rules": [
+    {
+      "id": "ng.vfdmicrofinancebank.template001",
+      "bankId": "ng.vfdmicrofinancebank",
+      "bankName": "VFD Microfinance Bank",
+      "country": "NG",
+      "senders": [
+        "VFD"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "NGN": 2
+        },
+        "denominations": {},
+        "currency": "NGN"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Acct: "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64,
+          "minDigits": 3
+        },
+        {
+          "op": "match_literal",
+          "value": " Amt: N"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " CR Date: "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Chgs: N0."
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " (COMM VAT) Desc: "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " Balance:N3,"
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4,
+          "allowShort": true
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "ng.vfdmicrofinancebank.template002",
+      "bankId": "ng.vfdmicrofinancebank",
+      "bankName": "VFD Microfinance Bank",
+      "country": "NG",
+      "senders": [
+        "VFD"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "NGN": 2
+        },
+        "denominations": {},
+        "currency": "NGN"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Acct: "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64,
+          "minDigits": 3
+        },
+        {
+          "op": "match_literal",
+          "value": " Amt: N"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " DR Date: "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Chgs: N0."
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " (COMM VAT) Desc: "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " Balance:N900."
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4,
+          "allowShort": true
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "ng.vfdmicrofinancebank.template003",
+      "bankId": "ng.vfdmicrofinancebank",
+      "bankName": "VFD Microfinance Bank",
+      "country": "NG",
+      "senders": [
+        "VFD"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "NGN": 2
+        },
+        "denominations": {},
+        "currency": "NGN"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Acct: "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64,
+          "minDigits": 3
+        },
+        {
+          "op": "match_literal",
+          "value": " Amt: N"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " DR Date: "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Chgs: N25."
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " (COMM VAT) Desc: "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " Balance:N30,"
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4,
+          "allowShort": true
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "ng.vfdmicrofinancebank.template004",
+      "bankId": "ng.vfdmicrofinancebank",
+      "bankName": "VFD Microfinance Bank",
+      "country": "NG",
+      "senders": [
+        "VFD"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "NGN": 2
+        },
+        "denominations": {},
+        "currency": "NGN"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Acct: "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64,
+          "minDigits": 3
+        },
+        {
+          "op": "match_literal",
+          "value": " Amt: N"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " CR Date: "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Chgs: N0."
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " (COMM VAT) Desc: "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " Balance:N200,"
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4,
+          "allowShort": true
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    }
+  ],
+  "senderIndex": {
+    "VFD": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "categoryRules": [],
+  "counterpartyRules": []
+}

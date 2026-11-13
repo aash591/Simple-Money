@@ -1,0 +1,188 @@
+[
+  {
+    "id": "d360bank-ported-001",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "PennyWise D360BankParser (International online purchase (foreign amount, SAR conversion)); see NOTICE.md",
+    "input": {
+      "sender": "D360Bank",
+      "body": "International Online Purchase\nAmount: TRY 200.00 (SAR 12.34)\nCard: *0007 - VISA (Ecommerce)\nFee: SAR 0.00\nAt: SYNTHETIC MERCHANT\nAccount number: *0008\nCountry: Turkey\nOn: 2026-07-08 22:08",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.d360bank.template001",
+      "candidate": {
+        "amountMinor": 1234,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "D360 Bank",
+        "countryCode": "SA",
+        "accountLast4": "0007",
+        "reference": null,
+        "counterparty": "SYNTHETIC MERCHANT",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "d360bank-ported-002",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "PennyWise D360BankParser (International ATM withdrawal (foreign amount, SAR conversion)); see NOTICE.md",
+    "input": {
+      "sender": "D360BANK",
+      "body": "International ATM Withdrawal\nAmount: TRY 300.00 (SAR 23.45)\nCard: *0007 - VISA\nFee: 0.00\nAt: SYNTHETIC ATM\nCountry: Turkey\nOn: 2026-07-08 15:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.d360bank.template002",
+      "candidate": {
+        "amountMinor": 2345,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "D360 Bank",
+        "countryCode": "SA",
+        "accountLast4": "0007",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "d360bank-ported-003",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "PennyWise D360BankParser (Incoming transfer (local SAR)); see NOTICE.md",
+    "input": {
+      "sender": "D360BANK",
+      "body": "Incoming Transfer: SYNTHETIC BANK\nAmount: SAR 45.67\nFrom: *0008\nIBAN: SA00\nat: 2026-07-08 18:14",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.d360bank.template003",
+      "candidate": {
+        "amountMinor": 4567,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "D360 Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SYNTHETIC BANK",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "d360bank-ported-004",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "PennyWise D360BankParser (Outgoing transfer (local SAR)); see NOTICE.md",
+    "input": {
+      "sender": "D360BANK",
+      "body": "Outgoing Transfer: SYNTHETIC BANK\nAmount: SAR 56.78\nTo: *0008\nIBAN: SA00\nat: 2026-07-08 19:20",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.d360bank.template004",
+      "candidate": {
+        "amountMinor": 5678,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "D360 Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SYNTHETIC BANK",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "d360bank-ported-005",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "PennyWise D360BankParser (Merchant name containing a promo substring still parses); see NOTICE.md",
+    "input": {
+      "sender": "D360BANK",
+      "body": "International Online Purchase\nAmount: SAR 67.89\nCard: *0007 - VISA (Ecommerce)\nFee: SAR 0.00\nAt: SYNTHETIC WHOLESALE MARKET\nAccount number: *0008\nCountry: Saudi Arabia\nOn: 2026-07-08 12:00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.d360bank.template005",
+      "candidate": {
+        "amountMinor": 6789,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "D360 Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SYNTHETIC WHOLESALE MARKET",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "d360bank-ported-008",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "PennyWise D360BankParser (Number-last SAR settlement is preferred); see NOTICE.md",
+    "input": {
+      "sender": "D360BANK",
+      "body": "International Online Purchase\nAmount: USD 200.00 (12.34 SAR)\nCard: *0007 - VISA\nFee: SAR 0.50\nAt: SYNTHETIC STORE",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.d360bank.template008",
+      "candidate": {
+        "amountMinor": 1234,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "D360 Bank",
+        "countryCode": "SA",
+        "accountLast4": "0007",
+        "reference": null,
+        "counterparty": "SYNTHETIC STORE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,162 @@
+[
+  {
+    "id": "emiratesislamic-reject-security",
+    "country": "AE",
+    "bankId": "ae.emiratesislamic",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "EI SMS",
+      "body": "your otp is 123456. Debit Card Purchase\nCard Ending: 1111\nAt: talabat.com, DUBAI\nAmount: AED 12.34\nDate: 21/12/2024 20:18\nAvailable Balance: AED 12,123.12",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emiratesislamic-reject-promotional",
+    "country": "AE",
+    "bankId": "ae.emiratesislamic",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "EI SMS",
+      "body": "exclusive offer: apply now. Debit Card Purchase\nCard Ending: 1111\nAt: talabat.com, DUBAI\nAmount: AED 12.34\nDate: 21/12/2024 20:18\nAvailable Balance: AED 12,123.12",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emiratesislamic-reject-failed",
+    "country": "AE",
+    "bankId": "ae.emiratesislamic",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "EI SMS",
+      "body": "payment failed. Debit Card Purchase\nCard Ending: 1111\nAt: talabat.com, DUBAI\nAmount: AED 12.34\nDate: 21/12/2024 20:18\nAvailable Balance: AED 12,123.12",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emiratesislamic-reject-pending",
+    "country": "AE",
+    "bankId": "ae.emiratesislamic",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "EI SMS",
+      "body": "payment pending. Debit Card Purchase\nCard Ending: 1111\nAt: talabat.com, DUBAI\nAmount: AED 12.34\nDate: 21/12/2024 20:18\nAvailable Balance: AED 12,123.12",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emiratesislamic-reject-future",
+    "country": "AE",
+    "bankId": "ae.emiratesislamic",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "EI SMS",
+      "body": "will be debited. Debit Card Purchase\nCard Ending: 1111\nAt: talabat.com, DUBAI\nAmount: AED 12.34\nDate: 21/12/2024 20:18\nAvailable Balance: AED 12,123.12",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emiratesislamic-reject-notice",
+    "country": "AE",
+    "bankId": "ae.emiratesislamic",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "EI SMS",
+      "body": "statement generated. Debit Card Purchase\nCard Ending: 1111\nAt: talabat.com, DUBAI\nAmount: AED 12.34\nDate: 21/12/2024 20:18\nAvailable Balance: AED 12,123.12",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emiratesislamic-reject-unknown-sender",
+    "country": "AE",
+    "bankId": "ae.emiratesislamic",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Debit Card Purchase\nCard Ending: 1111\nAt: talabat.com, DUBAI\nAmount: AED 12.34\nDate: 21/12/2024 20:18\nAvailable Balance: AED 12,123.12",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emiratesislamic-reject-balance-only",
+    "country": "AE",
+    "bankId": "ae.emiratesislamic",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "EI SMS",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

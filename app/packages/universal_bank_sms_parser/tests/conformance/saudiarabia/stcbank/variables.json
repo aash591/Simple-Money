@@ -1,0 +1,126 @@
+[
+  {
+    "id": "stcbank-variables-005",
+    "country": "SA",
+    "bankId": "sa.stcbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "STCBank",
+      "body": "Online Purchase Transaction Amount 321.09 SAR From: MIGRATIONSHOP Card: *9988",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.stcbank.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "STC Bank",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "stcbank-variables-006",
+    "country": "SA",
+    "bankId": "sa.stcbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "STCBank",
+      "body": "Internal transfer Amount: 321.09 SAR From: MIGRATIONSHOP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.stcbank.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "STC Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "stcbank-variables-007",
+    "country": "SA",
+    "bankId": "sa.stcbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "STCBank",
+      "body": "Purchase Reversal Amount: 321.09 SAR From: MIGRATIONSHOP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.stcbank.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "STC Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "stcbank-variables-020",
+    "country": "SA",
+    "bankId": "sa.stcbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "STCBank",
+      "body": "Outward SARIE Transfer Amount: 321.09 SAR To: MIGRATIONSHOP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.stcbank.template020",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "STC Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

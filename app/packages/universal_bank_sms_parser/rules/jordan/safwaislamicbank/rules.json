@@ -1,0 +1,98 @@
+{
+  "id": "jo.safwaislamicbank",
+  "name": "Safwa Islamic Bank",
+  "senders": [
+    "SAFWA BANK",
+    "SAFWABANK"
+  ],
+  "formats": [
+    {
+      "id": "jo.safwaislamicbank.template001",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "دفعة نقدية(فرع آلي) بمبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار الرصيد المتوفر "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "value": "Cash Deposit"
+        }
+      },
+      "defaults": {
+        "case": "exact"
+      }
+    },
+    {
+      "id": "jo.safwaislamicbank.template002",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "تغطية عمولات البنك بمبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار الرصيد المتوفر "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " دينار"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "value": "Bank Fees"
+        }
+      },
+      "defaults": {
+        "case": "exact"
+      }
+    }
+  ]
+}

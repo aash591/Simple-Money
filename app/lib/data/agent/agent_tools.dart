@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -13,6 +14,7 @@ import '../../domain/debt.dart';
 import '../../domain/loan.dart';
 import '../../domain/transaction.dart';
 import '../../state/sms_import_store.dart';
+import '../bank_sms_parser.dart';
 import '../db/app_database.dart';
 import '../reportable_sms.dart';
 import '../repositories/account_repository.dart';
@@ -170,17 +172,24 @@ class AgentTools {
 
   /// Runs [name] and returns an MCP tool result. Bad input comes back as an
   /// error result the AI app can read and correct, never as an exception.
+  ///
+  /// [client] names the AI app that asked, so what it suggests can show it.
   Future<Map<String, Object?>> call(
     String name,
-    Map<String, Object?> arguments,
-  ) async {
+    Map<String, Object?> arguments, {
+    String? client,
+  }) async {
     final tool = _byName[name];
     if (tool == null) return _result('SimpleMoney has no tool $name.', true);
     if (!freeTools.contains(name) && !(canUsePro?.call() ?? true)) {
       return _result(proNeeded, true);
     }
     try {
-      return _result(jsonEncode(await tool.handler(arguments)), false);
+      final answer = await runZoned(
+        () => tool.handler(arguments),
+        zoneValues: {AgentSuggestionRepository.clientKey: client},
+      );
+      return _result(jsonEncode(answer), false);
     } on _BadInput catch (error) {
       return _result(error.message, true);
     } catch (error) {
@@ -485,43 +494,72 @@ class AgentTools {
       );
     }
 
+    final rows = await review.page(
+      filter: filter,
+      offset: offset,
+      limit: limit,
+    );
+    // Each account once, not in every message that uses it.
+    final used = {
+      for (final row in rows)
+        for (final id in [
+          row.transaction.accountId,
+          row.transaction.toAccountId,
+        ])
+          if (id != null && accounts.containsKey(id)) id,
+    };
     return {
       'total': await review.count(filter),
       'offset': offset,
+      if (used.isNotEmpty)
+        'accounts': {for (final id in used) '$id': accounts[id]},
       'messages': [
-        for (final row in await review.page(
-          filter: filter,
-          offset: offset,
-          limit: limit,
-        ))
-          {
-            'sms_id': row.sms.id,
-            'received_at': DateFormat("yyyy-MM-dd'T'HH:mm")
-                .format(row.sms.receivedAt),
-            'sender': row.sms.sender,
-            'text': row.sms.body,
-            'parsed': {
-              'amount': _amount(row.sms.amountMinor, 2),
-              'currency': row.sms.currency,
-              'direction': row.sms.credit ? 'credit' : 'debit',
-              'counterparty': ?row.sms.data['counterparty'],
-              'bank': row.sms.bankName,
-              'account_last4': ?row.sms.accountLast4,
-              'credit_card': row.sms.creditCard,
-              if (row.sms.ambiguousAccount) 'account_ambiguous': true,
-            },
-            'current': {
-              'type': row.transaction.type.storageValue,
-              if (accounts[row.transaction.accountId] case final name?)
-                'account': {'id': row.transaction.accountId, 'name': name},
-              if (row.transaction.toAccountId case final to?)
-                'to_account': {'id': to, 'name': accounts[to]},
-              if (categoryName(row.transaction.categoryId) case final name?)
-                'category': {'id': row.transaction.categoryId, 'name': name},
-            },
-            'ready': row.ready,
-          },
+        for (final row in rows) _pendingSms(row, accounts, categoryName),
       ],
+    };
+  }
+
+  /// One message waiting for review, leaving out what is usual (a debit
+  /// card flag that is false, a sender that is a bank) to save tokens.
+  Map<String, Object?> _pendingSms(
+    SmsReviewRow row,
+    Map<int, String> accounts,
+    String? Function(int?) categoryName,
+  ) {
+    final sms = row.sms;
+    final t = row.transaction;
+    final category = categoryName(t.categoryId);
+    final hasAccount = accounts.containsKey(t.accountId);
+    return {
+      'sms_id': sms.id,
+      'received_at': DateFormat("yyyy-MM-dd'T'HH:mm").format(sms.receivedAt),
+      'sender': sms.sender,
+      'text': sms.body,
+      'parsed': {
+        'amount': _amount(sms.amountMinor, sms.digits),
+        'currency': sms.currency,
+        'direction': sms.credit ? 'credit' : 'debit',
+        'counterparty': ?sms.data['counterparty'],
+        if (sms.holdsMoney) 'bank': sms.bankName,
+        if (!sms.holdsMoney) 'sender_type': sms.data[smsSenderRoleKey],
+        'account_last4': ?sms.accountLast4,
+        'quoted_account_last4': ?sms.data[otherAccountKey],
+        if (sms.creditCard) 'credit_card': true,
+        if (sms.ambiguousAccount && sms.holdsMoney) 'account_ambiguous': true,
+      },
+      'current': {
+        'type': t.type.storageValue,
+        if (hasAccount) 'account_id': t.accountId,
+        'to_account_id': ?t.toAccountId,
+        if (category != null)
+          'category': {'id': t.categoryId, 'name': category},
+      },
+      'ready': row.ready,
+      if (!row.ready)
+        'needs': [
+          if (!hasAccount) 'account',
+          if (category == null && t.toAccountId == null) 'category',
+        ],
     };
   }
 
@@ -573,6 +611,9 @@ class AgentTools {
       categoryId: _int(item, 'category_id'),
       categoryName: _string(item, 'category_name'),
       dismiss: _bool(item, 'dismiss') ?? false,
+      direction: _enum(item, 'direction', const ['debit', 'credit']),
+      loanId: _int(item, 'loan_id'),
+      sameLayout: _bool(item, 'same_layout') ?? false,
       reason: _string(item, 'reason'),
     ),
   );
@@ -589,6 +630,7 @@ class AgentTools {
           accountId: _int(item, 'account_id'),
           title: _rawString(item, 'title'),
           note: _rawString(item, 'note'),
+          loanId: _int(item, 'loan_id'),
           reason: _string(item, 'reason'),
         ),
       );
@@ -1215,7 +1257,9 @@ class AgentTools {
       'next': missed.isEmpty
           ? 'Done: no missed bank SMS left to teach.'
           : 'Call label_sms with one payment message\'s id. Skip OTPs and '
-                'offers. Its reply says which message to label next.',
+                'offers, and messages with neither an account number nor a '
+                'clear category (refund, salary…). The user picks the missing '
+                'one in SMS review. Its reply says which message to label next.',
     };
   }
 
@@ -1266,7 +1310,10 @@ class AgentTools {
       'suggested': 1,
       'next':
           'Nothing has changed yet. Ask the user to open SimpleMoney → More → '
-          'AI suggestions to approve the rule.',
+          'AI suggestions to approve the rule. If the SMS has no account '
+          'number, tell them to choose the account (or, if it has no clear '
+          'category, the category) on each future payment when they review it '
+          'in the SMS review. $_shareTip',
     };
   }
 
@@ -1316,6 +1363,36 @@ class AgentTools {
                   'payments: ${[for (final m in unread.take(3)) _missedId(m)].join(', ')}.',
       };
     }
+    final stage = _enum(args, 'stage', _stages) ?? 'done';
+    if (stage != 'done') {
+      _settled.add(id);
+      return {
+        'suggested': false,
+        'not_taught':
+            'Money hasn’t moved yet ($stage), so it isn’t a payment to save. '
+            'The SMS for the payment itself is the one to teach.',
+        'next': _labelNext(sender, [
+          for (final m in missed)
+            if (m != target &&
+                (normalizeRuleSender(m.sms.sender) ?? m.sms.sender) == sender &&
+                !_settled.contains(_missedId(m)))
+              m,
+        ], 0),
+      };
+    }
+    final role =
+        SmsSenderRole.tryParse(_string(args, 'sender_type')) ??
+        (throw ArgumentError(
+          'Give sender_type: ${SmsSenderRole.values.map((r) => r.name).join(', ')}.',
+        ));
+    // A bank the app doesn't know needs a name; its SMS usually signs off
+    // with one ("… -Fincare SFB"), which beats a small model's guess.
+    // A shop's rule is named after the shop, which is never an account but
+    // is the payee.
+    final bankName =
+        _string(args, 'bank_name') ??
+        _signOff(target.sms.body) ??
+        (role.holdsMoney ? null : sender);
     final format = buildLabeledFormat(
       text: target.sms.body,
       amount: _string(args, 'amount') ?? '',
@@ -1324,6 +1401,19 @@ class AgentTools {
       reference: _string(args, 'reference'),
       direction: _string(args, 'direction') ?? '',
       channel: _string(args, 'channel') ?? '',
+      role: role,
+      senderName: bankName,
+      country:
+          _string(args, 'country')?.toUpperCase() ??
+          (throw ArgumentError(
+            'Give country: where the bank or shop is, as a two-letter code '
+            '(IN, AE, US…).',
+          )),
+      currency:
+          _string(args, 'currency')?.toUpperCase() ??
+          (throw ArgumentError(
+            'Give currency: the three-letter code of the amount (INR, AED…).',
+          )),
     );
     // The labelled message first, then others from the same sender.
     final others = [
@@ -1336,9 +1426,6 @@ class AgentTools {
       RuleSample(target.sms.body, sender: sender),
       for (final m in others.take(19)) RuleSample(m.sms.body, sender: sender),
     ];
-    // A bank the app doesn't know needs a name; its SMS usually signs off
-    // with one ("… -Fincare SFB"), which beats a small model's guess.
-    final bankName = _string(args, 'bank_name') ?? _signOff(target.sms.body);
     final trial = await rules.trial(
       bankName: bankName,
       senders: [sender],
@@ -1391,6 +1478,9 @@ class AgentTools {
           {'sms_id': _missedId(m), 'text': _clip(m.sms.body, 160)},
       ],
       'read_from_this_sms': RuleTrial.readCandidate(first.result.candidate!),
+      if (AgentRuleLab.userPicks(first.result.candidate!, role) case final picks
+          when picks.isNotEmpty)
+        'user_picks_in_review': picks,
       'next': _labelNext(sender, unread, notPayments.length),
     };
   }
@@ -1411,12 +1501,21 @@ class AgentTools {
         : ' Skip the $notPayments that aren’t payments (OTPs, offers).';
     if (unread.isEmpty) {
       return 'Done: every missed payment from $sender is read.$skip Ask the '
-          'user to approve it in SimpleMoney → More → AI suggestions.';
+          'user to approve it in SimpleMoney → More → AI suggestions. $_shareTip';
     }
     return 'Now call label_sms with sms_id ${_missedId(unread.first)} '
         '(${unread.length} still missed from $sender). Don’t ask the user '
         'first.$skip';
   }
+
+  static const _stages = ['done', 'pending', 'failed', 'scheduled'];
+
+  /// Said once a rule is ready: the app asks to share it right after it is
+  /// approved, so others with the same bank get it without an AI.
+  static const _shareTip =
+      'Also tell them: once approved, SimpleMoney asks to share it. If the '
+      'messages it reads look right, tap Share so others with this bank get '
+      'it too. Only the format is shared, never their messages.';
 
   /// The bank's name an SMS ends with, as in "… -Fincare SFB".
   static String? _signOff(String body) {

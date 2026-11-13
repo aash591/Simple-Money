@@ -45,6 +45,9 @@ class _SmsReviewFlowState extends State<SmsReviewFlow> {
   bool transfer = false, busy = false;
   int? categoryId, accountId, toAccountId;
 
+  /// The title as edited here; null keeps the message's own name.
+  String? _title;
+
   /// The loan this payment goes to, chosen in place of a category.
   int? loanId;
   List<Category>? draftCategories;
@@ -59,6 +62,8 @@ class _SmsReviewFlowState extends State<SmsReviewFlow> {
   @override
   void initState() {
     super.initState();
+    // An approved correction already says which loan this pays.
+    loanId = widget.sms.assignedLoanId;
     _loadDraftCategories();
     accountId = smsAccount(
       widget.sms,
@@ -94,8 +99,11 @@ class _SmsReviewFlowState extends State<SmsReviewFlow> {
 
   Loan? get _loan => _loans.where((l) => l.id == loanId).firstOrNull;
 
-  List<Account> get _cards =>
-      repayableCards(widget.accounts.accounts, widget.sms.currency, 2);
+  List<Account> get _cards => repayableCards(
+    widget.accounts.accounts,
+    widget.sms.currency,
+    widget.sms.digits,
+  );
 
   void setTransfer(bool value) => setState(() {
     transfer = value;
@@ -164,7 +172,7 @@ class _SmsReviewFlowState extends State<SmsReviewFlow> {
         for (final a in widget.accounts.accounts)
           if (a.currency == widget.sms.currency &&
               a.archivedAt == null &&
-              a.digits == 2 &&
+              a.digits == widget.sms.digits &&
               (!cardsOnly || a.type == AccountType.creditCard) &&
               (!widget.sms.isAtmCashMovement ||
                   ((destination != widget.sms.isAtmDeposit)
@@ -209,7 +217,7 @@ class _SmsReviewFlowState extends State<SmsReviewFlow> {
                     ((destination != widget.sms.isAtmDeposit)
                         ? a?.type == AccountType.cash
                         : a?.type == AccountType.bank)) &&
-                a?.digits == 2 &&
+                a?.digits == widget.sms.digits &&
                 (!widget.sms.isCreditCardRepayment ||
                     (destination
                         ? a?.type == AccountType.creditCard
@@ -244,7 +252,9 @@ class _SmsReviewFlowState extends State<SmsReviewFlow> {
         accountId: accountId!,
         toAccountId: transfer ? toAccountId : null,
         categoryId: transfer ? null : category,
-        title: sms.title,
+        title: (_title ?? sms.title).trim().isEmpty
+            ? sms.title
+            : (_title ?? sms.title).trim(),
         note: sms.originalSmsNote,
         date: sms.receivedAt,
       );
@@ -315,6 +325,10 @@ class _SmsReviewFlowState extends State<SmsReviewFlow> {
       body: SmsPreviewContent(
         sms: sms,
         transfer: transfer,
+        title: _title,
+        onTitleChanged: busy ? null : (text) => _title = text,
+        titleSuggestions: (text) => widget.transactions.titleSuggestions
+            .suggest(text, type: type, categoryId: categoryId),
         onTransferChanged: busy || sms.requiresTransfer ? null : setTransfer,
         helper: transfer
             ? sms.isAtmDeposit

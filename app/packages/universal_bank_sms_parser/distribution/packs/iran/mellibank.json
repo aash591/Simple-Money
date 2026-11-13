@@ -1,0 +1,792 @@
+{
+  "format": "sms-rules-runtime",
+  "schemaVersion": "0.3",
+  "minEngineVersion": "0.3.0",
+  "packVersion": 1,
+  "rules": [
+    {
+      "id": "ir.mellibank.template001",
+      "bankId": "ir.mellibank",
+      "bankName": "Melli Bank",
+      "country": "IR",
+      "senders": [
+        "98700717",
+        "BANK MELLI",
+        "BANKMELLI",
+        "MELLI",
+        "MELLI BANK",
+        "MELLIBANK"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii",
+          "persian",
+          "arabic_indic"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "IRR": 2
+        },
+        "denominations": {
+          "تومان": {
+            "currency": "IRR",
+            "multiplier": 10
+          },
+          "ریال": {
+            "currency": "IRR",
+            "multiplier": 1
+          }
+        },
+        "currency": "IRR"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        },
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "Ø±Ù…Ø² ÛŒÚ©Ø¨Ø§Ø± Ù…ØµØ±Ù",
+              "Ú©Ø¯ ØªØ§ÛŒÛŒØ¯"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "Ù¾ÛŒØ´Ù†Ù‡Ø§Ø¯",
+              "ØªØ¨Ù„ÛŒØº",
+              "ØªØ®ÙÛŒÙ"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "Ù†Ø§Ù…ÙˆÙÙ‚",
+              "Ù„ØºÙˆ"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "Ø¯Ø± Ø§Ù†ØªØ¸Ø§Ø±"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ù¾Ø±Ø¯Ø§Ø®Øª"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "مبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " ریال واریز به حساب شما انجام شد. مانده: "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " ریال"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        }
+      }
+    },
+    {
+      "id": "ir.mellibank.template002",
+      "bankId": "ir.mellibank",
+      "bankName": "Melli Bank",
+      "country": "IR",
+      "senders": [
+        "98700717",
+        "BANK MELLI",
+        "BANKMELLI",
+        "MELLI",
+        "MELLI BANK",
+        "MELLIBANK"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii",
+          "persian",
+          "arabic_indic"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "IRR": 2
+        },
+        "denominations": {
+          "تومان": {
+            "currency": "IRR",
+            "multiplier": 10
+          },
+          "ریال": {
+            "currency": "IRR",
+            "multiplier": 1
+          }
+        },
+        "currency": "IRR"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        },
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "Ø±Ù…Ø² ÛŒÚ©Ø¨Ø§Ø± Ù…ØµØ±Ù",
+              "Ú©Ø¯ ØªØ§ÛŒÛŒØ¯"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "Ù¾ÛŒØ´Ù†Ù‡Ø§Ø¯",
+              "ØªØ¨Ù„ÛŒØº",
+              "ØªØ®ÙÛŒÙ"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "Ù†Ø§Ù…ÙˆÙÙ‚",
+              "Ù„ØºÙˆ"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "Ø¯Ø± Ø§Ù†ØªØ¸Ø§Ø±"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ù¾Ø±Ø¯Ø§Ø®Øª"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "مبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " ریال از حساب شما برداشت شد. مانده: "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " ریال"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        }
+      }
+    },
+    {
+      "id": "ir.mellibank.template003",
+      "bankId": "ir.mellibank",
+      "bankName": "Melli Bank",
+      "country": "IR",
+      "senders": [
+        "98700717",
+        "BANK MELLI",
+        "BANKMELLI",
+        "MELLI",
+        "MELLI BANK",
+        "MELLIBANK"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii",
+          "persian",
+          "arabic_indic"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "IRR": 2
+        },
+        "denominations": {
+          "تومان": {
+            "currency": "IRR",
+            "multiplier": 10
+          },
+          "ریال": {
+            "currency": "IRR",
+            "multiplier": 1
+          }
+        },
+        "currency": "IRR"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        },
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "Ø±Ù…Ø² ÛŒÚ©Ø¨Ø§Ø± Ù…ØµØ±Ù",
+              "Ú©Ø¯ ØªØ§ÛŒÛŒØ¯"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "Ù¾ÛŒØ´Ù†Ù‡Ø§Ø¯",
+              "ØªØ¨Ù„ÛŒØº",
+              "ØªØ®ÙÛŒÙ"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "Ù†Ø§Ù…ÙˆÙÙ‚",
+              "Ù„ØºÙˆ"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "Ø¯Ø± Ø§Ù†ØªØ¸Ø§Ø±"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ù¾Ø±Ø¯Ø§Ø®Øª"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "مبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " ریال خرید با کارت شما انجام شد. مانده: "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " ریال"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        }
+      }
+    },
+    {
+      "id": "ir.mellibank.template004",
+      "bankId": "ir.mellibank",
+      "bankName": "Melli Bank",
+      "country": "IR",
+      "senders": [
+        "98700717",
+        "BANK MELLI",
+        "BANKMELLI",
+        "MELLI",
+        "MELLI BANK",
+        "MELLIBANK"
+      ],
+      "defaults": {
+        "case": "exact",
+        "digits": [
+          "ascii",
+          "persian",
+          "arabic_indic"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "IRR": 2
+        },
+        "denominations": {
+          "تومان": {
+            "currency": "IRR",
+            "multiplier": 10
+          },
+          "ریال": {
+            "currency": "IRR",
+            "multiplier": 1
+          }
+        },
+        "currency": "IRR"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        },
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "Ø±Ù…Ø² ÛŒÚ©Ø¨Ø§Ø± Ù…ØµØ±Ù",
+              "Ú©Ø¯ ØªØ§ÛŒÛŒØ¯"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "Ù¾ÛŒØ´Ù†Ù‡Ø§Ø¯",
+              "ØªØ¨Ù„ÛŒØº",
+              "ØªØ®ÙÛŒÙ"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "Ù†Ø§Ù…ÙˆÙÙ‚",
+              "Ù„ØºÙˆ"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "Ø¯Ø± Ø§Ù†ØªØ¸Ø§Ø±"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "Ø¯Ø±Ø®ÙˆØ§Ø³Øª Ù¾Ø±Ø¯Ø§Ø®Øª"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "مبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " ریال انتقال یافت. مانده: "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " ریال"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        }
+      }
+    }
+  ],
+  "senderIndex": {
+    "98700717": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "BANK MELLI": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "BANKMELLI": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "MELLI": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "MELLI BANK": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "MELLIBANK": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "categoryRules": [],
+  "counterpartyRules": []
+}

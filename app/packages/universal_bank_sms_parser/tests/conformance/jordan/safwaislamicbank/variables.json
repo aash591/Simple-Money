@@ -1,0 +1,64 @@
+[
+  {
+    "id": "safwaislamicbank-variables-001",
+    "country": "JO",
+    "bankId": "jo.safwaislamicbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Safwa Bank",
+      "body": "دفعة نقدية(فرع آلي) بمبلغ 321.09 دينار الرصيد المتوفر 9876.54 دينار",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.safwaislamicbank.template001",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Safwa Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Cash Deposit",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "safwaislamicbank-variables-002",
+    "country": "JO",
+    "bankId": "jo.safwaislamicbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Safwa Bank",
+      "body": "تغطية عمولات البنك بمبلغ 321.09 دينار الرصيد المتوفر 9876.54 دينار",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.safwaislamicbank.template002",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Safwa Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Bank Fees",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

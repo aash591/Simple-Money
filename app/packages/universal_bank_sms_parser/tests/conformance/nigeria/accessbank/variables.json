@@ -1,0 +1,64 @@
+[
+  {
+    "id": "accessbank-variables-001",
+    "country": "NG",
+    "bankId": "ng.accessbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "AccessBank",
+      "body": "Debit Amt:NGN321.09 Acc:149******988 Desc:META998877/MOBILE TRF TO PAY/ POS /ABDULHADI HAMISU Date:02-DEC-2027 Avail Bal:META998877,9876.54 Total:NGN2",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.accessbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Access Bank",
+        "countryCode": "NG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "179AMHY2616000hU/MOBILE TRF TO PAY/ POS /ABDULHADI  HAMISU",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "accessbank-variables-002",
+    "country": "NG",
+    "bankId": "ng.accessbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "AccessBank",
+      "body": "Credit Amt:NGN321.09 Acc:149******988 Desc:MIGRATIONSHOP Date:02-DEC-2027 Avail Bal:META998877,9876.54 Total:N",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.accessbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Access Bank",
+        "countryCode": "NG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

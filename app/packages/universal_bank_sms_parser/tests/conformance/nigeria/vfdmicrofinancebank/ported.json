@@ -1,0 +1,126 @@
+[
+  {
+    "id": "vfdmicrofinancebank-ported-001",
+    "country": "NG",
+    "bankId": "ng.vfdmicrofinancebank",
+    "provenance": "PennyWise VFDBankParser (Credit with zero charges (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "VFD",
+      "body": "Acct: xxx901\nAmt: N500.00 CR\nDate: 30-MAY-2026 20:51:54\nChgs: N0.00 (COMM VAT)\nDesc: From Universal Savings Account\nBalance:N3,000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.vfdmicrofinancebank.template001",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "VFD Microfinance Bank",
+        "countryCode": "NG",
+        "accountLast4": "901",
+        "reference": null,
+        "counterparty": "From Universal Savings Account",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "vfdmicrofinancebank-ported-002",
+    "country": "NG",
+    "bankId": "ng.vfdmicrofinancebank",
+    "provenance": "PennyWise VFDBankParser (Debit with zero charges, second account); see NOTICE.md",
+    "input": {
+      "sender": "VFD",
+      "body": "Acct: xxx902\nAmt: N500.00 DR\nDate: 30-MAY-2026 20:51:54\nChgs: N0.00 (COMM VAT)\nDesc: To Universal Savings Account\nBalance:N900.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.vfdmicrofinancebank.template002",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "VFD Microfinance Bank",
+        "countryCode": "NG",
+        "accountLast4": "902",
+        "reference": null,
+        "counterparty": "To Universal Savings Account",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "vfdmicrofinancebank-ported-003",
+    "country": "NG",
+    "bankId": "ng.vfdmicrofinancebank",
+    "provenance": "PennyWise VFDBankParser (Debit with NON-ZERO charges - fee must not become the amount); see NOTICE.md",
+    "input": {
+      "sender": "VFD",
+      "body": "Acct: xxx901\nAmt: N11,000.00 DR\nDate: 11-MAY-2026 21:53:32\nChgs: N25.00 (COMM VAT)\nDesc: Fruits/ To JANE DOE\nBalance:N30,000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.vfdmicrofinancebank.template003",
+      "candidate": {
+        "amountMinor": 1100000,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "VFD Microfinance Bank",
+        "countryCode": "NG",
+        "accountLast4": "901",
+        "reference": null,
+        "counterparty": "Fruits/ To JANE DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "vfdmicrofinancebank-ported-004",
+    "country": "NG",
+    "bankId": "ng.vfdmicrofinancebank",
+    "provenance": "PennyWise VFDBankParser (Large credit with reference digits in description); see NOTICE.md",
+    "input": {
+      "sender": "VFD",
+      "body": "Acct: xxx901\nAmt: N150,000.00 CR\nDate: 29-APR-2026 16:43:56\nChgs: N0.00 (COMM VAT)\nDesc: Car Fuel Gas Wi-fi to Jane Doe. 000000000000000000000000000000\nBalance:N200,000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.vfdmicrofinancebank.template004",
+      "candidate": {
+        "amountMinor": 15000000,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "VFD Microfinance Bank",
+        "countryCode": "NG",
+        "accountLast4": "901",
+        "reference": null,
+        "counterparty": "Car Fuel Gas Wi-fi to Jane Doe. 000000000000000000000000000000",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

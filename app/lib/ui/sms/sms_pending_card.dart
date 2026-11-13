@@ -33,7 +33,7 @@ class SmsPendingTile extends StatelessWidget {
     ].join(' · '),
     amount:
         '${sms.credit ? '+' : '−'}'
-        '${formatAccountMoney(sms.amountMinor, currency: sms.currency, digits: 2)}',
+        '${formatAccountMoney(sms.amountMinor, currency: sms.currency, digits: sms.digits)}',
     amountColor: smsAmountColor(sms),
     stamp: transactionStamp(sms.receivedAt),
     onTap: onTap,
@@ -87,7 +87,7 @@ class SmsCompactTile extends StatelessWidget {
                 fit: BoxFit.scaleDown,
                 child: Text(
                   '${sms.credit ? '+' : '−'}'
-                  '${formatAccountMoney(sms.amountMinor, currency: sms.currency, digits: 2)}',
+                  '${formatAccountMoney(sms.amountMinor, currency: sms.currency, digits: sms.digits)}',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: smsAmountColor(sms),
                     fontWeight: FontWeight.w600,

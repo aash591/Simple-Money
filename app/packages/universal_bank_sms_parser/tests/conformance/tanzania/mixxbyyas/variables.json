@@ -1,0 +1,250 @@
+[
+  {
+    "id": "mixxbyyas-variables-001",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Money sent successfully to -META998877. Amount TSh 321.09. Total Charges TSh 9876.54, VAT TSh 9876.54. New balance is TSh 9876.54. TxnID: MIG123456. Receipt: 9876.54-META998877. 02-DEC-2027 11:22:33. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "Mobile Money Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-variables-002",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Transfer Successful. New balance is TSh 321.09. You have received TSh 9876.54 from MIGRATIONSHOP; JOHN DOE with TxnId: MIG123456. 003_19ec6e42e888a9a7. 02-DEC-2027 11:22:33. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-variables-003",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Txn Amt TSh 321.09 sent to MIGRATIONSHOP (9876.54). Wait for confirmation. Ref: 9876.54. New Bal: TSh 9876.54. Total Charges TSh 9876.54.(Fees TSh 9876.54, Levy TSh 9876.54), VAT TSh 9876.54. TxnID: MIG123456. 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-variables-004",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "You have successfully paid your MIGRATIONSHOP Balance by TSh 321.09. Your outstanding balance: TSh 9876.54. New balance: TSh 9876.54. TxnID: MIG123456. Loan ID: 9876.54. 02-DEC-2027 11:22:33.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-variables-005",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Cash Out of TSh 321.09 from Agent - AGENT NAME HERE is successful. Total Charges TSh 9876.54.(Fees TSh 9876.54, Levy TSh 9876.54), VAT TSh 9876.54. TxnID: MIG123456. 02-DEC-2027 11:22:33. New balance is TSh 9876.54. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "Agent Cash Out",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-variables-006",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Txn successful, Amt TSh 321.09 sent to MIGRATIONSHOP (9876.54), Control No 9876.54. New Bal TSh 9876.54. Charges TSh 9876.54. TxnID: MIG123456. 02-DEC-2027 11:22:33.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-variables-007",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Payment Successful.9876.54 9876.54 9876.54.0KWH 9876.54 9876.54 9876.54 9876.54 9876.54 Cost 9876.54 VAT 9876.54% 9876.54 EWURA 9876.54% 9876.54 REA 9876.54% 9876.54 TOTAL 321.09 02-DEC-2027 11:22:33.LKS",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "LUKU",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-variables-008",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Dear Customer, New balance is TSh 321.09. You have received TSh 9876.54 from MIXX BY YAS as your MIGRATIONSHOP. TxnId: MIG123456. 02-DEC-2027 11:22:33. Ikiingia tu Golii!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

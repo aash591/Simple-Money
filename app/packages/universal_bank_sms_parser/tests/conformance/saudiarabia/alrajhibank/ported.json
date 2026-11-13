@@ -1,0 +1,591 @@
+[
+  {
+    "id": "alrajhibank-ported-001",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Historical English purchase with number-first SAR amount); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "PoS Purchase\nBy:0007;mada\nAmount: 12.34 SAR\nAt: SYNTHETIC STORE\n01/01/2030 10:20",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template001",
+      "candidate": {
+        "amountMinor": 1234,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": "0007",
+        "reference": null,
+        "counterparty": "SYNTHETIC STORE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-002",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Arabic purchase accepts number-first SR and labelled merchant); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "شراء\nبـ5.75 SR\nالتاجر: SYNTHETIC MERCHANT\nرصيد: 88.88 SR\n01/01/2030 10:20",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template002",
+      "candidate": {
+        "amountMinor": 575,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SYNTHETIC MERCHANT",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-003",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Refund is classified as income); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "Purchase Refund\nAmount: 7.89 SAR\nAt: SYNTHETIC REFUND STORE\n01/01/2030 10:20",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template003",
+      "candidate": {
+        "amountMinor": 789,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SYNTHETIC REFUND STORE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-004",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Cashback credit is classified as income); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "Cashback\nAmount: 2.50 SAR\nAt: SYNTHETIC CASHBACK\n01/01/2030 10:20",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template004",
+      "candidate": {
+        "amountMinor": 250,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SYNTHETIC CASHBACK",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-005",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Cashback reversal is classified as expense); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "Cashback Reversal\nAmount: 2.50 SAR\nAt: SYNTHETIC CASHBACK\n01/01/2030 10:20",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template005",
+      "candidate": {
+        "amountMinor": 250,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SYNTHETIC CASHBACK",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-006",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (PoS refund overrides purchase wording); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "PoS Purchase Refund\nBy:0008;mada\nAmount: 3.25 SAR\nAt: SYNTHETIC POS REFUND\n01/01/2030 10:20",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template006",
+      "candidate": {
+        "amountMinor": 325,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": "0008",
+        "reference": null,
+        "counterparty": "SYNTHETIC POS REFUND",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-007",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Arabic cashback reversal is an expense); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "كاش باك عكس\nمبلغ: SAR 2.50\nالتاجر: SYNTHETIC CASHBACK\n01/01/2030 10:20",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template007",
+      "candidate": {
+        "amountMinor": 250,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SYNTHETIC CASHBACK",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-010",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (English online purchase, currency-first SR amount); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "Online Purchase\nBy:0007;mada\nFrom:0008\nAmount:SR 43.25\nAt:SYNTHETIC FOOD\n01/01/30 17:34",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template010",
+      "candidate": {
+        "amountMinor": 4325,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": "0007",
+        "reference": null,
+        "counterparty": "SYNTHETIC FOOD",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-012",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Online purchase refund is income); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "Online Purchase Refund\nBy:0007;mada\nFrom:0008\nAmount:SR 43.25\nAt:SYNTHETIC FOOD\n01/01/30 17:34",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template012",
+      "candidate": {
+        "amountMinor": 4325,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": "0007",
+        "reference": null,
+        "counterparty": "SYNTHETIC FOOD",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-013",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Online purchase reversal is income); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "Online Purchase Reversal\nBy:0007;mada\nFrom:0008\nAmount:SR 43.25\nAt:SYNTHETIC FOOD\n01/01/30 17:34",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template013",
+      "candidate": {
+        "amountMinor": 4325,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-017",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Card purchase via Google Pay); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "شراء\nعبر:****;مدى-جوجل باي\nبـSAR 5.75\nلـKiwi food suppl\n26/3/9 16:46",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template017",
+      "candidate": {
+        "amountMinor": 575,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Kiwi food suppl",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-018",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Online purchase via Mada); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "شراء انترنت\nعبر:****;مدى\nمن:****\nبـSAR 140\nلـbarq\n6/3/26 04:06",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template018",
+      "candidate": {
+        "amountMinor": 14000,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "barq",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-019",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (ATM withdrawal); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "سحب:صراف آلي\nبطاقة:****;مدى\nمبلغ:SAR 100\nمكان السحب:NORTHERN REGION\n5/3/26 04:20",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template019",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "NORTHERN REGION",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-020",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Outgoing local transfer); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "حوالة محلية صادرة\nمصرف:ANB\nمن:****\nمبلغ:SAR 100\nالى:BARQ SAFE ACCOUNT\nالى:****\nالرسوم:SAR 0.58\n26/3/3 22:44",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template020",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "BARQ SAFE ACCOUNT",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-021",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Incoming internal transfer); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "حوالة داخلية واردة\nبـSAR 1170\nلـ****\nمن****;Ahmad\n26/3/1 09:00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template021",
+      "candidate": {
+        "amountMinor": 117000,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Ahmad",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-022",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Loan installment deduction); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "خصم: قسط تمويل\nالقسط: 2304.58 SAR\nمن: ****\nالمبلغ المتبقي: SAR 13827.48\n26/2/26 16:39",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template022",
+      "candidate": {
+        "amountMinor": 230458,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-023",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Incoming local transfer (salary)); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "حوالة محلية واردة\nعبر:SAUDI ARABIAN MONETARY AUTHORITY\nمبلغ:SAR 7714.80\nالى:****\nمن:ACME CORP\n26/2/26 00:42",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template023",
+      "candidate": {
+        "amountMinor": 771480,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "ACME CORP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-024",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (Outgoing internal transfer); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "حوالة داخلية صادرة\nمن****\nبـSAR 200\nلـ****; Ahmad\n26/3/2 23:56",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template024",
+      "candidate": {
+        "amountMinor": 20000,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "alrajhibank-ported-025",
+    "country": "SA",
+    "bankId": "sa.alrajhibank",
+    "provenance": "PennyWise AlRajhiBankParser (English PoS purchase (alpha merchant)); see NOTICE.md",
+    "input": {
+      "sender": "AlRajhiBank",
+      "body": "PoS Purchase\nBy:4196;mada(Google Pay)\nAmount:SR 2\nAt:FAST WAY\n26/6/19 23:54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.alrajhibank.template025",
+      "candidate": {
+        "amountMinor": 200,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Al Rajhi Bank",
+        "countryCode": "SA",
+        "accountLast4": "4196",
+        "reference": null,
+        "counterparty": "FAST WAY",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,156 @@
+{
+  "id": "th.krungsri",
+  "name": "Krungsri",
+  "senders": [
+    "AYUDHYA",
+    "BAY",
+    "KRUNGSRI"
+  ],
+  "formats": [
+    {
+      "id": "th.krungsri.template001",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "atm",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Krungsri: ATM withdrawal "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " THB A/C "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Bal "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " THB"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        }
+      }
+    },
+    {
+      "id": "th.krungsri.template002",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "card",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Krungsri: Card payment "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " THB at "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " A/C "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "th.krungsri.template003",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Krungsri: โอนเงินเข้า "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " บาท บช "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        }
+      },
+      "defaults": {
+        "case": "exact"
+      }
+    }
+  ]
+}

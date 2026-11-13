@@ -1,0 +1,126 @@
+[
+  {
+    "id": "discovercard-variables-001",
+    "country": "US",
+    "bankId": "us.discovercard",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "347268",
+      "body": "Discover Card Alert: A transaction of $321.09 at MIGRATIONSHOP on 556677/88. No Action needed. See it at metadatavalue Text STOP to end",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.discovercard.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Discover Card",
+        "countryCode": "US",
+        "accountLast4": null,
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "discovercard-variables-002",
+    "country": "US",
+    "bankId": "us.discovercard",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "DISCOVER",
+      "body": "Discover Card Alert: A transaction of $321.09 at MIGRATIONSHOP on 556677/88. No Action needed. See it at metadatavalue Text STOP to end",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.discovercard.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Discover Card",
+        "countryCode": "US",
+        "accountLast4": null,
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "discovercard-variables-003",
+    "country": "US",
+    "bankId": "us.discovercard",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "US-DISCOVER-A",
+      "body": "Discover Card Alert: A transaction of $321.09 at MIGRATIONSHOP on 556677/88. No Action needed. See it at metadatavalue Text STOP to end",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.discovercard.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Discover Card",
+        "countryCode": "US",
+        "accountLast4": null,
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "discovercard-variables-004",
+    "country": "US",
+    "bankId": "us.discovercard",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "347268",
+      "body": "Discover Card Alert: A transaction of $321.09 at MIGRATIONSHOP on 556677/88. No Action needed. See it at metadatavalue Text STOP to end",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.discovercard.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Discover Card",
+        "countryCode": "US",
+        "accountLast4": null,
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

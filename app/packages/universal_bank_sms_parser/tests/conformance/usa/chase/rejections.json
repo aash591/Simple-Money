@@ -1,0 +1,162 @@
+[
+  {
+    "id": "chase-reject-security",
+    "country": "US",
+    "bankId": "us.chase",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "24273",
+      "body": "your otp is 123456. Rapid Rewards Plus Visa: You made a $9.17 transaction with TACO BELL 740493 on Mar 17, 2026 at 1:56 PM ET.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "chase-reject-promotional",
+    "country": "US",
+    "bankId": "us.chase",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "24273",
+      "body": "exclusive offer: apply now. Rapid Rewards Plus Visa: You made a $9.17 transaction with TACO BELL 740493 on Mar 17, 2026 at 1:56 PM ET.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "chase-reject-failed",
+    "country": "US",
+    "bankId": "us.chase",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "24273",
+      "body": "payment failed. Rapid Rewards Plus Visa: You made a $9.17 transaction with TACO BELL 740493 on Mar 17, 2026 at 1:56 PM ET.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "chase-reject-pending",
+    "country": "US",
+    "bankId": "us.chase",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "24273",
+      "body": "payment pending. Rapid Rewards Plus Visa: You made a $9.17 transaction with TACO BELL 740493 on Mar 17, 2026 at 1:56 PM ET.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "chase-reject-future",
+    "country": "US",
+    "bankId": "us.chase",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "24273",
+      "body": "will be debited. Rapid Rewards Plus Visa: You made a $9.17 transaction with TACO BELL 740493 on Mar 17, 2026 at 1:56 PM ET.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "chase-reject-notice",
+    "country": "US",
+    "bankId": "us.chase",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "24273",
+      "body": "statement generated. Rapid Rewards Plus Visa: You made a $9.17 transaction with TACO BELL 740493 on Mar 17, 2026 at 1:56 PM ET.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "chase-reject-unknown-sender",
+    "country": "US",
+    "bankId": "us.chase",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Rapid Rewards Plus Visa: You made a $9.17 transaction with TACO BELL 740493 on Mar 17, 2026 at 1:56 PM ET.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "chase-reject-balance-only",
+    "country": "US",
+    "bankId": "us.chase",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "24273",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

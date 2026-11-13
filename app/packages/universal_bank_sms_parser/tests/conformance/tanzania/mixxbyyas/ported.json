@@ -1,0 +1,250 @@
+[
+  {
+    "id": "mixxbyyas-ported-001",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "PennyWise MixxByYasParser (Outbound P2P transfer (primary)); see NOTICE.md",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Money sent successfully to  -255XXXXXXXXX. Amount TSh 52,000. Total Charges TSh 1,125, VAT TSh 172. New balance is TSh 0. TxnID: 26495371373758. Receipt: 503-DFE9B1DABO. 14/06/26 19:19. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template001",
+      "candidate": {
+        "amountMinor": 5200000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "26495371373758",
+        "counterparty": "Mobile Money Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mixxbyyas-ported-002",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "PennyWise MixxByYasParser (Inbound push transfer); see NOTICE.md",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Transfer Successful. New balance is TSh 15,000. You have received TSh 15,000 from CRDB; JOHN DOE with TxnId: 26452334860211. 003_19ec6e42e888a9a7. 14/06/26 19:08. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template002",
+      "candidate": {
+        "amountMinor": 1500000,
+        "currencyCode": "TZS",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "26452334860211",
+        "counterparty": "CRDB",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mixxbyyas-ported-003",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "PennyWise MixxByYasParser (PostPaid bill payment (primary)); see NOTICE.md",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Txn Amt TSh 150,000 sent to Yas PostPaid (100100). Wait for confirmation. Ref: 0676263929. New Bal: TSh 0. Total Charges TSh 0.(Fees TSh 0, Levy TSh 0), VAT TSh 0. TxnID: 26952325632986. 13/06/26 19:41",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template003",
+      "candidate": {
+        "amountMinor": 15000000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "26952325632986",
+        "counterparty": "Yas PostPaid",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mixxbyyas-ported-004",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "PennyWise MixxByYasParser (Bustisha loan repayment); see NOTICE.md",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "You have successfully paid your Bustisha Balance by TSh 12,366.80. Your outstanding balance: TSh 0.00. New balance: TSh 137,633. TxnID: 26307515424020. Loan ID: 202606082034582035732170597903. 13/06/26 19:39.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template004",
+      "candidate": {
+        "amountMinor": 1236680,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "26307515424020",
+        "counterparty": "Bustisha",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mixxbyyas-ported-005",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "PennyWise MixxByYasParser (Agent cash-out); see NOTICE.md",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Cash Out of TSh 30,000 from Agent - AGENT NAME HERE is successful. Total Charges TSh 2,201.(Fees TSh 1,850, Levy TSh 351), VAT TSh 282. TxnID: 26106452201270. 08/06/26 17:36. New balance is TSh 5,879. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template005",
+      "candidate": {
+        "amountMinor": 3000000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "26106452201270",
+        "counterparty": "Agent Cash Out",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mixxbyyas-ported-006",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "PennyWise MixxByYasParser (GePG government payment); see NOTICE.md",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Txn successful, Amt TSh 150,000 sent to Malipo ya Serikali (001001), Control No 994944606117. New Bal TSh 206. Charges TSh 2,000. TxnID: 26592309810022. 29/05/26 21:35.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template006",
+      "candidate": {
+        "amountMinor": 15000000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "26592309810022",
+        "counterparty": "Malipo ya Serikali",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mixxbyyas-ported-007",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "PennyWise MixxByYasParser (LUKU electricity token); see NOTICE.md",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Payment Successful.47300267334\n9001261411323026601\n28.0KWH\n2634 3328 1950 3176 1023\nCost 8,196.73\nVAT 18% 1475.40\nEWURA 1% 81.97\nREA 3% 245.90\nTOTAL 10,000.00 21/05/26 13:23.LKS",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template007",
+      "candidate": {
+        "amountMinor": 1000000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "LUKU",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mixxbyyas-ported-008",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "PennyWise MixxByYasParser (Mixx interest reward); see NOTICE.md",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Dear Customer, New balance is TSh 414. You have received TSh 414 from MIXX BY YAS as your Mixx interest. TxnId: 26406495404220. 12/06/26 12:11. Ikiingia tu Golii!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.mixxbyyas.template008",
+      "candidate": {
+        "amountMinor": 41400,
+        "currencyCode": "TZS",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Mixx by Yas",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "26406495404220",
+        "counterparty": "Mixx interest",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,157 @@
+[
+  {
+    "id": "mellatbank-variables-001",
+    "country": "IR",
+    "bankId": "ir.mellatbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Bank Mellat",
+      "body": "واریز یارانه به حساب 1234569988 مبلغ 321.09 ریال 02-DEC-2027",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellatbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "IRR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Mellat Bank",
+        "countryCode": "IR",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "Subsidy Deposit",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mellatbank-variables-002",
+    "country": "IR",
+    "bankId": "ir.mellatbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Bank Mellat",
+      "body": "حساب1234569988 برداشت321.09 مانده18,9876.54 02-DEC-2027-11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellatbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mellat Bank",
+        "countryCode": "IR",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mellatbank-variables-003",
+    "country": "IR",
+    "bankId": "ir.mellatbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Bank Mellat",
+      "body": "حساب1234569988 برداشت 321.09 مانده 9876.54 02-DEC-2027-11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellatbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mellat Bank",
+        "countryCode": "IR",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mellatbank-variables-004",
+    "country": "IR",
+    "bankId": "ir.mellatbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Bank Mellat",
+      "body": "حساب1234569988 واریز321.09 مانده21,9876.54 02-DEC-2027-11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellatbank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "IRR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Mellat Bank",
+        "countryCode": "IR",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mellatbank-variables-005",
+    "country": "IR",
+    "bankId": "ir.mellatbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Bank Mellat",
+      "body": "واریز سود کوتاه مدت حساب1234569988 مبلغ321.09 02-DEC-2027",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellatbank.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "IRR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Mellat Bank",
+        "countryCode": "IR",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,162 @@
+[
+  {
+    "id": "navyfederalcreditunion-reject-security",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "your otp is 123456. NFCU: Transaction for $3.26 was approved on debit card 1234 at Google One at 08:19 PM EDT on 05/06/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-reject-promotional",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "exclusive offer: apply now. NFCU: Transaction for $3.26 was approved on debit card 1234 at Google One at 08:19 PM EDT on 05/06/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-reject-failed",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "payment failed. NFCU: Transaction for $3.26 was approved on debit card 1234 at Google One at 08:19 PM EDT on 05/06/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-reject-pending",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "payment pending. NFCU: Transaction for $3.26 was approved on debit card 1234 at Google One at 08:19 PM EDT on 05/06/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-reject-future",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "will be debited. NFCU: Transaction for $3.26 was approved on debit card 1234 at Google One at 08:19 PM EDT on 05/06/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-reject-notice",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "statement generated. NFCU: Transaction for $3.26 was approved on debit card 1234 at Google One at 08:19 PM EDT on 05/06/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-reject-unknown-sender",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "NFCU: Transaction for $3.26 was approved on debit card 1234 at Google One at 08:19 PM EDT on 05/06/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-reject-balance-only",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

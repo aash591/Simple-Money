@@ -1,0 +1,244 @@
+{
+  "id": "ng.moniepoint",
+  "name": "Moniepoint",
+  "senders": [
+    "MONIEPOINT",
+    "MONNIFY"
+  ],
+  "formats": [
+    {
+      "id": "ng.moniepoint.template001",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "CREDIT ALERT Acc: "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " (Personal) Amt: NGN"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Bal: NGN5,"
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Date: "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Time: "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Desc: "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "ng.moniepoint.template002",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "DEBIT ALERT Acc: "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " (Personal) Amt: NGN"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Bal: NGN3,"
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Date: "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Time: "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Desc: "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "ng.moniepoint.template003",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "CREDIT ALERT Acc: "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " (Business) Amt: NGN"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Bal: NGN1,"
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Date: "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Time: "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Desc: "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "tbank-ported-001",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "PennyWise TBankParser (ATM deposit); see NOTICE.md",
+    "input": {
+      "sender": "Tinkoff",
+      "body": "Пополнение, счет RUB. 5000 ₽. Банкомат. Доступно 10028,05 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ru.tbank.template001",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "RUB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "T-Bank",
+        "countryCode": "RU",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Банкомат",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "tbank-ported-002",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "PennyWise TBankParser (Card purchase at gas station); see NOTICE.md",
+    "input": {
+      "sender": "Tinkoff",
+      "body": "Покупка, счет карты *1023. 3267 ₽. AZS 09117. Доступно 30672,14 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ru.tbank.template002",
+      "candidate": {
+        "amountMinor": 326700,
+        "currencyCode": "RUB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "T-Bank",
+        "countryCode": "RU",
+        "accountLast4": "1023",
+        "reference": null,
+        "counterparty": "AZS 09117",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "tbank-ported-003",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "PennyWise TBankParser (Outgoing transfer); see NOTICE.md",
+    "input": {
+      "sender": "TBANK",
+      "body": "Перевод. Счет RUB. 250 ₽. Милана Н. Баланс 0 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ru.tbank.template003",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "RUB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "T-Bank",
+        "countryCode": "RU",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Милана Н",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -15,6 +15,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Telephony
 import io.flutter.embedding.android.FlutterActivityLaunchConfigs.BackgroundMode
+import io.flutter.embedding.android.RenderMode
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.work.*
@@ -243,5 +244,7 @@ class SmsNotificationActivity : MainActivity() {
         super.onDestroy()
     }
     override fun getBackgroundMode() = BackgroundMode.transparent
+    // See QuickEntryActivity: a transparent SurfaceView, not a TextureView.
+    override fun getRenderMode() = RenderMode.surface
     override fun getInitialRoute() = "/sms/${intent.getStringExtra("sms_id")}/${intent.getStringExtra("sms_field")}"
 }

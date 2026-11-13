@@ -1,0 +1,356 @@
+{
+  "format": "sms-rules-runtime",
+  "schemaVersion": "0.3",
+  "minEngineVersion": "0.3.0",
+  "packVersion": 1,
+  "rules": [
+    {
+      "id": "ng.accessbank.template001",
+      "bankId": "ng.accessbank",
+      "bankName": "Access Bank",
+      "country": "NG",
+      "senders": [
+        "ACCESSBANK"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "NGN": 2
+        },
+        "denominations": {},
+        "currency": "NGN"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Debit Amt:NGN"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Acc:"
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Desc:"
+        },
+        {
+          "op": "capture_reference",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "/MOBILE TRF TO PAY/ POS /ABDULHADI HAMISU Date:"
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Avail Bal:"
+        },
+        {
+          "op": "capture_reference",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ","
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Total:NGN2"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "value": "179AMHY2616000hU/MOBILE TRF TO PAY/ POS /ABDULHADI  HAMISU"
+        }
+      }
+    },
+    {
+      "id": "ng.accessbank.template002",
+      "bankId": "ng.accessbank",
+      "bankName": "Access Bank",
+      "country": "NG",
+      "senders": [
+        "ACCESSBANK"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "NGN": 2
+        },
+        "denominations": {},
+        "currency": "NGN"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Credit Amt:NGN"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Acc:"
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Desc:"
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " Date:"
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Avail Bal:"
+        },
+        {
+          "op": "capture_reference",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ","
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Total:N"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    }
+  ],
+  "senderIndex": {
+    "ACCESSBANK": [
+      0,
+      1
+    ]
+  },
+  "categoryRules": [],
+  "counterpartyRules": []
+}

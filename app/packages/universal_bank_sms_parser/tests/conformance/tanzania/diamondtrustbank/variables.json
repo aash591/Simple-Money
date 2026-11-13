@@ -1,0 +1,157 @@
+[
+  {
+    "id": "diamondtrustbank-variables-001",
+    "country": "TZ",
+    "bankId": "tz.diamondtrustbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "DTB",
+      "body": "Dear JOHN DOE, TIPS transaction of TZS 321.09 from XXXXXXX to META998877 has been successfully processed Ref MIG123456 Diamond Trust Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.diamondtrustbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Diamond Trust Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "TIPS Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "diamondtrustbank-variables-002",
+    "country": "TZ",
+    "bankId": "tz.diamondtrustbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "DTB",
+      "body": "ALERT: Your account no. XXXXXXX has been debited with TZS 321.09 for MIGRATIONSHOP on 02-DEC-2027.Thank you. Diamond Trust Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.diamondtrustbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Diamond Trust Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "diamondtrustbank-variables-003",
+    "country": "TZ",
+    "bankId": "tz.diamondtrustbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "DTB",
+      "body": "ALERT: Your account no. XXXXXXX has been credited with TZS 321.09 for MIGRATIONSHOP on 02-DEC-2027.Thank you. Diamond Trust Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.diamondtrustbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Diamond Trust Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "diamondtrustbank-variables-004",
+    "country": "TZ",
+    "bankId": "tz.diamondtrustbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "DTB",
+      "body": "ALERT: Your account no. XXXXXXX has been debited with TZS 321.09 for MIGRATIONSHOP on 02-DEC-2027.Thank you. Diamond Trust Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.diamondtrustbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Diamond Trust Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "diamondtrustbank-variables-006",
+    "country": "TZ",
+    "bankId": "tz.diamondtrustbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "DTB",
+      "body": "ALERT: Your account no. XXXXXXX has been debited with TZS 321.09 for MIGRATIONSHOP on 02-DEC-2027.Thank you. Diamond Trust Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.diamondtrustbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Diamond Trust Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -20,6 +20,7 @@ import '../../state/account_store.dart';
 import '../../state/category_store.dart';
 import 'sms_notification_preview.dart';
 import '../components/native_modal_blur.dart';
+import '../../domain/currency_digits.dart';
 
 /// Transparent activity host, just like launcher Add Transaction.
 class SmsNotificationScreen extends StatefulWidget {
@@ -116,7 +117,9 @@ class _SmsNotificationScreenState extends State<SmsNotificationPicker> {
   List<Account> get accounts => accountStore.accounts
       .where(
         (a) =>
-            !a.isArchived && a.digits == 2 && a.currency == live?.sms.currency,
+            !a.isArchived &&
+            a.digits == currencyDigits(a.currency) &&
+            a.currency == live?.sms.currency,
       )
       .toList();
   List<Category> get categories =>
@@ -479,7 +482,7 @@ Future<bool> applyLiveSmsEdit(
               value: match.sms.id,
               icon: const Icon(Icons.swap_horiz_rounded),
               label:
-                  '${match.sms.credit ? '+' : '−'}${currencyPrefix(match.sms.currency)}${formatAccountAmount(match.sms.amountMinor, digits: 2, currency: match.sms.currency)} · ${accounts.byId(match.accountId)?.name ?? match.sms.bankName}',
+                  '${match.sms.credit ? '+' : '−'}${currencyPrefix(match.sms.currency)}${formatAccountAmount(match.sms.amountMinor, digits: match.sms.digits, currency: match.sms.currency)} · ${accounts.byId(match.accountId)?.name ?? match.sms.bankName}',
               subtitle:
                   '${DateFormat('d MMM, h:mm a').format(match.sms.receivedAt)} · ${match.sms.reference ?? 'No reference'}${match.otherAccountId != null ? ' · Already a transfer' : ''}',
               chevron: true,
@@ -501,7 +504,7 @@ Future<bool> applyLiveSmsEdit(
           destructive: false,
           message:
               '${accounts.byId(selectedAccount)?.name} ↔ ${accounts.byId(other)?.name}\n'
-              '${currencyPrefix(match.sms.currency)}${formatAccountAmount(match.sms.amountMinor, digits: 2, currency: match.sms.currency)} · ${DateFormat('d MMM, h:mm a').format(match.sms.receivedAt)}\n'
+              '${currencyPrefix(match.sms.currency)}${formatAccountAmount(match.sms.amountMinor, digits: match.sms.digits, currency: match.sms.currency)} · ${DateFormat('d MMM, h:mm a').format(match.sms.receivedAt)}\n'
               'Both SMS become one transfer. The duplicate is removed and balances fixed.',
           confirmLabel: 'Combine as transfer',
         );

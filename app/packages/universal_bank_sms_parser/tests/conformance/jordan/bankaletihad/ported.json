@@ -1,0 +1,95 @@
+[
+  {
+    "id": "bankaletihad-ported-003",
+    "country": "JO",
+    "bankId": "jo.bankaletihad",
+    "provenance": "PennyWise BankAlEtihadParser (Refund); see NOTICE.md",
+    "input": {
+      "sender": "BankEtihad",
+      "body": "Refund of 0.100 JOD at CAREEM PLU.\nAvailable balance: 0.100 JOD.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.bankaletihad.template003",
+      "candidate": {
+        "amountMinor": 100,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Bank al Etihad",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "CAREEM PLU",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bankaletihad-ported-006",
+    "country": "JO",
+    "bankId": "jo.bankaletihad",
+    "provenance": "PennyWise BankAlEtihadParser (Foreign-currency refund keeps the JOD account currency for its balance); see NOTICE.md",
+    "input": {
+      "sender": "BankEtihad",
+      "body": "Refund of 12.00 USD at TEST STORE.\nAvailable balance: 30.000 JOD.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.bankaletihad.template006",
+      "candidate": {
+        "amountMinor": 1200,
+        "currencyCode": "USD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Bank al Etihad",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bankaletihad-ported-008",
+    "country": "JO",
+    "bankId": "jo.bankaletihad",
+    "provenance": "PennyWise BankAlEtihadParser (Refund from a merchant with a period inside the name); see NOTICE.md",
+    "input": {
+      "sender": "BankEtihad",
+      "body": "Refund of 2.000 JOD at ACME Co. Ltd.\nAvailable balance: 12.000 JOD.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.bankaletihad.template003",
+      "candidate": {
+        "amountMinor": 2000,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Bank al Etihad",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "ACME Co. Ltd",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

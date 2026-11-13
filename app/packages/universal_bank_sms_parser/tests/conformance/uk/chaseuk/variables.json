@@ -1,0 +1,33 @@
+[
+  {
+    "id": "chaseuk-variables-001",
+    "country": "GB",
+    "bankId": "gb.chaseuk",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ChaseUK",
+      "body": "🎉 £321.09 just landed in Test's Account from MIGRATIONSHOP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "gb.chaseuk.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "GBP",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Chase UK",
+        "countryCode": "GB",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

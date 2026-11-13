@@ -35,7 +35,11 @@ void main() {
       '123456 is your OTP for a payment of Rs.200. Do not share it.',
     ),
   ];
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(
+    () => SharedPreferences.setMockInitialValues({
+      'main_currency': '{"code":"INR","digits":2,"territory":"IN"}',
+    }),
+  );
   tearDown(() {
     messenger.setMockMethodCallHandler(sms, null);
     messenger.setMockMethodCallHandler(improve, null);
@@ -103,10 +107,14 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Report'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Is a transaction'));
+    await tester.tap(find.text('It’s a debit'));
     await tester.enterText(
       find.widgetWithText(TextField, 'Contact'),
       'me@example.com',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Bank or merchant'),
+      'Zeta Bank',
     );
     await tester.tap(find.text('Send'));
     await tester.pumpAndSettle();
@@ -115,8 +123,10 @@ void main() {
     final report = sent.single.single as Map;
     expect(report, containsPair('address', 'VM-ZETBNK-S'));
     expect(report, containsPair('kind', 'missed'));
-    expect(report, containsPair('note', 'Is a transaction'));
+    expect(report, containsPair('note', 'It’s a debit'));
     expect(report, containsPair('contact', 'me@example.com'));
+    expect(report, containsPair('bank', 'Zeta Bank'));
+    expect(report, containsPair('country', 'IN'));
     expect(find.text('Nothing missed'), findsOneWidget);
 
     await tester.tap(find.text('Sent'));

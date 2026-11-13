@@ -1,0 +1,64 @@
+[
+  {
+    "id": "nepalsbibank-ported-001",
+    "country": "NP",
+    "bankId": "np.nepalsbibank",
+    "provenance": "PennyWise NepalSBIBankParser (Credit - deposit); see NOTICE.md",
+    "input": {
+      "sender": "NSBI_ALERT",
+      "body": "Your A/c XX0673 Credited by NPR 20000.00 on 08-06-2026 16:35:06,Ref: 664406213/. -NSBI\nDownload YONO Nepal SBI by clicking bit.ly/4e0NYk8 for A/c balance.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.nepalsbibank.template001",
+      "candidate": {
+        "amountMinor": 2000000,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Nepal SBI Bank",
+        "countryCode": "NP",
+        "accountLast4": "0673",
+        "reference": "664406213/",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nepalsbibank-ported-002",
+    "country": "NP",
+    "bankId": "np.nepalsbibank",
+    "provenance": "PennyWise NepalSBIBankParser (Debit - expense); see NOTICE.md",
+    "input": {
+      "sender": "NSBI_ALERT",
+      "body": "Your A/c XX0673 Debited by NPR 400000.00 on 08-06-2026 12:49:04,Ref: MERCHANT NAME. -NSBI\nDownload YONO Nepal SBI by clicking bit.ly/4e0NYk8 for A/c balance.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.nepalsbibank.template002",
+      "candidate": {
+        "amountMinor": 40000000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Nepal SBI Bank",
+        "countryCode": "NP",
+        "accountLast4": "0673",
+        "reference": "MERCHANT NAME",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

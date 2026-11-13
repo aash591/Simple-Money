@@ -100,7 +100,7 @@ void main() {
             final colors = SheetColors.of(context);
             // Cards and controls are see-through washes over the sheet's frost.
             expect(colors.background, darkBackground);
-            expect(colors.card, Colors.white.withValues(alpha: .08));
+            expect(colors.card, Colors.white.withValues(alpha: .05));
             expect(colors.control, Colors.white.withValues(alpha: .09));
             // Lifted just enough to read on the sheet, but still the same hue.
             final teal = HSLColor.fromColor(

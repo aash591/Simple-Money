@@ -1,0 +1,219 @@
+[
+  {
+    "id": "everestbank-variables-001",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "9843368",
+      "body": "Dear Customer, Your A/c 12349988 is debited by NPR 321.09 For: MIG123456/MIGRATIONSHOP,Ncell. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "everestbank-variables-002",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "UJJ SH",
+      "body": "Dear Customer, Your A/c 87659988 is credited by NPR 321.09 For: Salary Payment/MIGRATIONSHOP,UJJ SH. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "everestbank-variables-004",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "9801234567",
+      "body": "Dear Customer, Your A/c 99889988 is debited by NPR 321.09 For: MIG123456/MIGRATIONSHOP,Foodmandu. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "everestbank-variables-005",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "9843001",
+      "body": "Dear Customer, Your A/c 55449988 is credited by NPR 321.09 For: Business Payment/MIGRATIONSHOP,ABC Company. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "everestbank-variables-006",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "EVEREST",
+      "body": "Dear Customer, Your A/c 33449988 is debited by NPR 321.09 For: Online Shopping/MIGRATIONSHOP,Daraz. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "everestbank-variables-007",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "EBL_ALERT",
+      "body": "Dear Customer, Your A/c ###988 is debited by NPR 321.09 For: CWDR/9876.54/9876.54. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "988",
+        "reference": null,
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "everestbank-variables-008",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "EBL_ALERT",
+      "body": "Dear Customer, Your A/c ###988 is credited by NPR 321.09 For: FPY:IBFT:9876.54:9876.54:EVBLN. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "988",
+        "reference": null,
+        "counterparty": "Fonepay IBFT",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

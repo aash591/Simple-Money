@@ -1,0 +1,162 @@
+[
+  {
+    "id": "citibank-reject-security",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "692484",
+      "body": "your otp is 123456. Citi Alert: A $3.01 transaction was made at BP#1234E  on card ending in 1234. View details at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "citibank-reject-promotional",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "692484",
+      "body": "exclusive offer: apply now. Citi Alert: A $3.01 transaction was made at BP#1234E  on card ending in 1234. View details at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "citibank-reject-failed",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "692484",
+      "body": "payment failed. Citi Alert: A $3.01 transaction was made at BP#1234E  on card ending in 1234. View details at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "citibank-reject-pending",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "692484",
+      "body": "payment pending. Citi Alert: A $3.01 transaction was made at BP#1234E  on card ending in 1234. View details at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "citibank-reject-future",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "692484",
+      "body": "will be debited. Citi Alert: A $3.01 transaction was made at BP#1234E  on card ending in 1234. View details at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "citibank-reject-notice",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "692484",
+      "body": "statement generated. Citi Alert: A $3.01 transaction was made at BP#1234E  on card ending in 1234. View details at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "citibank-reject-unknown-sender",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Citi Alert: A $3.01 transaction was made at BP#1234E  on card ending in 1234. View details at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "citibank-reject-balance-only",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "692484",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

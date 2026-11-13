@@ -1,0 +1,64 @@
+[
+  {
+    "id": "bpce-variables-001",
+    "country": "FR",
+    "bankId": "fr.bpce",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "38015",
+      "body": "Caisse d'Epargne: nous vous confirmons la réalisation de votre virement instantané de 321,09 EUR du 02-DEC-2027 à META998877 vers MIGRATIONSHOP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "fr.bpce.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "BPCE",
+        "countryCode": "FR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bpce-variables-002",
+    "country": "FR",
+    "bankId": "fr.bpce",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "38015",
+      "body": "Caisse d'Epargne: nous vous confirmons la réalisation de votre virement instantané de 321,09 EUR du 02-DEC-2027 à META998877 vers MIGRATIONSHOP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "fr.bpce.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "BPCE",
+        "countryCode": "FR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

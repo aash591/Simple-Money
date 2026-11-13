@@ -1,0 +1,325 @@
+{
+  "id": "ir.mellatbank",
+  "name": "Mellat Bank",
+  "senders": [
+    "BANK MELLAT",
+    "BANKMELLAT",
+    "MELLAT",
+    "MELLAT BANK",
+    "MELLATBANK"
+  ],
+  "formats": [
+    {
+      "id": "ir.mellatbank.template001",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "واریز یارانه به حساب "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " مبلغ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " ریال "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "value": "Subsidy Deposit"
+        }
+      },
+      "defaults": {
+        "case": "exact"
+      }
+    },
+    {
+      "id": "ir.mellatbank.template002",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "حساب"
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " برداشت"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " مانده18,"
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "-"
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        }
+      },
+      "defaults": {
+        "case": "exact"
+      }
+    },
+    {
+      "id": "ir.mellatbank.template003",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "حساب"
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " برداشت "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " مانده "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "-"
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        }
+      },
+      "defaults": {
+        "case": "exact"
+      }
+    },
+    {
+      "id": "ir.mellatbank.template004",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "حساب"
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " واریز"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " مانده21,"
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "-"
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        }
+      },
+      "defaults": {
+        "case": "exact"
+      }
+    },
+    {
+      "id": "ir.mellatbank.template005",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "واریز سود کوتاه مدت حساب"
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " مبلغ"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        }
+      },
+      "defaults": {
+        "case": "exact"
+      }
+    }
+  ]
+}

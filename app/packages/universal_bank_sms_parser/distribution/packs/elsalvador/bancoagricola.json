@@ -1,0 +1,155 @@
+{
+  "format": "sms-rules-runtime",
+  "schemaVersion": "0.3",
+  "minEngineVersion": "0.3.0",
+  "packVersion": 1,
+  "rules": [
+    {
+      "id": "sv.bancoagricola.template001",
+      "bankId": "sv.bancoagricola",
+      "bankName": "Banco Agricola",
+      "country": "SV",
+      "senders": [
+        "AGRICOLA",
+        "TRANSFER365"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "USD": 2
+        },
+        "denominations": {},
+        "currency": "USD"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "código de verificación",
+              "clave de un solo uso"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "B.AGRICOLA-"
+        },
+        {
+          "op": "capture_reference",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ": ha recibido un Abono a Cuenta de GIVEN NAME SURNAME por USD"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " desde "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    }
+  ],
+  "senderIndex": {
+    "AGRICOLA": [
+      0
+    ],
+    "TRANSFER365": [
+      0
+    ]
+  },
+  "categoryRules": [],
+  "counterpartyRules": []
+}

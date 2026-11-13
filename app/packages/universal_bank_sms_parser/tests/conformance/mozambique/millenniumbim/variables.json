@@ -1,0 +1,95 @@
+[
+  {
+    "id": "millenniumbim-variables-001",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Mbim",
+      "body": "A conta 123459988 foi debitada no valor de 321.09 MZN as 11:22:33 do dia 02-DEC-2027. Em caso de duvida, ligue 9876.54. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.millenniumbim.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Millennium BIM",
+        "countryCode": "MZ",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "millenniumbim-variables-002",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Mbim",
+      "body": "A conta 123459988 recebeu o valor de 321.09 MZN as 11:22:33 do dia 02-DEC-2027. Em caso de duvida, ligue 9876.54. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.millenniumbim.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Millennium BIM",
+        "countryCode": "MZ",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "millenniumbim-variables-003",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Mbim",
+      "body": "A conta 123459988 foi debitada no valor de 321.09 MZN as 11:22:33 do dia 02-DEC-2027, comissao 9876.54 MZN. Em caso de duvida, ligue 9876.54. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.millenniumbim.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Millennium BIM",
+        "countryCode": "MZ",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

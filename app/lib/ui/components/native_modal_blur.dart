@@ -62,18 +62,26 @@ class _ModalBlurBounds extends RenderProxyBox {
     }
     // Observe animation frames without requesting extra frames of our own.
     SchedulerBinding.instance.addPostFrameCallback((_) => report());
-    final rect = MatrixUtils.transformRect(
+    final logical = MatrixUtils.transformRect(
       getTransformTo(null),
       Offset.zero & size,
+    );
+    // In whole physical pixels: each update makes Android redo the window's
+    // background, so sub-pixel steps at the end of an easing are skipped.
+    final rect = Rect.fromLTRB(
+      (logical.left * density).roundToDouble(),
+      (logical.top * density).roundToDouble(),
+      (logical.right * density).roundToDouble(),
+      (logical.bottom * density).roundToDouble(),
     );
     if (rect == previous) return;
     previous = rect;
     send({
       'id': identityHashCode(this),
-      'left': rect.left * density,
-      'top': rect.top * density,
-      'right': rect.right * density,
-      'bottom': rect.bottom * density,
+      'left': rect.left,
+      'top': rect.top,
+      'right': rect.right,
+      'bottom': rect.bottom,
       'radius': radius * density,
     });
   }

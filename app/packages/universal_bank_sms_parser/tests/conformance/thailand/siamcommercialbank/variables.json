@@ -1,0 +1,95 @@
+[
+  {
+    "id": "siamcommercialbank-variables-001",
+    "country": "TH",
+    "bankId": "th.siamcommercialbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCB",
+      "body": "SCB: Transfer out 321.09 THB to A/C x9988 Bal 9876.54 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.siamcommercialbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Siam Commercial Bank",
+        "countryCode": "TH",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siamcommercialbank-variables-002",
+    "country": "TH",
+    "bankId": "th.siamcommercialbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCB",
+      "body": "SCB: Transfer in 321.09 THB A/C x9988 Bal 9876.54 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.siamcommercialbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Siam Commercial Bank",
+        "countryCode": "TH",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siamcommercialbank-variables-003",
+    "country": "TH",
+    "bankId": "th.siamcommercialbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCB",
+      "body": "SCB: ใช้จ่ายบัตร 321.09 บาท ร้าน MIGRATIONSHOP บช x9988",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.siamcommercialbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Siam Commercial Bank",
+        "countryCode": "TH",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

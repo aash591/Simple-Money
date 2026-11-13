@@ -1,0 +1,321 @@
+{
+  "id": "mz.emola",
+  "name": "eMola",
+  "senders": [
+    "EMOLA"
+  ],
+  "formats": [
+    {
+      "id": "mz.emola.template001",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Transaction ID "
+        },
+        {
+          "op": "capture_text",
+          "name": "reference",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": ". You transfered "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "MT to "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ", name: "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " at "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " on "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Fee: "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ".00MT. Your account balance is "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta4",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ".45MT. Content: . In case of doubt, please call "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta5",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Thank you!"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "mz.emola.template002",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Transaction ID: "
+        },
+        {
+          "op": "capture_text",
+          "name": "reference",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": ". You received "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "MT from "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ", name: "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " at "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " on "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Content: campo. Your account balance is "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ".56MT. In case of doubt, please call "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta4",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Thank you!"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "mz.emola.template003",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Transaction ID: "
+        },
+        {
+          "op": "capture_text",
+          "name": "reference",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": ". You withdrew "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "MT in the Agent with code ID "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ", Name "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " at "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " on "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Fee: "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " MT. Your account balance is "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta4",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ".23MT. In case of doubt, please call "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta5",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Thank you!"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    }
+  ]
+}

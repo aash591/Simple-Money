@@ -1,0 +1,126 @@
+[
+  {
+    "id": "bkash-variables-001",
+    "country": "BD",
+    "bankId": "bd.bkash",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "bKash",
+      "body": "You have received Tk 321.09 from 9876.54. Fee Tk 9876.54. Balance Tk 9876.54. TrxID MIG123456 at 02-DEC-2027 11:22:33.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bkash.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "BDT",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "bKash",
+        "countryCode": "BD",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bkash-variables-002",
+    "country": "BD",
+    "bankId": "bd.bkash",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "bKash",
+      "body": "Payment of Tk 321.09 to 9876.54 is successful. Balance Tk 9876.54. TrxID MIG123456 at 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bkash.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "BDT",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "bKash",
+        "countryCode": "BD",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bkash-variables-003",
+    "country": "BD",
+    "bankId": "bd.bkash",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "bKash",
+      "body": "Cash In Tk 321.09 from 9876.54 successful. Fee Tk 9876.54. Balance Tk 9876.54. TrxID MIG123456 at 02-DEC-2027 11:22:33. Download App: metadatavalue",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bkash.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "BDT",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "bKash",
+        "countryCode": "BD",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bkash-variables-004",
+    "country": "BD",
+    "bankId": "bd.bkash",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "bKash",
+      "body": "Send Money Tk 321.09 to 9876.54 successful. Ref 9876.54. Fee Tk 9876.54. Balance Tk 9876.54. TrxID MIG123456 at 02-DEC-2027 11:22:33.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bkash.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "BDT",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "bKash",
+        "countryCode": "BD",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

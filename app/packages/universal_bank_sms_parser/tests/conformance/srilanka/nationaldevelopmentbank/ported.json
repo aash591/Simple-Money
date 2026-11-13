@@ -1,0 +1,95 @@
+[
+  {
+    "id": "nationaldevelopmentbank-ported-001",
+    "country": "LK",
+    "bankId": "lk.nationaldevelopmentbank",
+    "provenance": "PennyWise NDBBankParser (POS debit with merchant); see NOTICE.md",
+    "input": {
+      "sender": "NDB ALERT",
+      "body": "LKR 12,724.00 debited from AC XXXXXXXX7497 as POS TXN on 30 Jul 2026 22:28 at COLOMBAY COLOMBO 2. Avl Bal 2,582.08 Call 94112448888 for info",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.nationaldevelopmentbank.template001",
+      "candidate": {
+        "amountMinor": 1272400,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "National Development Bank",
+        "countryCode": "LK",
+        "accountLast4": "7497",
+        "reference": null,
+        "counterparty": "COLOMBAY COLOMBO 2",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nationaldevelopmentbank-ported-002",
+    "country": "LK",
+    "bankId": "lk.nationaldevelopmentbank",
+    "provenance": "PennyWise NDBBankParser (CEFTS outward transfer (non-standard balance grouping tolerated)); see NOTICE.md",
+    "input": {
+      "sender": "NDB ALERT",
+      "body": "LKR 50,000.00 debited from AC XXXXXXXX1097 on 02 Jul 2026 15:52 as CEFTS Outward Transfer. Avl Bal 1,527,72.83 Call 94112448888 for info",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.nationaldevelopmentbank.template002",
+      "candidate": {
+        "amountMinor": 5000000,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "National Development Bank",
+        "countryCode": "LK",
+        "accountLast4": "1097",
+        "reference": null,
+        "counterparty": "CEFTS Outward Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nationaldevelopmentbank-ported-003",
+    "country": "LK",
+    "bankId": "lk.nationaldevelopmentbank",
+    "provenance": "PennyWise NDBBankParser (CEFTS inward transfer credit); see NOTICE.md",
+    "input": {
+      "sender": "NDB ALERT",
+      "body": "LKR 60,076.25 credited to AC XXXXXXXX1427 on 02 Jul 2026 21:53 as CEFTS Inward Transfer. Avl Bal 1,789,349.08 Call 94112448888 for info",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.nationaldevelopmentbank.template003",
+      "candidate": {
+        "amountMinor": 6007625,
+        "currencyCode": "LKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "National Development Bank",
+        "countryCode": "LK",
+        "accountLast4": "1427",
+        "reference": null,
+        "counterparty": "CEFTS Inward Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

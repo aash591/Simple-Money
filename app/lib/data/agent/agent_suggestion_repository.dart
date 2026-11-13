@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:intl/intl.dart';
+import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart'
+    show normalizeRuleSender;
 
 import '../../domain/account.dart';
 import '../../domain/app_icons.dart';
@@ -13,7 +16,9 @@ import '../../domain/transaction.dart';
 import '../db/app_database.dart';
 import '../repositories/account_repository.dart';
 import '../repositories/category_repository.dart';
+import '../repositories/loan_repository.dart';
 import '../repositories/recurring_payment_repository.dart';
+import '../repositories/sms_corrections.dart';
 import '../repositories/sms_import_repository.dart';
 import '../repositories/statement_import_repository.dart';
 import '../repositories/transaction_repository.dart';
@@ -81,6 +86,9 @@ class AgentSuggestion {
 
   /// Why the AI app suggested it, in its own words.
   final String? reason;
+
+  /// The AI app that made it (Claude, ChatGPT), when known.
+  String? get source => payload['source'] as String?;
   final AgentSuggestionStatus status;
 
   /// Why the last attempt to apply it failed. It stays pending so the user
@@ -192,11 +200,14 @@ class AgentSuggestionRepository {
     int? categoryId,
     String? categoryName,
     bool dismiss = false,
+    String? direction,
+    int? loanId,
+    bool sameLayout = false,
     String? reason,
   }) async {
     final row = await database
         .customSelect(
-          '''SELECT i.sender, i.body, i.received_at,
+          '''SELECT i.sender, i.body, i.received_at, i.rule_id,
             coalesce(r.candidate, i.candidate) AS candidate,
             coalesce(r.account_id, r.to_account_id) AS account_id,
             r.category_id
@@ -221,7 +232,7 @@ class AgentSuggestionRepository {
       ),
     );
     final summary =
-        '${formatAccountMoney(sms.amountMinor, digits: 2, currency: sms.currency)}'
+        '${formatAccountMoney(sms.amountMinor, digits: sms.digits, currency: sms.currency)}'
         ' ${sms.credit ? 'received' : 'spent'} · ${sms.title}'
         ' · ${_day(sms.receivedAt)}';
     if (dismiss) {
@@ -234,13 +245,91 @@ class AgentSuggestionRepository {
         reason: _reason(reason),
       );
     }
-    if (accountId == null && categoryId == null && categoryName == null) {
-      throw ArgumentError('Give an account, a category, or dismiss.');
+    if (direction != null && !const {'debit', 'credit'}.contains(direction)) {
+      throw ArgumentError('direction must be debit or credit.');
+    }
+    if (accountId == null &&
+        categoryId == null &&
+        categoryName == null &&
+        direction == null &&
+        loanId == null) {
+      throw ArgumentError(
+        'Give an account, a category, a direction, a loan, or dismiss.',
+      );
     }
     final accounts = await AccountRepository(database).load();
     final categories = await CategoryRepository(database).load();
     final payload = <String, Object?>{};
     final detail = <String>[];
+    // What the message really is, for this one and, with sameLayout, every
+    // message of its layout: the ones waiting and the ones to come.
+    if (direction != null || loanId != null) {
+      final loan = loanId == null
+          ? null
+          : (await LoanRepository(
+              database,
+            ).load()).where((l) => l.id == loanId).firstOrNull;
+      if (loanId != null) {
+        if (loan == null || loan.closed) {
+          throw ArgumentError(
+            'No open loan has id $loanId. Use an id from list_loans.',
+          );
+        }
+        if (loan.terms.currency != sms.currency) {
+          throw ArgumentError('That loan is in ${loan.terms.currency}.');
+        }
+        if (categoryId != null || categoryName != null) {
+          throw ArgumentError(
+            'A loan payment goes under the loan’s category; leave category '
+            'out.',
+          );
+        }
+      }
+      final really = loan != null ? 'debit' : direction!;
+      if ((really == 'credit') == sms.credit && loan == null) {
+        throw ArgumentError('The message already reads as $really.');
+      }
+      final sender = normalizeRuleSender(sms.sender) ?? sms.sender;
+      final ruleId = row.readNullable<String>('rule_id');
+      final ids = [smsId];
+      if (sameLayout && ruleId != null) {
+        for (final other
+            in await database
+                .customSelect(
+                  "SELECT fingerprint, sender FROM sms_imports WHERE status='pending' "
+                  'AND rule_id=? AND fingerprint<>?',
+                  variables: [Variable(ruleId), Variable(smsId)],
+                )
+                .get()) {
+          if ((normalizeRuleSender(other.read<String>('sender')) ??
+                  other.read<String>('sender')) ==
+              sender) {
+            ids.add(other.read<String>('fingerprint'));
+          }
+        }
+      }
+      payload.addAll({
+        'direction': really,
+        'loanId': ?loan?.id,
+        'smsIds': ids,
+        if (sameLayout && ruleId != null) ...{
+          'remember': true,
+          'sender': sender,
+          'ruleId': ruleId,
+        },
+      });
+      detail.add(
+        loan != null
+            ? 'Is: a payment to ${loan.title}, from '
+                  '${_accountName(accounts, loan.accountId)}'
+            : 'Is: money ${really == 'credit' ? 'received' : 'paid'}, not '
+                  '${really == 'credit' ? 'paid' : 'received'}',
+      );
+      if (ids.length > 1) detail.add('Also ${ids.length - 1} more like it');
+      if (payload['remember'] == true) {
+        detail.add('Future $sender messages like this too');
+      }
+    }
     final oldAccount = row.readNullable<int>('account_id');
     final oldCategory = row.readNullable<int>('category_id');
     if (accountId != null) {
@@ -290,12 +379,16 @@ class AgentSuggestionRepository {
     int? accountId,
     String? title,
     String? note,
+    int? loanId,
     String? reason,
   }) async {
     final current = await _transaction(transactionId);
     final accounts = await AccountRepository(database).load();
     final categories = await CategoryRepository(database).load();
     final transfer = current.type == TransactionType.transfer;
+    if (loanId != null) {
+      return _prepareLoanPayment(current, loanId, accounts, categories, reason);
+    }
     if (transfer &&
         (categoryId != null ||
             categoryName != null ||
@@ -372,6 +465,75 @@ class AgentSuggestionRepository {
       detail: detail,
       reason: _reason(reason),
     );
+  }
+
+  /// A saved transaction that is really a payment to loan [loanId]: a bank
+  /// SMS that said "credited to your loan account" and went in as income.
+  /// It becomes an expense under the loan's category, from the loan's paying
+  /// account, and the loan's next payment.
+  Future<AgentSuggestionDraft> _prepareLoanPayment(
+    MoneyTransaction current,
+    int loanId,
+    List<Account> accounts,
+    List<Category> categories,
+    String? reason,
+  ) async {
+    if (current.type == TransactionType.transfer) {
+      throw ArgumentError('A transfer can’t be a loan payment.');
+    }
+    final loan = (await LoanRepository(
+      database,
+    ).load()).where((l) => l.id == loanId).firstOrNull;
+    if (loan == null || loan.closed) {
+      throw ArgumentError(
+        'No open loan has id $loanId. Use an id from list_loans.',
+      );
+    }
+    final account = accounts.firstWhere((a) => a.id == current.accountId);
+    if (loan.terms.currency != account.currency) {
+      throw ArgumentError('That loan is in ${loan.terms.currency}.');
+    }
+    final locks =
+        (await TransactionRepository(database).link(current.id))?.locks ??
+        const TransactionLocks();
+    if (locks.category || locks.accounts) throw ArgumentError(_managed);
+    final payer = accounts
+        .where((a) => a.id == loan.accountId && a.currency == account.currency)
+        .firstOrNull;
+    return AgentSuggestionDraft(
+      kind: AgentSuggestionKind.transactionEdit,
+      target: '${current.id}',
+      payload: {'loanId': loan.id, 'accountId': ?payer?.id},
+      // A payment on a loan is taken back from the loan's screen.
+      before: {'loanId': loan.id},
+      summary:
+          '${formatAccountMoney(current.amountMinor, digits: account.digits, currency: account.currency)}'
+          ' · ${current.title ?? _categoryPath(categories, current.categoryId)}'
+          ' · ${_day(current.date)}',
+      detail: [
+        if (current.type == TransactionType.income) 'Type: income → payment',
+        'Is: a payment to ${loan.title}',
+        if (payer != null && payer.id != account.id)
+          'Account: ${account.name} → ${payer.name}',
+      ],
+      reason: _reason(reason),
+    );
+  }
+
+  Future<void> _applyLoanPayment(int id, Map<String, Object?> payload) async {
+    final current = await _transaction(id);
+    final loans = LoanRepository(database);
+    await TransactionRepository(database).edit(
+      id: id,
+      type: TransactionType.expense,
+      amountMinor: current.amountMinor,
+      accountId: payload['accountId'] as int? ?? current.accountId,
+      categoryId: await loans.paymentCategory(),
+      title: current.title,
+      note: current.note,
+      date: current.date,
+    );
+    await loans.payWith(payload['loanId'] as int, id);
   }
 
   /// A new expense or income. [categoryId] or [categoryName] is required;
@@ -657,7 +819,12 @@ class AgentSuggestionRepository {
 
   /// Stores [drafts] as one batch and returns its id. Each replaces any
   /// pending suggestion for the same target.
+  /// Zone key for the AI app whose tool call is running, so each suggestion
+  /// it makes records who made it (under `source` in its payload).
+  static const clientKey = #simpleMoneyAiClient;
+
   Future<String> add(List<AgentSuggestionDraft> drafts) async {
+    final source = Zone.current[clientKey] as String?;
     final now = DateTime.now().millisecondsSinceEpoch;
     final batchId = now.toRadixString(36);
     await database.transaction(() async {
@@ -674,7 +841,11 @@ class AgentSuggestionRepository {
             batchId,
             draft.kind.storageValue,
             draft.target,
-            jsonEncode(draft.payload),
+            jsonEncode(
+              source == null
+                  ? draft.payload
+                  : {...draft.payload, 'source': source},
+            ),
             draft.before == null ? null : jsonEncode(draft.before),
             draft.summary,
             draft.detail.join('\n'),
@@ -778,10 +949,15 @@ class AgentSuggestionRepository {
           case AgentSuggestionKind.smsCorrection:
             await _applySmsCorrection(suggestion.target, suggestion.payload);
           case AgentSuggestionKind.transactionEdit:
-            await _applyTransactionEdit(
-              int.parse(suggestion.target),
-              suggestion.payload,
-            );
+            suggestion.payload.containsKey('loanId')
+                ? await _applyLoanPayment(
+                    int.parse(suggestion.target),
+                    suggestion.payload,
+                  )
+                : await _applyTransactionEdit(
+                    int.parse(suggestion.target),
+                    suggestion.payload,
+                  );
           case AgentSuggestionKind.parserRule:
             final p = suggestion.payload;
             final ruleId = await UserSmsRuleRepository(database).add(
@@ -895,6 +1071,140 @@ class AgentSuggestionRepository {
     );
   }
 
+  /// Replaces what a not-yet-approved "add transaction" suggestion will add,
+  /// after the user edited it, and rewrites its summary and details to match.
+  /// Saves the payment a new SMS rule's sample shows, once the user picked
+  /// what the SMS doesn't say (an account, a category). The sample message is
+  /// marked saved, so reading the inbox with the rule doesn't queue it again.
+  Future<int> saveRuleSample(
+    int id, {
+    required TransactionType type,
+    required int amountMinor,
+    required int accountId,
+    required int categoryId,
+    String? title,
+    String? note,
+    required DateTime date,
+  }) async {
+    final row = await database
+        .customSelect(
+          "SELECT payload FROM agent_suggestions WHERE id = ? AND kind = 'parser_rule'",
+          variables: [Variable(id)],
+        )
+        .getSingleOrNull();
+    if (row == null) throw StateError('This suggestion is gone.');
+    final payload = Map<String, Object?>.from(
+      jsonDecode(row.read<String>('payload')) as Map,
+    );
+    if (payload['savedTransactionId'] != null) {
+      throw StateError('This payment is already saved.');
+    }
+    final samples = (payload['samples'] as List?)?.cast<String>() ?? const [];
+    final senders = (payload['senders'] as List?)?.cast<String>() ?? const [];
+    return database.transaction(() async {
+      final transactionId = await TransactionRepository(database)
+          .addExpenseOrIncome(
+            type: type,
+            amountMinor: amountMinor,
+            accountId: accountId,
+            categoryId: categoryId,
+            title: title,
+            note: note,
+            date: date,
+          );
+      if (samples.isNotEmpty) {
+        await SmsImportRepository(database).markSampleSaved(
+          sender: senders.firstOrNull ?? '',
+          body: samples.first,
+          transactionId: transactionId,
+        );
+      }
+      await database.customStatement(
+        'UPDATE agent_suggestions SET payload = ? WHERE id = ?',
+        [
+          jsonEncode({
+            ...payload,
+            'savedTransactionId': transactionId,
+            // The category the user filed it under: what the rule's messages
+            // are, for sharing the rule.
+            'savedCategory': ?(await CategoryRepository(
+              database,
+            ).load()).where((c) => c.id == categoryId).firstOrNull?.name,
+          }),
+          id,
+        ],
+      );
+      return transactionId;
+    });
+  }
+
+  Future<void> editTransactionAdd(
+    int id, {
+    required TransactionType type,
+    required int amountMinor,
+    required int accountId,
+    required int categoryId,
+    String? title,
+    String? note,
+    required DateTime date,
+  }) async {
+    final account = (await AccountRepository(
+      database,
+    ).load()).where((a) => a.id == accountId).firstOrNull;
+    if (account == null) throw ArgumentError('Pick an account.');
+    final categories = await CategoryRepository(database).load();
+    final choice = await _categoryChoice(
+      categories,
+      type == TransactionType.income
+          ? CategoryType.income
+          : CategoryType.expense,
+      categoryId,
+      null,
+    );
+    final day = DateTime(date.year, date.month, date.day);
+    final cleanTitle = title?.trim() ?? '';
+    final cleanNote = note?.trim() ?? '';
+    final income = type == TransactionType.income;
+    final shown = formatAccountMoney(
+      amountMinor,
+      digits: account.digits,
+      currency: account.currency,
+    );
+    final kept = await database
+        .customSelect(
+          'SELECT payload FROM agent_suggestions WHERE id = ?',
+          variables: [Variable(id)],
+        )
+        .getSingleOrNull();
+    final source = kept == null
+        ? null
+        : (jsonDecode(kept.read<String>('payload')) as Map)['source'];
+    await database.customStatement(
+      "UPDATE agent_suggestions SET payload = ?, summary = ?, detail = ?, error = NULL WHERE id = ? AND kind = 'transaction_add' AND status != 'applied'",
+      [
+        jsonEncode({
+          'type': type.storageValue,
+          'amount': amountMinor,
+          'accountId': accountId,
+          ...choice.payload,
+          'title': cleanTitle.isEmpty ? null : cleanTitle,
+          'note': cleanNote.isEmpty ? null : cleanNote,
+          'date': date.toIso8601String(),
+          'source': ?source,
+        }),
+        '${income ? 'Add income' : 'Add expense'} · $shown'
+            ' · ${cleanTitle.isEmpty ? choice.label : cleanTitle}'
+            ' · ${_day(day)}',
+        [
+          'Category: ${choice.label}',
+          '${income ? 'Adds to' : 'Takes out of'} ${account.name}',
+          if (cleanNote.isNotEmpty) 'Note: $cleanNote',
+        ].join('\n'),
+        id,
+      ],
+    );
+  }
+
   Future<void> reject(int id) => database.customStatement(
     "UPDATE agent_suggestions SET status = 'rejected', decided_at = ? WHERE id = ? AND status = 'pending'",
     [DateTime.now().millisecondsSinceEpoch, id],
@@ -920,6 +1230,12 @@ class AgentSuggestionRepository {
         final before = Map<String, Object?>.from(
           jsonDecode(row.read<String>('before')) as Map,
         );
+        if (row.read<String>('kind') == 'transaction_edit' &&
+            before.containsKey('loanId')) {
+          throw StateError(
+            'This is a loan payment now. Remove it from the loan’s screen.',
+          );
+        }
         if (row.read<String>('kind') == 'new_loan') {
           await _loans.undoLoan(before);
         } else if (row.read<String>('kind') == 'debt_entry') {
@@ -1003,19 +1319,47 @@ class AgentSuggestionRepository {
     Map<String, Object?> payload,
   ) async {
     final imports = SmsImportRepository(database);
-    final row = await database
+    Future<QueryRow?> pending(String id) => database
         .customSelect(
           "SELECT candidate FROM sms_imports WHERE fingerprint = ? AND status = 'pending'",
-          variables: [Variable(smsId)],
+          variables: [Variable(id)],
         )
         .getSingleOrNull();
-    if (row == null) {
+    if (await pending(smsId) == null) {
       throw StateError('This message has already been reviewed.');
     }
     if (payload['dismiss'] == true) {
       await imports.dismiss(smsId);
       return;
     }
+    if (payload['smsIds'] case final List ids) {
+      final corrections = SmsCorrectionRepository(database);
+      final correction = SmsCorrection(
+        sender: payload['sender'] as String? ?? '',
+        ruleId: payload['ruleId'] as String? ?? '',
+        direction: payload['direction'] as String?,
+        loanId: payload['loanId'] as int?,
+      );
+      for (final id in ids.cast<String>()) {
+        // Reviewed since it was suggested: leave it.
+        final current = await pending(id);
+        if (current == null) continue;
+        final data = Map<String, dynamic>.from(
+          jsonDecode(current.read<String>('candidate')) as Map,
+        );
+        await corrections.apply(data, correction);
+        await database.customStatement(
+          'UPDATE sms_imports SET candidate = ? WHERE fingerprint = ?',
+          [jsonEncode(data), id],
+        );
+        await database.customStatement(
+          'DELETE FROM sms_review WHERE fingerprint = ?',
+          [id],
+        );
+      }
+      if (payload['remember'] == true) await corrections.save(correction);
+    }
+    final row = (await pending(smsId))!;
     if (payload['accountId'] case final int accountId) {
       await imports.assignAccounts({smsId}, accountId);
     }

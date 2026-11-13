@@ -286,9 +286,8 @@ Future<StatementFile> _tableFile(
   if (rows.every((r) => r.every((c) => c.trim().isEmpty))) {
     return UnreadStatement(name, 'This file is empty.');
   }
-  final saved = await StatementImportRepository(sync.repository.db)
-      .knownMappings();
-  final mapping = findSavedMapping(rows, saved);
+  final mapping = await StatementImportRepository(sync.repository.db)
+      .mappingFor(rows);
   if (mapping == null) {
     await rememberNewLayout(name, rows, source);
     return NewLayoutStatement(name, rows, source);

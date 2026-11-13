@@ -1,0 +1,126 @@
+[
+  {
+    "id": "orangemoney-variables-001",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "تمت عملية شراء من محفظتك META998877 بمبلغ 321.09 دينار بتاريخ 02-DEC-2027 الساعة 11:22:33 من MIGRATIONSHOP بالرقم المرجعي MIG123456 رصيد المحفظة المتاح هو 9876.54.000دينار أردني شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.orangemoney.template001",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Orange Money",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "orangemoney-variables-002",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "تم استقبال حوالة مالية من MIGRATIONSHOP من مزود الخدمة: البنك الإسلامي الأردني إلى محفظتك بمبلغ 321.09 دينار بتاريخ 02-DEC-2027 الساعة 11:22:33 بالرقم المرجعي MIG123456 رصيد المحفظة المتاح هو 9876.54 دينار أردني شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.orangemoney.template002",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Orange Money",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "orangemoney-variables-003",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "A money transfer transaction from MIGRATIONSHOP with Service Provider: Jordan Islamic Bank has been credited to your wallet 9876.54 with the amount 321.09 JD on 02-DEC-2027 at 11:22:33 with reference number MIG123456. Available Wallet Balance: 9876.54 JD Thank you for using Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.orangemoney.template003",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "wallet",
+        "bankName": "Orange Money",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "orangemoney-variables-004",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "تمت عملية التحويل المالي الى المحفظة MIGRATIONSHOP بمبلغ 321.09 دينار بتاريخ 02-DEC-2027 الساعة 11:22:33 بالرقم المرجعي MIG123456 رصيد المحفظة المتاح هو 9876.54 دينار أردني شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.orangemoney.template004",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Orange Money",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

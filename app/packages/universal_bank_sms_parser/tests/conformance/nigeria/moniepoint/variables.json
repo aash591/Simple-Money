@@ -1,0 +1,95 @@
+[
+  {
+    "id": "moniepoint-variables-001",
+    "country": "NG",
+    "bankId": "ng.moniepoint",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Moniepoint",
+      "body": "CREDIT ALERT Acc: 519****988 (Personal) Amt: NGN321.09 Bal: NGN5,9876.54 Date: 02-DEC-2027 Time: 11:22:33 Desc: MIGRATIONSHOP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.moniepoint.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Moniepoint",
+        "countryCode": "NG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "moniepoint-variables-002",
+    "country": "NG",
+    "bankId": "ng.moniepoint",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Moniepoint",
+      "body": "DEBIT ALERT Acc: 519****988 (Personal) Amt: NGN321.09 Bal: NGN3,9876.54 Date: 02-DEC-2027 Time: 11:22:33 Desc: MIGRATIONSHOP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.moniepoint.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Moniepoint",
+        "countryCode": "NG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "moniepoint-variables-003",
+    "country": "NG",
+    "bankId": "ng.moniepoint",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Moniepoint",
+      "body": "CREDIT ALERT Acc: 519****988 (Business) Amt: NGN321.09 Bal: NGN1,9876.54 Date: 02-DEC-2027 Time: 11:22:33 Desc: MIGRATIONSHOP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.moniepoint.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Moniepoint",
+        "countryCode": "NG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

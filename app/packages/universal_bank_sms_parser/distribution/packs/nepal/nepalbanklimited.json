@@ -1,0 +1,332 @@
+{
+  "format": "sms-rules-runtime",
+  "schemaVersion": "0.3",
+  "minEngineVersion": "0.3.0",
+  "packVersion": 1,
+  "rules": [
+    {
+      "id": "np.nepalbanklimited.template001",
+      "bankId": "np.nepalbanklimited",
+      "bankName": "Nepal Bank Limited",
+      "country": "NP",
+      "senders": [
+        "NBL_ALERT"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "NPR": 2
+        },
+        "denominations": {},
+        "currency": "NPR"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Dear CUSTOMER_NAME,"
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64,
+          "minDigits": 3
+        },
+        {
+          "op": "match_literal",
+          "value": " credited NPR "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ","
+        },
+        {
+          "op": "capture_text",
+          "name": "reference",
+          "maxLength": 256
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4,
+          "allowShort": true
+        },
+        "reference": {
+          "capture": "reference"
+        }
+      }
+    },
+    {
+      "id": "np.nepalbanklimited.template002",
+      "bankId": "np.nepalbanklimited",
+      "bankName": "Nepal Bank Limited",
+      "country": "NP",
+      "senders": [
+        "NBL_ALERT"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "NPR": 2
+        },
+        "denominations": {},
+        "currency": "NPR"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Dear CUSTOMER_NAME,"
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64,
+          "minDigits": 3
+        },
+        {
+          "op": "match_literal",
+          "value": " debited NPR "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ","
+        },
+        {
+          "op": "capture_text",
+          "name": "reference",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "@VISA"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4,
+          "allowShort": true
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "value": "VISA Transaction"
+        }
+      }
+    }
+  ],
+  "senderIndex": {
+    "NBL_ALERT": [
+      0,
+      1
+    ]
+  },
+  "categoryRules": [],
+  "counterpartyRules": []
+}

@@ -58,9 +58,7 @@ class PillButton extends StatelessWidget {
       fill: raised ? raisedFill : (primary ? null : backgroundColor),
       flatFill: raised ? raisedFill : null,
       shadow: raised,
-      foregroundColor: primary
-          ? (raised ? Colors.white : null)
-          : color,
+      foregroundColor: primary ? (raised ? Colors.white : null) : color,
       textStyle: _textStyle,
       busy: loading,
       child: loading

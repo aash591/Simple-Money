@@ -1,0 +1,219 @@
+[
+  {
+    "id": "arabbank-variables-001",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "A Trx using Card XXXX9988 from MIGRATIONSHOP for EGP 321.09 on 02-DEC-2027 at 11:22:33 GMT+9876.54. Available balance is EGP 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EGP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-variables-002",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "A Trx using Card XXXX9988 from MIGRATIONSHOP for USD 321.09 on 02-DEC-2027 at 11:22:33 GMT+9876.54. Available balance is EGP 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-variables-003",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "تم قيد مبلغ 321.09 جنيه لبطاقتك الائتمانية رقم #9988",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EGP",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-variables-004",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "A Trx using Card XXXX9988 from MIGRATIONSHOP for JOD 321.09 on 02-DEC-2027 at 11:22:33 GMT+9876.54. Available balance is JOD 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template004",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-variables-005",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "JOD321.09 has been debited from 0159*988 to MIGRATIONSHOP as CliQ transfer Balance 9876.54.META998877",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template005",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-variables-006",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "JOD321.09 has been credited to 0159*988from MIGRATIONSHOP as CliQ transfer Balance 9876.54.META998877",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template006",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-variables-012",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "A Trx using Card XXXX9988 from MIGRATIONSHOP for USD 321.09",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template012",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

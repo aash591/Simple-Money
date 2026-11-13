@@ -100,25 +100,63 @@ const aiAssistantGuide = InfoGuide(
     ),
   ],
   sections: [
-    GuideSection('Try asking', [
-      GuideTip(
-        Icons.pie_chart_outline_rounded,
-        'Where did my money go last month?',
+    GuideSection('Prompts to copy', [
+      GuideTip.prompt(
+        Icons.add_card_rounded,
+        'Add transactions',
+        'Add these to SimpleMoney as transactions, using my accounts and '
+            'categories: ',
       ),
-      GuideTip(Icons.sms_outlined, 'Sort my SMS waiting for review'),
-      GuideTip(
-        Icons.edit_note_rounded,
-        'Fix the categories of my Swiggy orders',
+      GuideTip.prompt(
+        Icons.rule_rounded,
+        'Teach the app missed SMS',
+        'Look at the SMS SimpleMoney missed and teach it each payment format '
+            'that repeats. Only teach ones that give an account or a clear '
+            'category. I’ll pick the other in SMS review, so tell me which. '
+            'Once it works, remind me to share it.',
       ),
-      GuideTip(Icons.rule_rounded, 'Why was this SMS missed?'),
-      GuideTip(
+      GuideTip.prompt(
         Icons.account_balance_outlined,
-        'Add this loan (attach the statement)',
+        'Fix loan payments read as income',
+        'My bank’s SMS for loan payments say “credited”, so SimpleMoney reads '
+            'them as income. Find them, in SMS review and saved, and suggest '
+            'them as payments to my loan, for the ones still to come too.',
       ),
-      GuideTip(Icons.handshake_outlined, 'I lent Rahul 5,000 last week'),
-      GuideTip(
-        Icons.create_new_folder_outlined,
-        'Which categories am I missing?',
+      GuideTip.prompt(
+        Icons.table_chart_outlined,
+        'Read a waiting statement',
+        'Check the statements waiting in SimpleMoney and suggest a layout for '
+            'each, so I can import them.',
+      ),
+      GuideTip.prompt(
+        Icons.sms_outlined,
+        'Sort SMS waiting for review',
+        'Go through my SMS waiting for review and suggest the right category '
+            'and account for each.',
+      ),
+      GuideTip.prompt(
+        Icons.edit_note_rounded,
+        'Fix uncategorised spending',
+        'Find my transactions still under Personal and suggest a category for '
+            'each payee.',
+      ),
+      GuideTip.prompt(
+        Icons.autorenew_rounded,
+        'Find recurring payments',
+        'Find my subscriptions, rent, premiums and other payments that repeat, '
+            'and suggest them as recurring payments.',
+      ),
+      GuideTip.prompt(
+        Icons.account_balance_outlined,
+        'Add a loan',
+        'Here’s my loan statement. Add the loan with every payment made so '
+            'far.',
+      ),
+      GuideTip.prompt(
+        Icons.pie_chart_outline_rounded,
+        'See where money went',
+        'Where did my money go last month? Break it down by category and top '
+            'payees.',
       ),
     ]),
     GuideSection('Good to know', [

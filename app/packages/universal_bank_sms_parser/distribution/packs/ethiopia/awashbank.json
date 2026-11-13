@@ -1,0 +1,604 @@
+{
+  "format": "sms-rules-runtime",
+  "schemaVersion": "0.3",
+  "minEngineVersion": "0.3.0",
+  "packVersion": 1,
+  "rules": [
+    {
+      "id": "et.awashbank.template001",
+      "bankId": "et.awashbank",
+      "bankName": "Awash Bank",
+      "country": "ET",
+      "senders": [
+        "AWASH",
+        "AWASH BANK",
+        "AWASHBANK"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "ETB": 2
+        },
+        "denominations": {},
+        "currency": "ETB"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "OTP",
+              "የይለፍ ቃል"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Dear Customer, ETB "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " has been credited to your account from "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " on: "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " with Txn ID: "
+        },
+        {
+          "op": "capture_reference",
+          "name": "reference",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Your available balance is now ETB "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Receipt Link: "
+        },
+        {
+          "op": "capture_text",
+          "name": "meta1",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " Contact center "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "."
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "et.awashbank.template002",
+      "bankId": "et.awashbank",
+      "bankName": "Awash Bank",
+      "country": "ET",
+      "senders": [
+        "AWASH",
+        "AWASH BANK",
+        "AWASHBANK"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "ETB": 2
+        },
+        "denominations": {},
+        "currency": "ETB"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "OTP",
+              "የይለፍ ቃል"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "wallet",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Dear Customer; Telebirr Transfer of "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " ETB to "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " from "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "/BANK, Reason- Test, Charge "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " VAT: "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Your Balance is ETB "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta4",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Receipt Link: "
+        },
+        {
+          "op": "capture_text",
+          "name": "meta0",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " Contact Center "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta5",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "."
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "et.awashbank.template003",
+      "bankId": "et.awashbank",
+      "bankName": "Awash Bank",
+      "country": "ET",
+      "senders": [
+        "AWASH",
+        "AWASH BANK",
+        "AWASHBANK"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "ETB": 2
+        },
+        "denominations": {},
+        "currency": "ETB"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password",
+              "OTP",
+              "የይለፍ ቃል"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Dear Customer, You have sent ETB "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " To ("
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ") - "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " by Transaction ID: "
+        },
+        {
+          "op": "capture_reference",
+          "name": "reference",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " charge- "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " VAT- "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta4",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Date "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Your Available Balance is "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta5",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Download the receipt by link "
+        },
+        {
+          "op": "capture_text",
+          "name": "meta1",
+          "maxLength": 256
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    }
+  ],
+  "senderIndex": {
+    "AWASH": [
+      0,
+      1,
+      2
+    ],
+    "AWASH BANK": [
+      0,
+      1,
+      2
+    ],
+    "AWASHBANK": [
+      0,
+      1,
+      2
+    ]
+  },
+  "categoryRules": [],
+  "counterpartyRules": []
+}

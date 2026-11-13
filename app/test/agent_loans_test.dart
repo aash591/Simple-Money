@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:drift/drift.dart' show Variable;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -459,6 +460,92 @@ void main() {
       });
       expect(reply['error'], contains('list_icons'));
     });
+
+    group('with bank messages waiting for review', () {
+      Future<void> waiting(String id, int minor, DateTime at) =>
+          db.customStatement(
+            "INSERT INTO sms_imports (fingerprint, sender, body, received_at, candidate, rule_id, pack_version) VALUES (?, 'VM-SBIINB', ?, ?, ?, 'test', 1)",
+            [
+              id,
+              'Rs.${minor ~/ 100}.00 debited from a/c **2199 to BAJAJ FINANCE',
+              at.millisecondsSinceEpoch,
+              jsonEncode({
+                'amountMinor': minor,
+                'currencyCode': 'INR',
+                'direction': 'debit',
+                'countryCode': 'IN',
+                'bankName': 'SBI',
+                'accountLast4': '2199',
+                'counterparty': 'BAJAJ FINANCE',
+              }),
+            ],
+          );
+
+      Future<String> status(String id) async =>
+          (await db
+                  .customSelect(
+                    'SELECT status FROM sms_imports WHERE fingerprint = ?',
+                    variables: [Variable(id)],
+                  )
+                  .getSingle())
+              .read<String>('status');
+
+      test('matches them in one call and saves them on approval', () async {
+        for (final month in [6, 7, 8, 9, 10]) {
+          await saved(
+            month == 6 ? 271900 : 215000,
+            DateTime(2026, month, 2, 9),
+          );
+        }
+        await waiting('nov', 215000, DateTime(2026, 11, 3, 10));
+        // Same amount, too far from any payment.
+        await waiting('far', 215000, DateTime(2026, 9, 20));
+        final before = await balance(sbi);
+
+        final reply = await call('suggest_loan', bajaj());
+        expect(reply['payments_found_in_ledger'], 5);
+        expect(reply['payments_in_sms_review'], 1);
+        expect(reply['payments_not_found'], 0);
+        final rows = (reply['payments'] as List).cast<Map>();
+        expect(rows.last, {
+          'date': '2026-11-02',
+          'amount': '2150.00',
+          'sms_id': 'nov',
+        });
+        expect(reply.containsKey('in_sms_review'), isFalse);
+        expect(await status('nov'), 'pending');
+
+        final id = await suggestionId();
+        expect(await tools.suggestions.apply(id), isNull);
+        expect(await status('nov'), 'imported');
+        expect(await status('far'), 'pending');
+        final loan = (await LoanRepository(db).load()).single;
+        expect(loan.paid, 6);
+        expect(loan.events.last.offLedger, isFalse);
+        final txn = loan.events.last.transactionId;
+        final sms = await db
+            .customSelect(
+              "SELECT transaction_id FROM sms_imports WHERE fingerprint = 'nov'",
+            )
+            .getSingle();
+        expect(sms.read<int>('transaction_id'), txn);
+        // The real debit leaves the account once, as the message.
+        expect(await balance(sbi), before - 215000);
+      });
+
+      test('falls back when the message was dismissed first', () async {
+        await waiting('nov', 215000, DateTime(2026, 11, 2, 10));
+        await call('suggest_loan', bajaj());
+        await db.customStatement(
+          "UPDATE sms_imports SET status = 'dismissed' WHERE fingerprint = 'nov'",
+        );
+        final before = await balance(sbi);
+        expect(await tools.suggestions.apply(await suggestionId()), isNull);
+        final loan = (await LoanRepository(db).load()).single;
+        expect(loan.events.last.offLedger, isTrue);
+        expect(await balance(sbi), before);
+      });
+    });
   });
 
   group('A debt entry', () {
@@ -831,6 +918,11 @@ void main() {
             last_synced INTEGER, error TEXT, retry_at INTEGER NOT NULL DEFAULT 0,
             failures INTEGER NOT NULL DEFAULT 0,
             lease TEXT, lease_until INTEGER NOT NULL DEFAULT 0)''');
+          // As every database since v8 has it; later migrations queue rows.
+          raw.execute('''CREATE TABLE sync_outbox (
+            table_name TEXT NOT NULL, record_key TEXT NOT NULL,
+            row_json TEXT, revision INTEGER NOT NULL,
+            PRIMARY KEY(table_name, record_key))''');
           raw.execute('''CREATE TABLE agent_suggestions (
             id INTEGER PRIMARY KEY AUTOINCREMENT, batch_id TEXT NOT NULL,
             kind TEXT NOT NULL CHECK(kind IN ('new_category', 'sms_correction',

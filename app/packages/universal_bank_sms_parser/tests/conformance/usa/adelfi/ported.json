@@ -1,0 +1,33 @@
+[
+  {
+    "id": "adelfi-ported-002",
+    "country": "US",
+    "bankId": "us.adelfi",
+    "provenance": "PennyWise AdelFiParser (Transaction - Amazon Purchase); see NOTICE.md",
+    "input": {
+      "sender": "42141",
+      "body": "Transaction Alert from AdelFi.\n**1234 had a transaction of ($33.79). Description: 235251000999657 AMAZON MKTPL*ZX0Q15PH2 Amzn.com/billWAUS. Date: Dec 19, 2025",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.adelfi.template002",
+      "candidate": {
+        "amountMinor": 3379,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "AdelFi",
+        "countryCode": "US",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "AMAZON MKTPL*ZX0Q15PH2 Amzn.com/billWAUS",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

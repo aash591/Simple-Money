@@ -1,0 +1,162 @@
+[
+  {
+    "id": "enpara-reject-security",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Enpara",
+      "body": "your otp is 123456. Vadesiz TL hesabınıza bağlı 2589 ile biten Encard'ınızla 10/05/2026 tarihinde 105100000024364-OBILET ISTANBUL TR firmasında 520,00 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "enpara-reject-promotional",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Enpara",
+      "body": "exclusive offer: apply now. Vadesiz TL hesabınıza bağlı 2589 ile biten Encard'ınızla 10/05/2026 tarihinde 105100000024364-OBILET ISTANBUL TR firmasında 520,00 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "enpara-reject-failed",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Enpara",
+      "body": "payment failed. Vadesiz TL hesabınıza bağlı 2589 ile biten Encard'ınızla 10/05/2026 tarihinde 105100000024364-OBILET ISTANBUL TR firmasında 520,00 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "enpara-reject-pending",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Enpara",
+      "body": "payment pending. Vadesiz TL hesabınıza bağlı 2589 ile biten Encard'ınızla 10/05/2026 tarihinde 105100000024364-OBILET ISTANBUL TR firmasında 520,00 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "enpara-reject-future",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Enpara",
+      "body": "will be debited. Vadesiz TL hesabınıza bağlı 2589 ile biten Encard'ınızla 10/05/2026 tarihinde 105100000024364-OBILET ISTANBUL TR firmasında 520,00 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "enpara-reject-notice",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Enpara",
+      "body": "statement generated. Vadesiz TL hesabınıza bağlı 2589 ile biten Encard'ınızla 10/05/2026 tarihinde 105100000024364-OBILET ISTANBUL TR firmasında 520,00 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "enpara-reject-unknown-sender",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Vadesiz TL hesabınıza bağlı 2589 ile biten Encard'ınızla 10/05/2026 tarihinde 105100000024364-OBILET ISTANBUL TR firmasında 520,00 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "enpara-reject-balance-only",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "Enpara",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

@@ -576,6 +576,11 @@ class AiSessionController extends ChangeNotifier {
     final result = await tools.call(
       name,
       Map<String, Object?>.from(call['arguments'] as Map? ?? const {}),
+      // The relay names the app; an older one doesn't, but with a single
+      // connected app it can only have been that one.
+      client:
+          call['client'] as String? ??
+          (connections.length == 1 ? connections.first.clientName : null),
     );
     // In debug builds, which tools ran and how long they took: the
     // question and the answer stay out of the log.

@@ -1,0 +1,157 @@
+[
+  {
+    "id": "faysalbank-variables-004",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FBL",
+      "body": "PKR 321.09 received from MIGRATIONSHOP A/C *9876.54 in FBL A/C *9988 on 02-DEC-2027 at 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "pk.faysalbank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "PKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Faysal Bank",
+        "countryCode": "PK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "faysalbank-variables-006",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FBL",
+      "body": "PKR 321.09 MIGRATIONSHOP from FBL A/C *9988 on 02-DEC-2027 at 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "pk.faysalbank.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "PKR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Faysal Bank",
+        "countryCode": "PK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "faysalbank-variables-007",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FBL",
+      "body": "PKR 321.09 received from MIGRATIONSHOP A/C*9876.54 via IBFT in FBL A/C *9988 on 02-DEC-2027 at 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "pk.faysalbank.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "PKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Faysal Bank",
+        "countryCode": "PK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "faysalbank-variables-008",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FBL",
+      "body": "PKR 321.09 received from MIGRATIONSHOP A/C *9876.54 via FT in FBL A/C *9988 on 02-DEC-2027 at 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "pk.faysalbank.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "PKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Faysal Bank",
+        "countryCode": "PK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "faysalbank-variables-009",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FBL",
+      "body": "PKR 321.09 received from MIGRATIONSHOP A/C *9876.54 via FT in FBL A/C *9988 on 02-DEC-2027 at 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "pk.faysalbank.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "PKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Faysal Bank",
+        "countryCode": "PK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -45,7 +45,7 @@ class AdGate {
   /// before: loads an ad quietly so the next moment can show it. Never shows
   /// the consent form, which waits for a moment instead.
   Future<void> prepare() async {
-    if (ProController.instance.isPro) return;
+    if (!enabled || ProController.instance.isPro) return;
     final prefs = await SharedPreferences.getInstance();
     final due = AdMoment.values.any(
       (m) => (prefs.getInt(_usesKey(m)) ?? 0) >= MonetizationConfig.freeUses,
@@ -55,7 +55,7 @@ class AdGate {
 
   /// Call once [moment] has finished and its success is on screen.
   Future<void> after(AdMoment moment) async {
-    if (ProController.instance.isPro || _showing) return;
+    if (!enabled || ProController.instance.isPro || _showing) return;
     try {
       final prefs = await SharedPreferences.getInstance();
       final uses = (prefs.getInt(_usesKey(moment)) ?? 0) + 1;

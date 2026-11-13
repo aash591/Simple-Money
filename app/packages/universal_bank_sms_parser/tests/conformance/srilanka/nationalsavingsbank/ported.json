@@ -1,0 +1,33 @@
+[
+  {
+    "id": "nationalsavingsbank-ported-001",
+    "country": "LK",
+    "bankId": "lk.nationalsavingsbank",
+    "provenance": "PennyWise NationalSavingsBankParser (CEFT inward credit); see NOTICE.md",
+    "input": {
+      "sender": "NSB",
+      "body": "Dear MR MASKED NAME,LKR 10,000.00 Credited to your A/c XXXXXXXX1234 on DD/MM/YYYY at HH:mm.AvlBal LKR 12,653.61.Transaction CEFT Inward Transfer Deposit.Thank you for banking with us.Call Centre 1972.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.nationalsavingsbank.template001",
+      "candidate": {
+        "amountMinor": 1000000,
+        "currencyCode": "LKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "National Savings Bank",
+        "countryCode": "LK",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "CEFT Inward Transfer Deposit",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

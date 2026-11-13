@@ -1,0 +1,162 @@
+[
+  {
+    "id": "bankino-reject-security",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "20004861",
+      "body": "your otp is 123456. بانک خاورمیانه\nخرید با کارت 7284\n-3,300,000\nXXX/XXXXXXXX\nمانده 14,412,600\n03/22\n12:49",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankino-reject-promotional",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "20004861",
+      "body": "exclusive offer: apply now. بانک خاورمیانه\nخرید با کارت 7284\n-3,300,000\nXXX/XXXXXXXX\nمانده 14,412,600\n03/22\n12:49",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankino-reject-failed",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "20004861",
+      "body": "payment failed. بانک خاورمیانه\nخرید با کارت 7284\n-3,300,000\nXXX/XXXXXXXX\nمانده 14,412,600\n03/22\n12:49",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankino-reject-pending",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "20004861",
+      "body": "payment pending. بانک خاورمیانه\nخرید با کارت 7284\n-3,300,000\nXXX/XXXXXXXX\nمانده 14,412,600\n03/22\n12:49",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankino-reject-future",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "20004861",
+      "body": "will be debited. بانک خاورمیانه\nخرید با کارت 7284\n-3,300,000\nXXX/XXXXXXXX\nمانده 14,412,600\n03/22\n12:49",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankino-reject-notice",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "20004861",
+      "body": "statement generated. بانک خاورمیانه\nخرید با کارت 7284\n-3,300,000\nXXX/XXXXXXXX\nمانده 14,412,600\n03/22\n12:49",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankino-reject-unknown-sender",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "بانک خاورمیانه\nخرید با کارت 7284\n-3,300,000\nXXX/XXXXXXXX\nمانده 14,412,600\n03/22\n12:49",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankino-reject-balance-only",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "20004861",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

@@ -167,7 +167,7 @@ void main() {
     categories = CategoryStore(CategoryRepository(db));
     transactions = TransactionStore(TransactionRepository(db), accounts);
     platform = FakeUpiPlatform();
-    upiSettings = UpiSettings();
+    upiSettings = UpiSettings(region: 'IN');
     await upiSettings.setEnabled(true);
     await accounts.save(
       name: 'My bank',
@@ -413,6 +413,9 @@ void main() {
     );
     await tester.tap(find.text(category.name));
     await tester.pumpAndSettle();
+    // A top-level category asks for a subcategory next.
+    await tester.tap(find.text('Use ${category.name} only'));
+    await tester.pumpAndSettle();
     expect(find.text('Record expense in'), findsOneWidget);
     expect(find.text('Choose expense category'), findsNothing);
     expect(tester.widget<StepSlider>(find.byType(StepSlider)).forward, isTrue);
@@ -614,6 +617,9 @@ void main() {
       );
       await tester.tap(find.text(category.name));
       await tester.pumpAndSettle();
+      // A top-level category asks for a subcategory next.
+      await tester.tap(find.text('Use ${category.name} only'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text(accounts.accounts.single.name));
       await tester.pumpAndSettle();
       expect(
@@ -715,6 +721,9 @@ void main() {
         (c) => c.type == CategoryType.expense && c.parentId == null,
       );
       await tester.tap(find.text(c.name));
+      await tester.pumpAndSettle();
+      // A top-level category asks for a subcategory next.
+      await tester.tap(find.text('Use ${c.name} only'));
       await tester.pumpAndSettle();
     } else {
       await tester.tap(find.text('Next'));
@@ -990,6 +999,9 @@ void main() {
         (c) => c.type == CategoryType.expense && c.parentId == null,
       );
       await tester.tap(find.text(category.name));
+      await tester.pumpAndSettle();
+      // A top-level category asks for a subcategory next.
+      await tester.tap(find.text('Use ${category.name} only'));
       await tester.pumpAndSettle();
       expect(find.text('Record expense in'), findsOneWidget);
       await tester.tap(find.text(accounts.accounts.single.name));

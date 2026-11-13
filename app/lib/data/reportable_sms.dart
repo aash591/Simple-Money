@@ -4,11 +4,14 @@ import 'dart:isolate';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
 
 import '../state/sms_import_store.dart';
 import 'bank_sms_parser.dart';
+import 'community/community_fixes.dart';
 import 'sms_inbox_platform.dart';
 
 enum ReportableKind {
@@ -24,7 +27,14 @@ enum ReportableKind {
 
 /// A business SMS the user may report, with what the parser made of it.
 class ReportableSms {
-  const ReportableSms(this.id, this.sms, this.kind, this.reason, this.parsed);
+  const ReportableSms(
+    this.id,
+    this.sms,
+    this.kind,
+    this.reason,
+    this.parsed, {
+    this.bank,
+  });
 
   /// Same identity as a queued import: sender, body and receive time.
   final String id;
@@ -36,6 +46,10 @@ class ReportableSms {
 
   /// What the parser read, for [ReportableKind.detected].
   final SmsTransactionCandidate? parsed;
+
+  /// The bank its sender belongs to, as far as the app knows: what the
+  /// parser read, or the bank a rule registers the sender under.
+  final String? bank;
 }
 
 String _fingerprint(BankSms sms) => sha256
@@ -77,6 +91,9 @@ List<ReportableSms> _classify(
         kind,
         result.reason,
         result.candidate,
+        bank:
+            result.candidate?.bankName ??
+            (engine is BankSmsParser ? engine.bankFor(sms.sender) : null),
       ),
     );
   }
@@ -98,9 +115,17 @@ void _classifier((SendPort, PortableSmsEngine) setup) {
 class ReportableSmsRepository {
   /// [engineLoader] defaults to the bundled packs alone, so a report shows
   /// what the shipped rules miss.
-  ReportableSmsRepository({Future<PortableSmsEngine> Function()? engineLoader})
-    : _engineLoader = engineLoader ?? loadBundledSmsEngine;
+  ReportableSmsRepository({
+    Future<PortableSmsEngine> Function()? engineLoader,
+    this._client,
+    String? baseUrl,
+  }) : _engineLoader = engineLoader ?? loadBundledSmsEngine,
+       _baseUrl = baseUrl ?? communityUrl;
   final Future<PortableSmsEngine> Function() _engineLoader;
+
+  /// For tests; otherwise each upload opens its own.
+  final http.Client? _client;
+  final String _baseUrl;
 
   static const _channel = MethodChannel('simple_money/help_improve');
   static const _reportedKey = 'help_improve.reported';
@@ -156,11 +181,24 @@ class ReportableSmsRepository {
   /// Uploads [messages] as one encrypted archive, with the user's optional
   /// [note] and [contact], then marks them reported.
   /// Throws [PlatformException] when delivery is not confirmed.
+  ///
+  /// [fix] is the shared fix (its hash) that read them, when reported from
+  /// Shared fixes.
+  ///
+  /// [bank] is the bank or app the messages are from, as the user typed it;
+  /// otherwise each message names the bank the parser read, if any. Each
+  /// also names its country: the parser's, or the one picked at setup.
   Future<void> report(
     List<ReportableSms> messages, {
     String note = '',
     String contact = '',
+    String bank = '',
+    String? fix,
   }) async {
+    final home = await _setupCountry();
+    String? bankOf(ReportableSms m) =>
+        bank.trim().isNotEmpty ? bank.trim() : m.bank;
+    String? countryOf(ReportableSms m) => m.parsed?.countryCode ?? home;
     await _channel.invokeMethod<int>('report', {
       'messages': [
         for (final m in messages)
@@ -173,12 +211,97 @@ class ReportableSmsRepository {
             if (m.parsed case final parsed?) 'parsed': jsonEncode(parsed),
             if (note.isNotEmpty) 'note': note,
             if (contact.isNotEmpty) 'contact': contact,
+            'bank': ?bankOf(m),
+            'country': ?countryOf(m),
+            'fix': ?fix,
           },
       ],
     });
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_contactKey, contact);
     await _add(_reportedKey, messages.map((m) => m.id));
+    // The encrypted copy is delivered. This readable copy is for the
+    // developer's dashboard, and its failure never fails the report.
+    unawaited(
+      _shareForDashboard(
+        messages,
+        note: note,
+        contact: contact,
+        bankOf: bankOf,
+        countryOf: countryOf,
+        fix: fix,
+      ),
+    );
+  }
+
+  /// The country picked at setup (from the time zone, or changed later).
+  static Future<String?> _setupCountry() async {
+    try {
+      final saved = (await SharedPreferences.getInstance()).getString(
+        'main_currency',
+      );
+      if (saved == null) return null;
+      final territory = (jsonDecode(saved) as Map)['territory'];
+      return territory is String && RegExp(r'^[A-Z]{2}$').hasMatch(territory)
+          ? territory
+          : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Sends the reported messages as they are to the community server, 50 at
+  /// a time. Best effort: offline or refused just means no dashboard copy.
+  Future<void> _shareForDashboard(
+    List<ReportableSms> messages, {
+    required String note,
+    required String contact,
+    required String? Function(ReportableSms) bankOf,
+    required String? Function(ReportableSms) countryOf,
+    String? fix,
+  }) async {
+    final client = _client ?? http.Client();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final install = await communityInstallId(prefs);
+      String? version;
+      try {
+        final info = await PackageInfo.fromPlatform();
+        version = '${info.version}+${info.buildNumber}';
+      } catch (_) {}
+      for (var at = 0; at < messages.length; at += 50) {
+        final chunk = messages.skip(at).take(50);
+        await client
+            .post(
+              Uri.parse('$_baseUrl/v1/sms-reports'),
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({
+                'install': install,
+                'appVersion': ?version,
+                if (note.isNotEmpty) 'note': note,
+                if (contact.isNotEmpty) 'contact': contact,
+                'messages': [
+                  for (final m in chunk)
+                    {
+                      'address': m.sms.sender,
+                      'body': m.sms.body,
+                      'dateMs': m.sms.receivedAt.millisecondsSinceEpoch,
+                      'kind': m.kind.name,
+                      'reason': m.reason,
+                      'parsed': ?m.parsed,
+                      'bank': ?bankOf(m),
+                      'country': ?countryOf(m),
+                      'fix': ?fix,
+                    },
+                ],
+              }),
+            )
+            .timeout(const Duration(seconds: 20));
+      }
+    } catch (_) {
+    } finally {
+      if (_client == null) client.close();
+    }
   }
 
   Future<void> openSettings() => _channel.invokeMethod<void>('openSettings');

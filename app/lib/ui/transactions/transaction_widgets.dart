@@ -495,7 +495,10 @@ class TransactionDetailsCard extends StatelessWidget {
 /// One row of a details card: a 42dp circular icon, a small muted label
 /// over its value, and — when it can be tapped — a chevron. [placeholder]
 /// shows the value as a muted prompt ("Add a note") rather than content.
-class TransactionDetailRow extends StatelessWidget {
+///
+/// A multi-line value with no [onTap] (a note) opens out in full when tapped,
+/// and folds back on a second tap.
+class TransactionDetailRow extends StatefulWidget {
   const TransactionDetailRow({
     super.key,
     required this.leading,
@@ -526,13 +529,35 @@ class TransactionDetailRow extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
+  State<TransactionDetailRow> createState() => _TransactionDetailRowState();
+}
+
+class _TransactionDetailRowState extends State<TransactionDetailRow> {
+  bool _expanded = false;
+
+  @override
   Widget build(BuildContext context) {
+    final leading = widget.leading,
+        label = widget.label,
+        value = widget.value,
+        caption = widget.caption,
+        trailing = widget.trailing,
+        placeholder = widget.placeholder,
+        valueColor = widget.valueColor,
+        maxLines = widget.maxLines,
+        onTap = widget.onTap;
+    final expandable = onTap == null && maxLines > 1;
     final colors = SheetColors.of(context);
     final content = ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 68),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
+          // A value that runs over several lines (a note) keeps its icon at
+          // the top, beside the label, instead of floating mid-way down.
+          crossAxisAlignment: maxLines > 1
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
           children: [
             leading,
             const SizedBox(width: 12),
@@ -551,8 +576,8 @@ class TransactionDetailRow extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     value,
-                    maxLines: maxLines,
-                    overflow: TextOverflow.ellipsis,
+                    maxLines: _expanded ? null : maxLines,
+                    overflow: _expanded ? null : TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 14,
                       height: 1.3,
@@ -567,7 +592,7 @@ class TransactionDetailRow extends StatelessWidget {
                   if (caption != null) ...[
                     const SizedBox(height: 3),
                     Text(
-                      caption!,
+                      caption,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -588,7 +613,7 @@ class TransactionDetailRow extends StatelessWidget {
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 140),
                 child: Text(
-                  trailing!,
+                  trailing,
                   maxLines: 1,
                   textAlign: TextAlign.end,
                   overflow: TextOverflow.ellipsis,
@@ -609,6 +634,16 @@ class TransactionDetailRow extends StatelessWidget {
         ),
       ),
     );
+    if (expandable) {
+      return InkWell(
+        onTap: () => setState(() => _expanded = !_expanded),
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 180),
+          alignment: Alignment.topCenter,
+          child: content,
+        ),
+      );
+    }
     if (onTap == null) return MergeSemantics(child: content);
     return InkWell(onTap: onTap, child: content);
   }
@@ -779,6 +814,10 @@ class _TransactionTextRowState extends State<TransactionTextRow> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           child: Row(
+            // A multi-line note keeps its icon at the top, beside the label.
+            crossAxisAlignment: widget.multiline
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center,
             children: [
               if (widget.onIconTap == null)
                 widget.leading ?? SheetIconTile(icon: widget.icon)
@@ -897,7 +936,7 @@ class _TransactionTextRowState extends State<TransactionTextRow> {
                             : const Duration(milliseconds: 200),
                         curve: Curves.fastOutSlowIn,
                         alignment: Alignment.topLeft,
-                        child: _SuggestionChips(
+                        child: SuggestionChips(
                           values: _suggestions,
                           onPick: _pick,
                         ),
@@ -916,8 +955,12 @@ class _TransactionTextRowState extends State<TransactionTextRow> {
 /// A row of past values under a [TransactionTextRow], scrolled sideways
 /// when they don't fit. Counted as part of the field it serves, so tapping
 /// one never takes the focus (and keyboard) away from it.
-class _SuggestionChips extends StatelessWidget {
-  const _SuggestionChips({required this.values, required this.onPick});
+class SuggestionChips extends StatelessWidget {
+  const SuggestionChips({
+    super.key,
+    required this.values,
+    required this.onPick,
+  });
   final List<String> values;
   final ValueChanged<String> onPick;
 

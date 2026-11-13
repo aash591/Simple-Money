@@ -1,0 +1,126 @@
+[
+  {
+    "id": "commercialbankofceylon-variables-001",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ComBank",
+      "body": "Dear Cardholder, Purchase at MIGRATIONSHOP for LKR 321.09 on 02-DEC-2027 11:22:33 has been authorised on your debit card ending #9988.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.commercialbankofceylon.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Commercial Bank of Ceylon",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofceylon-variables-002",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ComBank",
+      "body": "Dear Cardholder, Purchase at MIGRATIONSHOP for Rs. 321.09 on 02-DEC-2027 11:22:33 has been authorised on your credit card ending #9988.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.commercialbankofceylon.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Commercial Bank of Ceylon",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofceylon-variables-003",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ComBank",
+      "body": "Dear Cardholder, Purchase at MIGRATIONSHOP for USD 321.09 on 02-DEC-2027 11:22:33 has been authorised on your credit card ending #9988.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.commercialbankofceylon.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Commercial Bank of Ceylon",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofceylon-variables-004",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ComBank",
+      "body": "Credit for Rs. 321.09 to A/C #9988 on 02-DEC-2027.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.commercialbankofceylon.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "LKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ceylon",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

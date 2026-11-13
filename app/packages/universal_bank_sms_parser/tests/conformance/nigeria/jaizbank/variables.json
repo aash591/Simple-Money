@@ -1,0 +1,64 @@
+[
+  {
+    "id": "jaizbank-variables-001",
+    "country": "NG",
+    "bankId": "ng.jaizbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Jaiz",
+      "body": "Acct:**988 Amt:N321.09DR Desc:MIGRATIONSHOP 02-DEC-2027 11:22:33 Help:9876.54 Bal:N252.9876.54 Buy Airtime, Dial *9876.54*Amount#",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.jaizbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Jaiz Bank",
+        "countryCode": "NG",
+        "accountLast4": "988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jaizbank-variables-002",
+    "country": "NG",
+    "bankId": "ng.jaizbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Jaiz",
+      "body": "Acct:**988 Amt:N321.09CR Desc:MIGRATIONSHOP 02-DEC-2027 11:22:33 Help:9876.54 Bal:N352.9876.54 Buy Airtime, Dial *9876.54*Amount#",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.jaizbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Jaiz Bank",
+        "countryCode": "NG",
+        "accountLast4": "988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

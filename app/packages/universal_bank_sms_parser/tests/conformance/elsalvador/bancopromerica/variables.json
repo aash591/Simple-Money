@@ -1,0 +1,95 @@
+[
+  {
+    "id": "bancopromerica-variables-003",
+    "country": "SV",
+    "bankId": "sv.bancopromerica",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Promerica",
+      "body": "Ha recibido un abono Transferencia de Fondos a cuenta corriente de GIVEN NAME SURNAME por $ 321.09 a traves de META998877 el 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sv.bancopromerica.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Banco Promerica",
+        "countryCode": "SV",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bancopromerica-variables-004",
+    "country": "SV",
+    "bankId": "sv.bancopromerica",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Promerica",
+      "body": "Su Op. META998877 de Transferencia de Fondos a MIGRATIONSHOP por $ 321.09 ha sido aplicada exitosamente",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sv.bancopromerica.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Banco Promerica",
+        "countryCode": "SV",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bancopromerica-variables-005",
+    "country": "SV",
+    "bankId": "sv.bancopromerica",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Promerica",
+      "body": "Promerica te informa que tu TTA *9988: ha realizado una compra por USD 321.09 en MIGRATIONSHOP. Consulta al 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sv.bancopromerica.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Banco Promerica",
+        "countryCode": "SV",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

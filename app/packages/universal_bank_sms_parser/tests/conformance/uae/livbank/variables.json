@@ -1,0 +1,126 @@
+[
+  {
+    "id": "livbank-variables-005",
+    "country": "AE",
+    "bankId": "ae.livbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Liv",
+      "body": "Purchase of AED 321.09 with Debit Card ending 9988 at MIGRATIONSHOP. Avl Balance is AED 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.livbank.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Liv Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "livbank-variables-008",
+    "country": "AE",
+    "bankId": "ae.livbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Liv",
+      "body": "Purchase of USD 321.09 with Debit Card ending 9988 at MIGRATIONSHOP. Avl Balance is AED 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.livbank.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Liv Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "livbank-variables-009",
+    "country": "AE",
+    "bankId": "ae.livbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Liv",
+      "body": "Purchase of EUR 321.09 with Debit Card ending 9988 at MIGRATIONSHOP. Avl Balance is AED 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.livbank.template009",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Liv Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "livbank-variables-010",
+    "country": "AE",
+    "bankId": "ae.livbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Liv",
+      "body": "Purchase of GBP 321.09 with Debit Card ending 9988 at MIGRATIONSHOP. Avl Balance is AED 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.livbank.template010",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "GBP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Liv Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

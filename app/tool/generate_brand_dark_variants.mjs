@@ -49,6 +49,18 @@ const treatments = [
   { key: 'deutschebank', treatment: 'white' },
   { key: 'hdfcbank', treatment: 'white' },
   { key: 'thurgauerkantonalbank', treatment: 'white' },
+  // Parser-pack banks whose dark navy/black/purple artwork vanishes on charcoal.
+  { key: 'nationalsavingsbank', treatment: 'white', keepAccent: (r, g, b) => r > 170 && g > 120 && b < 80 },
+  { key: 'sabb', treatment: 'white', keepAccent: (r, g, b) => r > 150 && g < 90 && b < 90 },
+  { key: 'parsian', treatment: 'white', keepAccent: (r, g, b) => r > 110 && r > g * 1.25 && r > b * 1.5 },
+  { key: 'discovercard', treatment: 'white', keepAccent: (r, g, b) => r > 200 && g > 80 && g < 190 && b < 110 },
+  { key: 'emiratesislamic', treatment: 'white' },
+  { key: 'uobthailand', treatment: 'white', keepAccent: (r, g, b) => r > 150 && g < 90 && b < 90 },
+  { key: 'd360bank', treatment: 'white', keepAccent: (r, g, b) => r > 200 && g < 140 && b < 130 && r > g * 1.5 },
+  { key: 'opay', treatment: 'white', keepAccent: (r, g, b) => g > 140 && r < 90 },
+  { key: 'citibank', treatment: 'white', keepAccent: (r, g, b) => r > 150 && g < 90 && b < 90 },
+  { key: 'navyfederal', treatment: 'white' },
+  { key: 'banquesaudifransi', treatment: 'white' },
 ];
 const keys = treatments.map(({ key }) => key);
 

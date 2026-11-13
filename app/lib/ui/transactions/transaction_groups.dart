@@ -375,7 +375,7 @@ class _EmptyState extends StatelessWidget {
         GlassLens(
           size: 104,
           child: EmptyArtwork(
-            filtered ? EmptyArt.search : EmptyArt.transfer,
+            filtered ? EmptyArt.search : EmptyArt.receipt,
             size: 56,
           ),
         ),

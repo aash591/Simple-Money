@@ -2,6 +2,8 @@ import '../../data/community/community_fixes.dart';
 
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -119,6 +121,28 @@ class _HomeScreenState extends State<HomeScreen>
     widget.transactionStore.addListener(_reloadSmsQueue);
     WidgetsBinding.instance.addPostFrameCallback((_) => _reviewUpi());
     unawaited(_syncCommunity());
+    unawaited(_watchNetwork());
+  }
+
+  StreamSubscription<List<ConnectivityResult>>? _network;
+
+  /// A fix shared while offline goes as soon as the phone is back online,
+  /// not only on the next app start.
+  Future<void> _watchNetwork() async {
+    if (widget.community == null) return;
+    try {
+      // Probe first: an unsupported platform reports to Flutter's error
+      // handler before a stream listener can catch it.
+      await Connectivity().checkConnectivity();
+      if (!mounted) return;
+      _network = Connectivity().onConnectivityChanged.listen((networks) {
+        if (networks.any((n) => n != ConnectivityResult.none)) {
+          unawaited(widget.community?.flush());
+        }
+      }, onError: (Object _) {});
+    } catch (_) {
+      // No connectivity events here: start and resume still send.
+    }
   }
 
   @override
@@ -221,6 +245,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _network?.cancel();
     _historySlide.dispose();
     _tabMotion.dispose();
     widget.transactionStore.removeListener(_reloadSmsQueue);

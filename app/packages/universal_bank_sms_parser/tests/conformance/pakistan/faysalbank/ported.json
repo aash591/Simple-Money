@@ -1,0 +1,157 @@
+[
+  {
+    "id": "faysalbank-ported-004",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "PennyWise FaysalBankParser (Incoming IBFT from ACME Services); see NOTICE.md",
+    "input": {
+      "sender": "FBL",
+      "body": "PKR 250,000.00 received from ACME SERVICES  A/C *4388 in FBL A/C *1234 on 06/FEB/2026 at 02:19 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "pk.faysalbank.template004",
+      "candidate": {
+        "amountMinor": 25000000,
+        "currencyCode": "PKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Faysal Bank",
+        "countryCode": "PK",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "ACME SERVICES",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "faysalbank-ported-006",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "PennyWise FaysalBankParser (ATM cash withdrawal); see NOTICE.md",
+    "input": {
+      "sender": "FBL",
+      "body": "PKR 10,000.00 ATM cash withdrawal from FBL A/C *1234 on 01/FEB/2026 at 02:52 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "pk.faysalbank.template006",
+      "candidate": {
+        "amountMinor": 1000000,
+        "currencyCode": "PKR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Faysal Bank",
+        "countryCode": "PK",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "ATM cash withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "faysalbank-ported-007",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "PennyWise FaysalBankParser (Incoming IBFT from BAFL); see NOTICE.md",
+    "input": {
+      "sender": "FBL",
+      "body": "PKR 135,327.46 received from Demo Sender BAFL A/C*2050 via IBFT in FBL A/C *1234 on 29/JAN/2026 at 01:13 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "pk.faysalbank.template007",
+      "candidate": {
+        "amountMinor": 13532746,
+        "currencyCode": "PKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Faysal Bank",
+        "countryCode": "PK",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "Demo Sender BAFL",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "faysalbank-ported-008",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "PennyWise FaysalBankParser (Incoming FT with sender and receiver accounts); see NOTICE.md",
+    "input": {
+      "sender": "FBL",
+      "body": "PKR 200,000.00 received from Sender Name FBL A/C *4613 via FT in FBL A/C *1234 on 24/JAN/2026 at 12:50 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "pk.faysalbank.template008",
+      "candidate": {
+        "amountMinor": 20000000,
+        "currencyCode": "PKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Faysal Bank",
+        "countryCode": "PK",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "Sender Name FBL",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "faysalbank-ported-009",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "PennyWise FaysalBankParser (Incoming FT with different receiver); see NOTICE.md",
+    "input": {
+      "sender": "FBL",
+      "body": "PKR 950,000.00 received from Demo Sender FBL A/C *4646 via FT in FBL A/C *4388 on 05/JAN/2026 at 02:44 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "pk.faysalbank.template008",
+      "candidate": {
+        "amountMinor": 95000000,
+        "currencyCode": "PKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Faysal Bank",
+        "countryCode": "PK",
+        "accountLast4": "4388",
+        "reference": null,
+        "counterparty": "Demo Sender FBL",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

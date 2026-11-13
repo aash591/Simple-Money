@@ -61,14 +61,28 @@ class ModalBackgroundBlur(private val activity: Activity, engine: FlutterEngine)
 
     private fun largest() = regions.values.maxByOrNull { it.first.width() * it.first.height() }
 
+    // What the window last showed, so an update that changes nothing (such as
+    // a smaller modal moving under the largest one) costs nothing.
+    private var shownRegion: Pair<RectF, Float>? = null
+    private var shownBlur = -1
+
     private fun refresh() {
-        background.invalidateSelf()
-        // Reset the background so DecorView refreshes the compositor outline.
-        activity.window.setBackgroundDrawable(null)
-        activity.window.setBackgroundDrawable(background)
+        val region = largest()?.let { RectF(it.first) to it.second }
+        if (region != shownRegion) {
+            shownRegion = region
+            background.invalidateSelf()
+            // Reset the background so DecorView refreshes the compositor outline.
+            activity.window.setBackgroundDrawable(null)
+            activity.window.setBackgroundDrawable(background)
+        }
         if (Build.VERSION.SDK_INT >= 31) {
-            activity.window.setBackgroundBlurRadius(if (enabled && regions.isNotEmpty())
-                (40 * activity.resources.displayMetrics.density).toInt() else 0)
+            // Changing it relays out the window, so only when it changes.
+            val blur = if (enabled && regions.isNotEmpty())
+                (40 * activity.resources.displayMetrics.density).toInt() else 0
+            if (blur != shownBlur) {
+                shownBlur = blur
+                activity.window.setBackgroundBlurRadius(blur)
+            }
         }
     }
 

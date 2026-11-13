@@ -1,0 +1,59 @@
+{
+  "id": "ng.opay",
+  "name": "Opay",
+  "senders": [
+    "OPAY"
+  ],
+  "formats": [
+    {
+      "id": "ng.opay.template001",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "card",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Dear OPay user, N"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " has been debited for "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " on "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "."
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    }
+  ]
+}

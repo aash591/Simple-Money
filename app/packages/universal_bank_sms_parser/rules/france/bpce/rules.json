@@ -1,0 +1,69 @@
+{
+  "id": "fr.bpce",
+  "name": "BPCE",
+  "senders": [
+    "38015"
+  ],
+  "formats": [
+    {
+      "id": "fr.bpce.template001",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Caisse d'Epargne: nous vous confirmons la réalisation de votre virement instantané de "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " EUR du "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " à "
+        },
+        {
+          "op": "capture_reference",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " vers "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      },
+      "defaults": {
+        "decimalMark": ",",
+        "grouping": "western",
+        "case": "exact"
+      }
+    }
+  ]
+}

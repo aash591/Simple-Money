@@ -1,0 +1,64 @@
+[
+  {
+    "id": "zenithbank-variables-001",
+    "country": "NG",
+    "bankId": "ng.zenithbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ZENITHBANK",
+      "body": "Acct:429****988 DT:02-DEC-2027 11:22:33 MIGRATIONSHOP DR Amt:321.09 Bal:9876.54 Dial *9876.54# for quick airtime/Data purchase",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.zenithbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Zenith Bank",
+        "countryCode": "NG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zenithbank-variables-002",
+    "country": "NG",
+    "bankId": "ng.zenithbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ZENITHBANK",
+      "body": "Acct:429****988 DT:02-DEC-2027 11:22:33 ETI NXG MOBILE TRF TO ZIB CO CR Amt:321.09 Bal:9876.54 Dial *9876.54# for quick airtime/Data purchase",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.zenithbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Zenith Bank",
+        "countryCode": "NG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "ETI NXG  MOBILE TRF TO ZIB  CO",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

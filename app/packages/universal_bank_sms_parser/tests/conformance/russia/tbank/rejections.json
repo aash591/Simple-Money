@@ -1,0 +1,162 @@
+[
+  {
+    "id": "tbank-reject-security",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Tinkoff",
+      "body": "your otp is 123456. Пополнение, счет RUB. 5000 ₽. Банкомат. Доступно 10028,05 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "tbank-reject-promotional",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Tinkoff",
+      "body": "exclusive offer: apply now. Пополнение, счет RUB. 5000 ₽. Банкомат. Доступно 10028,05 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "tbank-reject-failed",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Tinkoff",
+      "body": "payment failed. Пополнение, счет RUB. 5000 ₽. Банкомат. Доступно 10028,05 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "tbank-reject-pending",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Tinkoff",
+      "body": "payment pending. Пополнение, счет RUB. 5000 ₽. Банкомат. Доступно 10028,05 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "tbank-reject-future",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Tinkoff",
+      "body": "will be debited. Пополнение, счет RUB. 5000 ₽. Банкомат. Доступно 10028,05 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "tbank-reject-notice",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Tinkoff",
+      "body": "statement generated. Пополнение, счет RUB. 5000 ₽. Банкомат. Доступно 10028,05 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "tbank-reject-unknown-sender",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Пополнение, счет RUB. 5000 ₽. Банкомат. Доступно 10028,05 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "tbank-reject-balance-only",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "Tinkoff",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

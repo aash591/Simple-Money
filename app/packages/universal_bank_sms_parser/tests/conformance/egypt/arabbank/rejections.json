@@ -1,0 +1,162 @@
+[
+  {
+    "id": "arabbank-reject-security",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "your otp is 123456. A Trx using Card XXXX2020 from Top Up ETISALAT Egypt for EGP 123.45 on 18-Jun-2026 at 13:59 GMT+3. Available balance is EGP 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-reject-promotional",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "exclusive offer: apply now. A Trx using Card XXXX2020 from Top Up ETISALAT Egypt for EGP 123.45 on 18-Jun-2026 at 13:59 GMT+3. Available balance is EGP 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-reject-failed",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "payment failed. A Trx using Card XXXX2020 from Top Up ETISALAT Egypt for EGP 123.45 on 18-Jun-2026 at 13:59 GMT+3. Available balance is EGP 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-reject-pending",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "payment pending. A Trx using Card XXXX2020 from Top Up ETISALAT Egypt for EGP 123.45 on 18-Jun-2026 at 13:59 GMT+3. Available balance is EGP 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-reject-future",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "will be debited. A Trx using Card XXXX2020 from Top Up ETISALAT Egypt for EGP 123.45 on 18-Jun-2026 at 13:59 GMT+3. Available balance is EGP 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-reject-notice",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "statement generated. A Trx using Card XXXX2020 from Top Up ETISALAT Egypt for EGP 123.45 on 18-Jun-2026 at 13:59 GMT+3. Available balance is EGP 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-reject-unknown-sender",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "A Trx using Card XXXX2020 from Top Up ETISALAT Egypt for EGP 123.45 on 18-Jun-2026 at 13:59 GMT+3. Available balance is EGP 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "arabbank-reject-balance-only",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "ArabBank",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

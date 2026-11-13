@@ -1,0 +1,95 @@
+[
+  {
+    "id": "mbankcz-ported-001",
+    "country": "CZ",
+    "bankId": "cz.mbankcz",
+    "provenance": "PennyWise MBankCZParser (Card payment at store); see NOTICE.md",
+    "input": {
+      "sender": "mBank CZ",
+      "body": "Nová platba kartou\n100,00 CZK v obchodě POTRAVINY OLOMOUC 9.Podívejte se, zda je všechno ok.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "cz.mbankcz.template001",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "CZK",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "mBank CZ",
+        "countryCode": "CZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "POTRAVINY OLOMOUC 9",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mbankcz-ported-002",
+    "country": "CZ",
+    "bankId": "cz.mbankcz",
+    "provenance": "PennyWise MBankCZParser (Incoming transfer); see NOTICE.md",
+    "input": {
+      "sender": "mBank CZ",
+      "body": "Příchozí platba\n500,00 CZK od odesílatele JAN NOVAK. Podívejte se, zda je všechno ok.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "cz.mbankcz.template002",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "CZK",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "mBank CZ",
+        "countryCode": "CZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "JAN NOVAK",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mbankcz-ported-003",
+    "country": "CZ",
+    "bankId": "cz.mbankcz",
+    "provenance": "PennyWise MBankCZParser (Outgoing transfer); see NOTICE.md",
+    "input": {
+      "sender": "mBank CZ",
+      "body": "Odchozí platba\n250,00 CZK na účet 123456789/6700. Podívejte se, zda je všechno ok.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "cz.mbankcz.template003",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "CZK",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "mBank CZ",
+        "countryCode": "CZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "123456789/6700",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

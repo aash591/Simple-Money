@@ -1,0 +1,64 @@
+[
+  {
+    "id": "safwaislamicbank-ported-001",
+    "country": "JO",
+    "bankId": "jo.safwaislamicbank",
+    "provenance": "PennyWise SafwaIslamicBankParser (Cash deposit at self-service branch); see NOTICE.md",
+    "input": {
+      "sender": "Safwa Bank",
+      "body": "دفعة نقدية(فرع آلي) بمبلغ 150.000 دينار الرصيد المتوفر 175.250 دينار",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.safwaislamicbank.template001",
+      "candidate": {
+        "amountMinor": 150000,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Safwa Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Cash Deposit",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "safwaislamicbank-ported-002",
+    "country": "JO",
+    "bankId": "jo.safwaislamicbank",
+    "provenance": "PennyWise SafwaIslamicBankParser (Bank fees); see NOTICE.md",
+    "input": {
+      "sender": "Safwa Bank",
+      "body": "تغطية عمولات البنك بمبلغ 0.500 دينار الرصيد المتوفر 174.750 دينار",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.safwaislamicbank.template002",
+      "candidate": {
+        "amountMinor": 500,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Safwa Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Bank Fees",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

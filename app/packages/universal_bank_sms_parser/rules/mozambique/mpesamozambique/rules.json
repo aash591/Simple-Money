@@ -1,0 +1,509 @@
+{
+  "id": "mz.mpesamozambique",
+  "name": "M-Pesa Mozambique",
+  "senders": [
+    "M-PESA",
+    "MPESA"
+  ],
+  "formats": [
+    {
+      "id": "mz.mpesamozambique.template001",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "wallet",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Confirmado "
+        },
+        {
+          "op": "capture_reference",
+          "name": "reference",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Transferiste "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "MT e a taxa foi de "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ".23MT para "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " aos "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " as "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". O teu novo saldo M-Pesa e de "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta4",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ".67MT. Continua a transferir SEM TAXAS de M-Pesa para M-Pesa. Em caso de duvida, liga "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta5",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "."
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "mz.mpesamozambique.template002",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "wallet",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Confirmado "
+        },
+        {
+          "op": "capture_reference",
+          "name": "reference",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Registamos uma operacao de compra no valor de "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "MT e a taxa foi de "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ".00MT na entidade "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " com referencia aos "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " as "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". O teu novo saldo M-Pesa e de "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ".56MT. Em caso de duvida, liga "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta4",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". M-Pesa e facil!"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "mz.mpesamozambique.template003",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "wallet",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Confirmado "
+        },
+        {
+          "op": "capture_reference",
+          "name": "reference",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Aos "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " as "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " levantaste "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "MT no agente "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": ". O novo saldo M-Pesa e de "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ".56MT e a taxa foi de "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta4",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ".34MT. Em caso de duvida, liga "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta5",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". M-Pesa e facil!"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "mz.mpesamozambique.template004",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "wallet",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Confirmado "
+        },
+        {
+          "op": "capture_reference",
+          "name": "reference",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Depositaste o valor de "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "MT no agente "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " aos "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " as "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". O teu novo saldo M-Pesa e de "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ".67MT. Aproveita e transfere SEM TAXAS de M-Pesa para M-Pesa. Em caso de duvida, liga "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "."
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
+      "id": "mz.mpesamozambique.template005",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "wallet",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Confirmado "
+        },
+        {
+          "op": "capture_reference",
+          "name": "reference",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ". Recebeste "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "MT de "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta2",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " - "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " aos "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " as "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " o novo saldo M-Pesa e de "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta3",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ".56MT. Aproveita e transfere SEM TAXAS de M-Pesa para M-Pesa. Em caso de duvida, liga "
+        },
+        {
+          "op": "capture_number",
+          "name": "meta4",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": "."
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    }
+  ]
+}

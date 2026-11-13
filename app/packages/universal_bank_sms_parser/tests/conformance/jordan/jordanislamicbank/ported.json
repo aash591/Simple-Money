@@ -1,0 +1,312 @@
+[
+  {
+    "id": "jordanislamicbank-ported-001",
+    "country": "JO",
+    "bankId": "jo.jordanislamicbank",
+    "provenance": "PennyWise JordanIslamicBankParser (Card authorisation, local merchant (fixed-width card field)); see NOTICE.md",
+    "input": {
+      "sender": "JIB",
+      "body": "تفويض حركة على حسابكم 1234567 - 003 بقيمة 3.59 دينار اردني من HYPERMAX - UNIV.STR.     AMMAN        JO الرصيد المتوفر 214.882 دينار اردني",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.jordanislamicbank.template001",
+      "candidate": {
+        "amountMinor": 3590,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Jordan Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": "4567",
+        "reference": null,
+        "counterparty": "HYPERMAX - UNIV.STR.",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jordanislamicbank-ported-002",
+    "country": "JO",
+    "bankId": "jo.jordanislamicbank",
+    "provenance": "PennyWise JordanIslamicBankParser (Card authorisation, name fills all 25 chars and touches the city); see NOTICE.md",
+    "input": {
+      "sender": "JIB",
+      "body": "تفويض حركة على حسابكم 1234567 - 003 بقيمة 12.4 دينار اردني من MILITARY CONSUMER EST SWIAMMAN JORDAN JO الرصيد المتوفر 98.5 دينار اردني",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.jordanislamicbank.template002",
+      "candidate": {
+        "amountMinor": 12400,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Jordan Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": "4567",
+        "reference": null,
+        "counterparty": "MILITARY CONSUMER EST SWI",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jordanislamicbank-ported-003",
+    "country": "JO",
+    "bankId": "jo.jordanislamicbank",
+    "provenance": "PennyWise JordanIslamicBankParser (Card authorisation, foreign merchant converted to JOD); see NOTICE.md",
+    "input": {
+      "sender": "JIB",
+      "body": "تفويض حركة على حسابكم 1234567 - 003 بقيمة 0.802 دينار اردني من ORACLE IRELAND           35300000000  IE الرصيد المتوفر 41.27 دينار اردني",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.jordanislamicbank.template003",
+      "candidate": {
+        "amountMinor": 802,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Jordan Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "ORACLE IRELAND",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jordanislamicbank-ported-004",
+    "country": "JO",
+    "bankId": "jo.jordanislamicbank",
+    "provenance": "PennyWise JordanIslamicBankParser (CliQ transfer out, long recipient name kept whole); see NOTICE.md",
+    "input": {
+      "sender": "JIB",
+      "body": "حوالة كليك صادرة بمبلغ 0.75 دينار اردني من حسابكم 1234567 - 003 الى JOHNATHAN ALEXANDER MICHAEL SMITH JOHNSON الرصيد المتوفر 7.884 دينار اردني",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.jordanislamicbank.template004",
+      "candidate": {
+        "amountMinor": 750,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Jordan Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": "4567",
+        "reference": null,
+        "counterparty": "JOHNATHAN ALEXANDER MICHAEL SMITH JOHNSON",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jordanislamicbank-ported-005",
+    "country": "JO",
+    "bankId": "jo.jordanislamicbank",
+    "provenance": "PennyWise JordanIslamicBankParser (CliQ transfer in); see NOTICE.md",
+    "input": {
+      "sender": "JIB",
+      "body": "حوالة كليك واردة بمبلغ 25.0 دينار اردني لحسابكم 1234567 - 003 من JANE DOE الرصيد المتوفر 125.3 دينار اردني",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.jordanislamicbank.template005",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Jordan Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": "4567",
+        "reference": null,
+        "counterparty": "JANE DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jordanislamicbank-ported-006",
+    "country": "JO",
+    "bankId": "jo.jordanislamicbank",
+    "provenance": "PennyWise JordanIslamicBankParser (Electronic transfer in); see NOTICE.md",
+    "input": {
+      "sender": "JIB",
+      "body": "تحويل الكتروني لحسابكم 1234567 - 003 بقيمة 46.0 دينار اردني الرصيد المتوفر 223.069 دينار اردني",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.jordanislamicbank.template006",
+      "candidate": {
+        "amountMinor": 46000,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Jordan Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": "4567",
+        "reference": null,
+        "counterparty": "Electronic Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jordanislamicbank-ported-007",
+    "country": "JO",
+    "bankId": "jo.jordanislamicbank",
+    "provenance": "PennyWise JordanIslamicBankParser (Electronic transfer out (double space before المتوفر)); see NOTICE.md",
+    "input": {
+      "sender": "JIB",
+      "body": "تحويل الكتروني من حسابكم 1234567 - 003 بقيمة 50.0 دينار اردني الرصيد  المتوفر 1707.061 دينار اردني",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.jordanislamicbank.template007",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Jordan Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Electronic Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jordanislamicbank-ported-008",
+    "country": "JO",
+    "bankId": "jo.jordanislamicbank",
+    "provenance": "PennyWise JordanIslamicBankParser (Electronic bill payment); see NOTICE.md",
+    "input": {
+      "sender": "JIB",
+      "body": "تسديد الكتروني من حسابكم 1234567 - 003 بقيمة 7.506 دينار اردني الرصيد المتوفر 495.278 دينار اردني",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.jordanislamicbank.template008",
+      "candidate": {
+        "amountMinor": 7506,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Jordan Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Electronic Payment",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jordanislamicbank-ported-009",
+    "country": "JO",
+    "bankId": "jo.jordanislamicbank",
+    "provenance": "PennyWise JordanIslamicBankParser (ATM withdrawal (ليصبح رصيدكم balance)); see NOTICE.md",
+    "input": {
+      "sender": "JIB",
+      "body": "حركة صراف آلي على حسابكم 1234567 - 003 بقيمة 25.0 دينار اردني بتاريخ 01012026  21:23:57 على الصراف الالي عريفة مول 2 رقم التفويض 123456 ليصبح رصيدكم 333.221 دينار اردني",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.jordanislamicbank.template009",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Jordan Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": "4567",
+        "reference": null,
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jordanislamicbank-ported-010",
+    "country": "JO",
+    "bankId": "jo.jordanislamicbank",
+    "provenance": "PennyWise JordanIslamicBankParser (Profit credit with overdrawn (negative) balance); see NOTICE.md",
+    "input": {
+      "sender": "JIB",
+      "body": "قيد ارباح بمبلغ 1.865 دينار اردني  لحسابكم 1234567 - 003 الرصيد المتوفر -150.624 دينار اردني",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.jordanislamicbank.template010",
+      "candidate": {
+        "amountMinor": 1865,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Jordan Islamic Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Profit Credit",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

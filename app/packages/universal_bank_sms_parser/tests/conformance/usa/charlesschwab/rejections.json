@@ -1,0 +1,162 @@
+[
+  {
+    "id": "charlesschwab-reject-security",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "your otp is 123456. A $7.44 debit card transaction was debited from account ending 1234. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-reject-promotional",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "exclusive offer: apply now. A $7.44 debit card transaction was debited from account ending 1234. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-reject-failed",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "payment failed. A $7.44 debit card transaction was debited from account ending 1234. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-reject-pending",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "payment pending. A $7.44 debit card transaction was debited from account ending 1234. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-reject-future",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "will be debited. A $7.44 debit card transaction was debited from account ending 1234. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-reject-notice",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "statement generated. A $7.44 debit card transaction was debited from account ending 1234. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-reject-unknown-sender",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "A $7.44 debit card transaction was debited from account ending 1234. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-reject-balance-only",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

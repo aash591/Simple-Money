@@ -1,0 +1,126 @@
+[
+  {
+    "id": "sampathbank-variables-001",
+    "country": "LK",
+    "bankId": "lk.sampathbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SAMPATHTXN",
+      "body": "LKR 321.09 credited to AC **9988 for MIGRATIONSHOP - MIG123456 02-DEC-2027 11:22:33 To Inq Call 9876.54 Get protected -Do not Share OTP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.sampathbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "LKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Sampath Bank",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sampathbank-variables-002",
+    "country": "LK",
+    "bankId": "lk.sampathbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SAMPATHTXN",
+      "body": "LKR 321.09 debited from AC **9988 for MIGRATIONSHOP 02-DEC-2027 11:22:33 To Inq Call 9876.54 Get protected -Do not Share OTP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.sampathbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Sampath Bank",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sampathbank-variables-003",
+    "country": "LK",
+    "bankId": "lk.sampathbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SAMPATHTXN",
+      "body": "GBP 321.09 credited to AC **9988 for Remittance ID : [MIG123456] : MIGRATIONSHOP 02-DEC-2027 11:22:33 To Inq Call 9876.54 Get protected -Do not Share OTP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.sampathbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "GBP",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Sampath Bank",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sampathbank-variables-004",
+    "country": "LK",
+    "bankId": "lk.sampathbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SAMPCCTXN",
+      "body": "Cr Crd no..**9988 Auth Pmt LKR 321.09 at MIGRATIONSHOP Avl Bal LKR 9876.54 Enq Call 9876.54 - Sampath Bank 9876.54-MAY",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.sampathbank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Sampath Bank",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

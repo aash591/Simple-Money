@@ -22,13 +22,30 @@ class FrostedModalSurface extends StatelessWidget {
     required this.borderRadius,
     required this.child,
     this.blurSigma = 28,
-    this.shadows = const [],
+    this.shadows,
   });
 
   final BorderRadius borderRadius;
   final Widget child;
   final double blurSigma;
-  final List<BoxShadow> shadows;
+
+  /// The surface's drop shadow; null gives the soft, wide one iOS sheets
+  /// have, so the surface lifts off the page behind it.
+  final List<BoxShadow>? shadows;
+
+  static List<BoxShadow> _defaultShadows(bool dark) => [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: dark ? .5 : .24),
+      blurRadius: 44,
+      spreadRadius: -4,
+      offset: const Offset(0, -8),
+    ),
+    BoxShadow(
+      color: Colors.black.withValues(alpha: dark ? .3 : .12),
+      blurRadius: 10,
+      offset: const Offset(0, -1),
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +60,28 @@ class FrostedModalSurface extends StatelessWidget {
   }
 
   Widget _surface(BuildContext context, double visibility, Widget content) {
+    final shadows =
+        this.shadows ??
+        _defaultShadows(Theme.of(context).brightness == Brightness.dark);
+    final surface = _paint(context, visibility, content);
+    if (shadows.isEmpty) return surface;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+        boxShadow: [
+          for (final shadow in shadows)
+            shadow.copyWith(
+              color: shadow.color.withValues(
+                alpha: shadow.color.a * visibility,
+              ),
+            ),
+        ],
+      ),
+      child: surface,
+    );
+  }
+
+  Widget _paint(BuildContext context, double visibility, Widget content) {
     if (!usesGlass(context)) {
       return Opacity(
         opacity: visibility,
@@ -83,8 +122,9 @@ class FrostedModalSurface extends StatelessWidget {
           // No tint of its own: the blur and the cards' own glass fill. Only
           // phones that can't blur get a near-opaque colour instead.
           color: solid
-              ? (dark ? tint : SheetColors.lightSheetBase(context))
-                    .withValues(alpha: (dark ? tint.a : .96) * visibility)
+              ? (dark ? tint : SheetColors.lightSheetBase(context)).withValues(
+                  alpha: (dark ? tint.a : .96) * visibility,
+                )
               : (dark
                     // A dark underlay cancels the whitish haze that the glass
                     // fill and a sheet stacked behind this one add up to.
@@ -94,13 +134,17 @@ class FrostedModalSurface extends StatelessWidget {
                       ).withValues(alpha: (picture ? .72 : .84) * visibility)),
           gradient: solid || !dark
               ? null
-              : (glassCardFill(context) as LinearGradient).scale(.55 * visibility),
+              : (glassCardFill(context) as LinearGradient).scale(
+                  .55 * visibility,
+                ),
         ),
         // Fully opaque, this paints its child directly with no extra layer.
         child: Opacity(opacity: visibility, child: content),
       ),
     );
-    if (!solid) {
+    // Over the launcher (Quick Entry, SMS popup) Flutter has nothing behind
+    // the sheet to blur; Android's own blur does it, so skip a costly no-op.
+    if (!solid && !NativeModalBlur.enabled) {
       // Ramping the blur up with the tint keeps it from snapping on.
       final sigma = blurSigma * visibility;
       surface = BackdropFilter(
@@ -113,21 +157,7 @@ class FrostedModalSurface extends StatelessWidget {
       radius: borderRadius.topLeft.x,
       child: ClipRRect(borderRadius: borderRadius, child: surface),
     );
-    if (shadows.isEmpty) return surface;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: borderRadius,
-        boxShadow: [
-          for (final shadow in shadows)
-            shadow.copyWith(
-              color: shadow.color.withValues(
-                alpha: shadow.color.a * visibility,
-              ),
-            ),
-        ],
-      ),
-      child: surface,
-    );
+    return surface;
   }
 }
 

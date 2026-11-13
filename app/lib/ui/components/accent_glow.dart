@@ -16,7 +16,8 @@ class AccentGlowScope extends StatelessWidget {
     child: Stack(
       children: [
         const Positioned.fill(child: GlassBackdrop()),
-        child,
+        // Frosted cards over a picture share one blur of it.
+        BackdropGroup(child: child),
       ],
     ),
   );

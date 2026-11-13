@@ -1,0 +1,95 @@
+[
+  {
+    "id": "dubaifirst-ported-001",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "PennyWise DubaiFirstParser (Card transaction notification); see NOTICE.md",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "Card Transaction\nCard ending with: 1111\nAmount: AED 280\nAt: Paymob**TEST TOYS TR\nDate: 01/01/2030\nAvailable Balance: AED 10247.04",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.dubaifirst.template001",
+      "candidate": {
+        "amountMinor": 28000,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Dubai First",
+        "countryCode": "AE",
+        "accountLast4": "1111",
+        "reference": null,
+        "counterparty": "Paymob**TEST TOYS TR",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "dubaifirst-ported-004",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "PennyWise DubaiFirstParser (Foreign-currency spend keeps the AED limit currency); see NOTICE.md",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "Card Transaction\nCard ending with: 1111\nAmount: USD 20.00\nAt: TEST ONLINE\nDate: 01/01/2030\nAvailable Balance: AED 8900.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.dubaifirst.template004",
+      "candidate": {
+        "amountMinor": 2000,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Dubai First",
+        "countryCode": "AE",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "TEST ONLINE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "dubaifirst-ported-006",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "PennyWise DubaiFirstParser (Heading in the notification title (body has only the fields)); see NOTICE.md",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "Card ending with: 1111\nAmount: AED 58\nAt: TEST STORE\nDate: 01/01/2030\nAvailable Balance: AED 10527.04",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.dubaifirst.template006",
+      "candidate": {
+        "amountMinor": 5800,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Dubai First",
+        "countryCode": "AE",
+        "accountLast4": "1111",
+        "reference": null,
+        "counterparty": "TEST STORE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

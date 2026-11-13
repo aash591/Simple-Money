@@ -1,0 +1,95 @@
+[
+  {
+    "id": "bankmuscat-ported-001",
+    "country": "OM",
+    "bankId": "om.bankmuscat",
+    "provenance": "PennyWise BankMuscatParser (Debit card purchase - merchant with leading ID); see NOTICE.md",
+    "input": {
+      "sender": "BankMuscat",
+      "body": "تم خصم 0.650 OMR من حسابك رقم XXXXX9999 بإستخدام بطاقة الخصم المباشر في 757487-MASAKEN AL RAHA LLC KHOOM بتاريخ 2026/03/02 14:43:57. رصيدك الحالي هو 9999.740 OMR.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "om.bankmuscat.template001",
+      "candidate": {
+        "amountMinor": 650,
+        "currencyCode": "OMR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Bank Muscat",
+        "countryCode": "OM",
+        "accountLast4": "9999",
+        "reference": null,
+        "counterparty": "MASAKEN AL RAHA LLC KHOOM",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bankmuscat-ported-002",
+    "country": "OM",
+    "bankId": "om.bankmuscat",
+    "provenance": "PennyWise BankMuscatParser (Debit card purchase - merchant with trailing ID); see NOTICE.md",
+    "input": {
+      "sender": "BankMuscat",
+      "body": "تم خصم OMR 0.100 من حسابك رقم XXXXXXX9999 بإستخدام بطاقة الخصم المباشر في Break Point QURU-650068 بتاريخ 2026/04/01 17:54:40. رصيدك الحالي هو 9999.740 OMR.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "om.bankmuscat.template002",
+      "candidate": {
+        "amountMinor": 100,
+        "currencyCode": "OMR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Bank Muscat",
+        "countryCode": "OM",
+        "accountLast4": "9999",
+        "reference": null,
+        "counterparty": "Break Point QURU",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bankmuscat-ported-003",
+    "country": "OM",
+    "bankId": "om.bankmuscat",
+    "provenance": "PennyWise BankMuscatParser (Debit card purchase - merchant with middle ID); see NOTICE.md",
+    "input": {
+      "sender": "BankMuscat",
+      "body": "تم خصم OMR 0.300 من حسابك رقم XXXXXXX9999 بإستخدام بطاقة الخصم المباشر في MASAKEN AL RAHA LLC-833468 KHOOM بتاريخ 2026/04/02 16:15:38. رصيدك الحالي هو 9999.740 OMR.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "om.bankmuscat.template003",
+      "candidate": {
+        "amountMinor": 300,
+        "currencyCode": "OMR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Bank Muscat",
+        "countryCode": "OM",
+        "accountLast4": "9999",
+        "reference": null,
+        "counterparty": "MASAKEN AL RAHA LLC KHOOM",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "citibank-ported-001",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "PennyWise CitiBankParser (Standard transaction); see NOTICE.md",
+    "input": {
+      "sender": "692484",
+      "body": "Citi Alert: A $3.01 transaction was made at BP#1234E  on card ending in 1234. View details at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.citibank.template001",
+      "candidate": {
+        "amountMinor": 301,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Citi Bank",
+        "countryCode": "US",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "BP#1234E",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "citibank-ported-002",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "PennyWise CitiBankParser (Card not present); see NOTICE.md",
+    "input": {
+      "sender": "CITI",
+      "body": "Citi Alert: Card ending in 1234 was not present for a $506.39 transaction at WWW Google C. View at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.citibank.template002",
+      "candidate": {
+        "amountMinor": 50639,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Citi Bank",
+        "countryCode": "US",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "WWW Google C",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "citibank-ported-003",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "PennyWise CitiBankParser (Alternative sender); see NOTICE.md",
+    "input": {
+      "sender": "US-CITI-A",
+      "body": "Citi Alert: A $150.00 transaction was made at AMAZON.COM on card ending in 5678. View details at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.citibank.template003",
+      "candidate": {
+        "amountMinor": 15000,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Citi Bank",
+        "countryCode": "US",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

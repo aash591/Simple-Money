@@ -1,0 +1,126 @@
+[
+  {
+    "id": "enpara-ported-001",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "PennyWise EnparaBankParser (Card spend (Encard) - simple merchant); see NOTICE.md",
+    "input": {
+      "sender": "Enpara",
+      "body": "Vadesiz TL hesabınıza bağlı 2589 ile biten Encard'ınızla 10/05/2026 tarihinde 105100000024364-OBILET ISTANBUL TR firmasında 520,00 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tr.enpara.template001",
+      "candidate": {
+        "amountMinor": 52000,
+        "currencyCode": "TRY",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Enpara",
+        "countryCode": "TR",
+        "accountLast4": "2589",
+        "reference": null,
+        "counterparty": "OBILET ISTANBUL",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "enpara-ported-002",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "PennyWise EnparaBankParser (Card spend (Encard) - hyphenated merchant); see NOTICE.md",
+    "input": {
+      "sender": "Enpara",
+      "body": "Vadesiz TL hesabınıza bağlı 2589 ile biten Encard'ınızla 11/05/2026 tarihinde 105100000248567-Trendyol - Yemek ISTANBUL TR firmasında 350,00 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tr.enpara.template001",
+      "candidate": {
+        "amountMinor": 35000,
+        "currencyCode": "TRY",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Enpara",
+        "countryCode": "TR",
+        "accountLast4": "2589",
+        "reference": null,
+        "counterparty": "Trendyol - Yemek ISTANBUL",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "enpara-ported-004",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "PennyWise EnparaBankParser (Card spend (Encard) - merchant with slash); see NOTICE.md",
+    "input": {
+      "sender": "Enpara",
+      "body": "Vadesiz TL hesabınıza bağlı 2589 ile biten Encard'ınızla 11/05/2026 tarihinde 000000003718799-NKOLAY/DIRK ROSSMANN ISTANBUL TR firmasında 528,00 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tr.enpara.template001",
+      "candidate": {
+        "amountMinor": 52800,
+        "currencyCode": "TRY",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Enpara",
+        "countryCode": "TR",
+        "accountLast4": "2589",
+        "reference": null,
+        "counterparty": "NKOLAY/DIRK ROSSMANN ISTANBUL",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "enpara-ported-006",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "PennyWise EnparaBankParser (Incoming FAST transfer with balanceAfter); see NOTICE.md",
+    "input": {
+      "sender": "Enpara",
+      "body": "Vadesiz TL hesabınıza 11/05/2026 tarihinde Ismail U tarafından yapılan para transferi (FAST) sonucunda 200,00 TL giriş oldu. İşlem sonrası hesap bakiyesi: 3.231,27 TL",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tr.enpara.template006",
+      "candidate": {
+        "amountMinor": 20000,
+        "currencyCode": "TRY",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Enpara",
+        "countryCode": "TR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Ismail U",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

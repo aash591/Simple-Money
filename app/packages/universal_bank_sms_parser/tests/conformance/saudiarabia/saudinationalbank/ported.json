@@ -1,0 +1,126 @@
+[
+  {
+    "id": "saudinationalbank-ported-003",
+    "country": "SA",
+    "bankId": "sa.saudinationalbank",
+    "provenance": "PennyWise SNBAlAhliBankParser (POS purchase with Samsung Pay (Mada)); see NOTICE.md",
+    "input": {
+      "sender": "SNB-AlAhli",
+      "body": "شراء نقاط بيع SamsungPay\nبـSAR 12.34\nمن SYNTHETIC STORE\nمدى *0007\nفي 00:00 01/01/30",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.saudinationalbank.template003",
+      "candidate": {
+        "amountMinor": 1234,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Saudi National Bank",
+        "countryCode": "SA",
+        "accountLast4": "0007",
+        "reference": null,
+        "counterparty": "SYNTHETIC STORE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "saudinationalbank-ported-005",
+    "country": "SA",
+    "bankId": "sa.saudinationalbank",
+    "provenance": "PennyWise SNBAlAhliBankParser (Amount-first SAR layout is parsed); see NOTICE.md",
+    "input": {
+      "sender": "SNB-AlAhli",
+      "body": "شراء انترنت\nبـ23.45 SAR\nمن SYNTHETIC WALLET\nمدى-ابل *0007",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.saudinationalbank.template005",
+      "candidate": {
+        "amountMinor": 2345,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Saudi National Bank",
+        "countryCode": "SA",
+        "accountLast4": "0007",
+        "reference": null,
+        "counterparty": "SYNTHETIC WALLET",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "saudinationalbank-ported-006",
+    "country": "SA",
+    "bankId": "sa.saudinationalbank",
+    "provenance": "PennyWise SNBAlAhliBankParser (Refund takes precedence over purchase wording); see NOTICE.md",
+    "input": {
+      "sender": "SNB-AlAhli",
+      "body": "استرجاع شراء\nبـ34.56 SAR\nمن SYNTHETIC RETURN STORE\nمدى *0007",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.saudinationalbank.template006",
+      "candidate": {
+        "amountMinor": 3456,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Saudi National Bank",
+        "countryCode": "SA",
+        "accountLast4": "0007",
+        "reference": null,
+        "counterparty": "SYNTHETIC RETURN STORE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "saudinationalbank-ported-008",
+    "country": "SA",
+    "bankId": "sa.saudinationalbank",
+    "provenance": "PennyWise SNBAlAhliBankParser (Emergency cash correction returns funds); see NOTICE.md",
+    "input": {
+      "sender": "SNB-AlAhli",
+      "body": "تصحيح سحب نقدي\nمبلغ 45.67 SAR\nمدى *0007",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.saudinationalbank.template008",
+      "candidate": {
+        "amountMinor": 4567,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Saudi National Bank",
+        "countryCode": "SA",
+        "accountLast4": "0007",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

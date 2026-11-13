@@ -242,9 +242,13 @@ class MoreScreen extends StatelessWidget {
                       icon: Icons.help_rounded,
                       title: 'Help',
                       subtitle: 'FAQ, reports and community',
-                      onTap: () =>
-                          Navigator.of(context)
-                              .push(FeatureRoute<void>(const HelpScreen())),
+                      onTap: () => Navigator.of(context).push(
+                        FeatureRoute<void>(
+                          HelpScreen(
+                            database: transactionStore.repository.database,
+                          ),
+                        ),
+                      ),
                     ),
                     MenuRow(
                       icon: Icons.info_rounded,

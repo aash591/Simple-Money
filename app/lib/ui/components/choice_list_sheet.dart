@@ -366,6 +366,7 @@ class _ChoicePickerPageState<T> extends State<ChoicePickerPage<T>> {
             controller: _search,
             onChanged: (_) => setState(() {}),
             hintText: widget.searchHint,
+            fillColor: colors.card,
           ),
         ),
       ],

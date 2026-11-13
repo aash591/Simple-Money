@@ -1,0 +1,162 @@
+[
+  {
+    "id": "keystonebank-reject-security",
+    "country": "NG",
+    "bankId": "ng.keystonebank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "KEYSTONE",
+      "body": "your otp is 123456. Debit!\nAcct:602****370\nAmt:NGN-57,000.00\nDesc:TRF IFO WILSPLENDOR LIMITED FRM OBA\nDate:26-05-2026 0:0\nBal:NGN1,929.24\nDownload Keymobile bit.ly/31MJj1s",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "keystonebank-reject-promotional",
+    "country": "NG",
+    "bankId": "ng.keystonebank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "KEYSTONE",
+      "body": "exclusive offer: apply now. Debit!\nAcct:602****370\nAmt:NGN-57,000.00\nDesc:TRF IFO WILSPLENDOR LIMITED FRM OBA\nDate:26-05-2026 0:0\nBal:NGN1,929.24\nDownload Keymobile bit.ly/31MJj1s",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "keystonebank-reject-failed",
+    "country": "NG",
+    "bankId": "ng.keystonebank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "KEYSTONE",
+      "body": "payment failed. Debit!\nAcct:602****370\nAmt:NGN-57,000.00\nDesc:TRF IFO WILSPLENDOR LIMITED FRM OBA\nDate:26-05-2026 0:0\nBal:NGN1,929.24\nDownload Keymobile bit.ly/31MJj1s",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "keystonebank-reject-pending",
+    "country": "NG",
+    "bankId": "ng.keystonebank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "KEYSTONE",
+      "body": "payment pending. Debit!\nAcct:602****370\nAmt:NGN-57,000.00\nDesc:TRF IFO WILSPLENDOR LIMITED FRM OBA\nDate:26-05-2026 0:0\nBal:NGN1,929.24\nDownload Keymobile bit.ly/31MJj1s",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "keystonebank-reject-future",
+    "country": "NG",
+    "bankId": "ng.keystonebank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "KEYSTONE",
+      "body": "will be debited. Debit!\nAcct:602****370\nAmt:NGN-57,000.00\nDesc:TRF IFO WILSPLENDOR LIMITED FRM OBA\nDate:26-05-2026 0:0\nBal:NGN1,929.24\nDownload Keymobile bit.ly/31MJj1s",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "keystonebank-reject-notice",
+    "country": "NG",
+    "bankId": "ng.keystonebank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "KEYSTONE",
+      "body": "statement generated. Debit!\nAcct:602****370\nAmt:NGN-57,000.00\nDesc:TRF IFO WILSPLENDOR LIMITED FRM OBA\nDate:26-05-2026 0:0\nBal:NGN1,929.24\nDownload Keymobile bit.ly/31MJj1s",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "keystonebank-reject-unknown-sender",
+    "country": "NG",
+    "bankId": "ng.keystonebank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Debit!\nAcct:602****370\nAmt:NGN-57,000.00\nDesc:TRF IFO WILSPLENDOR LIMITED FRM OBA\nDate:26-05-2026 0:0\nBal:NGN1,929.24\nDownload Keymobile bit.ly/31MJj1s",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "keystonebank-reject-balance-only",
+    "country": "NG",
+    "bankId": "ng.keystonebank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "KEYSTONE",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

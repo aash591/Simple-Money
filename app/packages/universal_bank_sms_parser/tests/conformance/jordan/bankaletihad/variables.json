@@ -1,0 +1,95 @@
+[
+  {
+    "id": "bankaletihad-variables-003",
+    "country": "JO",
+    "bankId": "jo.bankaletihad",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BankEtihad",
+      "body": "Refund of 321.09 JOD at MIGRATIONSHOP. Available balance: 9876.54 JOD.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.bankaletihad.template003",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Bank al Etihad",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankaletihad-variables-006",
+    "country": "JO",
+    "bankId": "jo.bankaletihad",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BankEtihad",
+      "body": "Refund of 321.09 USD at TEST STORE. Available balance: 9876.54 JOD.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.bankaletihad.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Bank al Etihad",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankaletihad-variables-008",
+    "country": "JO",
+    "bankId": "jo.bankaletihad",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BankEtihad",
+      "body": "Refund of 321.09 JOD at MIGRATIONSHOP. Available balance: 9876.54 JOD.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.bankaletihad.template003",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Bank al Etihad",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,219 @@
+[
+  {
+    "id": "zemenbank-variables-001",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "Dear Customer your account 109xxxxxxxx9988 has been credited with ETB 321.09 from MIGRATIONSHOP with reference MIG123456 on 02-DEC-2027. Your Current Balance is ETB 9876.54. Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.zemenbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "wallet",
+        "bankName": "Zemen Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-variables-002",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "Dear Customer, Birr 321.09 IB Fund transfer has been made from A/c No. 174xxxxxxxx9988 to A/c of MIGRATIONSHOP on 02-DEC-2027 . The A/c Available Bal. is Birr 9876.54 and the transaction Branch is Kara Menged Branch. To download your payment information click this link 556677/88 Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.zemenbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Zemen Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-variables-003",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "Dear Customer your Account 174xxxxxxxx9988 has been debited with ETB 321.09 to MIGRATIONSHOP with reference MIG123456 on 02-DEC-2027. Your Current Balance is ETB 9876.54. To download your payment information click this link https://share.zemenbank.com/rt/META998877/pdf Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.zemenbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Zemen Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-variables-005",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "Dear Customer, Your account (109xxxxxxxx9988) has been debited with Birr 321.09 for a POS purchase transaction at MIGRATIONSHOP on 02-DEC-2027. Your transaction reference number is MIG123456. Your available balance is Birr 9876.54. For further assistance, please call 9876.54. To download your payment information click this link https://share.zemenbank.com/rt/META998877/pdf Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.zemenbank.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Zemen Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-variables-006",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "Dear Customer, Birr 321.09 POS transaction has been made from A/c No. 109xxxxxxxx9988 on 02-DEC-2027 .The A/c Available Bal. is Birr 9876.54 and transaction POS location is MIGRATIONSHOP. To download your payment information click this link 556677/88 Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.zemenbank.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Zemen Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-variables-007",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "Dear Customer your account 109xxxxxxxx9988 has been debited with ETB 321.09 to MIGRATIONSHOP with reference MIG123456 on 02-DEC-2027. Your Current Balance is ETB 9876.54. To download your payment information click this link https://share.zemenbank.com/ft/META998877/pdf Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.zemenbank.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Zemen Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-variables-008",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "Dear Customer, Birr 321.09 ATM cash withdrawal has been made from A/c No. 109xxxxxxxx9988 on 02-DEC-2027 . The A/c Available Bal. is Birr 9876.54 and transaction ATM location is MIGRATIONSHOP . To download your payment information click this link 556677/88 Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.zemenbank.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Zemen Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

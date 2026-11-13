@@ -84,11 +84,7 @@ void main() {
       } else {
         expect(find.byType(NumberKeypad), findsOneWidget);
         expect(
-          find.text(
-            action == 'income'
-                ? 'Amount received'
-                : 'Amount',
-          ),
+          find.text(action == 'income' ? 'Amount received' : 'Amount'),
           findsOneWidget,
         );
       }
@@ -457,7 +453,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(inSheet(find.text('Transaction')), findsOneWidget);
-      expect(inSheet(find.text('- ₹450')), findsOneWidget);
+      expect(inSheet(find.text('₹450')), findsOneWidget);
+      expect(inSheet(find.text('Money paid')), findsOneWidget);
       await tester.tap(find.widgetWithText(GlassButton, 'Edit'));
       await tester.pumpAndSettle();
 
@@ -482,7 +479,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Transaction updated'), findsOneWidget);
-      expect(find.byType(TransactionSheet), findsNothing);
+      // Saving returns to the View, which now shows the edited transaction.
+      expect(inSheet(find.text('Transaction')), findsOneWidget);
+      expect(inSheet(find.text('₹600')), findsOneWidget);
       final saved = transactionStore.transactions.single;
       expect(saved.amountMinor, 60000);
       expect(saved.title, 'Groceries');

@@ -1,0 +1,162 @@
+[
+  {
+    "id": "nmbbanktanzania-reject-security",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NMB",
+      "body": "your otp is 123456. Kumb: GWX102237382945 Imethibitishwa. Kiasi cha TSH8,000 kimetumwa kutoka katika akaunti inayoishia na XXXX kwenda JOHN DOE 07XXXXXXXX. Tarehe:05-06-2026 19:46:00. Teleza Kidigitali na Mshiko Fasta",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nmbbanktanzania-reject-promotional",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NMB",
+      "body": "exclusive offer: apply now. Kumb: GWX102237382945 Imethibitishwa. Kiasi cha TSH8,000 kimetumwa kutoka katika akaunti inayoishia na XXXX kwenda JOHN DOE 07XXXXXXXX. Tarehe:05-06-2026 19:46:00. Teleza Kidigitali na Mshiko Fasta",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nmbbanktanzania-reject-failed",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NMB",
+      "body": "payment failed. Kumb: GWX102237382945 Imethibitishwa. Kiasi cha TSH8,000 kimetumwa kutoka katika akaunti inayoishia na XXXX kwenda JOHN DOE 07XXXXXXXX. Tarehe:05-06-2026 19:46:00. Teleza Kidigitali na Mshiko Fasta",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nmbbanktanzania-reject-pending",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NMB",
+      "body": "payment pending. Kumb: GWX102237382945 Imethibitishwa. Kiasi cha TSH8,000 kimetumwa kutoka katika akaunti inayoishia na XXXX kwenda JOHN DOE 07XXXXXXXX. Tarehe:05-06-2026 19:46:00. Teleza Kidigitali na Mshiko Fasta",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nmbbanktanzania-reject-future",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NMB",
+      "body": "will be debited. Kumb: GWX102237382945 Imethibitishwa. Kiasi cha TSH8,000 kimetumwa kutoka katika akaunti inayoishia na XXXX kwenda JOHN DOE 07XXXXXXXX. Tarehe:05-06-2026 19:46:00. Teleza Kidigitali na Mshiko Fasta",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nmbbanktanzania-reject-notice",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NMB",
+      "body": "statement generated. Kumb: GWX102237382945 Imethibitishwa. Kiasi cha TSH8,000 kimetumwa kutoka katika akaunti inayoishia na XXXX kwenda JOHN DOE 07XXXXXXXX. Tarehe:05-06-2026 19:46:00. Teleza Kidigitali na Mshiko Fasta",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nmbbanktanzania-reject-unknown-sender",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Kumb: GWX102237382945 Imethibitishwa. Kiasi cha TSH8,000 kimetumwa kutoka katika akaunti inayoishia na XXXX kwenda JOHN DOE 07XXXXXXXX. Tarehe:05-06-2026 19:46:00. Teleza Kidigitali na Mshiko Fasta",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nmbbanktanzania-reject-balance-only",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "NMB",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

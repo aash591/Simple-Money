@@ -1,0 +1,162 @@
+[
+  {
+    "id": "uobthailand-reject-security",
+    "country": "TH",
+    "bankId": "th.uobthailand",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "UOB",
+      "body": "your otp is 123456. UOB: Card transaction 3,200.00 THB at AMAZON Bal 22,400.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "uobthailand-reject-promotional",
+    "country": "TH",
+    "bankId": "th.uobthailand",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "UOB",
+      "body": "exclusive offer: apply now. UOB: Card transaction 3,200.00 THB at AMAZON Bal 22,400.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "uobthailand-reject-failed",
+    "country": "TH",
+    "bankId": "th.uobthailand",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "UOB",
+      "body": "payment failed. UOB: Card transaction 3,200.00 THB at AMAZON Bal 22,400.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "uobthailand-reject-pending",
+    "country": "TH",
+    "bankId": "th.uobthailand",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "UOB",
+      "body": "payment pending. UOB: Card transaction 3,200.00 THB at AMAZON Bal 22,400.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "uobthailand-reject-future",
+    "country": "TH",
+    "bankId": "th.uobthailand",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "UOB",
+      "body": "will be debited. UOB: Card transaction 3,200.00 THB at AMAZON Bal 22,400.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "uobthailand-reject-notice",
+    "country": "TH",
+    "bankId": "th.uobthailand",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "UOB",
+      "body": "statement generated. UOB: Card transaction 3,200.00 THB at AMAZON Bal 22,400.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "uobthailand-reject-unknown-sender",
+    "country": "TH",
+    "bankId": "th.uobthailand",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "UOB: Card transaction 3,200.00 THB at AMAZON Bal 22,400.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "uobthailand-reject-balance-only",
+    "country": "TH",
+    "bankId": "th.uobthailand",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UOB",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,155 @@
+{
+  "id": "np.nepalsbibank",
+  "name": "Nepal SBI Bank",
+  "senders": [
+    "NSBI_ALERT"
+  ],
+  "formats": [
+    {
+      "id": "np.nepalsbibank.template001",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Your A/c "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Credited by NPR "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " on "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ",Ref: "
+        },
+        {
+          "op": "capture_text",
+          "name": "reference",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": ". -NSBI Download YONO Nepal SBI by clicking bit.ly/"
+        },
+        {
+          "op": "capture_reference",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " for A/c balance."
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "reference": {
+          "capture": "reference"
+        }
+      }
+    },
+    {
+      "id": "np.nepalsbibank.template002",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Your A/c "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " Debited by NPR "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " on "
+        },
+        {
+          "op": "capture_datetime",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ",Ref: "
+        },
+        {
+          "op": "capture_text",
+          "name": "reference",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": ". -NSBI Download YONO Nepal SBI by clicking bit.ly/"
+        },
+        {
+          "op": "capture_reference",
+          "name": "meta1",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " for A/c balance."
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "reference": {
+          "capture": "reference"
+        }
+      }
+    }
+  ]
+}

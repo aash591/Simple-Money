@@ -1,0 +1,95 @@
+[
+  {
+    "id": "krungsri-variables-001",
+    "country": "TH",
+    "bankId": "th.krungsri",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BAY",
+      "body": "Krungsri: ATM withdrawal 321.09 THB A/C x9988 Bal 9876.54 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.krungsri.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Krungsri",
+        "countryCode": "TH",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "krungsri-variables-002",
+    "country": "TH",
+    "bankId": "th.krungsri",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BAY",
+      "body": "Krungsri: Card payment 321.09 THB at MIGRATIONSHOP A/C x9988",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.krungsri.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Krungsri",
+        "countryCode": "TH",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "krungsri-variables-003",
+    "country": "TH",
+    "bankId": "th.krungsri",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BAY",
+      "body": "Krungsri: โอนเงินเข้า 321.09 บาท บช x9988",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.krungsri.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Krungsri",
+        "countryCode": "TH",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

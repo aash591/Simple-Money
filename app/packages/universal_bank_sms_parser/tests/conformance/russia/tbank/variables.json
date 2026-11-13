@@ -1,0 +1,95 @@
+[
+  {
+    "id": "tbank-variables-001",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Tinkoff",
+      "body": "Пополнение, счет RUB. 321.09 ₽. MIGRATIONSHOP. Доступно 9876.54 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ru.tbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "RUB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "T-Bank",
+        "countryCode": "RU",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "tbank-variables-002",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Tinkoff",
+      "body": "Покупка, счет карты *9988. 321.09 ₽. MIGRATIONSHOP. Доступно 9876.54 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ru.tbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "RUB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "T-Bank",
+        "countryCode": "RU",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "tbank-variables-003",
+    "country": "RU",
+    "bankId": "ru.tbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "TBANK",
+      "body": "Перевод. Счет RUB. 321.09 ₽. MIGRATIONSHOP. Баланс 9876.54 ₽",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ru.tbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "RUB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "T-Bank",
+        "countryCode": "RU",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

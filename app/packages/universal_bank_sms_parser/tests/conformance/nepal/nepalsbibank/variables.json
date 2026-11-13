@@ -1,0 +1,64 @@
+[
+  {
+    "id": "nepalsbibank-variables-001",
+    "country": "NP",
+    "bankId": "np.nepalsbibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NSBI_ALERT",
+      "body": "Your A/c XX9988 Credited by NPR 321.09 on 02-DEC-2027 11:22:33,Ref: 556677/88. -NSBI Download YONO Nepal SBI by clicking bit.ly/META998877 for A/c balance.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.nepalsbibank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Nepal SBI Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nepalsbibank-variables-002",
+    "country": "NP",
+    "bankId": "np.nepalsbibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NSBI_ALERT",
+      "body": "Your A/c XX9988 Debited by NPR 321.09 on 02-DEC-2027 11:22:33,Ref: 556677/88. -NSBI Download YONO Nepal SBI by clicking bit.ly/META998877 for A/c balance.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.nepalsbibank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Nepal SBI Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

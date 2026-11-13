@@ -1,0 +1,374 @@
+[
+  {
+    "id": "charlesschwab-ported-001",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "PennyWise CharlesSchwabParser (Debit card transaction); see NOTICE.md",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A $7.44 debit card transaction was debited from account ending 1234. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template001",
+      "candidate": {
+        "amountMinor": 744,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "charlesschwab-ported-002",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "PennyWise CharlesSchwabParser (Another debit card transaction); see NOTICE.md",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A $10.00 debit card transaction was debited from account ending 5678. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template001",
+      "candidate": {
+        "amountMinor": 1000,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "charlesschwab-ported-003",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "PennyWise CharlesSchwabParser (ATM transaction); see NOTICE.md",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A $139.71 ATM transaction was debited from account ending 9012. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template003",
+      "candidate": {
+        "amountMinor": 13971,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9012",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "charlesschwab-ported-004",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "PennyWise CharlesSchwabParser (ACH transaction); see NOTICE.md",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A $22.07 ACH was debited from account ending 3456. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template004",
+      "candidate": {
+        "amountMinor": 2207,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "3456",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "charlesschwab-ported-005",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "PennyWise CharlesSchwabParser (Alternative sender format); see NOTICE.md",
+    "input": {
+      "sender": "CHARLES SCHWAB",
+      "body": "A $50.25 debit card transaction was debited from account ending 7890. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template001",
+      "candidate": {
+        "amountMinor": 5025,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "7890",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "charlesschwab-ported-006",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "PennyWise CharlesSchwabParser (Schwab Bank sender); see NOTICE.md",
+    "input": {
+      "sender": "SCHWAB BANK",
+      "body": "A $15.99 debit card transaction was debited from account ending 2468. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template001",
+      "candidate": {
+        "amountMinor": 1599,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "2468",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "charlesschwab-ported-007",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "PennyWise CharlesSchwabParser (Numeric sender ID); see NOTICE.md",
+    "input": {
+      "sender": "24465",
+      "body": "A $75.00 debit card transaction was debited from account ending 1357. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template001",
+      "candidate": {
+        "amountMinor": 7500,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "1357",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "charlesschwab-ported-008",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "PennyWise CharlesSchwabParser (EUR transaction); see NOTICE.md",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A €25.50 debit card transaction was debited from account ending 2468. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template008",
+      "candidate": {
+        "amountMinor": 2550,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "2468",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "charlesschwab-ported-009",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "PennyWise CharlesSchwabParser (GBP ATM transaction); see NOTICE.md",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A £150.00 ATM transaction was debited from account ending 9876. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template009",
+      "candidate": {
+        "amountMinor": 15000,
+        "currencyCode": "GBP",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9876",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "charlesschwab-ported-010",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "PennyWise CharlesSchwabParser (CAD transaction with currency code); see NOTICE.md",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A CAD 85.75 debit card transaction was debited from account ending 5432. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template010",
+      "candidate": {
+        "amountMinor": 8575,
+        "currencyCode": "CAD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "5432",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "charlesschwab-ported-011",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "PennyWise CharlesSchwabParser (AED transaction with currency code); see NOTICE.md",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A AED 120.50 debit card transaction was debited from account ending 9876. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template011",
+      "candidate": {
+        "amountMinor": 12050,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9876",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "charlesschwab-ported-012",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "PennyWise CharlesSchwabParser (THB transaction with symbol); see NOTICE.md",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A ฿500.00 ATM transaction was debited from account ending 1111. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template012",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "1111",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

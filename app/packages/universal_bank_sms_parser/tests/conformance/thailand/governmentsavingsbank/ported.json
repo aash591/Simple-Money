@@ -1,0 +1,64 @@
+[
+  {
+    "id": "governmentsavingsbank-ported-001",
+    "country": "TH",
+    "bankId": "th.governmentsavingsbank",
+    "provenance": "PennyWise GSBBankParser (GSB deposit (Thai)); see NOTICE.md",
+    "input": {
+      "sender": "GSB",
+      "body": "GSB: เงินฝากเข้า 2,500.00 บาท บช x1122 คงเหลือ 9,300.00 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.governmentsavingsbank.template001",
+      "candidate": {
+        "amountMinor": 250000,
+        "currencyCode": "THB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Government Savings Bank",
+        "countryCode": "TH",
+        "accountLast4": "1122",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "governmentsavingsbank-ported-002",
+    "country": "TH",
+    "bankId": "th.governmentsavingsbank",
+    "provenance": "PennyWise GSBBankParser (GSB withdrawal (Thai)); see NOTICE.md",
+    "input": {
+      "sender": "GSB",
+      "body": "GSB: ถอนเงิน 1,000.00 บาท บช x1122",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.governmentsavingsbank.template002",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Government Savings Bank",
+        "countryCode": "TH",
+        "accountLast4": "1122",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

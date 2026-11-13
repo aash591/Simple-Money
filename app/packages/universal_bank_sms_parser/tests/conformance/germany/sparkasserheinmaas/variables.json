@@ -1,0 +1,64 @@
+[
+  {
+    "id": "sparkasserheinmaas-variables-001",
+    "country": "DE",
+    "bankId": "de.sparkasserheinmaas",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Sparkasse",
+      "body": "Kartenwecker: 9876.54 neuer Kartenumsatz auf dem Konto *9988: MIGRATIONSHOP: -321,09 EUR Neuer Saldo: 9876.54 EUR Ihre Sparkasse",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "de.sparkasserheinmaas.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Sparkasse Rhein-Maas",
+        "countryCode": "DE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sparkasserheinmaas-variables-002",
+    "country": "DE",
+    "bankId": "de.sparkasserheinmaas",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Sparkasse",
+      "body": "Gehaltswecker: Gehalt ist auf Konto *9988 eingegangen: MIGRATIONSHOP: 321,09 EUR Neuer Saldo: 9876.54,9876.54 EUR Ihre Sparkasse",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "de.sparkasserheinmaas.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EUR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Sparkasse Rhein-Maas",
+        "countryCode": "DE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

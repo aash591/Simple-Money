@@ -1,0 +1,33 @@
+[
+  {
+    "id": "chase-ported-001",
+    "country": "US",
+    "bankId": "us.chase",
+    "provenance": "PennyWise ChaseBankParser (Credit card transaction); see NOTICE.md",
+    "input": {
+      "sender": "24273",
+      "body": "Rapid Rewards Plus Visa: You made a $9.17 transaction with TACO BELL 740493 on Mar 17, 2026 at 1:56 PM ET.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.chase.template001",
+      "candidate": {
+        "amountMinor": 917,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Chase",
+        "countryCode": "US",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "TACO BELL 740493",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

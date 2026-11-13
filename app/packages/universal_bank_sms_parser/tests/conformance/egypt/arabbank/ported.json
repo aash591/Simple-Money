@@ -1,0 +1,219 @@
+[
+  {
+    "id": "arabbank-ported-001",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "PennyWise ArabBankParser (English card spend, EGP transaction (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "ArabBank",
+      "body": "A Trx using Card XXXX2020 from Top Up ETISALAT Egypt for EGP 123.45 on 18-Jun-2026 at 13:59 GMT+3. Available balance is EGP 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template001",
+      "candidate": {
+        "amountMinor": 12345,
+        "currencyCode": "EGP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "2020",
+        "reference": null,
+        "counterparty": "Top Up ETISALAT Egypt",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "arabbank-ported-002",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "PennyWise ArabBankParser (English card spend, USD transaction with EGP balance (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "ArabBank",
+      "body": "A Trx using Card XXXX2020 from PORKBUN COM for USD 9.84 on 05-Oct-2025 at 07:48 GMT+2. Available balance is EGP 5432.10.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template002",
+      "candidate": {
+        "amountMinor": 984,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "2020",
+        "reference": null,
+        "counterparty": "PORKBUN COM",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "arabbank-ported-003",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "PennyWise ArabBankParser (Arabic credit to the card (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "ArabBank",
+      "body": "تم قيد مبلغ 500.00 جنيه لبطاقتك الائتمانية رقم #2020",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template003",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "EGP",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "2020",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "arabbank-ported-004",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "PennyWise ArabBankParser (Jordan card spend, JOD transaction (EXPENSE, 3 decimals)); see NOTICE.md",
+    "input": {
+      "sender": "ArabBank",
+      "body": "A Trx using Card XXXX9915 from ADANI CORNER for JOD 2.750 on 20-Jun-2026 at 14:21 GMT+3. Available balance is JOD 1649.832.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template004",
+      "candidate": {
+        "amountMinor": 2750,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "9915",
+        "reference": null,
+        "counterparty": "ADANI CORNER",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "arabbank-ported-005",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "PennyWise ArabBankParser (Jordan CliQ transfer debit (EXPENSE, suffix balance, not a card)); see NOTICE.md",
+    "input": {
+      "sender": "ArabBank",
+      "body": "JOD50.000 has been debited from 0156*500 to John Smith as CliQ transfer Balance 37.920JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template005",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "6500",
+        "reference": null,
+        "counterparty": "John Smith",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "arabbank-ported-006",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "PennyWise ArabBankParser (Jordan CliQ transfer credit (INCOME, no-space to/from, not a card)); see NOTICE.md",
+    "input": {
+      "sender": "ArabBank",
+      "body": "JOD172.000 has been credited to 0156*500from Jane Doe as CliQ transfer Balance 959.370JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template006",
+      "candidate": {
+        "amountMinor": 172000,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "6500",
+        "reference": null,
+        "counterparty": "Jane Doe",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "arabbank-ported-012",
+    "country": "EG",
+    "bankId": "eg.arabbank",
+    "provenance": "PennyWise ArabBankParser (bank sample); see NOTICE.md",
+    "input": {
+      "sender": "ArabBank",
+      "body": "A Trx using Card XXXX2020 from PORKBUN COM for USD 9.84 ",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.arabbank.template012",
+      "candidate": {
+        "amountMinor": 984,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Arab Bank",
+        "countryCode": "EG",
+        "accountLast4": "2020",
+        "reference": null,
+        "counterparty": "PORKBUN COM",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

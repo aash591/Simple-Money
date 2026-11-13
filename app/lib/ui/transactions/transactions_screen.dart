@@ -879,13 +879,18 @@ class TransactionsScreenState extends State<TransactionsScreen>
                                     duration: duration,
                                     curve: Curves.easeInOutCubic,
                                     tween: Tween(end: _isSearch ? 0.0 : 1.0),
-                                    builder: (context, open, child) => ClipRect(
-                                      child: Align(
-                                        alignment: Alignment.topCenter,
-                                        heightFactor: open,
-                                        child: child,
-                                      ),
-                                    ),
+                                    // Folded away completely, the card leaves
+                                    // the tree, so screen readers don't read
+                                    // out a balance nobody can see.
+                                    builder: (context, open, child) => open == 0
+                                        ? const SizedBox(width: double.infinity)
+                                        : ClipRect(
+                                            child: Align(
+                                              alignment: Alignment.topCenter,
+                                              heightFactor: open,
+                                              child: child,
+                                            ),
+                                          ),
                                     child: _buildBalanceHeader(context),
                                   ),
                                   AnimatedContainer(

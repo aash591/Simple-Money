@@ -1,0 +1,95 @@
+[
+  {
+    "id": "siketbank-variables-001",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "Dear Siket Bank Family, Your Account 1****9988 has been Credited with ETB 321.09. Your Current Balance is ETB 9876.54. Thank you for Banking with Siket Bank! For any queries call 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.siketbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Siket Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siketbank-variables-002",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "Dear Siket Bank Family, Your Account 1****9988 has been Debited with ETB 321.09. Your Current Balance is ETB 9876.54. Thank you for Banking with Siket Bank!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.siketbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Siket Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siketbank-variables-003",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "Dear Siket Bank Family, You have transferred ETB 321.09 from your account 1****9988 to MIGRATIONSHOP on 9876.54 MAR 9876.54 with Reference number MIG123456. The Service Charge is ETB10.9876.54 and VAT of ETB1.9876.54. Your Current Balance is ETB 9876.54. Thank you for Banking with Siket Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.siketbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Siket Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

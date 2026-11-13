@@ -1,0 +1,219 @@
+[
+  {
+    "id": "everestbank-ported-001",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "PennyWise EverestBankParser (Debit - Mobile recharge); see NOTICE.md",
+    "input": {
+      "sender": "9843368",
+      "body": "Dear Customer, Your A/c 12345678 is debited by NPR 520.00 For: 9843368/Mobile Recharge,Ncell. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template001",
+      "candidate": {
+        "amountMinor": 52000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "5678",
+        "reference": "9843368",
+        "counterparty": "Mobile Recharge",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "everestbank-ported-002",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "PennyWise EverestBankParser (Credit - Salary); see NOTICE.md",
+    "input": {
+      "sender": "UJJ SH",
+      "body": "Dear Customer, Your A/c 87654321 is credited by NPR 15,000.00 For: Salary Payment/Monthly Salary,UJJ SH. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template002",
+      "candidate": {
+        "amountMinor": 1500000,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "4321",
+        "reference": null,
+        "counterparty": "Monthly Salary",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "everestbank-ported-004",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "PennyWise EverestBankParser (Debit - Food delivery); see NOTICE.md",
+    "input": {
+      "sender": "9801234567",
+      "body": "Dear Customer, Your A/c 99887766 is debited by NPR 1,250.00 For: 9801234567/Food Delivery,Foodmandu. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template004",
+      "candidate": {
+        "amountMinor": 125000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "7766",
+        "reference": "9801234567",
+        "counterparty": "Food Delivery",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "everestbank-ported-005",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "PennyWise EverestBankParser (Credit - Business payment); see NOTICE.md",
+    "input": {
+      "sender": "9843001",
+      "body": "Dear Customer, Your A/c 55443322 is credited by NPR 50,000.00 For: Business Payment/Invoice Settlement,ABC Company. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template005",
+      "candidate": {
+        "amountMinor": 5000000,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "3322",
+        "reference": null,
+        "counterparty": "Invoice Settlement",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "everestbank-ported-006",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "PennyWise EverestBankParser (Debit - Ecommerce); see NOTICE.md",
+    "input": {
+      "sender": "EVEREST",
+      "body": "Dear Customer, Your A/c 33445566 is debited by NPR 750.00 For: Online Shopping/E-commerce,Daraz. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template006",
+      "candidate": {
+        "amountMinor": 75000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "5566",
+        "reference": null,
+        "counterparty": "E-commerce",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "everestbank-ported-007",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "PennyWise EverestBankParser (ATM withdrawal via EBL_ALERT); see NOTICE.md",
+    "input": {
+      "sender": "EBL_ALERT",
+      "body": "Dear Customer, Your A/c ###439 is debited by NPR 4,000.00 For: CWDR/606308002664/202603040849. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template007",
+      "candidate": {
+        "amountMinor": 400000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "439",
+        "reference": null,
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "everestbank-ported-008",
+    "country": "NP",
+    "bankId": "np.everestbank",
+    "provenance": "PennyWise EverestBankParser (Fonepay IBFT credit via EBL_ALERT); see NOTICE.md",
+    "input": {
+      "sender": "EBL_ALERT",
+      "body": "Dear Customer, Your A/c ###439 is credited by NPR 1,000.00 For: FPY:IBFT:1354024319:5245:EVBLN. Never Share Password/OTP With Anyone",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.everestbank.template008",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Everest Bank",
+        "countryCode": "NP",
+        "accountLast4": "439",
+        "reference": null,
+        "counterparty": "Fonepay IBFT",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

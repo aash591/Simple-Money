@@ -1,0 +1,405 @@
+[
+  {
+    "id": "navyfederalcreditunion-variables-001",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $321.09 was approved on debit card 9988 at MIGRATIONSHOP at 11:22:33 EDT on 02-DEC-2027.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-variables-002",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $321.09 was approved on debit card 9988 at MIGRATIONSHOP at 11:22:33 EST on 02-DEC-2027.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-variables-003",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $321.09 was approved on debit card 9988 at MIGRATIONSHOP at 11:22:33 PST on 02-DEC-2027.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-variables-004",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $321.09 was approved on credit card 9988 at MIGRATIONSHOP at 11:22:33 EDT on 02-DEC-2027.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-variables-005",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $321.09 was approved on debit card 9988 at MIGRATIONSHOP at 11:22:33 EST on 02-DEC-2027.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-variables-006",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $321.09 was approved on debit card 9988 at MIGRATIONSHOP at 11:22:33 EDT on 02-DEC-2027.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-variables-007",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $321.09 was approved on credit card 9988 at MIGRATIONSHOP at 11:22:33 EST on 02-DEC-2027.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-variables-008",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $321.09 was approved on credit card 9988 at MIGRATIONSHOP at 11:22:33 EDT on 02-DEC-2027.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-variables-009",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NAVYFED",
+      "body": "NAVYFED: Transaction for $321.09 was approved on debit card 9988 at MIGRATIONSHOP at 11:22:33 EST on 02-DEC-2027.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template009",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-variables-010",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $321.09 was approved on debit card 9988 at MIGRATIONSHOP at 11:22:33 EDT on 02-DEC-2027.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-variables-011",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "21398",
+      "body": "NFCU: Transaction for $321.09 was approved on credit card 9988 at MIGRATIONSHOP at 11:22:33 EDT on 02-DEC-2027.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-variables-012",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "21398",
+      "body": "NFCU: $321.09 was withdrawn from your acct. end. in 9988 . As of 02-DEC-2027 at 11:22:33 ET the available balance is $9876.54. Sign in for details. Txt STOP to stop.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template012",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "navyfederalcreditunion-variables-013",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NAVYFED",
+      "body": "NAVYFED: Transaction for $321.09 was approved on credit card 9988 at MIGRATIONSHOP at 11:22:33 EST on 02-DEC-2027.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template013",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

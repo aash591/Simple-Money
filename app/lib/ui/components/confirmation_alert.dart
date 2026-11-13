@@ -1,3 +1,5 @@
+import '../theme/app_theme.dart' show usesGlass;
+
 import 'package:simple_money/state/vibration_settings.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -286,9 +288,14 @@ class ConfirmationAlert extends StatelessWidget {
       fontWeight: FontWeight.w400,
       letterSpacing: -0.4,
     );
+    // The plain style in light mode has no glass: quiet buttons are white on
+    // the grey sheet, and the main one carries the accent.
+    final plainLight = !usesGlass(context) && !dark;
     final cancel = GlassButton(
       autofocus: autofocusCancel,
       textStyle: buttonText,
+      flatFill: plainLight ? Colors.white : null,
+      shadow: plainLight,
       onPressed: () {
         VibrationSettings.selectionClick();
         Navigator.pop(context, false);
@@ -296,14 +303,18 @@ class ConfirmationAlert extends StatelessWidget {
       },
       child: Text(cancelLabel),
     );
-    // A destructive confirm stays neutral glass with red text; any other
-    // confirm is the main action, in solid accent glass.
+    // A destructive confirm is glass tinted red with red text, so it reads as
+    // different from the neutral Cancel beside it; any other confirm is the
+    // main action, in solid accent glass.
+    final danger = dark ? const Color(0xffff6961) : const Color(0xffe5352b);
     GlassButton confirmButton(bool enabled) => GlassButton(
       textStyle: buttonText,
       color: destructive ? null : scheme.primary,
-      foregroundColor: destructive
-          ? (dark ? const Color(0xffff6961) : const Color(0xffe5352b))
-          : null,
+      fill: destructive ? danger.withValues(alpha: dark ? .2 : .14) : null,
+      // A slight red wash behind the red text, so it stays apart from the
+      // white Cancel in the plain light style.
+      flatFill: destructive ? danger.withValues(alpha: dark ? .2 : .12) : null,
+      foregroundColor: destructive ? danger : null,
       onPressed: enabled
           ? () {
               VibrationSettings.selectionClick();
@@ -398,6 +409,8 @@ class ConfirmationAlert extends StatelessWidget {
                   const SizedBox(height: 8),
                   GlassButton(
                     textStyle: buttonText,
+                    flatFill: plainLight ? Colors.white : null,
+                    shadow: plainLight,
                     foregroundColor: scheme.primary,
                     onPressed: () {
                       VibrationSettings.selectionClick();

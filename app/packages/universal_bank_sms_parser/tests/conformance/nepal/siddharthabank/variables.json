@@ -1,0 +1,126 @@
+[
+  {
+    "id": "siddharthabank-variables-001",
+    "country": "NP",
+    "bankId": "np.siddharthabank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SBL_Alert",
+      "body": "Dear [NAME], AC ###XXXX9988, NPR 321.09 withdrawn on 02-DEC-2027 11:22:33 for Fund Trf to A/C PAYABLE IBFT (MIG123456,222",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.siddharthabank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Siddhartha Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "Fund Transfer (IBFT)",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siddharthabank-variables-002",
+    "country": "NP",
+    "bankId": "np.siddharthabank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SBL_Alert",
+      "body": "Dear [NAME], AC ###XXXX9988, NPR 321.09 withdrawn on 02-DEC-2027 11:22:33 for QR Payment to MIGRATIONSHOP - falcha",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.siddharthabank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Siddhartha Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siddharthabank-variables-003",
+    "country": "NP",
+    "bankId": "np.siddharthabank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SBL_Alert",
+      "body": "Dear [NAME], AC ###XXXX9988, NPR 321.09 deposited on 02-DEC-2027 11:22:33 for Fund Trf frm A/C PAYABLE IBF-FON:IBFT:MIG123456",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.siddharthabank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Siddhartha Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "Fund Transfer (IBFT)",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siddharthabank-variables-004",
+    "country": "NP",
+    "bankId": "np.siddharthabank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SBL_Alert",
+      "body": "Dear [NAME], AC ###XXXX9988, NPR 321.09 withdrawn on 02-DEC-2027 11:22:33 for Fund Trf to A/C PAYABLE IBFT (MIG123456,NEA",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.siddharthabank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Siddhartha Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "Nepal Electricity Authority",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

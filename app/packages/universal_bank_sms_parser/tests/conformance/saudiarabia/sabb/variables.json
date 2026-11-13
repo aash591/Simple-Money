@@ -1,0 +1,157 @@
+[
+  {
+    "id": "sabb-variables-001",
+    "country": "SA",
+    "bankId": "sa.sabb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SAB",
+      "body": "شراء عبر نقاط البيع بطاقة: ***9988;mada(Samsung Pay); مبلغ: SAR 321.09 لدى: MIGRATIONSHOP× في: 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.sabb.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "SABB",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sabb-variables-002",
+    "country": "SA",
+    "bankId": "sa.sabb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SAB",
+      "body": "شراء إنترنت بطاقة: ***9988;مدى من: ***9876.54 مبلغ: 321.09 SAR لدى: MIGRATIONSHOP في: 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.sabb.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "SABB",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sabb-variables-003",
+    "country": "SA",
+    "bankId": "sa.sabb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SAB",
+      "body": "حوالة صادرة مقبولة من: **9988 إلى: MIGRATIONSHOP آيبان: **9876.54 بنك إس تي سي مبلغ: SAR 321.09 رسوم: SAR 9876.54 في: 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.sabb.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "SABB",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sabb-variables-004",
+    "country": "SA",
+    "bankId": "sa.sabb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SAB",
+      "body": "إيداع حوالة واردة من: MIGRATIONSHOP إلى: **9988 آيبان: **9876.54 البنك العربي الوطني مبلغ: SAR 321.09 في: 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.sabb.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "SABB",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sabb-variables-005",
+    "country": "SA",
+    "bankId": "sa.sabb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SAB",
+      "body": "حوالة راتب إلى: **988 مبلغ: 321.09 SAR في: 9876.54-9876.54 9876.54 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.sabb.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "SABB",
+        "countryCode": "SA",
+        "accountLast4": "988",
+        "reference": null,
+        "counterparty": "Salary",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

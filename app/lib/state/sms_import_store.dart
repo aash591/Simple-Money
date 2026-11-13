@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
 
 import '../data/community/community_fixes.dart';
@@ -19,8 +20,15 @@ import '../data/bank_sms_parser.dart';
 import '../data/user_sms_rules.dart';
 import '../domain/account.dart';
 import '../domain/bank_institution_icon.dart';
+import '../domain/currency.dart';
+import '../domain/currency_digits.dart';
+import 'main_currency_controller.dart';
+import '../data/sms_amounts.dart';
 
-PortableSmsEngine _buildEngine(List<String> packs) {
+PortableSmsEngine _buildEngine(
+  List<String> packs, [
+  Map<String, SmsSenderRole> roles = const {},
+]) {
   const compiler = RuleCompiler();
   return BankSmsParser(
     compiler.mergeRuntimePacks(
@@ -30,15 +38,21 @@ PortableSmsEngine _buildEngine(List<String> packs) {
           )
           .toList(),
     ),
+    roles: roles,
   );
 }
+
+PortableSmsEngine _buildBundledEngine(List<String> packs) =>
+    _buildEngine(packs);
 
 /// Bundled packs plus the user's own rules, plus shared ones from other
 /// users. A pack that can't merge (one repeating a bundled pattern, say) is
 /// dropped rather than stopping SMS import: the shared pack first, then the
 /// user's, unless that is all there is.
-PortableSmsEngine _buildEngineWithUser((List<String>, String?, String?) input) {
-  final (bundled, user, community) = input;
+PortableSmsEngine _buildEngineWithUser(
+  (List<String>, String?, String?, Map<String, SmsSenderRole>) input,
+) {
+  final (bundled, user, community, roles) = input;
   final attempts = [
     if (community != null) [...bundled, ?user, community],
     if (user != null) [...bundled, user],
@@ -46,13 +60,13 @@ PortableSmsEngine _buildEngineWithUser((List<String>, String?, String?) input) {
   RuleValidationException? failure;
   for (final packs in attempts) {
     try {
-      return _buildEngine(packs);
+      return _buildEngine(packs, roles);
     } on RuleValidationException catch (error) {
       failure ??= error;
     }
   }
   if (bundled.isEmpty && failure != null) throw failure;
-  return _buildEngine(bundled);
+  return _buildEngine(bundled, roles);
 }
 
 /// The user's approved SMS rules as a runtime pack, or null.
@@ -73,16 +87,30 @@ Future<String?> communitySmsPack(AppDatabase database) async {
   }
 }
 
+/// Senders of the user's and shared rules that hold no money of the user's
+/// (shops, billers…), with their roles. Empty when the rules can't be read.
+Future<Map<String, SmsSenderRole>> smsSenderRoles(AppDatabase database) async {
+  try {
+    return nonHolderSenders([
+      ...await UserSmsRuleRepository(database).load(),
+      ...await CommunityFixRepository(database).smsRules(),
+    ]);
+  } catch (_) {
+    return const {};
+  }
+}
+
 Future<PortableSmsEngine> loadBundledSmsEngine() async =>
-    compute(_buildEngine, await _bundledPacks());
+    compute(_buildBundledEngine, await _bundledPacks());
 
 /// The engine the app reads bank SMS with: bundled packs, the user's rules
 /// and shared ones.
 Future<PortableSmsEngine> loadSmsEngine(AppDatabase database) async =>
     compute(_buildEngineWithUser, (
-      await _bundledPacks(),
+      await _bundledPacks(countries: await smsCountries(database)),
       await userSmsPack(database),
       await communitySmsPack(database),
+      await smsSenderRoles(database),
     ));
 
 /// The bundled packs' JSON, optionally only those whose text passes [where].
@@ -102,6 +130,7 @@ Future<PortableSmsEngine?> loadBundledSmsEngineFor(
   String sender, {
   String? userPack,
   String? communityPack,
+  Map<String, SmsSenderRole> roles = const {},
 }) async {
   final normalized = normalizeRuleSender(sender);
   if (normalized == null) return null;
@@ -114,7 +143,7 @@ Future<PortableSmsEngine?> loadBundledSmsEngineFor(
   final community = naming(communityPack);
   if (matching.isNotEmpty || user != null || community != null) {
     try {
-      return _buildEngineWithUser((matching, user, community));
+      return _buildEngineWithUser((matching, user, community, roles));
     } on RuleValidationException {
       return null;
     }
@@ -145,19 +174,109 @@ Future<PartyCategorizer> loadBundledCategorizer() =>
         });
 
 /// Only the packs that are returned are hash-verified.
+/// The countries whose banks the user's SMS can come from, so only their
+/// bundled packs are compiled: the country picked at setup (from the time
+/// zone, or changed by the user), the phone's region, the countries of the
+/// user's accounts and of banks already read from SMS, and those of the
+/// user's own rules. One person may bank in several. Null when none is
+/// known yet: then every country is read.
+Future<Set<String>?> smsCountries(AppDatabase database) async {
+  final countries = <String>{};
+  void add(Object? code) {
+    if (code is String && RegExp(r'^[A-Z]{2}$').hasMatch(code)) {
+      countries.add(code);
+    }
+  }
+
+  try {
+    final saved = (await SharedPreferences.getInstance()).getString(
+      MainCurrencyController.preferenceKey,
+    );
+    if (saved != null) add((jsonDecode(saved) as Map)['territory']);
+    (await SharedPreferences.getInstance())
+        .getStringList(_seenCountriesKey)
+        ?.forEach(add);
+  } catch (_) {
+    /* Not set up yet, or read where preferences aren't available. */
+  }
+  try {
+    add(Currency.deviceRegion());
+  } catch (_) {
+    /* No platform locale here (a background isolate). */
+  }
+  try {
+    final rows = await database
+        .customSelect(
+          'SELECT DISTINCT territory, currency FROM accounts '
+          'WHERE archived_at IS NULL',
+        )
+        .get();
+    final untracked = <String>{};
+    for (final r in rows) {
+      final territory = r.readNullable<String>('territory');
+      territory == null
+          ? untracked.add(r.read<String>('currency'))
+          : add(territory);
+    }
+    // An account made before territories were kept: every country that
+    // uses its currency.
+    for (final code in untracked) {
+      currencyTerritories[code]?.forEach(add);
+    }
+    for (final r
+        in await database
+            .customSelect(
+              "SELECT DISTINCT json_extract(data,'\$.countryCode') AS c "
+              'FROM sms_detected_accounts',
+            )
+            .get()) {
+      add(r.readNullable<String>('c'));
+    }
+    for (final rule in await UserSmsRuleRepository(database).load()) {
+      add(ruleCountry(rule.format));
+    }
+  } catch (_) {
+    /* Read every country rather than miss a bank. */
+  }
+  return countries.isEmpty ? null : countries;
+}
+
 Future<List<String>> _bundledPacks({
   bool Function(String text)? where,
   bool first = false,
+  Set<String>? countries,
 }) async {
   const root = 'packages/universal_bank_sms_parser/distribution/';
   final manifest = jsonDecode(
     await rootBundle.loadString('${root}manifest.json'),
   ) as Map<String, dynamic>;
-  final indian = (manifest['packs'] as List).where(
-    (p) => (p['countries'] as List).contains('IN'),
-  );
+  // Every country's banks: one person may bank in several. India's packs
+  // lead, as the shared category lists are read from the first pack.
+  bool wanted(Object? p) =>
+      countries == null ||
+      ((p as Map)['countries'] as List).any(countries.contains);
+  final packList = manifest['packs'] as List;
+  // No bundled bank in the user's countries yet: read them all, as before.
+  final any = packList.any(wanted);
+  final all =
+      [
+        for (final p in packList)
+          if (!any || wanted(p)) p,
+      ]..sort(
+        (a, b) =>
+            ((b['countries'] as List).contains('IN') ? 1 : 0) -
+            ((a['countries'] as List).contains('IN') ? 1 : 0),
+      );
+  // The category lists come from India's first pack, whatever the countries.
+  final chosen = first
+      ? [
+          (manifest['packs'] as List).firstWhere(
+            (p) => (p['countries'] as List).contains('IN'),
+          ),
+        ]
+      : all;
   final packs = await Future.wait(
-    (first ? indian.take(1) : indian).map((p) async {
+    chosen.map((p) async {
       final bytes = await rootBundle.load('$root${p['path']}');
       final data = bytes.buffer.asUint8List(
         bytes.offsetInBytes,
@@ -177,7 +296,7 @@ Future<List<String>> _bundledPacks({
 
 // Keep the closures outside the store so no notifier, platform channel or UI
 // state can be captured and sent to the worker isolate.
-Future<(int, int, Set<String>)> _processStagedPage(
+Future<(int, int, Set<String>, Set<String>)> _processStagedPage(
   AppDatabase database,
   PortableSmsEngine engine,
 ) => database.computeWithDatabase(
@@ -186,17 +305,26 @@ Future<(int, int, Set<String>)> _processStagedPage(
     final repository = SmsImportRepository(workerDb);
     final page = await repository.stagedPage();
     var found = 0;
+    final unknown = <String>{};
 
     await workerDb.transaction(() async {
       for (final row in page) {
         final result = engine.parse(row.sms);
+        if (result.reason == 'unregisteredSender' &&
+            isBusinessSender(row.sms)) {
+          unknown.add(normalizeRuleSender(row.sms.sender)!);
+        }
         if (engine is BankSmsParser) {
           final snapshot = engine.balanceSnapshot(row.sms);
           if (snapshot != null) {
             await repository.recordBalance(snapshot, row.sms.receivedAt);
           }
         }
-        await repository.enqueue(row.sms, result);
+        await repository.enqueue(
+          row.sms,
+          result,
+          role: smsSenderRole(engine, row.sms.sender),
+        );
         if (result.candidate != null) {
           found++;
         }
@@ -209,9 +337,46 @@ Future<(int, int, Set<String>)> _processStagedPage(
     final accounts = (await repository.detectedAccounts())
         .map((sms) => sms.bankKey)
         .toSet();
-    return (page.length, found, accounts);
+    return (page.length, found, accounts, unknown);
   },
 );
+
+/// Where [smsCountries] keeps countries found from the inbox itself.
+const _seenCountriesKey = 'sms_countries_seen';
+
+/// Countries whose bundled packs know one of [senders] though [loaded]
+/// left them out: someone who picked AED at setup but still banks in India.
+/// They are remembered, so the next engine reads them. Empty when nothing
+/// new turned up, or every country was already read.
+Future<Set<String>> discoverSmsCountries(
+  Set<String> senders,
+  Set<String>? loaded,
+) async {
+  if (senders.isEmpty || loaded == null) return const {};
+  const root = 'packages/universal_bank_sms_parser/distribution/';
+  final manifest = jsonDecode(
+    await rootBundle.loadString('${root}manifest.json'),
+  ) as Map<String, dynamic>;
+  final found = <String>{};
+  for (final p in manifest['packs'] as List) {
+    final countries = (p['countries'] as List).cast<String>();
+    if (countries.any(loaded.contains) || countries.every(found.contains)) {
+      continue;
+    }
+    final text = await rootBundle.loadString('$root${p['path']}');
+    if (senders.any((s) => text.contains('"$s"'))) found.addAll(countries);
+  }
+  if (found.isEmpty) return const {};
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_seenCountriesKey, [
+      ...{...?prefs.getStringList(_seenCountriesKey), ...found},
+    ]);
+  } catch (_) {
+    /* Found again on the next scan. */
+  }
+  return found;
+}
 
 class _ReviewData {
   const _ReviewData(
@@ -366,14 +531,23 @@ List<PendingSmsImport> _preparePending(
               sms.data['occurredAt'] ?? sms.receivedAt.toIso8601String(),
         });
     final enriched = engine.enrichCandidate(message, candidate);
-    final data = enriched.toJson();
+    final data = {...sms.data, ...enriched.toJson()};
+    // A fresh parse counts in the rule's decimal places; a stored row
+    // already in the app's.
+    if (parsed?.candidate case final read?) {
+      data['amountMinor'] = smsAmountToApp(read.amountMinor, read.currencyCode);
+    }
+    // Rows queued before the sender's role was known get it here.
+    applySenderRole(data, smsSenderRole(engine, sms.sender));
+    // A number kept apart (a shop's, a loan account's) stays apart.
+    if (data.containsKey(otherAccountKey)) data.remove('accountLast4');
     rows.add(
       PendingSmsImport(
         id: sms.id,
         sender: sms.sender,
         body: sms.body,
         receivedAt: sms.receivedAt,
-        data: {...sms.data, ...Map<String, dynamic>.from(data)},
+        data: data,
       ),
     );
   }
@@ -410,6 +584,10 @@ class SmsImportStore extends ChangeNotifier {
   final Future<PortableSmsEngine> Function() engineLoader;
   Future<PortableSmsEngine>? _engine;
   final bool _usesBundledEngine;
+
+  /// The countries the cached engine reads ([smsCountries]); a change, such
+  /// as a new country picked in settings, builds it again.
+  Set<String>? _engineCountries;
   Future<String>? _rulesSignature;
 
   /// Only the first review page, for the dashboard. All rows remain in SQLite.
@@ -613,26 +791,49 @@ class SmsImportStore extends ChangeNotifier {
               0,
               started,
             );
-      _engine ??= engineLoader();
-      final engine = await _engine!;
-      var afterId = 0;
-      while (!_disposed && enabled) {
-        final page = await platform.readPage(afterId: afterId, since: since);
-        if (page.isEmpty) break;
-        for (final row in page) {
-          if (row.id <= afterId) throw StateError('Invalid inbox pagination');
-          afterId = row.id;
+      // A second pass only when the first found banks of a country the
+      // engine left out; messages already queued are not queued twice.
+      for (var pass = 0; pass < 2; pass++) {
+        final countries = _usesBundledEngine
+            ? await smsCountries(repository.database)
+            : null;
+        if (!setEquals(countries, _engineCountries)) _engine = null;
+        _engineCountries = countries;
+        _engine ??= engineLoader();
+        final engine = await _engine!;
+        final unknown = <String>{};
+        var afterId = 0;
+        while (!_disposed && enabled) {
+          final page = await platform.readPage(afterId: afterId, since: since);
+          if (page.isEmpty) break;
+          for (final row in page) {
+            if (row.id <= afterId) {
+              throw StateError('Invalid inbox pagination');
+            }
+            afterId = row.id;
+          }
+          if (_disposed || !enabled) break;
+          await repository.stagePage(page);
+          final progress = await _processStagedPage(
+            repository.database,
+            engine,
+          );
+          if (pass == 0) scannedMessages += progress.$1;
+          foundTransactions += progress.$2;
+          foundAccounts
+            ..clear()
+            ..addAll(progress.$3);
+          unknown.addAll(progress.$4);
+          _notify();
+          await Future<void>.delayed(Duration.zero);
         }
-        if (_disposed || !enabled) break;
-        await repository.stagePage(page);
-        final progress = await _processStagedPage(repository.database, engine);
-        scannedMessages += progress.$1;
-        foundTransactions += progress.$2;
-        foundAccounts
-          ..clear()
-          ..addAll(progress.$3);
-        _notify();
-        await Future<void>.delayed(Duration.zero);
+        if (pass > 0 ||
+            _disposed ||
+            !enabled ||
+            (await discoverSmsCountries(unknown, countries)).isEmpty) {
+          break;
+        }
+        _engine = null;
       }
       if (enabled && !_disposed) {
         await repository.checkpoint(started);
@@ -700,7 +901,7 @@ class SmsImportStore extends ChangeNotifier {
       await accounts.save(
         name: 'Cash',
         currency: currency,
-        digits: 2,
+        digits: currencyDigits(currency),
         openingBalance: 0,
         type: AccountType.cash,
         icon: 'wallet_one',

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "nmbbanktanzania-ported-002",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "PennyWise NMBTanzaniaParser (P2P transfer out); see NOTICE.md",
+    "input": {
+      "sender": "NMB",
+      "body": "Kumb: GWX102237382945 Imethibitishwa. Kiasi cha TSH8,000 kimetumwa kutoka katika akaunti inayoishia na XXXX kwenda JOHN DOE 07XXXXXXXX. Tarehe:05-06-2026 19:46:00. Teleza Kidigitali na Mshiko Fasta",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.nmbbanktanzania.template002",
+      "candidate": {
+        "amountMinor": 800000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "NMB Bank Tanzania",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "GWX102237382945",
+        "counterparty": "JOHN DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nmbbanktanzania-ported-003",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "PennyWise NMBTanzaniaParser (Merchant payment (English)); see NOTICE.md",
+    "input": {
+      "sender": "NMB",
+      "body": "You have paid TZS 85000 with account ending XXXX to LOCAL SUPERMARKET 01 15293743 on 31-05-2026 19:28:03. NMB Karibu Yako",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.nmbbanktanzania.template003",
+      "candidate": {
+        "amountMinor": 8500000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "NMB Bank Tanzania",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "LOCAL SUPERMARKET 01",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nmbbanktanzania-ported-006",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "PennyWise NMBTanzaniaParser (P2P transfer out (TShs plural notation)); see NOTICE.md",
+    "input": {
+      "sender": "NMB",
+      "body": "Kumb: GWX102237382946 Imethibitishwa. Kiasi cha TShs 8,000 kimetumwa kutoka katika akaunti inayoishia na XXXX kwenda JANE DOE 07XXXXXXXX. Tarehe:05-06-2026 19:46:00.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.nmbbanktanzania.template006",
+      "candidate": {
+        "amountMinor": 800000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "NMB Bank Tanzania",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "GWX102237382946",
+        "counterparty": "JANE DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

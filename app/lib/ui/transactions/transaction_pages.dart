@@ -7,6 +7,8 @@ import '../../domain/transaction.dart';
 import '../components/action_buttons.dart';
 import '../components/adaptive_sheet.dart';
 import '../components/date_picker_sheet.dart';
+import '../components/transactions/transaction_review_content.dart'
+    show TransactionReviewHeader;
 import '../components/number_keypad.dart';
 import '../theme/sheet_colors.dart';
 import 'amount_typing.dart';
@@ -219,7 +221,7 @@ class TransactionStepSummary extends StatelessWidget {
                     iconKey: parentCategory!.icon,
                     fallback: Icons.category_outlined,
                   ),
-                  label: income ? 'Source' : 'Category',
+                  label: 'Category',
                   value: parentCategory!.name,
                   valueColor: colors.muted,
                 ),
@@ -230,9 +232,7 @@ class TransactionStepSummary extends StatelessWidget {
                     iconKey: category!.icon,
                     fallback: Icons.category_outlined,
                   ),
-                  label: parentCategory != null
-                      ? 'Subcategory'
-                      : (income ? 'Source' : 'Category'),
+                  label: parentCategory != null ? 'Subcategory' : 'Category',
                   value: category!.name,
                   valueColor: colors.muted,
                 ),
@@ -413,7 +413,7 @@ class TransactionConfirmPage extends StatelessWidget {
                   iconKey: category?.icon,
                   fallback: Icons.category_outlined,
                 ),
-                label: isIncome ? 'Source' : 'Category',
+                label: 'Category',
                 value: category?.name ?? '',
                 onTap: edit(onEditCategory),
               ),
@@ -550,11 +550,10 @@ class TransactionViewPage extends StatelessWidget {
     final colors = SheetColors.of(context);
     final type = transaction.type;
     final isTransfer = type == TransactionType.transfer;
-    final isIncome = type == TransactionType.income;
-    final (color, sign, caption) = switch (type) {
-      TransactionType.income => (colors.income, '+ ', 'Income'),
-      TransactionType.expense => (colors.expense, '- ', 'Expense'),
-      TransactionType.transfer => (colors.primary, '', 'Transfer'),
+    final (color, caption) = switch (type) {
+      TransactionType.income => (colors.income, 'Income'),
+      TransactionType.expense => (colors.expense, 'Expense'),
+      TransactionType.transfer => (colors.primary, 'Transfer'),
     };
     final customTitle = transaction.title?.trim();
     final title = customTitle != null && customTitle.isNotEmpty
@@ -592,20 +591,36 @@ class TransactionViewPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 8),
-          AmountHero(
-            amount: split ? '$sent  →  $received' : '$sign$sent',
-            caption: caption,
+          // The same top as the review sheets: kind, amount, title, date.
+          TransactionReviewHeader(
+            badge: switch (type) {
+              TransactionType.income => 'Money received',
+              TransactionType.expense => 'Money paid',
+              TransactionType.transfer => 'Between your accounts',
+            },
             color: color,
+            badgeIcon: switch (type) {
+              TransactionType.income => Icons.south_west_rounded,
+              TransactionType.expense => Icons.north_east_rounded,
+              TransactionType.transfer => Icons.swap_horiz_rounded,
+            },
+            amount: split ? '$sent  →  $received' : sent,
+            title: title,
+            date: DateFormat('MMM d, yyyy · h:mm a').format(transaction.date),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           TransactionDetailsCard(
             rows: [
-              TransactionDetailRow(
-                leading: const SheetIconTile(icon: Icons.edit_outlined),
-                label: 'Title',
-                value: title,
-                maxLines: 2,
-              ),
+              if (!isTransfer)
+                TransactionDetailRow(
+                  leading: EntityIconTile(
+                    chosen: category != null,
+                    iconKey: category?.icon,
+                    fallback: Icons.category_outlined,
+                  ),
+                  label: 'Category',
+                  value: category?.name ?? 'Deleted category',
+                ),
               TransactionDetailRow(
                 leading: EntityIconTile(
                   chosen: account != null,
@@ -654,24 +669,7 @@ class TransactionViewPage extends StatelessWidget {
                     label: 'Charge',
                     value: formatTransactionMoney(chargeMinor, account),
                   ),
-              ] else
-                TransactionDetailRow(
-                  leading: EntityIconTile(
-                    chosen: category != null,
-                    iconKey: category?.icon,
-                    fallback: Icons.category_outlined,
-                  ),
-                  label: isIncome ? 'Source' : 'Category',
-                  value: category?.name ?? 'Deleted category',
-                ),
-              TransactionDetailRow(
-                leading: const SheetIconTile(
-                  icon: Icons.calendar_today_rounded,
-                ),
-                label: 'Date',
-                value: DateFormat('MMM d, yyyy · h:mm a')
-                    .format(transaction.date),
-              ),
+              ],
               if (note != null && note.isNotEmpty)
                 TransactionDetailRow(
                   leading: const SheetIconTile(icon: Icons.notes_rounded),

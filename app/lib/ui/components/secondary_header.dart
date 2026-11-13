@@ -32,6 +32,60 @@ class SecondaryHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    if (centered && (leading != null || actions.isNotEmpty)) {
+      // Title truly centred on the sheet: the buttons float at the sides
+      // instead of pushing the title off-centre.
+      return IconTheme(
+        data: IconThemeData(size: 22, color: scheme.onSurface),
+        child: SizedBox(
+          height: height,
+          child: BackdropGroup(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 64),
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge
+                          ?.copyWith(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.3,
+                            height: 1.2,
+                            color: scheme.onSurface,
+                          )
+                          .merge(titleStyle),
+                    ),
+                  ),
+                ),
+                if (leading != null)
+                  Positioned(
+                    left: _roundInset,
+                    child: SizedBox(width: 48, height: 48, child: leading),
+                  ),
+                if (actions.isNotEmpty)
+                  Positioned(
+                    right: _roundInset,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (final action in actions)
+                          GlassActionSlot(child: action),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     return IconTheme(
       data: IconThemeData(size: 22, color: scheme.onSurface),
       child: SizedBox(

@@ -1,0 +1,162 @@
+[
+  {
+    "id": "mixxbyyas-reject-security",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "your otp is 123456. Money sent successfully to  -255XXXXXXXXX. Amount TSh 52,000. Total Charges TSh 1,125, VAT TSh 172. New balance is TSh 0. TxnID: 26495371373758. Receipt: 503-DFE9B1DABO. 14/06/26 19:19. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-reject-promotional",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "exclusive offer: apply now. Money sent successfully to  -255XXXXXXXXX. Amount TSh 52,000. Total Charges TSh 1,125, VAT TSh 172. New balance is TSh 0. TxnID: 26495371373758. Receipt: 503-DFE9B1DABO. 14/06/26 19:19. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-reject-failed",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "payment failed. Money sent successfully to  -255XXXXXXXXX. Amount TSh 52,000. Total Charges TSh 1,125, VAT TSh 172. New balance is TSh 0. TxnID: 26495371373758. Receipt: 503-DFE9B1DABO. 14/06/26 19:19. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-reject-pending",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "payment pending. Money sent successfully to  -255XXXXXXXXX. Amount TSh 52,000. Total Charges TSh 1,125, VAT TSh 172. New balance is TSh 0. TxnID: 26495371373758. Receipt: 503-DFE9B1DABO. 14/06/26 19:19. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-reject-future",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "will be debited. Money sent successfully to  -255XXXXXXXXX. Amount TSh 52,000. Total Charges TSh 1,125, VAT TSh 172. New balance is TSh 0. TxnID: 26495371373758. Receipt: 503-DFE9B1DABO. 14/06/26 19:19. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-reject-notice",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "statement generated. Money sent successfully to  -255XXXXXXXXX. Amount TSh 52,000. Total Charges TSh 1,125, VAT TSh 172. New balance is TSh 0. TxnID: 26495371373758. Receipt: 503-DFE9B1DABO. 14/06/26 19:19. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-reject-unknown-sender",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Money sent successfully to  -255XXXXXXXXX. Amount TSh 52,000. Total Charges TSh 1,125, VAT TSh 172. New balance is TSh 0. TxnID: 26495371373758. Receipt: 503-DFE9B1DABO. 14/06/26 19:19. Every Transaction is a Winning Goal!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mixxbyyas-reject-balance-only",
+    "country": "TZ",
+    "bankId": "tz.mixxbyyas",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "MixxByYas",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

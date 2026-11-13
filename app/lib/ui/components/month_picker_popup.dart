@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart' show usesGlass;
 import 'date_picker_sheet.dart';
 import 'frosted_modal_surface.dart';
 import 'popup_zoom.dart';
@@ -82,12 +83,16 @@ Future<DateTime?> _showCalendarPickerPopup(
             child: FrostedModalSurface(
               key: popupKey,
               borderRadius: BorderRadius.circular(22),
+              // The plain style has no glass to lift the popup, so its shadow
+              // is clearer.
               shadows: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: .12),
-                  blurRadius: 24,
-                  spreadRadius: -4,
-                  offset: const Offset(0, 6),
+                  color: Colors.black.withValues(
+                    alpha: usesGlass(context) ? .12 : .22,
+                  ),
+                  blurRadius: usesGlass(context) ? 24 : 32,
+                  spreadRadius: usesGlass(context) ? -4 : -2,
+                  offset: const Offset(0, 8),
                 ),
               ],
               child: SingleChildScrollView(

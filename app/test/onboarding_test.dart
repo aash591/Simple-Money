@@ -4,12 +4,17 @@ import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_money/data/backup/sync_repository.dart';
 import 'package:simple_money/data/bank_sms_parser.dart';
 import 'package:simple_money/data/db/app_database.dart';
 import 'package:simple_money/data/repositories/account_repository.dart';
 import 'package:simple_money/data/repositories/sms_import_repository.dart';
+import 'package:simple_money/data/rates/exchange_rates.dart';
+import 'package:simple_money/state/account_store.dart';
+import 'package:simple_money/state/main_currency_controller.dart';
 import 'package:simple_money/data/sms_inbox_platform.dart';
 import 'package:simple_money/state/onboarding.dart';
 import 'package:simple_money/state/sms_import_store.dart';
@@ -167,6 +172,46 @@ void main() {
     expect(inbox.requests, 0);
     expect((await prefs()).getBool(Onboarding.doneKey), isTrue);
     expect((await prefs()).getBool(Onboarding.backupSeenKey), isTrue);
+  });
+
+  testWidgets('the currency step starts from the phone region and saves it', (
+    tester,
+  ) async {
+    tester.platformDispatcher.localesTestValue = const [Locale('en', 'US')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+    tester.view.physicalSize = const Size(360, 740);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final controller = MainCurrencyController(
+      AccountStore(AccountRepository(db)),
+      ExchangeRates(db, MockClient((_) async => http.Response('{}', 404))),
+      isOnline: () async => false,
+    );
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) =>
+            MainCurrencyScope(controller: controller, child: child!),
+        home: OnboardingScreen(
+          database: db,
+          sms: store,
+          onDone: () => done = true,
+        ),
+      ),
+    );
+    await waitFor(tester, () => shows('Welcome to Simple Money'));
+    expect(find.text('Choose your currency'), findsOneWidget);
+    await tester.tap(find.text('Get started'));
+    await waitFor(tester, () => shows('Each account can have'));
+    expect(find.text('USD'), findsOneWidget);
+    await tester.tap(find.text('Continue'));
+    await waitFor(tester, () => shows('Enable Automatic Detection'));
+    expect(controller.code, 'USD');
+    expect(
+      (await prefs()).getString(MainCurrencyController.preferenceKey),
+      contains('USD'),
+    );
   });
 
   testWidgets('without Drive there is no backup step', (tester) async {

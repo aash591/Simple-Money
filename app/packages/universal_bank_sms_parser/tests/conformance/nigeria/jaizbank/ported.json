@@ -1,0 +1,64 @@
+[
+  {
+    "id": "jaizbank-ported-001",
+    "country": "NG",
+    "bankId": "ng.jaizbank",
+    "provenance": "PennyWise JaizBankParser (Debit transaction (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "Jaiz",
+      "body": "Acct:**737\nAmt:N50.00DR\nDesc:IFO NIBSS DIRECT DEBIT Mob Other Bank Trf # 70123\n04-JAN-26 17:46\nHelp:07007730000\nBal:N252.28\nBuy Airtime, Dial *773*Amount#",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.jaizbank.template001",
+      "candidate": {
+        "amountMinor": 5000,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Jaiz Bank",
+        "countryCode": "NG",
+        "accountLast4": "737",
+        "reference": null,
+        "counterparty": "IFO NIBSS DIRECT DEBIT Mob Other Bank Trf # 70123",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "jaizbank-ported-002",
+    "country": "NG",
+    "bankId": "ng.jaizbank",
+    "provenance": "PennyWise JaizBankParser (Credit transaction (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "Jaiz",
+      "body": "Acct:**737\nAmt:N100.00CR\nDesc:OPAY DIGITAL SERVICES LIMITED\n18-JAN-26 20:11\nHelp:07007730000\nBal:N352.28\nBuy Airtime, Dial *773*Amount#",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.jaizbank.template002",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Jaiz Bank",
+        "countryCode": "NG",
+        "accountLast4": "737",
+        "reference": null,
+        "counterparty": "OPAY DIGITAL SERVICES LIMITED",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

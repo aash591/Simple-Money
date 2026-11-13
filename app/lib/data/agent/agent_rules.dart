@@ -5,6 +5,7 @@ import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
 import '../../domain/account.dart';
 import '../../state/sms_import_store.dart';
 import '../bank_sms_parser.dart';
+import '../sms_amounts.dart';
 import '../db/app_database.dart';
 import '../user_sms_rules.dart';
 import 'agent_suggestion_repository.dart';
@@ -30,7 +31,15 @@ const agentRuleGuide =
     '"length":4}, "counterparty":{"capture":"party"} or {"value":"ATM"}, '
     '"reference":{"capture":"ref"}}; only amount is required. Optional '
     '"requires": {"all":[...],"any":[...],"none":[...]} literal selectors '
-    'tell similar messages apart. Never put a sample\'s amount, merchant, '
+    'tell similar messages apart. "senderRole" says who sends it: bank, '
+    'card or wallet when the SMS reports the user\'s own account there; '
+    'merchant, biller, lender, government or other when it only says money '
+    'moved (a refund, an order paid, a bill received). Such a sender is never '
+    'an account: the bank\'s own SMS or the user gives it. Outside India, '
+    'give "country" (ISO code, e.g. AE) and "defaults": {"currency":"AED", '
+    '"decimalMark":"." or ",", "grouping":"western"}; a sender a bundled '
+    'bank uses keeps that bank\'s country. Never put a '
+    'sample\'s amount, merchant, '
     'date or account number in a literal: capture it, so the rule reads every '
     'message of that shape. Read the bank\'s existing formats with '
     'get_parser_rules first.';
@@ -82,8 +91,7 @@ class RuleTrial {
 
   /// The fields a person checks, from a parse result.
   static Map<String, Object?> readCandidate(SmsTransactionCandidate c) => {
-    // The Indian pack gives every currency two decimals.
-    'amount': (c.amountMinor / 100).toStringAsFixed(2),
+    'amount': smsRuleAmountText(c.amountMinor, c.currencyCode),
     'currency': c.currencyCode,
     'direction': c.direction.name,
     'channel': c.channel.name,
@@ -132,10 +140,38 @@ class AgentRuleLab {
       ..remove('id')
       ..remove('senders')
       ..putIfAbsent('classification', () => 'completed');
+    if (clean.containsKey(smsSenderRoleKey) &&
+        SmsSenderRole.tryParse(clean[smsSenderRoleKey]) == null) {
+      throw ArgumentError(
+        'senderRole must be one of '
+        '${SmsSenderRole.values.map((r) => r.name).join(', ')}.',
+      );
+    }
+    // A sender a bundled pack knows reads SMS for that pack's country.
+    final known = {
+      for (final pack in bundled)
+        for (final rule in (jsonDecode(pack) as Map)['rules'] as List)
+          if ((rule['senders'] as List).any(canonical.contains))
+            rule['country'] as String,
+    };
+    if (known.length == 1) {
+      clean[smsRuleCountryKey] = known.single;
+    } else if (clean.containsKey(smsRuleCountryKey) &&
+        ruleCountry(clean) != clean[smsRuleCountryKey]) {
+      throw ArgumentError(
+        'country must be a two-letter ISO code, such as IN, AE or US.',
+      );
+    }
+    if (clean['defaults'] case {'currency': final Object currency}
+        when currency is! String || !RegExp(r'^[A-Z]{3}$').hasMatch(currency)) {
+      throw ArgumentError(
+        'defaults.currency must be a three-letter ISO code, such as INR, '
+        'AED or USD.',
+      );
+    }
     final RuntimeRulePack user;
     try {
-      user = compileUserSmsRules(
-        await indiaRuleSource(),
+      user = await compileUserSmsRules(
         saved,
         extra: (_trialLabel, name, canonical, clean),
       );
@@ -157,7 +193,7 @@ class AgentRuleLab {
         'The rule clashes with an existing one: ${error.message}.',
       );
     }
-    final id = userSmsRuleId(name, _trialLabel);
+    final id = userSmsRuleId(name, _trialLabel, country: ruleCountry(clean));
     return RuleTrial(
       bankName: name,
       senders: canonical,
@@ -204,6 +240,28 @@ class AgentRuleLab {
     }
     final first = trial.results.first.result.candidate!;
     final read = RuleTrial.readCandidate(first);
+    // Most SMS give an account or let the app tell the category. With neither,
+    // every payment would need both chosen by hand, so such a rule isn't worth
+    // suggesting.
+    final category = first.category;
+    final role = ruleSenderRole(trial.format);
+    final picks = userPicks(first, role);
+    final knowsCategory = !picks.contains('category');
+    if (picks.length == 2) {
+      throw ArgumentError(
+        role.holdsMoney
+            ? 'This SMS names no account and the app can’t tell its category '
+                  'from it, so a rule would leave the user choosing both on '
+                  'every payment. Don’t suggest it. Only suggest a rule for SMS '
+                  'that carry an account number or a clear category (refund, '
+                  'salary, interest…). The user picks the other one in SMS '
+                  'review; tell them which.'
+            : 'A ${role.name}’s SMS never gives the account, and the app can’t '
+                  'tell this one’s category, so the user would choose both on '
+                  'every payment. Don’t suggest it: the bank’s own SMS for it is '
+                  'enough.',
+      );
+    }
     final readLabels = [
       'amount',
       if (format['output'] case {'accountLast4': _}) 'account',
@@ -214,7 +272,7 @@ class AgentRuleLab {
     return AgentSuggestionDraft(
       kind: AgentSuggestionKind.parserRule,
       target: jsonEncode([
-        userSmsBankId(trial.bankName),
+        userSmsBankId(trial.bankName, country: ruleCountry(trial.format)),
         trial.format['tokens'],
       ]),
       payload: {
@@ -232,6 +290,13 @@ class AgentRuleLab {
             '${first.direction.name}'
             '${first.counterparty == null ? '' : ' · ${first.counterparty}'}'
             '${first.accountLast4 == null ? '' : ' · ••${first.accountLast4}'}',
+        if (knowsCategory) 'Category: ${category!.name}',
+        // The suggestions screen reads these two lines; keep their wording.
+        if (!role.holdsMoney)
+          'Sender: ${role.name}, not an account. Matched to the bank’s SMS '
+              'for the same amount, or you pick the account',
+        if (picks.contains('account')) 'Missing: account',
+        if (!knowsCategory) 'Missing: category',
         'Sample: ${_clip(samples.first.text)}',
       ],
       reason: cleanReason == null || cleanReason.isEmpty
@@ -240,6 +305,25 @@ class AgentRuleLab {
           ? '${cleanReason.substring(0, 279)}…'
           : cleanReason,
     );
+  }
+
+  /// What the user picks in SMS review for a message a rule reads: the
+  /// account when it names none, the category when the app can't tell it.
+  /// A shop's or biller's SMS never gives the account, even when it quotes
+  /// the bank account's number.
+  static List<String> userPicks(
+    SmsTransactionCandidate c, [
+    SmsSenderRole role = SmsSenderRole.bank,
+  ]) {
+    final category = c.category;
+    final knowsCategory =
+        category != null &&
+        !category.isFallback &&
+        category.name.toLowerCase() != 'personal';
+    return [
+      if (c.accountLast4 == null || !role.holdsMoney) 'account',
+      if (!knowsCategory) 'category',
+    ];
   }
 
   /// The bundled formats for [sender] and the user's own rules, as examples.

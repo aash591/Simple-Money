@@ -1,0 +1,126 @@
+[
+  {
+    "id": "discovercard-ported-001",
+    "country": "US",
+    "bankId": "us.discovercard",
+    "provenance": "PennyWise DiscoverCardParser (Standard transaction with date); see NOTICE.md",
+    "input": {
+      "sender": "347268",
+      "body": "Discover Card Alert: A transaction of $25.00 at WWW.XXX.ORG on February 21, 2025. No Action needed. See it at https://app.discover.com/ACTVT. Text STOP to end",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.discovercard.template001",
+      "candidate": {
+        "amountMinor": 2500,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Discover Card",
+        "countryCode": "US",
+        "accountLast4": null,
+        "reference": "February 21, 2025",
+        "counterparty": "WWW.XXX.ORG",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "discovercard-ported-002",
+    "country": "US",
+    "bankId": "us.discovercard",
+    "provenance": "PennyWise DiscoverCardParser (PayPal transaction); see NOTICE.md",
+    "input": {
+      "sender": "DISCOVER",
+      "body": "Discover Card Alert: A transaction of $5.36 at PAYPAL *SParkXXX on July 20, 2025. No Action needed. See it at https://app.discover.com/ACTVT. Text STOP to end",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.discovercard.template001",
+      "candidate": {
+        "amountMinor": 536,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Discover Card",
+        "countryCode": "US",
+        "accountLast4": null,
+        "reference": "July 20, 2025",
+        "counterparty": "PAYPAL *SParkXXX",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "discovercard-ported-003",
+    "country": "US",
+    "bankId": "us.discovercard",
+    "provenance": "PennyWise DiscoverCardParser (Alternative sender format); see NOTICE.md",
+    "input": {
+      "sender": "US-DISCOVER-A",
+      "body": "Discover Card Alert: A transaction of $99.99 at NETFLIX.COM on March 15, 2025. No Action needed. See it at https://app.discover.com/ACTVT. Text STOP to end",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.discovercard.template001",
+      "candidate": {
+        "amountMinor": 9999,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Discover Card",
+        "countryCode": "US",
+        "accountLast4": null,
+        "reference": "March 15, 2025",
+        "counterparty": "NETFLIX.COM",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "discovercard-ported-004",
+    "country": "US",
+    "bankId": "us.discovercard",
+    "provenance": "PennyWise DiscoverCardParser (Different merchant format); see NOTICE.md",
+    "input": {
+      "sender": "347268",
+      "body": "Discover Card Alert: A transaction of $42.50 at STARBUCKS STORE #1234 on April 10, 2025. No Action needed. See it at https://app.discover.com/ACTVT. Text STOP to end",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.discovercard.template001",
+      "candidate": {
+        "amountMinor": 4250,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Discover Card",
+        "countryCode": "US",
+        "accountLast4": null,
+        "reference": "April 10, 2025",
+        "counterparty": "STARBUCKS STORE #1234",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

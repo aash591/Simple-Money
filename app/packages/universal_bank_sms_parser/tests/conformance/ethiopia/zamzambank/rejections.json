@@ -1,0 +1,162 @@
+[
+  {
+    "id": "zamzambank-reject-security",
+    "country": "ET",
+    "bankId": "et.zamzambank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ZamZam Bank",
+      "body": "your otp is 123456. Dear Customer, your account ****1234 has been credited by John Doe with ETB 5,000.00 on 2025-12-02. Your current balance is ETB 5,000.00. Thank you for banking with us!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zamzambank-reject-promotional",
+    "country": "ET",
+    "bankId": "et.zamzambank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ZamZam Bank",
+      "body": "exclusive offer: apply now. Dear Customer, your account ****1234 has been credited by John Doe with ETB 5,000.00 on 2025-12-02. Your current balance is ETB 5,000.00. Thank you for banking with us!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zamzambank-reject-failed",
+    "country": "ET",
+    "bankId": "et.zamzambank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ZamZam Bank",
+      "body": "payment failed. Dear Customer, your account ****1234 has been credited by John Doe with ETB 5,000.00 on 2025-12-02. Your current balance is ETB 5,000.00. Thank you for banking with us!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zamzambank-reject-pending",
+    "country": "ET",
+    "bankId": "et.zamzambank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ZamZam Bank",
+      "body": "payment pending. Dear Customer, your account ****1234 has been credited by John Doe with ETB 5,000.00 on 2025-12-02. Your current balance is ETB 5,000.00. Thank you for banking with us!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zamzambank-reject-future",
+    "country": "ET",
+    "bankId": "et.zamzambank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ZamZam Bank",
+      "body": "will be debited. Dear Customer, your account ****1234 has been credited by John Doe with ETB 5,000.00 on 2025-12-02. Your current balance is ETB 5,000.00. Thank you for banking with us!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zamzambank-reject-notice",
+    "country": "ET",
+    "bankId": "et.zamzambank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ZamZam Bank",
+      "body": "statement generated. Dear Customer, your account ****1234 has been credited by John Doe with ETB 5,000.00 on 2025-12-02. Your current balance is ETB 5,000.00. Thank you for banking with us!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zamzambank-reject-unknown-sender",
+    "country": "ET",
+    "bankId": "et.zamzambank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Dear Customer, your account ****1234 has been credited by John Doe with ETB 5,000.00 on 2025-12-02. Your current balance is ETB 5,000.00. Thank you for banking with us!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zamzambank-reject-balance-only",
+    "country": "ET",
+    "bankId": "et.zamzambank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "ZamZam Bank",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

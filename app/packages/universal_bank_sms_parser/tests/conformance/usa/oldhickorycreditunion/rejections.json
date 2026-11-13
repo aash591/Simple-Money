@@ -1,0 +1,162 @@
+[
+  {
+    "id": "oldhickorycreditunion-reject-security",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "(877) 590-7589",
+      "body": "your otp is 123456. A transaction for $27.00 has posted to ACCOUNT NAME (part of ACCOUNT#), which is above the $0.00 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "oldhickorycreditunion-reject-promotional",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "(877) 590-7589",
+      "body": "exclusive offer: apply now. A transaction for $27.00 has posted to ACCOUNT NAME (part of ACCOUNT#), which is above the $0.00 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "oldhickorycreditunion-reject-failed",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "(877) 590-7589",
+      "body": "payment failed. A transaction for $27.00 has posted to ACCOUNT NAME (part of ACCOUNT#), which is above the $0.00 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "oldhickorycreditunion-reject-pending",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "(877) 590-7589",
+      "body": "payment pending. A transaction for $27.00 has posted to ACCOUNT NAME (part of ACCOUNT#), which is above the $0.00 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "oldhickorycreditunion-reject-future",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "(877) 590-7589",
+      "body": "will be debited. A transaction for $27.00 has posted to ACCOUNT NAME (part of ACCOUNT#), which is above the $0.00 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "oldhickorycreditunion-reject-notice",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "(877) 590-7589",
+      "body": "statement generated. A transaction for $27.00 has posted to ACCOUNT NAME (part of ACCOUNT#), which is above the $0.00 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "oldhickorycreditunion-reject-unknown-sender",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "A transaction for $27.00 has posted to ACCOUNT NAME (part of ACCOUNT#), which is above the $0.00 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "oldhickorycreditunion-reject-balance-only",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "(877) 590-7589",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,11 +1,16 @@
 import 'dart:convert';
 
+import 'package:drift/drift.dart' show Variable;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simple_money/data/agent/agent_suggestion_repository.dart';
 import 'package:simple_money/data/agent/agent_tools.dart';
 import 'package:simple_money/data/db/app_database.dart';
 import 'package:simple_money/data/reportable_sms.dart';
+import 'package:simple_money/data/repositories/account_repository.dart';
+import 'package:simple_money/data/repositories/category_repository.dart';
+import 'package:simple_money/domain/category.dart';
+import 'package:simple_money/domain/transaction.dart';
 import 'package:simple_money/data/repositories/sms_import_repository.dart';
 import 'package:simple_money/data/sms_inbox_platform.dart';
 import 'package:simple_money/data/user_sms_rules.dart';
@@ -270,6 +275,70 @@ void main() {
       await store.rulesChanged();
       expect(store.pendingCount, 1);
       expect(store.pending.single.title, 'Blue Tokai Coffee');
+    },
+  );
+
+  test(
+    'A sample saved from the rule card isn’t queued again by the rule',
+    () async {
+      final store = SmsImportStore(
+        SmsImportRepository(db),
+        platform: _Inbox([
+          InboxSms(
+            1,
+            BankSms(
+              sender: 'VM-ZETAPY',
+              body: _sms,
+              receivedAt: DateTime(2026, 10, 20),
+            ),
+          ),
+        ]),
+        autoImport: false,
+      );
+      addTearDown(store.dispose);
+      await SmsImportRepository(db).enable(true);
+      await store.initialize();
+
+      await call('suggest_parser_rule', zeta());
+      final repository = AgentSuggestionRepository(db);
+      final rule = (await repository.load()).single;
+      await AccountRepository(db)
+          .save(name: 'Bank', currency: 'INR', digits: 2, openingBalance: 0);
+      final account = (await AccountRepository(db).load()).single;
+      final category = (await CategoryRepository(
+        db,
+      ).load()).firstWhere((c) => c.type == CategoryType.expense);
+      final id = await repository.saveRuleSample(
+        rule.id,
+        type: TransactionType.expense,
+        amountMinor: 45000,
+        accountId: account.id,
+        categoryId: category.id,
+        title: 'Blue Tokai Coffee',
+        date: DateTime(2026, 10, 20),
+      );
+      await expectLater(
+        repository.saveRuleSample(
+          rule.id,
+          type: TransactionType.expense,
+          amountMinor: 45000,
+          accountId: account.id,
+          categoryId: category.id,
+          date: DateTime(2026, 10, 20),
+        ),
+        throwsStateError,
+      );
+
+      expect(await repository.applyAll(), (1, 0));
+      await store.rulesChanged();
+      expect(store.pendingCount, 0);
+      final linked = await db
+          .customSelect(
+            "SELECT count(*) AS n FROM sms_imports WHERE transaction_id = ? AND fingerprint NOT LIKE 'sample:%'",
+            variables: [Variable(id)],
+          )
+          .getSingle();
+      expect(linked.read<int>('n'), 1);
     },
   );
 }

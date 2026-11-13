@@ -1,0 +1,64 @@
+[
+  {
+    "id": "citizensbank-ported-001",
+    "country": "NP",
+    "bankId": "np.citizensbank",
+    "provenance": "PennyWise CitizensBankParser (Debit - ATM withdrawal); see NOTICE.md",
+    "input": {
+      "sender": "CTZN_ALERT",
+      "body": "Dear CUSTOMER, ###4041 is debited by NPR 5,000.00 on 29/03/2026, Remarks: ATM/459521x2018/CTZW Av Bal: 140270.04. Support Center:01-XXXXXXX",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.citizensbank.template001",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Citizens Bank",
+        "countryCode": "NP",
+        "accountLast4": "4041",
+        "reference": "ATM/459521x2018/CTZW",
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "citizensbank-ported-002",
+    "country": "NP",
+    "bankId": "np.citizensbank",
+    "provenance": "PennyWise CitizensBankParser (Credit - cIPS transfer); see NOTICE.md",
+    "input": {
+      "sender": "CTZN_ALERT",
+      "body": "Dear CUSTOMER, ###4041 is credited by NPR 150,000.00 on 25/03/2026, Remarks: cIPS/NP2603250066636 Av Bal: 153520.04. Support Center:01-XXXXXXX",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.citizensbank.template002",
+      "candidate": {
+        "amountMinor": 15000000,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Citizens Bank",
+        "countryCode": "NP",
+        "accountLast4": "4041",
+        "reference": "cIPS/NP2603250066636",
+        "counterparty": "cIPS",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

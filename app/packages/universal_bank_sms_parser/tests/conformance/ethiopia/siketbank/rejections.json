@@ -1,0 +1,162 @@
+[
+  {
+    "id": "siketbank-reject-security",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "your otp is 123456. Dear Siket Bank Family, Your Account 1****1234 has been Credited with ETB 30,000.00. Your Current Balance is ETB 577,453.30. Thank you for Banking with Siket Bank! For any queries call 8342.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siketbank-reject-promotional",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "exclusive offer: apply now. Dear Siket Bank Family, Your Account 1****1234 has been Credited with ETB 30,000.00. Your Current Balance is ETB 577,453.30. Thank you for Banking with Siket Bank! For any queries call 8342.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siketbank-reject-failed",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "payment failed. Dear Siket Bank Family, Your Account 1****1234 has been Credited with ETB 30,000.00. Your Current Balance is ETB 577,453.30. Thank you for Banking with Siket Bank! For any queries call 8342.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siketbank-reject-pending",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "payment pending. Dear Siket Bank Family, Your Account 1****1234 has been Credited with ETB 30,000.00. Your Current Balance is ETB 577,453.30. Thank you for Banking with Siket Bank! For any queries call 8342.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siketbank-reject-future",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "will be debited. Dear Siket Bank Family, Your Account 1****1234 has been Credited with ETB 30,000.00. Your Current Balance is ETB 577,453.30. Thank you for Banking with Siket Bank! For any queries call 8342.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siketbank-reject-notice",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "statement generated. Dear Siket Bank Family, Your Account 1****1234 has been Credited with ETB 30,000.00. Your Current Balance is ETB 577,453.30. Thank you for Banking with Siket Bank! For any queries call 8342.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siketbank-reject-unknown-sender",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Dear Siket Bank Family, Your Account 1****1234 has been Credited with ETB 30,000.00. Your Current Balance is ETB 577,453.30. Thank you for Banking with Siket Bank! For any queries call 8342.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "siketbank-reject-balance-only",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

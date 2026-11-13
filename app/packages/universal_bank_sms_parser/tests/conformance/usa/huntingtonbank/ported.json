@@ -1,0 +1,219 @@
+[
+  {
+    "id": "huntingtonbank-ported-001",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "PennyWise HuntingtonBankParser (Debit card withdrawal with positive balance); see NOTICE.md",
+    "input": {
+      "sender": "Huntington Bank",
+      "body": "Huntington Heads Up. We processed a debit card withdrawal: $25.00 at Bob Inc. Acct CK0000 has a $10.12 bal (10/19/25 5:43 AM ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template001",
+      "candidate": {
+        "amountMinor": 2500,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "0000",
+        "reference": null,
+        "counterparty": "Bob Inc",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "huntingtonbank-ported-002",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "PennyWise HuntingtonBankParser (Debit card withdrawal with negative balance); see NOTICE.md",
+    "input": {
+      "sender": "Huntington Bank",
+      "body": "Huntington Heads Up. We processed a debit card withdrawal: $20.00 at BC *UBER CASH. Acct CK0000 has a -$15.01 bal (9/10/25 11:41 PM ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template002",
+      "candidate": {
+        "amountMinor": 2000,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "0000",
+        "reference": null,
+        "counterparty": "BC *UBER CASH",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "huntingtonbank-ported-003",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "PennyWise HuntingtonBankParser (ATM withdrawal); see NOTICE.md",
+    "input": {
+      "sender": "Huntington Bank",
+      "body": "Huntington Heads Up. We processed an ATM withdrawal: $162.45 at POS John Inc. Acct CK0000 has a $20.20 bal (9/03/25 12:12 PM ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template003",
+      "candidate": {
+        "amountMinor": 16245,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "0000",
+        "reference": null,
+        "counterparty": "POS John Inc",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "huntingtonbank-ported-004",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "PennyWise HuntingtonBankParser (ACH withdrawal); see NOTICE.md",
+    "input": {
+      "sender": "Huntington Bank",
+      "body": "Huntington Heads Up. We processed an ACH withdrawal: $50.67 at GEICO           . Acct CK0000 has a $6211.32 bal (8/09/25 3:23 PM ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template004",
+      "candidate": {
+        "amountMinor": 5067,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "0000",
+        "reference": null,
+        "counterparty": "GEICO",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "huntingtonbank-ported-005",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "PennyWise HuntingtonBankParser (Different account number); see NOTICE.md",
+    "input": {
+      "sender": "HUNTINGTON",
+      "body": "Huntington Heads Up. We processed a debit card withdrawal: $100.50 at AMAZON.COM. Acct CK1234 has a $500.00 bal (12/01/25 2:30 PM ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template001",
+      "candidate": {
+        "amountMinor": 10050,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "AMAZON.COM",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "huntingtonbank-ported-006",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "PennyWise HuntingtonBankParser (Large amount with comma); see NOTICE.md",
+    "input": {
+      "sender": "Huntington Bank",
+      "body": "Huntington Heads Up. We processed a debit card withdrawal: $1,250.00 at BEST BUY. Acct CK5678 has a $3,500.75 bal (11/15/25 10:00 AM ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template001",
+      "candidate": {
+        "amountMinor": 125000,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "BEST BUY",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "huntingtonbank-ported-007",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "PennyWise HuntingtonBankParser (ACH withdrawal from utility company); see NOTICE.md",
+    "input": {
+      "sender": "HUNTINGTON",
+      "body": "Huntington Heads Up. We processed an ACH withdrawal: $125.00 at ELECTRIC COMPANY. Acct CK9999 has a $1000.00 bal (10/01/25 8:00 AM ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template007",
+      "candidate": {
+        "amountMinor": 12500,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "9999",
+        "reference": null,
+        "counterparty": "ELECTRIC COMPANY",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

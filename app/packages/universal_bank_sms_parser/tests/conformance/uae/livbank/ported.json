@@ -1,0 +1,126 @@
+[
+  {
+    "id": "livbank-ported-005",
+    "country": "AE",
+    "bankId": "ae.livbank",
+    "provenance": "PennyWise LivBankParser (Purchase at Multi-word Merchant); see NOTICE.md",
+    "input": {
+      "sender": "Liv",
+      "body": "Purchase of AED 150.00 with Debit Card ending 5678 at DUBAI MALL PARKING. Avl Balance is AED 2,500.00.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.livbank.template005",
+      "candidate": {
+        "amountMinor": 15000,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Liv Bank",
+        "countryCode": "AE",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "DUBAI MALL PARKING",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "livbank-ported-008",
+    "country": "AE",
+    "bankId": "ae.livbank",
+    "provenance": "PennyWise LivBankParser (Multi-currency Purchase - USD); see NOTICE.md",
+    "input": {
+      "sender": "Liv",
+      "body": "Purchase of USD 75.00 with Debit Card ending 4878 at AMAZON.COM. Avl Balance is AED 4,100.00.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.livbank.template008",
+      "candidate": {
+        "amountMinor": 7500,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Liv Bank",
+        "countryCode": "AE",
+        "accountLast4": "4878",
+        "reference": null,
+        "counterparty": "AMAZON.COM",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "livbank-ported-009",
+    "country": "AE",
+    "bankId": "ae.livbank",
+    "provenance": "PennyWise LivBankParser (Multi-currency Purchase - EUR); see NOTICE.md",
+    "input": {
+      "sender": "Liv",
+      "body": "Purchase of EUR 50.00 with Debit Card ending 1234 at BOOKING.COM. Avl Balance is AED 3,800.00.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.livbank.template009",
+      "candidate": {
+        "amountMinor": 5000,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Liv Bank",
+        "countryCode": "AE",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "BOOKING.COM",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "livbank-ported-010",
+    "country": "AE",
+    "bankId": "ae.livbank",
+    "provenance": "PennyWise LivBankParser (Multi-currency Purchase - GBP); see NOTICE.md",
+    "input": {
+      "sender": "Liv",
+      "body": "Purchase of GBP 100.00 with Debit Card ending 5678 at MARKS AND SPENCER. Avl Balance is AED 3,200.00.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.livbank.template010",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "GBP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Liv Bank",
+        "countryCode": "AE",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "MARKS AND SPENCER",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "citibank-variables-001",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "692484",
+      "body": "Citi Alert: A $321.09 transaction was made at BP#9988E on card ending in 9876.54. View details at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.citibank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Citi Bank",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "BP#1234E",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "citibank-variables-002",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CITI",
+      "body": "Citi Alert: Card ending in 9988 was not present for a $321.09 transaction at MIGRATIONSHOP. View at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.citibank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Citi Bank",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "citibank-variables-003",
+    "country": "US",
+    "bankId": "us.citibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "US-CITI-A",
+      "body": "Citi Alert: A $321.09 transaction was made at AMAZON.COM on card ending in 9988. View details at citi.com/citimobileapp",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.citibank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Citi Bank",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

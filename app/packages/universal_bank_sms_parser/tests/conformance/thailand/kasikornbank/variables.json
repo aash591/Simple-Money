@@ -1,0 +1,95 @@
+[
+  {
+    "id": "kasikornbank-variables-001",
+    "country": "TH",
+    "bankId": "th.kasikornbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "KBank",
+      "body": "KBank: You spent 321.09 THB at SHOPEE. A/C x9988 Bal 9876.54 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.kasikornbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Kasikorn Bank",
+        "countryCode": "TH",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "kasikornbank-variables-002",
+    "country": "TH",
+    "bankId": "th.kasikornbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "KBank",
+      "body": "KBank: Receive 321.09 THB from A/C x9988 Bal 9876.54 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.kasikornbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Kasikorn Bank",
+        "countryCode": "TH",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "kasikornbank-variables-003",
+    "country": "TH",
+    "bankId": "th.kasikornbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "KBank",
+      "body": "KBank: โอนเงินผ่านพร้อมเพย์ 321.09 บาท บช x9988 คงเหลือ 9876.54 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.kasikornbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Kasikorn Bank",
+        "countryCode": "TH",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "awashbank-variables-001",
+    "country": "ET",
+    "bankId": "et.awashbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Awash Bank",
+      "body": "Dear Customer, ETB 321.09 has been credited to your account from MIGRATIONSHOP on: 02-DEC-2027 11:22:33 with Txn ID: MIG123456. Your available balance is now ETB 9876.54. Receipt Link: metadatavalue Contact center 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.awashbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Awash Bank",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "awashbank-variables-002",
+    "country": "ET",
+    "bankId": "et.awashbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "AwashBank",
+      "body": "Dear Customer; Telebirr Transfer of 321.09 ETB to MIGRATIONSHOP - 9876.54 from 013201234509988/BANK, Reason- Test, Charge 9876.54 VAT: 9876.54. Your Balance is ETB 9876.54. Receipt Link: metadatavalue Contact Center 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.awashbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Awash Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "awashbank-variables-003",
+    "country": "ET",
+    "bankId": "et.awashbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Awash Bank",
+      "body": "Dear Customer, You have sent ETB 321.09 To (9876.54) - MIGRATIONSHOP by Transaction ID: MIG123456 charge- 9876.54 VAT- 9876.54 Date 02-DEC-2027 11:22:33. Your Available Balance is 9876.54. Download the receipt by link metadatavalue",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.awashbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Awash Bank",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

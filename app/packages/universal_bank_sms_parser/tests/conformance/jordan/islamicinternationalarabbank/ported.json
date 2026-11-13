@@ -1,0 +1,312 @@
+[
+  {
+    "id": "islamicinternationalarabbank-ported-002",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "PennyWise IslamicInternationalArabBankParser (Card purchase, branch named after its city loses both); see NOTICE.md",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "حركة شراء Sample Sweets - Alzarqa Zarqa JO\nالمبلغ: 9.000 JOD\nحساب: 4321*1234\nتاريخ: 05/11/2026 16:04:00\nالرصيد: 100.000 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template002",
+      "candidate": {
+        "amountMinor": 9000,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Sample Sweets",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "islamicinternationalarabbank-ported-003",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "PennyWise IslamicInternationalArabBankParser (Card purchase, a name ending in another city keeps it); see NOTICE.md",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "حركة شراء SAMPLE CAFE IRBID AMMAN JO\nالمبلغ: 3.000 JOD\nحساب: 4321*1234\nتاريخ: 05/11/2026 16:04:00\nالرصيد: 100.000 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template003",
+      "candidate": {
+        "amountMinor": 3000,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SAMPLE CAFE IRBID",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "islamicinternationalarabbank-ported-004",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "PennyWise IslamicInternationalArabBankParser (Card purchase, a name ending in AL glued to the city keeps its AL); see NOTICE.md",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "حركة شراء SAMPLE CENTRALAMMAN JO\nالمبلغ: 3.000 JOD\nحساب: 4321*1234\nتاريخ: 05/11/2026 16:04:00\nالرصيد: 100.000 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template004",
+      "candidate": {
+        "amountMinor": 3000,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SAMPLE CENTRAL",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "islamicinternationalarabbank-ported-005",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "PennyWise IslamicInternationalArabBankParser (Card purchase, foreign merchant with phone number); see NOTICE.md",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "حركة شراء APPLE.COM/US 800-000-0000 US\nالمبلغ: 7.102 JOD\nحساب: 4321*1234\nتاريخ: 21/07/2026 11:25:39\nالرصيد: 218.610 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template005",
+      "candidate": {
+        "amountMinor": 7102,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "APPLE.COM/US",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "islamicinternationalarabbank-ported-006",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "PennyWise IslamicInternationalArabBankParser (Card purchase, unmasked account number agrees on last four); see NOTICE.md",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "حركة شراء Amman Vision Transport 2800*0096JO\nالمبلغ: 0.500 JOD\nحساب: 1234000004321\nتاريخ: 02/09/2026 08:00:00\nالرصيد: 100.000 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template006",
+      "candidate": {
+        "amountMinor": 500,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": "4321",
+        "reference": null,
+        "counterparty": "Amman Vision Transport",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "islamicinternationalarabbank-ported-007",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "PennyWise IslamicInternationalArabBankParser (Purchase reversal is income); see NOTICE.md",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "عكس حركة شراء من GOOGLE*TEMPORARY HOLD MOUNTAIN VIEWUS\nالمبلغ: 5.150 JOD\nحساب: 4321*1234\nتاريخ: 22/09/2026 21:52:55\nالرصيد: 3,169.920 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template007",
+      "candidate": {
+        "amountMinor": 5150,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "GOOGLE*TEMPORARY HOLD MOUNTAIN VIEW",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "islamicinternationalarabbank-ported-010",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "PennyWise IslamicInternationalArabBankParser (CliQ purchase (balance without currency)); see NOTICE.md",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "مشتريات CliQ\nإلى SAMPLE SUPERMARKET\nالمبلغ: 45.000 JOD\nحساب: 4321*1234\nتاريخ: 27/09/2026 15:15:47\nالرصيد: 2,575.070",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template010",
+      "candidate": {
+        "amountMinor": 45000,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SAMPLE SUPERMARKET",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "islamicinternationalarabbank-ported-011",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "PennyWise IslamicInternationalArabBankParser (CliQ reversal is income); see NOTICE.md",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "عكس دفعة CliQ من JANE DOE\nالمبلغ: 1.000 JOD\nحساب: 4321*1234\nتاريخ: 31/05/2026 10:06:13\nالرصيد: 660.000",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template011",
+      "candidate": {
+        "amountMinor": 1000,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "JANE DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "islamicinternationalarabbank-ported-012",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "PennyWise IslamicInternationalArabBankParser (ATM withdrawal); see NOTICE.md",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "سحب صراف Panorama Mall ATM Amman JO\nالمبلغ: 20.000 JOD\nحساب: 4321*1234\nتاريخ: 25/09/2026 17:00:25\nالرصيد: 3,140.320 JOD\nمرجع: 000000000000",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template012",
+      "candidate": {
+        "amountMinor": 20000,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "islamicinternationalarabbank-ported-013",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "PennyWise IslamicInternationalArabBankParser (ATM deposit is income); see NOTICE.md",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "إيداع صراف Jubeiha Branch ATM Amman JO\nالمبلغ: 100.000 JOD\nحساب: 4321*1234\nتاريخ: 15/09/2026 19:00:00\nالرصيد: 3,600.910 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template013",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "atm",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "ATM Deposit",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

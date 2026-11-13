@@ -1,0 +1,95 @@
+[
+  {
+    "id": "bankino-variables-001",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "20004861",
+      "body": "بانک خاورمیانه خرید با کارت 9988 -321.09 XXX/XXXXXXXX مانده 9876.54 9876.54/9876.54 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.bankino.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Bankino",
+        "countryCode": "IR",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankino-variables-002",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "+98 20 0048 61",
+      "body": "بانک خاورمیانه خرید با کارت 9988 -321.09 XXX/XXXXXXXXX مانده 9876.54 9876.54/9876.54 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.bankino.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Bankino",
+        "countryCode": "IR",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankino-variables-003",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "98200048610",
+      "body": "بانک خاورمیانه انتقال از اینترنت بانک از کارت 9988 +321.09 XXX/XXXXXXXXX مانده 9876.54 9876.54/9876.54 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.bankino.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "IRR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Bankino",
+        "countryCode": "IR",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

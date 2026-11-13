@@ -8,6 +8,7 @@ import '../../domain/account.dart';
 import '../../state/account_store.dart';
 import '../../state/sms_import_store.dart';
 import '../components/feature_page.dart';
+import '../../domain/currency_digits.dart';
 
 String unassignedSmsGroup(PendingSmsImport sms) =>
     '${sms.bankName} \u00b7 ${sms.currency}${sms.creditCard ? ' \u00b7 Card' : ''}';
@@ -90,7 +91,7 @@ class _UnassignedSmsPageState extends State<UnassignedSmsPage> {
           (a) =>
               !a.isArchived &&
               a.type != AccountType.cash &&
-              a.digits == 2 &&
+              a.digits == currencyDigits(a.currency) &&
               chosen.every(
                 (s) =>
                     s.currency == a.currency &&
@@ -257,7 +258,7 @@ class _UnassignedSmsPageState extends State<UnassignedSmsPage> {
                                         }
                                       }),
                                 title: Text(
-                                  '${sms.credit ? '+' : '-'}${formatAccountMoney(sms.amountMinor, currency: sms.currency, digits: 2)}',
+                                  '${sms.credit ? '+' : '-'}${formatAccountMoney(sms.amountMinor, currency: sms.currency, digits: sms.digits)}',
                                 ),
                                 subtitle: Text(
                                   '${sms.title}\n${sms.receivedAt.day}/${sms.receivedAt.month}/${sms.receivedAt.year} · ${sms.sender}',

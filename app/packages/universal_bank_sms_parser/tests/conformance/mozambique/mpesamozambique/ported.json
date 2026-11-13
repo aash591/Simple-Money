@@ -1,0 +1,157 @@
+[
+  {
+    "id": "mpesamozambique-ported-001",
+    "country": "MZ",
+    "bankId": "mz.mpesamozambique",
+    "provenance": "PennyWise MPesaMozambiqueParser (Transfer out (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "M-Pesa",
+      "body": "Confirmado DF50KDFDHWK. Transferiste 1,234.56MT e a taxa foi de 1.23MT para 258841234567 - JOHNDOE aos 5/6/26 as 4:15 PM. O teu novo saldo M-Pesa e de 12,345.67MT. Continua a transferir SEM TAXAS de M-Pesa para M-Pesa. Em caso de duvida, liga 100.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.mpesamozambique.template001",
+      "candidate": {
+        "amountMinor": 123456,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "M-Pesa Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "DF50KDFDHWK",
+        "counterparty": "JOHNDOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mpesamozambique-ported-002",
+    "country": "MZ",
+    "bankId": "mz.mpesamozambique",
+    "provenance": "PennyWise MPesaMozambiqueParser (Purchase at entity (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "M-Pesa",
+      "body": "Confirmado DF36KCPECLC. Registamos uma operacao de compra no valor de 1,234.56MT e a taxa foi de 0.00MT na entidade EDM com referencia  aos 3/6/26 as 10:37 PM. O teu novo saldo M-Pesa e de 1,234.56MT. Em caso de duvida, liga 100. M-Pesa e facil!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.mpesamozambique.template002",
+      "candidate": {
+        "amountMinor": 123456,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "M-Pesa Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "DF36KCPECLC",
+        "counterparty": "EDM",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mpesamozambique-ported-003",
+    "country": "MZ",
+    "bankId": "mz.mpesamozambique",
+    "provenance": "PennyWise MPesaMozambiqueParser (Agent withdrawal (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "M-Pesa",
+      "body": "Confirmado DF30KCJDIIA. Aos 3/6/26  as 3:57 PM levantaste 1,234.56MT no agente 425300 - BENJAMIM FERAGE. O novo saldo M-Pesa e de 1,234.56MT e a taxa foi de 12.34MT. Em caso de duvida, liga 100. M-Pesa e facil!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.mpesamozambique.template003",
+      "candidate": {
+        "amountMinor": 123456,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "M-Pesa Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "DF30KCJDIIA",
+        "counterparty": "BENJAMIM FERAGE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mpesamozambique-ported-004",
+    "country": "MZ",
+    "bankId": "mz.mpesamozambique",
+    "provenance": "PennyWise MPesaMozambiqueParser (Deposit at agent (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "M-Pesa",
+      "body": "Confirmado DEV6KB6GAUI. Depositaste o valor de 12,345.67MT no agente JOHN DOE aos  31/5/26 as 12:04 PM. O teu novo saldo  M-Pesa e de 12,345.67MT. Aproveita e transfere SEM TAXAS de M-Pesa para M-Pesa. Em caso de duvida, liga 100.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.mpesamozambique.template004",
+      "candidate": {
+        "amountMinor": 1234567,
+        "currencyCode": "MZN",
+        "direction": "credit",
+        "channel": "wallet",
+        "bankName": "M-Pesa Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "DEV6KB6GAUI",
+        "counterparty": "JOHN DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mpesamozambique-ported-005",
+    "country": "MZ",
+    "bankId": "mz.mpesamozambique",
+    "provenance": "PennyWise MPesaMozambiqueParser (Received money (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "M-Pesa",
+      "body": "Confirmado DET0KAIXP5E. Recebeste  12,345.67MT de 123456 - SIMO aos 29/5/26  as 6:22 PM o novo saldo  M-Pesa e de 1,234.56MT. Aproveita e transfere SEM TAXAS de M-Pesa para M-Pesa. Em caso de duvida, liga 100.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.mpesamozambique.template005",
+      "candidate": {
+        "amountMinor": 1234567,
+        "currencyCode": "MZN",
+        "direction": "credit",
+        "channel": "wallet",
+        "bankName": "M-Pesa Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "DET0KAIXP5E",
+        "counterparty": "SIMO",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

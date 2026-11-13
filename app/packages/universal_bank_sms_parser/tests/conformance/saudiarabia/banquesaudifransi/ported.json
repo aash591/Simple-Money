@@ -1,0 +1,64 @@
+[
+  {
+    "id": "banquesaudifransi-ported-001",
+    "country": "SA",
+    "bankId": "sa.banquesaudifransi",
+    "provenance": "PennyWise BSFBankParser (Outgoing transfer (debit) — amount not fee); see NOTICE.md",
+    "input": {
+      "sender": "BSF",
+      "body": "عملية حوالة مالية صادرة مقبولة\nخصمت من حساب ****0136\nإلى RECIPIENT NAME****\nبنك إس تي سي\nآيبان ****8287\nالقيمة SAR 505.00\nالرسوم SAR 0.58\nفي28-07-2026 14:33:53",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.banquesaudifransi.template001",
+      "candidate": {
+        "amountMinor": 50500,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Banque Saudi Fransi",
+        "countryCode": "SA",
+        "accountLast4": "0136",
+        "reference": "****8287",
+        "counterparty": "RECIPIENT NAME",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "banquesaudifransi-ported-002",
+    "country": "SA",
+    "bankId": "sa.banquesaudifransi",
+    "provenance": "PennyWise BSFBankParser (Incoming transfer (credit)); see NOTICE.md",
+    "input": {
+      "sender": "BSF",
+      "body": "حوالة واردة\nمبلغ: 359.0 SAR\nلـ:SA**********R1******8\nمن: ACME TRADING COMPANY\nآيبان: ********************4318\nGULF\nفي: 04-08-2026 15:51",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.banquesaudifransi.template002",
+      "candidate": {
+        "amountMinor": 35900,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Banque Saudi Fransi",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": "********************4318",
+        "counterparty": "ACME TRADING COMPANY",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

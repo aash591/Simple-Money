@@ -1,0 +1,162 @@
+[
+  {
+    "id": "islamicinternationalarabbank-reject-security",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "your otp is 123456. حركة شراء Sample Sweets - Alzarqa Zarqa JO\nالمبلغ: 9.000 JOD\nحساب: 4321*1234\nتاريخ: 05/11/2026 16:04:00\nالرصيد: 100.000 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-reject-promotional",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "exclusive offer: apply now. حركة شراء Sample Sweets - Alzarqa Zarqa JO\nالمبلغ: 9.000 JOD\nحساب: 4321*1234\nتاريخ: 05/11/2026 16:04:00\nالرصيد: 100.000 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-reject-failed",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "payment failed. حركة شراء Sample Sweets - Alzarqa Zarqa JO\nالمبلغ: 9.000 JOD\nحساب: 4321*1234\nتاريخ: 05/11/2026 16:04:00\nالرصيد: 100.000 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-reject-pending",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "payment pending. حركة شراء Sample Sweets - Alzarqa Zarqa JO\nالمبلغ: 9.000 JOD\nحساب: 4321*1234\nتاريخ: 05/11/2026 16:04:00\nالرصيد: 100.000 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-reject-future",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "will be debited. حركة شراء Sample Sweets - Alzarqa Zarqa JO\nالمبلغ: 9.000 JOD\nحساب: 4321*1234\nتاريخ: 05/11/2026 16:04:00\nالرصيد: 100.000 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-reject-notice",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "statement generated. حركة شراء Sample Sweets - Alzarqa Zarqa JO\nالمبلغ: 9.000 JOD\nحساب: 4321*1234\nتاريخ: 05/11/2026 16:04:00\nالرصيد: 100.000 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-reject-unknown-sender",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "حركة شراء Sample Sweets - Alzarqa Zarqa JO\nالمبلغ: 9.000 JOD\nحساب: 4321*1234\nتاريخ: 05/11/2026 16:04:00\nالرصيد: 100.000 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-reject-balance-only",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

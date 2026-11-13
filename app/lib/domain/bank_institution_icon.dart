@@ -23,9 +23,10 @@ String bankInstitutionIcon(String bankName, {bool creditCard = false}) {
     'statebankindia': 'statebankofindia',
   };
   final wanted = aliases[name] ?? name;
-  for (final bank in brandIcons.where((b) => b.isBank)) {
-    if (normalized(bank.title) == wanted || normalized(bank.key) == wanted) {
-      return brandIconKey(bank.key);
+  for (final institution in brandIcons) {
+    if (normalized(institution.title) == wanted ||
+        normalized(institution.key) == wanted) {
+      return brandIconKey(institution.key);
     }
   }
   return 'bank';

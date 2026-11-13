@@ -1,0 +1,405 @@
+[
+  {
+    "id": "navyfederalcreditunion-ported-001",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (Debit card transaction at Google One); see NOTICE.md",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $3.26 was approved on debit card 1234 at Google One at 08:19 PM EDT on 05/06/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template001",
+      "candidate": {
+        "amountMinor": 326,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "Google One",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navyfederalcreditunion-ported-002",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (Small debit card transaction); see NOTICE.md",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $5.99 was approved on debit card 5678 at Amazon at 02:30 PM EST on 05/07/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template002",
+      "candidate": {
+        "amountMinor": 599,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "Amazon",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navyfederalcreditunion-ported-003",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (Large debit card transaction); see NOTICE.md",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $1,250.00 was approved on debit card 9012 at Best Buy at 11:45 AM PST on 05/08/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template003",
+      "candidate": {
+        "amountMinor": 125000,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9012",
+        "reference": null,
+        "counterparty": "Best Buy",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navyfederalcreditunion-ported-004",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (Credit card transaction); see NOTICE.md",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $45.75 was approved on credit card 3456 at Target at 04:15 PM EDT on 05/09/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template004",
+      "candidate": {
+        "amountMinor": 4575,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "3456",
+        "reference": null,
+        "counterparty": "Target",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navyfederalcreditunion-ported-005",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (Merchant with multiple words); see NOTICE.md",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $89.99 was approved on debit card 7890 at Whole Foods Market at 06:30 PM EST on 05/10/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template002",
+      "candidate": {
+        "amountMinor": 8999,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "7890",
+        "reference": null,
+        "counterparty": "Whole Foods Market",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navyfederalcreditunion-ported-006",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (Transaction at gas station); see NOTICE.md",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $65.00 was approved on debit card 2468 at Shell Gas Station at 07:45 AM EDT on 05/11/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template001",
+      "candidate": {
+        "amountMinor": 6500,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "2468",
+        "reference": null,
+        "counterparty": "Shell Gas Station",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navyfederalcreditunion-ported-007",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (Restaurant transaction); see NOTICE.md",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $125.50 was approved on credit card 1357 at Olive Garden at 07:00 PM EST on 05/12/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template007",
+      "candidate": {
+        "amountMinor": 12550,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "1357",
+        "reference": null,
+        "counterparty": "Olive Garden",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navyfederalcreditunion-ported-008",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (Online subscription); see NOTICE.md",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $9.99 was approved on credit card 9753 at Netflix at 03:00 AM EDT on 05/13/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template004",
+      "candidate": {
+        "amountMinor": 999,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9753",
+        "reference": null,
+        "counterparty": "Netflix",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navyfederalcreditunion-ported-009",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (Alternative sender NAVYFED); see NOTICE.md",
+    "input": {
+      "sender": "NAVYFED",
+      "body": "NAVYFED: Transaction for $15.00 was approved on debit card 8642 at Starbucks at 08:30 AM EST on 05/14/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template009",
+      "candidate": {
+        "amountMinor": 1500,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "8642",
+        "reference": null,
+        "counterparty": "Starbucks",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navyfederalcreditunion-ported-010",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (Grocery store transaction); see NOTICE.md",
+    "input": {
+      "sender": "NFCU",
+      "body": "NFCU: Transaction for $234.56 was approved on debit card 1111 at Kroger at 05:15 PM EDT on 05/15/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template001",
+      "candidate": {
+        "amountMinor": 23456,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "1111",
+        "reference": null,
+        "counterparty": "Kroger",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navyfederalcreditunion-ported-011",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (Credit card purchase from shortcode 21398); see NOTICE.md",
+    "input": {
+      "sender": "21398",
+      "body": "NFCU: Transaction for $19.15 was approved on credit card 1234 at WM SUPERCENTER #0000 at 03:59 PM EDT on 09/26/26.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template004",
+      "candidate": {
+        "amountMinor": 1915,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "WM SUPERCENTER #0000",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navyfederalcreditunion-ported-012",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (Account withdrawal with available balance (#852)); see NOTICE.md",
+    "input": {
+      "sender": "21398",
+      "body": "NFCU: $574.94 was withdrawn from your acct. end. in 1234 . As of 09/30/26 at 04:47 AM ET the available balance is $2500.00. Sign in for details. Txt STOP to stop.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template012",
+      "candidate": {
+        "amountMinor": 57494,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "navyfederalcreditunion-ported-013",
+    "country": "US",
+    "bankId": "us.navyfederalcreditunion",
+    "provenance": "PennyWise NavyFederalParser (bank sample); see NOTICE.md",
+    "input": {
+      "sender": "NAVYFED",
+      "body": "NAVYFED: Transaction for $100.00 was approved on credit card 5678 at Target at 06:30 PM EST on 05/02/25.Txt STOP to opt-out. Txt HELP for help.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.navyfederalcreditunion.template013",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Navy Federal Credit Union",
+        "countryCode": "US",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "Target",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "standardcharteredbanknepal-ported-001",
+    "country": "NP",
+    "bankId": "np.standardcharteredbanknepal",
+    "provenance": "PennyWise StandardCharteredNepalParser (Debit - withdrawal); see NOTICE.md",
+    "input": {
+      "sender": "SC_ALERT",
+      "body": "NPR 95,000.00 has been debited from your account 3301.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.standardcharteredbanknepal.template001",
+      "candidate": {
+        "amountMinor": 9500000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Chartered Bank Nepal",
+        "countryCode": "NP",
+        "accountLast4": "3301",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "standardcharteredbanknepal-ported-002",
+    "country": "NP",
+    "bankId": "np.standardcharteredbanknepal",
+    "provenance": "PennyWise StandardCharteredNepalParser (Credit - deposit); see NOTICE.md",
+    "input": {
+      "sender": "SC_ALERT",
+      "body": "NPR 80,000.00 has been deposited into your account 1234.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.standardcharteredbanknepal.template002",
+      "candidate": {
+        "amountMinor": 8000000,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Chartered Bank Nepal",
+        "countryCode": "NP",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "standardcharteredbanknepal-ported-003",
+    "country": "NP",
+    "bankId": "np.standardcharteredbanknepal",
+    "provenance": "PennyWise StandardCharteredNepalParser (Expense - ATM withdrawal); see NOTICE.md",
+    "input": {
+      "sender": "SC_ALERT",
+      "body": "NPR 5,000.00 has been debited from your account 3301 at ATM.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.standardcharteredbanknepal.template003",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Standard Chartered Bank Nepal",
+        "countryCode": "NP",
+        "accountLast4": "3301",
+        "reference": null,
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

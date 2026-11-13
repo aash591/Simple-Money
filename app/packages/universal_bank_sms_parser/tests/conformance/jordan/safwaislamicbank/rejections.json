@@ -1,0 +1,162 @@
+[
+  {
+    "id": "safwaislamicbank-reject-security",
+    "country": "JO",
+    "bankId": "jo.safwaislamicbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Safwa Bank",
+      "body": "your otp is 123456. دفعة نقدية(فرع آلي) بمبلغ 150.000 دينار الرصيد المتوفر 175.250 دينار",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "safwaislamicbank-reject-promotional",
+    "country": "JO",
+    "bankId": "jo.safwaislamicbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Safwa Bank",
+      "body": "exclusive offer: apply now. دفعة نقدية(فرع آلي) بمبلغ 150.000 دينار الرصيد المتوفر 175.250 دينار",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "safwaislamicbank-reject-failed",
+    "country": "JO",
+    "bankId": "jo.safwaislamicbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Safwa Bank",
+      "body": "payment failed. دفعة نقدية(فرع آلي) بمبلغ 150.000 دينار الرصيد المتوفر 175.250 دينار",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "safwaislamicbank-reject-pending",
+    "country": "JO",
+    "bankId": "jo.safwaislamicbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Safwa Bank",
+      "body": "payment pending. دفعة نقدية(فرع آلي) بمبلغ 150.000 دينار الرصيد المتوفر 175.250 دينار",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "safwaislamicbank-reject-future",
+    "country": "JO",
+    "bankId": "jo.safwaislamicbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Safwa Bank",
+      "body": "will be debited. دفعة نقدية(فرع آلي) بمبلغ 150.000 دينار الرصيد المتوفر 175.250 دينار",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "safwaislamicbank-reject-notice",
+    "country": "JO",
+    "bankId": "jo.safwaislamicbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Safwa Bank",
+      "body": "statement generated. دفعة نقدية(فرع آلي) بمبلغ 150.000 دينار الرصيد المتوفر 175.250 دينار",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "safwaislamicbank-reject-unknown-sender",
+    "country": "JO",
+    "bankId": "jo.safwaislamicbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "دفعة نقدية(فرع آلي) بمبلغ 150.000 دينار الرصيد المتوفر 175.250 دينار",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "safwaislamicbank-reject-balance-only",
+    "country": "JO",
+    "bankId": "jo.safwaislamicbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "Safwa Bank",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

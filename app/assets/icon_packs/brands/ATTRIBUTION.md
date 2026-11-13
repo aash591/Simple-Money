@@ -123,3 +123,56 @@ symbol isolated from its [3840px official banner](https://www.excitel.com/wp-con
 rendered in the official orange. Original downloads are retained in
 `icons/isp_sources/`; crop/background processing is in the fetch script.
 This supersedes the reconstruction notes above.
+
+### Worldwide bank rule packs
+
+Worldwide institutions are added in reviewed batches from the names in
+`packages/universal_bank_sms_parser/rules/`. The first batch uses original
+vector or high-resolution raster marks from Wikimedia Commons for Banco
+Promerica, CIB Egypt, National Bank of Egypt, Mellat Bank, Melli Bank, Orange
+Money, T-Bank, Al Rajhi Bank, Banque Saudi Fransi, Commercial Bank of Ceylon,
+BAAC, Bangkok Bank, CIMB Thai, Kasikorn Bank, Krungsri, KTC, Siam Commercial
+Bank, TTB, Enpara, First Abu Dhabi Bank, Navy Federal, Citi, Huntington, Nepal
+SBI, GTBank, Jaiz Bank, Keystone Bank, Moniepoint, and Zenith Bank. Chase uses
+the original Simple Icons vector. Exact Commons filenames and processing are
+recorded beside each entry in `tool/fetch_brand_icons.mjs`.
+
+This batch uses the standalone identity symbol wherever the Commons source is
+a horizontal or stacked lockup. Bank names, slogans, presentation rectangles,
+and unrelated source backgrounds are clipped or removed in the fetch script.
+Only intentional parts of an original mark, such as BAAC's crest, CIMB Thai's
+red arrow badge, and GTBank's orange badge, are retained.
+
+### Worldwide bank rule packs, second batch
+
+Logos for the next set of parser-pack institutions come from Wikimedia Commons
+or English Wikipedia file pages (exact filenames in `tool/fetch_brand_icons.mjs`):
+Arab Bank, Banco Agricola, Awash Bank, Bank of Abyssinia, Commercial Bank of
+Ethiopia, Dashen Bank, Zemen Bank, BPCE, Millennium BIM, M-Pesa, Equity Bank,
+Standard Chartered (Nepal and Nigeria), Access Bank, Opay, Bank Muscat, Faysal
+Bank, D360 Bank, SABB, Saudi National Bank, BRAC Bank, Parsian Bank, National
+Savings Bank, Nations Trust Bank, Sampath Bank, CRDB Bank, Diamond Trust Bank,
+NMB Bank Tanzania, Government Savings Bank, Krungthai Bank, UOB, Emirates
+Islamic, Emirates NBD, Charles Schwab, and Discover. Sparkasse Rhein-Maas uses
+the shared Sparkasse mark from Simple Icons; Chase UK reuses the Chase mark.
+Kerala Gramin Bank was regenerated from its original source so the complete
+diamond "G" symbol, including the blue lower wedge, is kept.
+
+All of them go through one pipeline (`renderVisual`): the white page
+background is removed from the edges (white inside a mark is kept), the artwork
+is trimmed, and where the source is a horizontal or stacked lockup only the main
+symbol is cropped with `VISUAL_CROPS` (for example the Arab Bank loop, the
+Faysal Bank star, the Equity emblem). Names, taglines, Arabic or Amharic
+captions and presentation tiles are dropped. Downloaded originals are kept in
+`icons/bank_sources/`.
+
+Bangkok Bank, GTBank, Krungsri, First Abu Dhabi Bank, Banco Promerica and
+Jaiz Bank were redone because the first crops cut the logo: crop boxes now come
+from the measured bounds of the source artwork.
+
+Dark companions (`_dark.webp`) were added only where the mark nearly disappears
+on charcoal: NSB, SABB, Parsian, Discover, Emirates Islamic, UOB, D360, Opay,
+Citi, Navy Federal, and Banque Saudi Fransi. Colored accents are kept.
+
+No usable original logo was found for the remaining parser-pack banks, so they
+keep the generic bank icon rather than an invented one.

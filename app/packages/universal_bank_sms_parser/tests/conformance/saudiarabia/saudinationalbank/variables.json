@@ -1,0 +1,126 @@
+[
+  {
+    "id": "saudinationalbank-variables-003",
+    "country": "SA",
+    "bankId": "sa.saudinationalbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SNB-AlAhli",
+      "body": "شراء نقاط بيع SamsungPay بـSAR 321.09 من MIGRATIONSHOP مدى *9988 في 11:22:33 02-DEC-2027",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.saudinationalbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Saudi National Bank",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "saudinationalbank-variables-005",
+    "country": "SA",
+    "bankId": "sa.saudinationalbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SNB-AlAhli",
+      "body": "شراء انترنت بـ321.09 SAR من MIGRATIONSHOP مدى-ابل *9988",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.saudinationalbank.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Saudi National Bank",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "saudinationalbank-variables-006",
+    "country": "SA",
+    "bankId": "sa.saudinationalbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SNB-AlAhli",
+      "body": "استرجاع شراء بـ321.09 SAR من MIGRATIONSHOP مدى *9988",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.saudinationalbank.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Saudi National Bank",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "saudinationalbank-variables-008",
+    "country": "SA",
+    "bankId": "sa.saudinationalbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SNB-AlAhli",
+      "body": "تصحيح سحب نقدي مبلغ 321.09 SAR مدى *9988",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.saudinationalbank.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Saudi National Bank",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -117,10 +117,38 @@ class AppearanceController extends ValueNotifier<ThemeMode> {
     );
   }
 
+  /// Settings read before the app starts, so the first frame already has
+  /// the saved look instead of switching to it a moment after launch.
+  static SharedPreferences? _preloaded;
+
+  /// Reads the saved look ahead of `runApp`.
+  static Future<void> preload() async {
+    try {
+      _preloaded = await SharedPreferences.getInstance();
+    } catch (_) {
+      // [restore] reads them later instead.
+    }
+  }
+
+  /// Applies the saved look at once when [preload] has run; otherwise reads
+  /// it in the background like [restore].
+  void restoreNow() {
+    final prefs = _preloaded;
+    if (prefs == null) {
+      restore();
+    } else {
+      _apply(prefs);
+    }
+  }
+
   Future<void> restore() async {
     final revision = _revision;
     final prefs = await SharedPreferences.getInstance();
     if (_disposed || revision != _revision) return;
+    _apply(prefs);
+  }
+
+  void _apply(SharedPreferences prefs) {
     style = AppStyle.values.firstWhere(
       (style) => style.name == prefs.getString('ui_style'),
       orElse: () =>

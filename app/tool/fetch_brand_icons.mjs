@@ -25,7 +25,7 @@
 // Run when the brand list changes:
 //   npm install sharp
 //   node tool/fetch_brand_icons.mjs
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { copyFileSync, existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
@@ -33,23 +33,42 @@ import sharp from 'sharp';
 const APP = dirname(dirname(fileURLToPath(import.meta.url)));
 const OUT_DIR = join(APP, 'assets/icon_packs/brands');
 const DART_OUT = join(APP, 'lib/domain/brand_icons.dart');
+const SOURCE_DIR = join(APP, '../icons/bank_sources');
 const RAW = 'https://raw.githubusercontent.com/simple-icons/simple-icons/develop';
 
 // Mark-only crop boxes for source files that contain a horizontal wordmark.
 // Values are applied to the generated SVG itself, producing a square icon
 // asset with no bank-name fragments. Icon-only sources need no crop.
 const BANK_MARK_CROPS = {
+  alrajhibank: '545 279.3 276 285.28',
+  bancopromerica: '10.6 6 6 5.4', // star symbol only; wordmark sits below y=12
+  banquesaudifransi: '0 0 110 155.11063',
   bsnl: '95 0 180 135',
+  bangkokbank: '0 0 151 200', // drop symbol only (viewBox is 803x200)
   btn: '0 0 165 157.35',
   mandiri: '8 0 44 8',
-  keralagramin: '20 0 60 48',
+  nationalbankofegypt: '440 0 138 153.21',
+  cimbthai: '0 0 55 68.29',
+  commercialbankofceylon: '0 0 145 201',
+  enpara: '0 0 44 45',
+  gtbank: '101 0 299 303', // orange GTBank tile; drops 'Guaranty Trust Bank plc / RC'
+  huntingtonbank: '0 0 48 49.3',
+  kasikornbank: '48 0 144 144',
+  krungsri: '51 51 139 139', // yellow symbol only (tile, wordmark, MUFG line dropped)
+  mellatbank: '20 0 180 160',
+  moniepoint: '0 0 160 152.98',
+  navyfederal: '56 0 18 16',
+  orangemoney: '0 0 210 115',
+  tbank: '0 0 32 34',
+  zenithbank: '0 0 400 300',
   tmb: '0 0 95 61.647914',
 };
 
 function inlineClassFills(svg) {
   const fills = new Map();
-  for (const match of svg.matchAll(/\.([\w-]+)\s*\{\s*fill:\s*(#[0-9a-f]{3,8})\s*;?\s*\}/gi)) {
-    fills.set(match[1], match[2]);
+  for (const match of svg.matchAll(/\.([\w-]+)\s*\{([^}]*)\}/gi)) {
+    const fill = match[2].match(/(?:^|;)\s*fill:\s*(#[0-9a-f]{3,8})/i)?.[1];
+    if (fill) fills.set(match[1], fill);
   }
   for (const [className, fill] of fills) {
     svg = svg.replaceAll(`class="${className}"`, `fill="${fill}"`);
@@ -59,6 +78,11 @@ function inlineClassFills(svg) {
 
 function isolateBankMark(key, svg) {
   svg = inlineClassFills(svg);
+  if (key === 'krungsri') {
+    // The upstream lockup places the identity on a neutral presentation
+    // rectangle. The rectangle is not part of Krungsri's yellow symbol.
+    svg = svg.replace(/<rect\b(?=[^>]*width="240")(?=[^>]*height="316\.57")[^>]*\/?\s*>/i, '');
+  }
   if (key === 'bajajfinance') {
     // CompaniesLogo's square source is the white reverse mark on a blue tile.
     // Drop the tile and use the same mark in its official blue for transparent
@@ -79,7 +103,117 @@ function isolateBankMark(key, svg) {
       .filter((path) => /id="path(?:20|22|24|26|28|30)"/.test(path));
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-14 -14 341 341">${paths.join('')}</svg>`;
   }
+  if (key === 'firstabudhabibank') {
+    // Keep the blue FAB letters (paths 19-21) and the red swoosh (path 41).
+    // The rest is Arabic and English name text around the mark.
+    const paths = [...svg.matchAll(/<path\b[\s\S]*?\/>/gi)].map((match) => match[0]);
+    const keep = [19, 20, 21, 41].map((i) => paths[i]);
+    if (keep.some((path) => path == null)) throw new Error('Could not isolate FAB mark');
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="171 72 535 290">${keep.join('')}</svg>`;
+  }
+  if (key === 'siamcommercialbank') {
+    // Keep the gold Bodhi-leaf/spade identity only. The source SVG also
+    // contains Thai/English wordmarks and a purple presentation tile.
+    const mark = [...svg.matchAll(/<path\b[^>]*\/>/gi)]
+      .map((match) => match[0])
+      .find((path) => /fill="#feac00"/i.test(path));
+    if (!mark) throw new Error('Could not isolate Siam Commercial Bank mark');
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="170 6 64 62">${mark}</svg>`;
+  }
   return svg;
+}
+
+
+// ---- "visual" sources: any SVG/PNG/JPG logo, normalised the same way ----
+// 1. render (SVG at ~1400px) or decode, 2. flood-fill the white/transparent
+// background from the edges (interior whites such as text on a colour tile are
+// kept), 3. trim to the content box, 4. optionally crop to the main symbol
+// using fractions of that content box, 5. trim again, pad, fit in a square.
+// VISUAL_CROPS = [left, top, right, bottom] fractions, chosen by looking at the
+// source: keep only the recognizable main mark, drop side text/taglines.
+const VISUAL_CROPS = {
+  arabbank: [0.5, 0, 1, 0.85],
+  bracbank: [0, 0, 1, 0.45],
+  faysalbank: [0.745, 0, 1, 1],
+  sabb: [0, 0, 0.62, 1],
+  saudinationalbank: [0, 0, 0.5, 1],
+  crdbbank: [0, 0, 1, 0.85],
+  emiratesislamic: [0, 0, 0.2, 1],
+  equitybank: [0, 0, 0.2, 1],
+  nationstrustbank: [0, 0, 0.29, 1],
+  parsian: [0.2, 0, 0.7, 0.55],
+  keralagramin: [0, 0, 1, 0.78], // diamond G symbol only; Malayalam/English name dropped
+};
+const COMMONS = (file) => `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}`;
+const ENWIKI = (file) => `https://en.wikipedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}`;
+
+async function fetchBytes(url) {
+  // Wikimedia asks for a descriptive User-Agent and answers 429 when hammered.
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const res = await fetch(url, { headers: { 'User-Agent': 'SimpleMoneyIconTool/1.0 (brand logo sourcing)' } });
+    if (res.ok) return Buffer.from(await res.arrayBuffer());
+    if (res.status !== 429) throw new Error(`HTTP ${res.status} for ${url}`);
+    await new Promise((resolve) => setTimeout(resolve, 20000 * (attempt + 1)));
+  }
+  throw new Error(`Still rate limited: ${url}`);
+}
+
+async function renderVisual(key, input, isSvg) {
+  let image;
+  if (isSvg) {
+    const meta = await sharp(input).metadata();
+    image = sharp(input, { density: Math.min(2400, (72 * 1400) / meta.width) });
+  } else {
+    image = sharp(input);
+  }
+  const { data, info } = await image.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width: W, height: H } = info;
+  const isWhite = (i) => data[i + 3] < 8 ||
+    (data[i + 3] > 200 && data[i] > 236 && data[i + 1] > 236 && data[i + 2] > 236);
+  const seen = new Uint8Array(W * H);
+  const stack = [];
+  const push = (x, y) => {
+    if (x < 0 || y < 0 || x >= W || y >= H) return;
+    const p = y * W + x;
+    if (seen[p] || !isWhite(p * 4)) return;
+    seen[p] = 1;
+    stack.push(p);
+  };
+  for (let x = 0; x < W; x++) { push(x, 0); push(x, H - 1); }
+  for (let y = 0; y < H; y++) { push(0, y); push(W - 1, y); }
+  while (stack.length) {
+    const p = stack.pop();
+    const x = p % W, y = (p - x) / W;
+    push(x + 1, y); push(x - 1, y); push(x, y + 1); push(x, y - 1);
+  }
+  let x0 = W, y0 = H, x1 = -1, y1 = -1;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const p = y * W + x;
+      if (seen[p]) { data[p * 4 + 3] = 0; continue; }
+      if (data[p * 4 + 3] > 10) {
+        if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+      }
+    }
+  }
+  if (x1 < 0) throw new Error(`No visible artwork for ${key}`);
+  x1 += 1; y1 += 1;
+  const crop = VISUAL_CROPS[key];
+  let left = x0, top = y0, right = x1, bottom = y1;
+  if (crop) {
+    const bw = x1 - x0, bh = y1 - y0;
+    left = x0 + Math.round(crop[0] * bw); top = y0 + Math.round(crop[1] * bh);
+    right = x0 + Math.round(crop[2] * bw); bottom = y0 + Math.round(crop[3] * bh);
+  }
+  const region = await sharp(data, { raw: { width: W, height: H, channels: 4 } })
+    .extract({ left, top, width: right - left, height: bottom - top })
+    .png().toBuffer();
+  const trimmed = await sharp(region).trim({ threshold: 1 }).png().toBuffer({ resolveWithObject: true });
+  const pad = Math.round(Math.max(trimmed.info.width, trimmed.info.height) * 0.04);
+  return sharp(trimmed.data)
+    .extend({ top: pad, bottom: pad, left: pad, right: pad, background: '#00000000' })
+    .resize(256, 256, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .webp({ quality: 90, alphaQuality: 100, effort: 6 });
 }
 
 const MARK_ONLY_SVGS = {
@@ -217,6 +351,76 @@ const BRANDS = [
   { key: 'icicibank', title: 'ICICI Bank', bank: true, country: 'India' },
   { key: 'axisbank', title: 'Axis Bank', bank: true, country: 'India' },
   { key: 'nubank', title: 'Nubank', bank: true, country: 'Brazil' },
+  // Worldwide rule-pack institutions with verified original vector marks.
+  { key: 'bancopromerica', title: 'Banco Promerica', bank: true, country: 'El Salvador', source: 'wikimedia', file: 'Logo Banco Promerica.svg', hex: '158447' },
+  { key: 'cibegypt', title: 'CIB Egypt', bank: true, country: 'Egypt', source: 'wikimedia', file: 'Cib Logo.svg', hex: 'F58220' },
+  { key: 'nationalbankofegypt', title: 'National Bank of Egypt', bank: true, country: 'Egypt', source: 'wikimedia', file: 'National Bank of Egypt.svg', hex: '007A3D' },
+  { key: 'mellatbank', title: 'Mellat Bank', bank: true, country: 'Iran', source: 'wikimedia', file: 'Bank Mellat Logo.svg', hex: 'D71920' },
+  { key: 'mellibank', title: 'Melli Bank', bank: true, country: 'Iran', source: 'wikimedia', file: 'Bank Melli Iran Logo.svg', hex: '006A4D' },
+  { key: 'orangemoney', title: 'Orange Money', payment: true, source: 'wikimedia', file: 'Logo Orange Money.svg', hex: 'FF7900' },
+  { key: 'tbank', title: 'T-Bank', bank: true, country: 'Russia', source: 'wikimedia', file: 'T-Bank RU logo.svg', hex: 'FFDD2D' },
+  { key: 'alrajhibank', title: 'Al Rajhi Bank', bank: true, country: 'Saudi Arabia', source: 'wikimedia', file: 'Al Rajhi Bank Logo.svg', hex: '00856A' },
+  { key: 'banquesaudifransi', title: 'Banque Saudi Fransi', bank: true, country: 'Saudi Arabia', source: 'wikimedia', file: 'Banque Saudi Fransi Logo.svg', hex: '006A71' },
+  { key: 'commercialbankofceylon', title: 'Commercial Bank of Ceylon', bank: true, country: 'Sri Lanka', source: 'wikimedia', file: 'Commercial Bank logo.svg', hex: '005CA9' },
+  { key: 'baac', title: 'BAAC', bank: true, country: 'Thailand', source: 'wikimedia', file: 'BAAC Logo.svg', hex: '00843D' },
+  { key: 'bangkokbank', title: 'Bangkok Bank', bank: true, country: 'Thailand', source: 'wikimedia', file: 'Bangkok Bank 2023 (English version).svg', hex: '1E4598' },
+  { key: 'cimbthai', title: 'CIMB Thai', bank: true, country: 'Thailand', source: 'wikimedia', file: 'CIMB Thai Bank Logo.svg', hex: '7A003C' },
+  { key: 'kasikornbank', title: 'Kasikorn Bank', bank: true, country: 'Thailand', source: 'wikimedia', file: 'Kasikornbank Logo.svg', hex: '138F4A' },
+  { key: 'krungsri', title: 'Krungsri', bank: true, country: 'Thailand', source: 'wikimedia', file: 'Krungsri Logo.svg', hex: 'F7D117' },
+  { key: 'ktc', title: 'KTC', bank: true, country: 'Thailand', source: 'wikimedia', file: 'Krungthai Card Logo.svg', hex: '0057A8' },
+  { key: 'siamcommercialbank', title: 'Siam Commercial Bank', bank: true, country: 'Thailand', source: 'wikimedia', file: 'Siam Commercial Bank Logo.svg', hex: '4E2A84' },
+  { key: 'ttb', title: 'TTB', bank: true, country: 'Thailand', source: 'wikimedia', file: 'TTB Logo.svg', hex: '0046AD' },
+  { key: 'enpara', title: 'Enpara', bank: true, country: 'Turkey', source: 'wikimedia', file: 'Enpara.com Logo.svg', hex: '7B2D8E' },
+  { key: 'firstabudhabibank', title: 'First Abu Dhabi Bank', bank: true, country: 'United Arab Emirates', source: 'wikimedia', file: 'First Abu Dhabi Bank Logo.svg', hex: '006B5B' },
+  { key: 'navyfederal', title: 'Navy Federal Credit Union', bank: true, country: 'United States', source: 'wikimedia', file: 'Navy Federal Credit Union Logo.svg', hex: '00529B' },
+  { key: 'chase', title: 'Chase', bank: true, country: 'United States' },
+  { key: 'citibank', title: 'Citi Bank', bank: true, country: 'United States', source: 'wikimedia', file: 'Citibank.svg', hex: '056DAE' },
+  { key: 'huntingtonbank', title: 'Huntington Bank', bank: true, country: 'United States', source: 'wikimedia', file: 'Huntington Bancshares Inc. logo.svg', hex: '006D4E' },
+  { key: 'nepalsbibank', title: 'Nepal SBI Bank', bank: true, country: 'Nepal', source: 'wikimedia', file: 'Nepal SBI Bank Logo.svg', hex: '1C73B8' },
+  { key: 'gtbank', title: 'GTBank', bank: true, country: 'Nigeria', source: 'wikimedia', file: 'Logo GuarantyTrustBank.svg', hex: 'D94F00' },
+  { key: 'jaizbank', title: 'Jaiz Bank', bank: true, country: 'Nigeria', source: 'wikimedia-raster', file: 'Jaiz New Logo.jpg', hex: '006B54' },
+  { key: 'keystonebank', title: 'Keystone Bank', bank: true, country: 'Nigeria', source: 'wikimedia-raster', file: 'Keystone Logo.png', hex: '7A263A' },
+  { key: 'moniepoint', title: 'Moniepoint', bank: true, country: 'Nigeria', source: 'wikimedia', file: 'Moniepoint Logo.svg', hex: '6C4CF1' },
+  { key: 'zenithbank', title: 'Zenith Bank', bank: true, country: 'Nigeria', source: 'wikimedia', file: 'Zenith Bank Logo.svg', hex: 'ED1C24' },
+  // Parser-pack banks added later: main symbol only, see VISUAL_CROPS.
+  { key: 'arabbank', title: 'Arab Bank', bank: true, country: 'Egypt', source: 'visual', url: COMMONS('Arab Bank.svg'), hex: '1B75BB' },
+  { key: 'bancoagricola', title: 'Banco Agricola', bank: true, country: 'El Salvador', source: 'visual', url: COMMONS('Banco Agricola logo.jpg'), hex: '00539F' },
+  { key: 'awashbank', title: 'Awash Bank', bank: true, country: 'Ethiopia', source: 'visual', url: COMMONS('Awash International Bank.png'), hex: 'F7941D' },
+  { key: 'bankofabyssinia', title: 'Bank of Abyssinia', bank: true, country: 'Ethiopia', source: 'visual', url: COMMONS('BOA-LOGO.png'), hex: 'FFED00' },
+  { key: 'commercialbankofethiopia', title: 'Commercial Bank of Ethiopia', bank: true, country: 'Ethiopia', source: 'visual', url: COMMONS('LOGO OF COMMERCIAL BANK OF ETHIOPIA (BAANKII DALDALA ITIYOOPHIYAA).jpg'), hex: '9C6B2F' },
+  { key: 'dashenbank', title: 'Dashen Bank', bank: true, country: 'Ethiopia', source: 'visual', url: COMMONS('Dashen Bank.png'), hex: '1C2A6B' },
+  { key: 'zemenbank', title: 'Zemen Bank', bank: true, country: 'Ethiopia', source: 'visual', url: COMMONS('Zemen Bank.png'), hex: 'E4262B' },
+  { key: 'bpce', title: 'BPCE', bank: true, country: 'France', source: 'visual', url: COMMONS('Bpce Logo.png'), hex: '008C95' },
+  { key: 'millenniumbim', title: 'Millennium BIM', bank: true, country: 'Mozambique', source: 'visual', url: COMMONS('Millenniumbim logo svg.svg'), hex: 'D81B60' },
+  { key: 'mpesamozambique', title: 'M-Pesa Mozambique', payment: true, source: 'visual', url: COMMONS('M-PESA LOGO-01.svg'), hex: '4DB848' },
+  { key: 'equitybank', title: 'Equity Bank', bank: true, country: 'Kenya', source: 'visual', url: COMMONS('Equity Bank Logo.jpg'), hex: 'A6192E' },
+  { key: 'standardcharteredbanknepal', title: 'Standard Chartered Bank Nepal', bank: true, country: 'Nepal', source: 'visual', url: COMMONS('Standard Chartered Logo (2021, Logo only).svg'), hex: '0473EA' },
+  { key: 'standardcharteredbanknigeria', title: 'Standard Chartered Bank Nigeria', bank: true, country: 'Nigeria', source: 'visual', url: COMMONS('Standard Chartered Logo (2021, Logo only).svg'), hex: '0473EA' },
+  { key: 'accessbank', title: 'Access Bank', bank: true, country: 'Nigeria', source: 'visual', url: COMMONS('Accessbank1.png'), hex: 'F26A21' },
+  { key: 'opay', title: 'Opay', bank: true, country: 'Nigeria', source: 'visual', url: COMMONS('Opay Digital Services Limited.png'), hex: '1DCF9F' },
+  { key: 'bankmuscat', title: 'Bank Muscat', bank: true, country: 'Oman', source: 'visual', url: COMMONS('BM logo.png'), hex: 'C8102E' },
+  { key: 'faysalbank', title: 'Faysal Bank', bank: true, country: 'Pakistan', source: 'visual', url: COMMONS('Faysal Bank Limited logo (2026).svg'), hex: '0A5C8F' },
+  { key: 'd360bank', title: 'D360 Bank', bank: true, country: 'Saudi Arabia', source: 'visual', url: COMMONS('D360 Bank.svg'), hex: 'EE6352' },
+  { key: 'sabb', title: 'SABB', bank: true, country: 'Saudi Arabia', source: 'visual', url: COMMONS('SABB Bank Logo.svg'), hex: 'DB0011' },
+  { key: 'saudinationalbank', title: 'Saudi National Bank', bank: true, country: 'Saudi Arabia', source: 'visual', url: COMMONS('Saudi National Bank Logo.svg'), hex: '006A4E' },
+  { key: 'bracbank', title: 'BRAC Bank', bank: true, country: 'Bangladesh', source: 'visual', url: ENWIKI('BRAC Bank Limited Logo.svg'), hex: '0060AC' },
+  { key: 'parsian', title: 'Parsian Bank', bank: true, country: 'Iran', source: 'visual', url: ENWIKI('Parsian Bank logo.png'), hex: '7B4A2A' },
+  { key: 'nationalsavingsbank', title: 'National Savings Bank', bank: true, country: 'Sri Lanka', source: 'visual', url: ENWIKI('National Savings Bank logo.png'), hex: '1A1A1A' },
+  { key: 'nationstrustbank', title: 'Nations Trust Bank', bank: true, country: 'Sri Lanka', source: 'visual', url: ENWIKI('Nations Trust Bank logo.png'), hex: '00A0DF' },
+  { key: 'sampathbank', title: 'Sampath Bank', bank: true, country: 'Sri Lanka', source: 'visual', url: COMMONS('SmpBank.png'), hex: 'F58220' },
+  { key: 'crdbbank', title: 'CRDB Bank', bank: true, country: 'Tanzania', source: 'visual', url: COMMONS('CRDB BANK.png'), hex: '2E9E3E' },
+  { key: 'diamondtrustbank', title: 'Diamond Trust Bank', bank: true, country: 'Tanzania', source: 'visual', url: COMMONS('DTB Tanzania logo.png'), hex: 'E31837' },
+  { key: 'nmbbanktanzania', title: 'NMB Bank Tanzania', bank: true, country: 'Tanzania', source: 'visual', url: COMMONS('Nmb logo.jpg'), hex: '0057A8' },
+  { key: 'governmentsavingsbank', title: 'Government Savings Bank', bank: true, country: 'Thailand', source: 'visual', url: ENWIKI('Logo GSB Thailand.svg'), hex: 'E4007F' },
+  { key: 'krungthaibank', title: 'Krungthai Bank', bank: true, country: 'Thailand', source: 'visual', url: ENWIKI('Krung Thai Bank logo.svg'), hex: '00A5E5' },
+  { key: 'uobthailand', title: 'UOB Thailand', bank: true, country: 'Thailand', source: 'visual', url: COMMONS('UOB Logo.svg'), hex: '0B2A6F' },
+  { key: 'emiratesislamic', title: 'Emirates Islamic', bank: true, country: 'United Arab Emirates', source: 'visual', url: ENWIKI('Emirates Islamic Bank Logo.png'), hex: '5B2A86' },
+  { key: 'emiratesnbd', title: 'Emirates NBD', bank: true, country: 'United Arab Emirates', source: 'visual', url: COMMONS('Emirates NBD Logo.jpg'), hex: '0F2B5B' },
+  { key: 'charlesschwab', title: 'Charles Schwab', bank: true, country: 'United States', source: 'visual', url: COMMONS('Charles Schwab Corporation logo.svg'), hex: '00A0DF' },
+  { key: 'discovercard', title: 'Discover Card', bank: true, country: 'United States', source: 'visual', url: COMMONS('DiscoverCard.svg'), hex: 'F76F20' },
+  // Every Sparkasse shares the Sparkassen-Finanzgruppe 'S' mark.
+  { key: 'sparkasserheinmaas', title: 'Sparkasse Rhein-Maas', siTitle: 'Sparkasse', bank: true, country: 'Germany' },
+  { key: 'chaseuk', title: 'Chase UK', bank: true, country: 'United Kingdom', source: 'copy', from: 'chase', hex: '117ACA' },
   // Original bank marks from Wikimedia Commons.
   { key: 'bri', title: 'BRI', bank: true, country: 'Indonesia', source: 'remote-svg', url: 'https://companieslogo.com/img/orig/BBRI.JK-30a60327.svg?download=true&t=1720244490', hex: '00529C' },
   { key: 'bca', title: 'BCA', bank: true, country: 'Indonesia', source: 'wikimedia', file: 'Bank Central Asia.svg', hex: '003D7C' },
@@ -239,7 +443,7 @@ const BRANDS = [
   { key: 'aubank', title: 'AU Small Finance Bank', bank: true, country: 'India', source: 'remote-svg', url: 'https://companieslogo.com/img/orig/AUBANK.NS-d9d16ad7.svg?download=true&t=1768443315', hex: 'E31E24' },
   { key: 'uco', title: 'UCO Bank', bank: true, country: 'India', source: 'inline', hex: '003F7F' },
   { key: 'ksfe', title: 'KSFE', bank: true, country: 'India', source: 'inline', hex: '007A3D' },
-  { key: 'keralagramin', title: 'Kerala Gramin Bank', bank: true, country: 'India', source: 'raster', image: 'https://img.mathrubhumi.com/view/acePublic/alias/contentid/1i4jbp05wyki2l1j4pc/1/kerala-gramin-bank.webp?f=3%3A2&q=0.75&w=900', hex: '006B54' },
+  { key: 'keralagramin', title: 'Kerala Gramin Bank', bank: true, country: 'India', source: 'visual', url: 'https://img.mathrubhumi.com/view/acePublic/alias/contentid/1i4jbp05wyki2l1j4pc/1/kerala-gramin-bank.webp?f=3%3A2&q=0.75&w=900', hex: '006B54' },
   { key: 'manappuram', title: 'Manappuram Finance', bank: true, country: 'India', source: 'inline', hex: 'F5A623' },
   { key: 'bajajfinance', title: 'Bajaj Finance', bank: true, country: 'India', source: 'remote-svg', url: 'https://companieslogo.com/img/orig/BAJFINANCE.NS-1c491b90.svg?download=true&t=1729491498', hex: '085FAC' },
   { key: 'federalbank', title: 'Federal Bank', bank: true, country: 'India', source: 'remote-svg', url: 'https://companieslogo.com/img/orig/FEDERALBNK.NS-7c827449.svg?t=1768446273&download=true', hex: '7B2D8E' },
@@ -261,6 +465,7 @@ const BRANDS = [
 const onlyKeys = process.argv.includes('--only')
   ? new Set(process.argv.slice(process.argv.indexOf('--only') + 1))
   : null;
+const catalogOnly = process.argv.includes('--catalog-only');
 const selectedBrands = onlyKeys
   ? BRANDS.filter(({ key }) => onlyKeys.has(key))
   : BRANDS;
@@ -284,19 +489,69 @@ for (const {
   file,
   image,
   url,
+  from,
+  siTitle,
   hex,
 } of selectedBrands) {
   let color = hex;
   let svgUrl;
   let svg;
   let rasterData;
+  if (catalogOnly) {
+    if (!existsSync(join(OUT_DIR, `${key}.webp`))) {
+      if (source === 'visual') {
+        // Not downloaded yet (e.g. source site rate limited): leave it out of
+        // the catalog until its asset exists, then rerun --only <key>.
+        console.warn(`SKIPPING catalog entry without asset: ${key}`);
+        continue;
+      }
+      throw new Error(`Missing bundled asset for catalog entry: ${key}`);
+    }
+    if (source === 'simple-icons') {
+      const meta = icons.find((item) => item.title === (siTitle ?? title));
+      if (!meta) throw new Error(`MISSING from simple-icons: ${title}`);
+      color = meta.hex;
+    }
+    entries.push({ key, title, hex: color, bank, country, payment,
+      isOriginal: source !== 'simple-icons' });
+    continue;
+  }
+  if (source === 'copy') {
+    // Same artwork as another registered institution (e.g. Chase UK = Chase).
+    copyFileSync(join(OUT_DIR, `${from}.webp`), join(OUT_DIR, `${key}.webp`));
+    entries.push({ key, title, hex: color, bank, country, payment, isOriginal: true });
+    continue;
+  }
+  if (source === 'visual') {
+    // Originals are kept under icons/bank_sources/ so reruns need no network.
+    const ext = (url.split('?')[0].match(/\.(svg|png|jpe?g)$/i)?.[1] ?? 'png').toLowerCase();
+    const cached = join(SOURCE_DIR, `${key}.${ext}`);
+    try {
+      let bytes;
+      if (existsSync(cached)) {
+        bytes = readFileSync(cached);
+      } else {
+        bytes = await fetchBytes(url);
+        mkdirSync(SOURCE_DIR, { recursive: true });
+        writeFileSync(cached, bytes);
+      }
+      const out = await renderVisual(key, bytes, ext === 'svg');
+      await out.toFile(join(OUT_DIR, `${key}.webp`));
+    } catch (error) {
+      if (onlyKeys == null) throw error;
+      console.error(`SKIPPED ${key}: ${error.message}`);
+      continue;
+    }
+    entries.push({ key, title, hex: color, bank, country, payment, isOriginal: true });
+    continue;
+  }
   if (source === 'simple-icons') {
-    const meta = icons.find((item) => item.title === title);
+    const meta = icons.find((item) => item.title === (siTitle ?? title));
     if (!meta) {
       console.error(`MISSING from simple-icons: ${title}`);
       continue;
     }
-    const slug = title
+    const slug = (siTitle ?? title)
       .toLowerCase()
       .replace(/\+/g, 'plus')
       .replace(/[^a-z0-9]/g, '');
@@ -362,6 +617,38 @@ for (const {
     }
   }
   if (rasterData != null) {
+    if (key === 'jaizbank') {
+      // The Commons JPEG is a full lockup on white. Keep its interlocking
+      // gold/green identity mark and reconstruct transparency from the white
+      // source canvas; the bank name and slogan are deliberately excluded.
+      const { data, info } = await sharp(rasterData)
+        .extract({ left: 215, top: 0, width: 115, height: 95 })
+        .ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+      for (let i = 0; i < data.length; i += 4) {
+        const darkest = Math.min(data[i], data[i + 1], data[i + 2]);
+        data[i + 3] = Math.max(0, Math.min(255, (245 - darkest) * 10));
+      }
+      rasterData = await sharp(data, {
+        raw: { width: info.width, height: info.height, channels: 4 },
+      }).trim().png().toBuffer();
+    }
+    if (key === 'keystonebank') {
+      // Commons includes the wordmark and slogan. Its geometric keystone
+      // symbol is already transparent and can be cropped without alteration.
+      const { data, info } = await sharp(rasterData)
+        .extract({ left: 0, top: 8, width: 125, height: 130 })
+        .ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+      for (let i = 0; i < data.length; i += 4) {
+        const distance = Math.hypot(
+          data[i] - 20, data[i + 1] - 33, data[i + 2] - 66,
+        );
+        if (distance < 12) data[i + 3] = 0;
+        else if (distance < 40) data[i + 3] = Math.round(data[i + 3] * (distance - 12) / 28);
+      }
+      rasterData = await sharp(data, {
+        raw: { width: info.width, height: info.height, channels: 4 },
+      }).trim().png().toBuffer();
+    }
     if (key === 'keralavision' || key === 'excitel') {
       const crop = key === 'keralavision'
         ? { left: 145, top: 48, width: 220, height: 244 }
@@ -447,12 +734,14 @@ for (const {
   }
   const crop = BANK_MARK_CROPS[key];
   if (crop != null) {
+    const [x, y, width, height] = crop.split(/\s+/);
     svg = svg.replace(/<svg\b[^>]*>/i, (tag) => {
       const normalized = tag
         .replace(/\s(?:width|height|viewBox)=["'][^"']*["']/gi, '')
         .replace(/>$/, '');
-      return `${normalized} width="48" height="48" viewBox="${crop}">`;
+      return `${normalized} width="48" height="48" viewBox="${crop}"><defs><clipPath id="bank-mark-clip"><rect x="${x}" y="${y}" width="${width}" height="${height}"/></clipPath></defs><g clip-path="url(#bank-mark-clip)">`;
     });
+    svg = svg.replace(/<\/svg>\s*$/i, '</g></svg>');
   }
   await sharp(Buffer.from(svg), { density: 300 })
     .resize(256, 256, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })

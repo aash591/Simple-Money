@@ -1,0 +1,64 @@
+[
+  {
+    "id": "primecommercialbank-variables-001",
+    "country": "NP",
+    "bankId": "np.primecommercialbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "PCBLNPKA",
+      "body": "Dear Customer, NPR 321.09 is withdrawn from A/C XXX#9988 on 556677/88. Rmk: MIGRATIONSHOP. Good Baln: NPR 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.primecommercialbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Prime Commercial Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "primecommercialbank-variables-002",
+    "country": "NP",
+    "bankId": "np.primecommercialbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "PRIME_ALERT",
+      "body": "Dear Customer, NPR 321.09 is deposited in A/C XXX#9988 on 556677/88. Rmk: MIGRATIONSHOP. Good Baln: NPR 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.primecommercialbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Prime Commercial Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

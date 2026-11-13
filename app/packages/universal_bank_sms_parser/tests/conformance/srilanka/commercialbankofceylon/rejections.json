@@ -1,0 +1,162 @@
+[
+  {
+    "id": "commercialbankofceylon-reject-security",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ComBank",
+      "body": "your otp is 123456. Dear Cardholder, Purchase at Dialog Axiata PLC Colombo 02 LK for LKR 672.00 on 27/09/26 09:32 PM has been authorised on your debit card ending #5555.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofceylon-reject-promotional",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ComBank",
+      "body": "exclusive offer: apply now. Dear Cardholder, Purchase at Dialog Axiata PLC Colombo 02 LK for LKR 672.00 on 27/09/26 09:32 PM has been authorised on your debit card ending #5555.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofceylon-reject-failed",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ComBank",
+      "body": "payment failed. Dear Cardholder, Purchase at Dialog Axiata PLC Colombo 02 LK for LKR 672.00 on 27/09/26 09:32 PM has been authorised on your debit card ending #5555.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofceylon-reject-pending",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ComBank",
+      "body": "payment pending. Dear Cardholder, Purchase at Dialog Axiata PLC Colombo 02 LK for LKR 672.00 on 27/09/26 09:32 PM has been authorised on your debit card ending #5555.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofceylon-reject-future",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ComBank",
+      "body": "will be debited. Dear Cardholder, Purchase at Dialog Axiata PLC Colombo 02 LK for LKR 672.00 on 27/09/26 09:32 PM has been authorised on your debit card ending #5555.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofceylon-reject-notice",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ComBank",
+      "body": "statement generated. Dear Cardholder, Purchase at Dialog Axiata PLC Colombo 02 LK for LKR 672.00 on 27/09/26 09:32 PM has been authorised on your debit card ending #5555.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofceylon-reject-unknown-sender",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Dear Cardholder, Purchase at Dialog Axiata PLC Colombo 02 LK for LKR 672.00 on 27/09/26 09:32 PM has been authorised on your debit card ending #5555.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofceylon-reject-balance-only",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "ComBank",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,33 @@
+[
+  {
+    "id": "manjushreefinance-variables-001",
+    "country": "NP",
+    "bankId": "np.manjushreefinance",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MFL_ALERT",
+      "body": "Your A/C ##9876.54, has been debited by NPR 321.09 on 02-DEC-2027 11:22:33,Remarks:556677/88,IBFT,transfer MIGRATIONSHOP~RBB Manjushree Finance",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.manjushreefinance.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Manjushree Finance",
+        "countryCode": "NP",
+        "accountLast4": null,
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

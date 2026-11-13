@@ -137,6 +137,9 @@
     }
   ],
   "banks": [
+    "bankino/rules.json",
+    "mellatbank/rules.json",
+    "mellibank/rules.json",
     "parsian/rules.json"
   ]
 }

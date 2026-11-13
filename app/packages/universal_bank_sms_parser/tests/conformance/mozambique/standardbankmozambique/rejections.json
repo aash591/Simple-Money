@@ -1,0 +1,162 @@
+[
+  {
+    "id": "standardbankmozambique-reject-security",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "STDBank",
+      "body": "your otp is 123456. Caro Cliente, ocorreu um credito de 1.234,56 MZN na sua conta 1234567890123 a 22/05/2026, 14:54, disponivel em 22/05/2026. Mais info: 800412412/21355700",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "standardbankmozambique-reject-promotional",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "STDBank",
+      "body": "exclusive offer: apply now. Caro Cliente, ocorreu um credito de 1.234,56 MZN na sua conta 1234567890123 a 22/05/2026, 14:54, disponivel em 22/05/2026. Mais info: 800412412/21355700",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "standardbankmozambique-reject-failed",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "STDBank",
+      "body": "payment failed. Caro Cliente, ocorreu um credito de 1.234,56 MZN na sua conta 1234567890123 a 22/05/2026, 14:54, disponivel em 22/05/2026. Mais info: 800412412/21355700",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "standardbankmozambique-reject-pending",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "STDBank",
+      "body": "payment pending. Caro Cliente, ocorreu um credito de 1.234,56 MZN na sua conta 1234567890123 a 22/05/2026, 14:54, disponivel em 22/05/2026. Mais info: 800412412/21355700",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "standardbankmozambique-reject-future",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "STDBank",
+      "body": "will be debited. Caro Cliente, ocorreu um credito de 1.234,56 MZN na sua conta 1234567890123 a 22/05/2026, 14:54, disponivel em 22/05/2026. Mais info: 800412412/21355700",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "standardbankmozambique-reject-notice",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "STDBank",
+      "body": "statement generated. Caro Cliente, ocorreu um credito de 1.234,56 MZN na sua conta 1234567890123 a 22/05/2026, 14:54, disponivel em 22/05/2026. Mais info: 800412412/21355700",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "standardbankmozambique-reject-unknown-sender",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Caro Cliente, ocorreu um credito de 1.234,56 MZN na sua conta 1234567890123 a 22/05/2026, 14:54, disponivel em 22/05/2026. Mais info: 800412412/21355700",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "standardbankmozambique-reject-balance-only",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "STDBank",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

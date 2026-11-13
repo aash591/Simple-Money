@@ -1,0 +1,64 @@
+[
+  {
+    "id": "citizensbank-variables-001",
+    "country": "NP",
+    "bankId": "np.citizensbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CTZN_ALERT",
+      "body": "Dear CUSTOMER, ###9988 is debited by NPR 321.09 on 02-DEC-2027, Remarks: 556677/88 Av Bal: 9876.54. Support Center:9876.54-XXXXXXX",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.citizensbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Citizens Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "citizensbank-variables-002",
+    "country": "NP",
+    "bankId": "np.citizensbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CTZN_ALERT",
+      "body": "Dear CUSTOMER, ###9988 is credited by NPR 321.09 on 02-DEC-2027, Remarks: 556677/88 Av Bal: 9876.54. Support Center:9876.54-XXXXXXX",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.citizensbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Citizens Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": "cIPS",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

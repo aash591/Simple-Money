@@ -1,0 +1,95 @@
+[
+  {
+    "id": "awashbank-ported-001",
+    "country": "ET",
+    "bankId": "et.awashbank",
+    "provenance": "PennyWise AwashBankParser (Credit (income)); see NOTICE.md",
+    "input": {
+      "sender": "Awash Bank",
+      "body": "Dear Customer, ETB 200 has been credited to your account from JOHN DOE on: 2026-08-09 09:33:35 with Txn ID: 000000000000001. Your available balance is now ETB 12,269.09. Receipt Link: https://example.com/r. Contact center 8980.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.awashbank.template001",
+      "candidate": {
+        "amountMinor": 20000,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Awash Bank",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": "000000000000001",
+        "counterparty": "JOHN DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "awashbank-ported-002",
+    "country": "ET",
+    "bankId": "et.awashbank",
+    "provenance": "PennyWise AwashBankParser (Telebirr transfer (expense) - amount not charge/VAT); see NOTICE.md",
+    "input": {
+      "sender": "AwashBank",
+      "body": "Dear Customer; Telebirr Transfer of 30,000.00 ETB to JANE ROE - 251900000000 from 013201234500300/BANK, Reason- Test, Charge 10.00 VAT: 1.50. Your Balance is ETB 10,151.17. Receipt Link: https://example.com/r. Contact Center 8980.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.awashbank.template002",
+      "candidate": {
+        "amountMinor": 3000000,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Awash Bank",
+        "countryCode": "ET",
+        "accountLast4": "0300",
+        "reference": null,
+        "counterparty": "JANE ROE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "awashbank-ported-003",
+    "country": "ET",
+    "bankId": "et.awashbank",
+    "provenance": "PennyWise AwashBankParser (Bank transfer (expense) - balance has no ETB prefix); see NOTICE.md",
+    "input": {
+      "sender": "Awash Bank",
+      "body": "Dear Customer, You have sent ETB 1,000 To (013204560000) - JOHN DOE by Transaction ID: 000000000000002 charge- 1.00 VAT- 0.15 Date 2026-04-05 13:24:29. Your Available Balance is 11,818.92. Download the receipt by link https://example.com/r.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.awashbank.template003",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Awash Bank",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": "000000000000002",
+        "counterparty": "JOHN DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,74 @@
+{
+  "id": "us.discovercard",
+  "name": "Discover Card",
+  "senders": [
+    "347268",
+    "DISCOVER",
+    "DISCOVER-A",
+    "DISCOVERCARD"
+  ],
+  "formats": [
+    {
+      "id": "us.discovercard.template001",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "card",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Discover Card Alert: A transaction of $"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " at "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " on "
+        },
+        {
+          "op": "capture_text",
+          "name": "reference",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": ". No Action needed. See it at "
+        },
+        {
+          "op": "capture_text",
+          "name": "meta0",
+          "maxLength": 256
+        },
+        {
+          "op": "match_literal",
+          "value": " Text STOP to end"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "reference": {
+          "capture": "reference"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    }
+  ]
+}

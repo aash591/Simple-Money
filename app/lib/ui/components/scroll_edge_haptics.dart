@@ -21,8 +21,7 @@ class _ScrollEdgeHapticsState extends State<ScrollEdgeHaptics> {
     if (source == null) return false;
     // Only vertical, innermost scrollables count: horizontal carousels,
     // chip rows and pickers would otherwise tick constantly.
-    if (notification.depth != 0 ||
-        notification.metrics.axis != Axis.vertical) {
+    if (notification.depth != 0 || notification.metrics.axis != Axis.vertical) {
       return false;
     }
     if (notification is ScrollStartNotification) {

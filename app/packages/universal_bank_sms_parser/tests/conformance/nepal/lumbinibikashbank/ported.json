@@ -1,0 +1,64 @@
+[
+  {
+    "id": "lumbinibikashbank-ported-001",
+    "country": "NP",
+    "bankId": "np.lumbinibikashbank",
+    "provenance": "PennyWise LumbiniBikashBankParser (Debit - withdrawal with eSewa); see NOTICE.md",
+    "input": {
+      "sender": "LBBL_SMART",
+      "body": "Dear Customer, NPR 1,199.00 has been withdrawn from your A/C 050######4545 on 28/04/2026 16:40. Remarks: 9841XXXXXXX Load eSewa;8234454",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.lumbinibikashbank.template001",
+      "candidate": {
+        "amountMinor": 119900,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Lumbini Bikash Bank",
+        "countryCode": "NP",
+        "accountLast4": "4545",
+        "reference": "9841XXXXXXX Load eSewa",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "lumbinibikashbank-ported-002",
+    "country": "NP",
+    "bankId": "np.lumbinibikashbank",
+    "provenance": "PennyWise LumbiniBikashBankParser (Credit - deposit); see NOTICE.md",
+    "input": {
+      "sender": "LBBL_SMART",
+      "body": "Dear Customer, NPR 15,000.00 has been deposited in your A/C 050#####4545 on 29/3/2026 16:31. Remarks: Int Paid 34234;345454",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.lumbinibikashbank.template002",
+      "candidate": {
+        "amountMinor": 1500000,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Lumbini Bikash Bank",
+        "countryCode": "NP",
+        "accountLast4": "4545",
+        "reference": "Int Paid 34234",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

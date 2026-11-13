@@ -8,8 +8,10 @@ import '../../domain/sms_matching.dart';
 import '../../domain/transaction.dart';
 import '../../domain/transaction_preview.dart';
 import '../db/app_database.dart';
+import 'loan_repository.dart';
 import 'sms_import_repository.dart';
 import 'category_repository.dart';
+import '../../domain/currency_digits.dart';
 
 class SmsReviewFilter {
   const SmsReviewFilter({
@@ -111,9 +113,11 @@ class SmsReviewRepository {
     final account = accounts
         .where(
           (a) =>
-              a.id == (sms.data['assignedAccountId'] ?? links[sms.bankKey]) &&
+              a.id ==
+                  (sms.data['assignedAccountId'] ??
+                      (sms.holdsMoney ? links[sms.bankKey] : null)) &&
               a.currency == sms.currency &&
-              a.digits == 2 &&
+              a.digits == currencyDigits(a.currency) &&
               !a.isArchived,
         )
         .firstOrNull;
@@ -179,14 +183,14 @@ class SmsReviewRepository {
           formatAccountMoney(
             sms.amountMinor,
             currency: sms.currency,
-            digits: 2,
+            digits: sms.digits,
           ),
           formatAccountMoney(
             sms.amountMinor,
             currency: sms.currency,
-            digits: 2,
+            digits: sms.digits,
           ).replaceAll(',', ''),
-          sms.amountMinor / 100,
+          sms.amountMinor / const [1, 10, 100, 1000][sms.digits],
         ].join(' ').toLowerCase(),
       ],
     );
@@ -565,8 +569,15 @@ class SmsReviewRepository {
   Future<int> saveReady() => database.transaction(() async {
     var saved = 0;
     final imports = SmsImportRepository(database);
+    // Loan payments a loan refused: left for review, not tried again.
+    final refused = <String>{};
     while (true) {
-      final rows = await page(filter: const SmsReviewFilter(ready: true));
+      final rows = [
+        for (final row in await page(
+          filter: const SmsReviewFilter(ready: true),
+        ))
+          if (!refused.contains(row.sms.id)) row,
+      ];
       if (rows.isEmpty) break;
       for (final row in rows) {
         // A repeated notification may have been consumed by an earlier row.
@@ -578,7 +589,7 @@ class SmsReviewRepository {
             .getSingleOrNull();
         if (pending == null) continue;
         final t = row.transaction;
-        await imports.save(
+        Future<void> save() => imports.save(
           row.sms,
           type: t.type,
           amountMinor: t.amountMinor,
@@ -589,6 +600,21 @@ class SmsReviewRepository {
           note: t.note,
           date: t.date,
         );
+        if (row.sms.assignedLoanId case final loanId?) {
+          // Together: a payment the loan refuses leaves the message to review.
+          try {
+            await database.transaction(() async {
+              await save();
+              await LoanRepository(database)
+                  .payWith(loanId, (await imports.transactionOf(row.sms.id))!);
+            });
+          } catch (_) {
+            refused.add(row.sms.id);
+            continue;
+          }
+        } else {
+          await save();
+        }
         saved++;
       }
     }

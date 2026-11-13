@@ -1,0 +1,188 @@
+[
+  {
+    "id": "oldhickorycreditunion-variables-001",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "(877) 590-7589",
+      "body": "A transaction for $321.09 has posted to ACCOUNT NAME (part of ACCOUNT#), which is above the $9876.54 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.oldhickorycreditunion.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Old Hickory Credit Union",
+        "countryCode": "US",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Account: ACCOUNT NAME",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "oldhickorycreditunion-variables-002",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "8775907589",
+      "body": "A transaction for $321.09 has posted to SAVINGS ACCOUNT (part of SAV9988), which is above the $9876.54 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.oldhickorycreditunion.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Old Hickory Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "Account: SAVINGS ACCOUNT",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "oldhickorycreditunion-variables-003",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "OLDHICKORY",
+      "body": "A transaction for $321.09 has posted to CHECKING ACCOUNT (part of CHK9988), which is above the $9876.54 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.oldhickorycreditunion.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Old Hickory Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "Account: CHECKING ACCOUNT",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "oldhickorycreditunion-variables-004",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "OHCU",
+      "body": "A transaction for $321.09 has posted to BUSINESS CHECKING (part of BUS9988), which is above the $9876.54 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.oldhickorycreditunion.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Old Hickory Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "Account: BUSINESS CHECKING",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "oldhickorycreditunion-variables-005",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "US-HICKORY-A",
+      "body": "A transaction for $321.09 has posted to CREDIT CARD (part of CC9988), which is above the $9876.54 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.oldhickorycreditunion.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Old Hickory Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "Account: CREDIT CARD",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "oldhickorycreditunion-variables-006",
+    "country": "US",
+    "bankId": "us.oldhickorycreditunion",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "(877) 590-7589",
+      "body": "A transaction for $321.09 has posted to YOUTH SAVINGS (part of YS9988), which is above the $9876.54 value you set.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.oldhickorycreditunion.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Old Hickory Credit Union",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "Account: YOUTH SAVINGS",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

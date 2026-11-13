@@ -24,10 +24,15 @@ class SearchField extends StatelessWidget {
     this.hintText = 'Search',
     this.autofocus = false,
     this.focusNode,
+    this.fillColor,
   });
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final String hintText;
+
+  /// Overrides the body colour in the plain (non-glass) style, so a field on
+  /// a sheet can match the sheet's own cards instead of the page surface.
+  final Color? fillColor;
 
   /// Opens the keyboard as soon as the field appears — for a search field
   /// that's toggled on by a search icon rather than always on screen.
@@ -46,10 +51,10 @@ class SearchField extends StatelessWidget {
   static Color fill(BuildContext context) {
     final theme = Theme.of(context);
     if (!usesGlass(context)) {
-      return Color.alphaBlend(
-        theme.colorScheme.onSurface.withValues(alpha: .05),
-        theme.colorScheme.surface,
-      );
+      // Plain style: the same colour as the cards and pills. Light is pure
+      // white, lifted by [softShadow]; dark is the surface colour itself.
+      if (theme.brightness == Brightness.light) return Colors.white;
+      return theme.colorScheme.surface;
     }
     final dark = theme.brightness == Brightness.dark;
     // Aurora's discs and fields are clear frosted glass, like its cards.
@@ -59,6 +64,22 @@ class SearchField extends StatelessWidget {
       return Colors.white.withValues(alpha: .085);
     }
     return theme.colorScheme.surface.withValues(alpha: dark ? .55 : .62);
+  }
+
+  /// The small shadow under the white field and discs in the plain light
+  /// style; none elsewhere.
+  static List<BoxShadow>? softShadow(BuildContext context) {
+    if (usesGlass(context) ||
+        Theme.of(context).brightness != Brightness.light) {
+      return null;
+    }
+    return [
+      BoxShadow(
+        color: Colors.black.withValues(alpha: .07),
+        blurRadius: 5,
+        offset: const Offset(0, 1),
+      ),
+    ];
   }
 
   /// A small sigma: just enough to soften what shows through, and cheap.
@@ -72,10 +93,13 @@ class SearchField extends StatelessWidget {
         ? theme.colorScheme.onSurfaceVariant
         : const Color(0xff77777f);
     const radius = BorderRadius.all(Radius.circular(height / 2));
-    final body = fill(context);
+    final body = (!usesGlass(context) ? fillColor : null) ?? fill(context);
     return Container(
       constraints: const BoxConstraints(minHeight: height),
-      decoration: const BoxDecoration(borderRadius: radius),
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: softShadow(context),
+      ),
       foregroundDecoration: !usesGlass(context)
           ? null
           : GlassRim(dark: dark, solid: false, radius: radius),
@@ -260,6 +284,10 @@ class SearchableHeader extends StatelessWidget {
                           onPressed: onCancel,
                           height: SearchField.height,
                           fill: SearchField.fill(context),
+                          // Plain light style: white with a soft shadow, like
+                          // the field beside it.
+                          flatFill: SearchField.fill(context),
+                          shadow: SearchField.softShadow(context) != null,
                           blur: SearchField.blurSigma,
                           textStyle: const TextStyle(
                             fontSize: 15,

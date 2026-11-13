@@ -1,9 +1,23 @@
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../domain/currency.dart';
+
 class UpiSettings extends ChangeNotifier {
+  /// [region] is the country the phone is set up for; the phone's own
+  /// setting when null.
+  UpiSettings({String? region}) : _defaultEnabled = _inIndia(region);
+
   static const preferenceKey = 'upi_payments_enabled';
-  bool enabled = true;
+
+  /// UPI, and the Google Pay or PhonePe apps it opens, are an Indian
+  /// service, so it is on by default only there. Anyone can switch it on or
+  /// off in More › Settings, and that choice is kept.
+  static bool _inIndia(String? region) =>
+      (region ?? Currency.deviceRegion()) == 'IN';
+
+  final bool _defaultEnabled;
+  late bool enabled = _defaultEnabled;
   bool loading = true;
   bool saving = false;
   bool _disposed = false;
@@ -14,9 +28,9 @@ class UpiSettings extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       if (_disposed || revision != _revision) return;
-      enabled = prefs.getBool(preferenceKey) ?? true;
+      enabled = prefs.getBool(preferenceKey) ?? _defaultEnabled;
     } catch (_) {
-      if (!_disposed && revision == _revision) enabled = true;
+      if (!_disposed && revision == _revision) enabled = _defaultEnabled;
     } finally {
       if (!_disposed) {
         loading = false;

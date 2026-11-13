@@ -1,0 +1,162 @@
+[
+  {
+    "id": "bracbank-reject-security",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "your otp is 123456. TK 500.00 withdrawn from A/C#11111**1111 on 18-10-26 @12:24 PM from TEST MARKET ATM DHAKA BD. Balance TK 22,639.95. BRAC Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bracbank-reject-promotional",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "exclusive offer: apply now. TK 500.00 withdrawn from A/C#11111**1111 on 18-10-26 @12:24 PM from TEST MARKET ATM DHAKA BD. Balance TK 22,639.95. BRAC Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bracbank-reject-failed",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "payment failed. TK 500.00 withdrawn from A/C#11111**1111 on 18-10-26 @12:24 PM from TEST MARKET ATM DHAKA BD. Balance TK 22,639.95. BRAC Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bracbank-reject-pending",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "payment pending. TK 500.00 withdrawn from A/C#11111**1111 on 18-10-26 @12:24 PM from TEST MARKET ATM DHAKA BD. Balance TK 22,639.95. BRAC Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bracbank-reject-future",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "will be debited. TK 500.00 withdrawn from A/C#11111**1111 on 18-10-26 @12:24 PM from TEST MARKET ATM DHAKA BD. Balance TK 22,639.95. BRAC Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bracbank-reject-notice",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "statement generated. TK 500.00 withdrawn from A/C#11111**1111 on 18-10-26 @12:24 PM from TEST MARKET ATM DHAKA BD. Balance TK 22,639.95. BRAC Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bracbank-reject-unknown-sender",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "TK 500.00 withdrawn from A/C#11111**1111 on 18-10-26 @12:24 PM from TEST MARKET ATM DHAKA BD. Balance TK 22,639.95. BRAC Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bracbank-reject-balance-only",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,33 @@
+[
+  {
+    "id": "uobthailand-variables-001",
+    "country": "TH",
+    "bankId": "th.uobthailand",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "UOB",
+      "body": "UOB: Card transaction 321.09 THB at MIGRATIONSHOP Bal 9876.54 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.uobthailand.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "UOB Thailand",
+        "countryCode": "TH",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

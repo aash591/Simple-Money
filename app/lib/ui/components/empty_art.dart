@@ -485,7 +485,7 @@ class GlassLens extends StatelessWidget {
     );
     disc = ClipOval(
       child: frosted
-          ? BackdropFilter(
+          ? BackdropFilter.grouped(
               filter: ui.ImageFilter.blur(
                 sigmaX: 22,
                 sigmaY: 22,
@@ -549,7 +549,7 @@ class DashedNotchPanel extends StatelessWidget {
     if (frosted) {
       panel = ClipPath(
         clipper: const _NotchClipper(),
-        child: BackdropFilter(
+        child: BackdropFilter.grouped(
           filter: ui.ImageFilter.blur(
             sigmaX: 22,
             sigmaY: 22,

@@ -1,0 +1,126 @@
+[
+  {
+    "id": "bkash-ported-001",
+    "country": "BD",
+    "bankId": "bd.bkash",
+    "provenance": "PennyWise BkashParser (Received money); see NOTICE.md",
+    "input": {
+      "sender": "bKash",
+      "body": "You have received Tk 6,400.00 from 01700000000. Fee Tk 0.00. Balance Tk 20,288.41. TrxID ABC1234XYZ at 26/05/2026 10:58.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bkash.template001",
+      "candidate": {
+        "amountMinor": 640000,
+        "currencyCode": "BDT",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "bKash",
+        "countryCode": "BD",
+        "accountLast4": null,
+        "reference": "ABC1234XYZ",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bkash-ported-002",
+    "country": "BD",
+    "bankId": "bd.bkash",
+    "provenance": "PennyWise BkashParser (Payment); see NOTICE.md",
+    "input": {
+      "sender": "bKash",
+      "body": "Payment of Tk 20.00 to 01800000000 is successful. Balance Tk 20,268.41. TrxID DEF5678UVW at 26/05/2026 15:07",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bkash.template002",
+      "candidate": {
+        "amountMinor": 2000,
+        "currencyCode": "BDT",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "bKash",
+        "countryCode": "BD",
+        "accountLast4": null,
+        "reference": "DEF5678UVW",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bkash-ported-003",
+    "country": "BD",
+    "bankId": "bd.bkash",
+    "provenance": "PennyWise BkashParser (Cash In); see NOTICE.md",
+    "input": {
+      "sender": "bKash",
+      "body": "Cash In Tk 500.00 from 01900000000 successful. Fee Tk 0.00. Balance Tk 506.91. TrxID GHI9012RST at 29/05/2026 19:00. Download App: https://bKa.sh/8app",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bkash.template003",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "BDT",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "bKash",
+        "countryCode": "BD",
+        "accountLast4": null,
+        "reference": "GHI9012RST",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bkash-ported-004",
+    "country": "BD",
+    "bankId": "bd.bkash",
+    "provenance": "PennyWise BkashParser (Send Money); see NOTICE.md",
+    "input": {
+      "sender": "bKash",
+      "body": "Send Money Tk 0.20 to 01600000000 successful. Ref 2. Fee Tk 0.00. Balance Tk 0.08. TrxID JKL3456MNO at 07/06/2026 22:45.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bkash.template004",
+      "candidate": {
+        "amountMinor": 20,
+        "currencyCode": "BDT",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "bKash",
+        "countryCode": "BD",
+        "accountLast4": null,
+        "reference": "JKL3456MNO",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

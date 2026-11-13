@@ -1,0 +1,162 @@
+[
+  {
+    "id": "zenithbank-reject-security",
+    "country": "NG",
+    "bankId": "ng.zenithbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ZENITHBANK",
+      "body": "your otp is 123456. Acct:421****577\nDT:09/06/2026 03:23:17 PM\nCIP/CR/MOB/OLIVER TWIST LOKOGO\nDR Amt:650.00\nBal:289.69\nDial *966# for quick airtime/Data purchase",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zenithbank-reject-promotional",
+    "country": "NG",
+    "bankId": "ng.zenithbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ZENITHBANK",
+      "body": "exclusive offer: apply now. Acct:421****577\nDT:09/06/2026 03:23:17 PM\nCIP/CR/MOB/OLIVER TWIST LOKOGO\nDR Amt:650.00\nBal:289.69\nDial *966# for quick airtime/Data purchase",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zenithbank-reject-failed",
+    "country": "NG",
+    "bankId": "ng.zenithbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ZENITHBANK",
+      "body": "payment failed. Acct:421****577\nDT:09/06/2026 03:23:17 PM\nCIP/CR/MOB/OLIVER TWIST LOKOGO\nDR Amt:650.00\nBal:289.69\nDial *966# for quick airtime/Data purchase",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zenithbank-reject-pending",
+    "country": "NG",
+    "bankId": "ng.zenithbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ZENITHBANK",
+      "body": "payment pending. Acct:421****577\nDT:09/06/2026 03:23:17 PM\nCIP/CR/MOB/OLIVER TWIST LOKOGO\nDR Amt:650.00\nBal:289.69\nDial *966# for quick airtime/Data purchase",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zenithbank-reject-future",
+    "country": "NG",
+    "bankId": "ng.zenithbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ZENITHBANK",
+      "body": "will be debited. Acct:421****577\nDT:09/06/2026 03:23:17 PM\nCIP/CR/MOB/OLIVER TWIST LOKOGO\nDR Amt:650.00\nBal:289.69\nDial *966# for quick airtime/Data purchase",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zenithbank-reject-notice",
+    "country": "NG",
+    "bankId": "ng.zenithbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "ZENITHBANK",
+      "body": "statement generated. Acct:421****577\nDT:09/06/2026 03:23:17 PM\nCIP/CR/MOB/OLIVER TWIST LOKOGO\nDR Amt:650.00\nBal:289.69\nDial *966# for quick airtime/Data purchase",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zenithbank-reject-unknown-sender",
+    "country": "NG",
+    "bankId": "ng.zenithbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Acct:421****577\nDT:09/06/2026 03:23:17 PM\nCIP/CR/MOB/OLIVER TWIST LOKOGO\nDR Amt:650.00\nBal:289.69\nDial *966# for quick airtime/Data purchase",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zenithbank-reject-balance-only",
+    "country": "NG",
+    "bankId": "ng.zenithbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "ZENITHBANK",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

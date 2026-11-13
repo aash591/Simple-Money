@@ -14,6 +14,10 @@ List<Map<String, dynamic>> sources() {
   final bandhan = banks.firstWhere((b) => b['id'] == 'in.bandhan');
   banks.remove(bandhan);
   banks.insert(0, bandhan);
+  // Tests that edit "the first source" mean India, whatever else is bundled.
+  sources
+    ..remove(india)
+    ..insert(0, india);
   return sources;
 }
 
@@ -128,7 +132,8 @@ void main() {
   test(
     'split corpus preserves all cases and identifies each country and bank',
     () {
-      expect(cases, hasLength(1249));
+      expect(cases.where((f) => f['country'] == 'IN'), hasLength(1229));
+      expect(cases.length, greaterThan(1249));
       expect(cases.map((f) => f['id']).toSet(), hasLength(cases.length));
       final banks = <String, String>{
         for (final source in sources())

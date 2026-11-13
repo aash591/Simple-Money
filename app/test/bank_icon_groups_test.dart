@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simple_money/domain/app_icons.dart';
+import 'package:simple_money/domain/bank_institution_icon.dart';
 import 'package:simple_money/data/repositories/sms_import_repository.dart';
 import 'package:simple_money/ui/sms/sms_suggestions.dart';
 import 'package:simple_money/domain/brand_icons.dart';
@@ -123,6 +124,29 @@ void main() {
       serviceIcon('BAJAJ FINSERV EMI PAYMENT'),
       brandIconKey('bajajfinance'),
     );
+  });
+
+  test('reviewed worldwide bank logos resolve and have bundled assets', () {
+    const institutions = <String, String>{
+      'CIB Egypt': 'cibegypt',
+      'National Bank of Egypt': 'nationalbankofegypt',
+      'Mellat Bank': 'mellatbank',
+      'Orange Money': 'orangemoney',
+      'Al Rajhi Bank': 'alrajhibank',
+      'Bangkok Bank': 'bangkokbank',
+      'First Abu Dhabi Bank': 'firstabudhabibank',
+      'Navy Federal Credit Union': 'navyfederal',
+      'GTBank': 'gtbank',
+      'Zenith Bank': 'zenithbank',
+    };
+    for (final entry in institutions.entries) {
+      expect(bankInstitutionIcon(entry.key), brandIconKey(entry.value));
+      expect(
+        File('assets/icon_packs/brands/${entry.value}.webp').lengthSync(),
+        greaterThan(1000),
+        reason: entry.key,
+      );
+    }
   });
 
   test('Indian card brands resolve from SMS and have bundled assets', () {

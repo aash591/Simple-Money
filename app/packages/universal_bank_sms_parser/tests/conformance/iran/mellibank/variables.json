@@ -1,0 +1,126 @@
+[
+  {
+    "id": "mellibank-variables-001",
+    "country": "IR",
+    "bankId": "ir.mellibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "+98700717",
+      "body": "مبلغ 321.09 ریال واریز به حساب شما انجام شد. مانده: 9876.54 ریال",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellibank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "IRR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Melli Bank",
+        "countryCode": "IR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mellibank-variables-002",
+    "country": "IR",
+    "bankId": "ir.mellibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "+98700717",
+      "body": "مبلغ 321.09 ریال از حساب شما برداشت شد. مانده: 9876.54 ریال",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellibank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Melli Bank",
+        "countryCode": "IR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mellibank-variables-003",
+    "country": "IR",
+    "bankId": "ir.mellibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MELLI",
+      "body": "مبلغ 321.09 ریال خرید با کارت شما انجام شد. مانده: 9876.54 ریال",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellibank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Melli Bank",
+        "countryCode": "IR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mellibank-variables-004",
+    "country": "IR",
+    "bankId": "ir.mellibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "MELLIBANK",
+      "body": "مبلغ 321.09 ریال انتقال یافت. مانده: 9876.54 ریال",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellibank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Melli Bank",
+        "countryCode": "IR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

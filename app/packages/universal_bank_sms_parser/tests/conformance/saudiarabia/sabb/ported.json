@@ -1,0 +1,157 @@
+[
+  {
+    "id": "sabb-ported-001",
+    "country": "SA",
+    "bankId": "sa.sabb",
+    "provenance": "PennyWise SabbBankParser (POS purchase via Samsung Pay); see NOTICE.md",
+    "input": {
+      "sender": "SAB",
+      "body": "شراء عبر نقاط البيع\nبطاقة: ***1111;mada(Samsung Pay);\nمبلغ: SAR 56.00\nلدى: TANOOR ALTAHI REST×\nفي: 2026-05-06 20:02:46",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.sabb.template001",
+      "candidate": {
+        "amountMinor": 5600,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "SABB",
+        "countryCode": "SA",
+        "accountLast4": "1111",
+        "reference": null,
+        "counterparty": "TANOOR ALTAHI REST",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "sabb-ported-002",
+    "country": "SA",
+    "bankId": "sa.sabb",
+    "provenance": "PennyWise SabbBankParser (Online / internet purchase via Mada); see NOTICE.md",
+    "input": {
+      "sender": "SAB",
+      "body": "شراء إنترنت\nبطاقة: ***1111;مدى\nمن: ***999\nمبلغ: 126.28 SAR\nلدى: AMAZON SA××AL Madin\nفي: 2026-04-28 09:35:17",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.sabb.template002",
+      "candidate": {
+        "amountMinor": 12628,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "SABB",
+        "countryCode": "SA",
+        "accountLast4": "1111",
+        "reference": null,
+        "counterparty": "AMAZON SA××AL Madin",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "sabb-ported-003",
+    "country": "SA",
+    "bankId": "sa.sabb",
+    "provenance": "PennyWise SabbBankParser (Outgoing local transfer with fees); see NOTICE.md",
+    "input": {
+      "sender": "SAB",
+      "body": "حوالة صادرة مقبولة\nمن: **9999\nإلى: KHALID Ahmed\nآيبان: **8888\nبنك إس تي سي\nمبلغ: SAR 200.00\nرسوم: SAR 0.57\nفي: 2026-04-30 11:04:57",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.sabb.template003",
+      "candidate": {
+        "amountMinor": 20000,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "SABB",
+        "countryCode": "SA",
+        "accountLast4": "9999",
+        "reference": null,
+        "counterparty": "KHALID Ahmed",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "sabb-ported-004",
+    "country": "SA",
+    "bankId": "sa.sabb",
+    "provenance": "PennyWise SabbBankParser (Incoming transfer / deposit); see NOTICE.md",
+    "input": {
+      "sender": "SAB",
+      "body": "إيداع حوالة واردة\nمن: FAHAD Ahmed\nإلى: **9999\nآيبان: **7777\nالبنك العربي الوطني\nمبلغ: SAR 75.00\nفي: 2026-05-05 00:59:09",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.sabb.template004",
+      "candidate": {
+        "amountMinor": 7500,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "SABB",
+        "countryCode": "SA",
+        "accountLast4": "9999",
+        "reference": null,
+        "counterparty": "FAHAD Ahmed",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "sabb-ported-005",
+    "country": "SA",
+    "bankId": "sa.sabb",
+    "provenance": "PennyWise SabbBankParser (Salary credit (حوالة راتب) as income); see NOTICE.md",
+    "input": {
+      "sender": "SAB",
+      "body": "حوالة راتب\nإلى: **001\nمبلغ: 12,345.67 SAR\nفي: 2026-05 21 10:00:00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.sabb.template005",
+      "candidate": {
+        "amountMinor": 1234567,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "SABB",
+        "countryCode": "SA",
+        "accountLast4": "001",
+        "reference": null,
+        "counterparty": "Salary",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

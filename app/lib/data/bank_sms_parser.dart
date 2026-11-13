@@ -1,6 +1,10 @@
 import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
 
 import '../domain/account.dart';
+import '../domain/currency_digits.dart';
+import 'sms_sender_role.dart';
+
+export 'sms_sender_role.dart';
 
 final _creditCard = RegExp(
   r'\bcredit\s*card\b|\bSBI\s*card\b|\bSuperCard\b',
@@ -142,7 +146,7 @@ Map<String, dynamic> _metadata(String body, String? sender) {
 
 final _textSenderStart = RegExp(r'^[A-Z]');
 final _movement = RegExp(
-  r'\b(?:credited|debited|withdrawn|spent|paid|charged|purchased?|received|sent|transferred|deposited|refund(?:ed)?|transaction\s+(?:of|for))\b',
+  r'\b(?:credited|debited|withdrawn|spent|paid|charged|purchased?|received|sent|transferred|deposited|refund(?:ed)?|transaction\s+(?:of|for|with|at)|used\s+(?:for|at))\b',
   caseSensitive: false,
 );
 
@@ -162,37 +166,135 @@ final _otp = RegExp(
 /// True for a one-time password, from any sender, known bank or not.
 bool looksLikeOtp(BankSms sms) => _otp.hasMatch(sms.body);
 
-/// True for a text sender such as AD-SBIINB: never a personal number or a
-/// promotional -P header.
+/// A short code such as 33789 or 72265: how banks in the US, Kenya and many
+/// other countries send. A personal number is longer.
+final _shortCode = RegExp(r'^[0-9]{3,6}$');
+
+/// True for a text sender such as AD-SBIINB or a short code: never a
+/// personal number or a promotional -P header.
 bool isBusinessSender(BankSms sms) {
   final sender = normalizeRuleSender(sms.sender);
-  return sender != null && _textSenderStart.hasMatch(sender);
+  return sender != null &&
+      (_textSenderStart.hasMatch(sender) || _shortCode.hasMatch(sender));
 }
 
-/// True when [sms] reads like a completed payment the parser missed: a text
-/// sender (never a personal number or a promotional -P header), an amount, a
-/// money-movement verb and none of the offer, OTP or pending wording.
+/// A digit in any script SMS use for amounts.
+const _anyDigit = '[0-9\\u0660-\\u0669\\u06F0-\\u06F9\\u0E50-\\u0E59]';
+
+/// Currency symbols and the short names banks write instead of ISO codes.
+const _currencyWords =
+    r'Rs\.?|Dhs?\.?|Ksh\.?|KShs?\.?|Tk\.?|RM|Rp\.?|R\$|S/\.?|zł|kr\.?|Fr\.?|'
+    r'[$€£¥₹₦₱₩₪₫₺₴₸₽฿৳﷼₵]|'
+    r'ريال|ر\.س|د\.إ|د\.ك|درهم|دينار|جنيه|تومان|บาท|руб\.?|лв\.?|сум|тг';
+
+/// An amount with its currency, from any country: the ISO code (AED 120.50),
+/// a symbol (€12,50) or a local name (Ksh 1,000), before or after it.
+final _anyMoney = RegExp(
+  '(?:(?<![A-Za-z])(?:${knownCurrencyCodes.join('|')})(?![A-Za-z])|'
+  '$_currencyWords)\\s*[:.]?\\s*$_anyDigit'
+  '|$_anyDigit[0-9.,\\u066B\\u066C\\u0660-\\u0669\\u06F0-\\u06F9]*\\s*'
+  '(?:(?<![A-Za-z])(?:${knownCurrencyCodes.join('|')})(?![A-Za-z])|'
+  '$_currencyWords)',
+);
+
+/// Money-movement words beyond English, in the languages most bank SMS are
+/// written in. Matched anywhere, as many of these scripts have no spaces.
+final _movementWorldwide = RegExp(
+  [
+    // Spanish, Portuguese
+    'compra', 'pago', 'transferencia', 'transferência', 'retiro', 'abono',
+    'depósito', 'deposito', 'débito', 'crédito', 'recibiste', 'enviaste',
+    'pagamento', 'saque', 'recebeu', 'pix',
+    // French, German, Italian
+    'paiement', 'prélèvement', 'virement', 'retrait', 'achat', 'crédité',
+    'débité', 'zahlung', 'abbuchung', 'gutschrift', 'überweisung',
+    'lastschrift', 'addebito', 'accredito', 'bonifico', 'prelievo',
+    // Turkish, Russian
+    'harcama', 'ödeme', 'havale', 'yatırıldı', 'списание', 'зачисление',
+    'покупка', 'оплата', 'перевод', 'снятие', 'поступление',
+    // Arabic, Persian
+    'خصم', 'إيداع', 'ايداع', 'شراء', 'سحب', 'تحويل', 'دفع', 'مدين', 'دائن',
+    'برداشت', 'واریز', 'خرید', 'انتقال',
+    // Thai, Vietnamese, Indonesian and Malay, Swahili, Hindi
+    'โอน', 'ถอน', 'ชำระ', 'รับเงิน', 'เข้าบัญชี', 'ซื้อ', 'จ่าย',
+    'thanh toán', 'chuyển khoản', 'rút tiền', 'nhận tiền',
+    'pembayaran', 'tarik tunai', 'setoran', 'pembelian',
+    'umepokea', 'umetuma', 'imetumwa', 'umelipa',
+    'डेबिट', 'क्रेडिट', 'जमा', 'निकासी',
+  ].map(RegExp.escape).join('|'),
+  caseSensitive: false,
+);
+
+/// True when [sms] reads like a completed payment the parser missed: a
+/// business sender (never a personal number or a promotional -P header), an
+/// amount with its currency, a money-movement word and none of the offer,
+/// OTP or pending wording. Works for SMS from any country, so an AI can teach
+/// the app banks nobody on the team can receive messages from.
 bool looksLikeMissedTransaction(BankSms sms, PortableParseResult result) {
   if (result.candidate != null || !_unreadReasons.contains(result.reason)) {
     return false;
   }
   return isBusinessSender(sms) &&
-      _money.hasMatch(sms.body) &&
-      _movement.hasMatch(sms.body) &&
-      !_unsafe.hasMatch(sms.body);
+      (_money.hasMatch(sms.body) || _anyMoney.hasMatch(sms.body)) &&
+      (_movement.hasMatch(sms.body) || _movementWorldwide.hasMatch(sms.body)) &&
+      !_unsafe.hasMatch(sms.body) &&
+      !_otp.hasMatch(sms.body);
 }
+
+/// Who sent [sms], as far as [engine] knows: a bank unless a rule says not.
+SmsSenderRole smsSenderRole(PortableSmsEngine engine, String sender) =>
+    engine is BankSmsParser ? engine.roleOf(sender) : SmsSenderRole.bank;
 
 /// Additional completed formats, restricted to registered Indian senders.
 class BankSmsParser extends PortableSmsEngine {
-  BankSmsParser(RuntimeRulePack pack) : super(pack) {
-    for (final rule in pack.toJson()['rules'] as List) {
+  /// [roles] are the senders of the user's and shared rules that hold no
+  /// money of the user's (see `nonHolderSenders`). A sender the bundled packs
+  /// register is a bank whatever they say.
+  BankSmsParser(
+    RuntimeRulePack pack, {
+    Map<String, SmsSenderRole> roles = const {},
+  }) : super(pack) {
+    final bundled = <String>{};
+    _rules = (pack.toJson()['rules'] as List).cast<Map>();
+    for (final rule in _rules) {
+      final id = rule['id'] as String;
+      final added = id.startsWith('user.') || id.startsWith('community.');
+      for (final sender in rule['senders'] as List) {
+        if (!added) bundled.add(sender as String);
+      }
       if (rule['country'] != 'IN') continue;
       for (final sender in rule['senders'] as List) {
-        _banks[sender as String] = rule['bankName'] as String;
+        if (!added || !roles.containsKey(sender)) {
+          _banks[sender as String] = rule['bankName'] as String;
+        }
       }
     }
     if (_banks.isNotEmpty) _banks.addAll(hostOnlySenders);
+    _roles = {
+      for (final e in roles.entries)
+        if (!bundled.contains(e.key)) e.key: e.value,
+    };
   }
+
+  late final Map<String, SmsSenderRole> _roles;
+  late final List<Map> _rules;
+
+  /// The bank a rule registers [sender] under, or null for an unknown one.
+  String? bankFor(String sender) {
+    final normalized = normalizeRuleSender(sender);
+    if (normalized == null) return null;
+    for (final rule in _rules) {
+      if ((rule['senders'] as List).contains(normalized)) {
+        return rule['bankName'] as String;
+      }
+    }
+    return null;
+  }
+
+  /// Who [sender] is. Banks and the senders of rules saved without a role
+  /// count as holding the money, as they always have.
+  SmsSenderRole roleOf(String sender) =>
+      _roles[normalizeRuleSender(sender) ?? sender] ?? SmsSenderRole.bank;
 
   /// Observed card-only sender families missing from the portable Indian pack.
   static const hostOnlySenders = {

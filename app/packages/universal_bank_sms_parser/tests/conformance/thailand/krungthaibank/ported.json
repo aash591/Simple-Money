@@ -1,0 +1,95 @@
+[
+  {
+    "id": "krungthaibank-ported-001",
+    "country": "TH",
+    "bankId": "th.krungthaibank",
+    "provenance": "PennyWise KrungThaiBankParser (KTB deposit (Thai)); see NOTICE.md",
+    "input": {
+      "sender": "KTB",
+      "body": "KTB: เงินเข้า 4,200.00 บาท บช x7788 คงเหลือ 12,350.75 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.krungthaibank.template001",
+      "candidate": {
+        "amountMinor": 420000,
+        "currencyCode": "THB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Krungthai Bank",
+        "countryCode": "TH",
+        "accountLast4": "7788",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "krungthaibank-ported-002",
+    "country": "TH",
+    "bankId": "th.krungthaibank",
+    "provenance": "PennyWise KrungThaiBankParser (KTB ATM withdrawal (Thai)); see NOTICE.md",
+    "input": {
+      "sender": "KTB",
+      "body": "KTB: ถอนเงินสด 500.00 บาท บช x7788 คงเหลือ 11,850.75 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.krungthaibank.template002",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Krungthai Bank",
+        "countryCode": "TH",
+        "accountLast4": "7788",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "krungthaibank-ported-003",
+    "country": "TH",
+    "bankId": "th.krungthaibank",
+    "provenance": "PennyWise KrungThaiBankParser (KTB PromptPay receive (Thai)); see NOTICE.md",
+    "input": {
+      "sender": "KTB",
+      "body": "KTB: รับเงินพร้อมเพย์ 2,000.00 บาท บช x7788",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.krungthaibank.template003",
+      "candidate": {
+        "amountMinor": 200000,
+        "currencyCode": "THB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Krungthai Bank",
+        "countryCode": "TH",
+        "accountLast4": "7788",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

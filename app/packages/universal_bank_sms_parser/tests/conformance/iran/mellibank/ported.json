@@ -1,0 +1,126 @@
+[
+  {
+    "id": "mellibank-ported-001",
+    "country": "IR",
+    "bankId": "ir.mellibank",
+    "provenance": "PennyWise MelliBankParser (Melli Bank deposit transaction); see NOTICE.md",
+    "input": {
+      "sender": "+98700717",
+      "body": "مبلغ 1,500,000 ریال واریز به حساب شما انجام شد. مانده: 2,500,000 ریال",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellibank.template001",
+      "candidate": {
+        "amountMinor": 150000000,
+        "currencyCode": "IRR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Melli Bank",
+        "countryCode": "IR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mellibank-ported-002",
+    "country": "IR",
+    "bankId": "ir.mellibank",
+    "provenance": "PennyWise MelliBankParser (Melli Bank withdrawal transaction); see NOTICE.md",
+    "input": {
+      "sender": "+98700717",
+      "body": "مبلغ 750,000 ریال از حساب شما برداشت شد. مانده: 1,750,000 ریال",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellibank.template002",
+      "candidate": {
+        "amountMinor": 75000000,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Melli Bank",
+        "countryCode": "IR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mellibank-ported-003",
+    "country": "IR",
+    "bankId": "ir.mellibank",
+    "provenance": "PennyWise MelliBankParser (Melli Bank purchase transaction); see NOTICE.md",
+    "input": {
+      "sender": "MELLI",
+      "body": "مبلغ 250,000 ریال خرید با کارت شما انجام شد. مانده: 1,500,000 ریال",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellibank.template003",
+      "candidate": {
+        "amountMinor": 25000000,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Melli Bank",
+        "countryCode": "IR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mellibank-ported-004",
+    "country": "IR",
+    "bankId": "ir.mellibank",
+    "provenance": "PennyWise MelliBankParser (Melli Bank transfer transaction); see NOTICE.md",
+    "input": {
+      "sender": "MELLIBANK",
+      "body": "مبلغ 1,000,000 ریال انتقال یافت. مانده: 500,000 ریال",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellibank.template004",
+      "candidate": {
+        "amountMinor": 100000000,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Melli Bank",
+        "countryCode": "IR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

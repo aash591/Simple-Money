@@ -1,0 +1,188 @@
+[
+  {
+    "id": "gtbank-ported-001",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "PennyWise GTBankParser (Outward transfer debit (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "GTBank",
+      "body": "Acct:******4321\nAmt:NGN15,000.00 DR\nDesc:OUTWARD TRANSFER TO OPAY - JANE DOE\nBal:NGN20,000.00\nDate:2026-08-23 9:36AM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.gtbank.template001",
+      "candidate": {
+        "amountMinor": 1500000,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "GTBank",
+        "countryCode": "NG",
+        "accountLast4": "4321",
+        "reference": null,
+        "counterparty": "OUTWARD TRANSFER TO OPAY - JANE DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "gtbank-ported-002",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "PennyWise GTBankParser (Own account transfer credit (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "GTBank",
+      "body": "Acct:******4321\nAmt:NGN1,000.00 CR\nDesc:VIA GTWORLD OWN ACCOUNT TRANSFER\nBal:NGN40,000.00\nDate:2026-08-22 3:46PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.gtbank.template002",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "GTBank",
+        "countryCode": "NG",
+        "accountLast4": "4321",
+        "reference": null,
+        "counterparty": "VIA GTWORLD OWN ACCOUNT TRANSFER",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "gtbank-ported-003",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "PennyWise GTBankParser (Own account transfer debit, second account); see NOTICE.md",
+    "input": {
+      "sender": "GTBank",
+      "body": "Acct:******5678\nAmt:NGN1,000.00 DR\nDesc:VIA GTWORLD OWN ACCOUNT TRANSFER\nBal:NGN70,000.00\nDate:2026-08-22 3:42PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.gtbank.template003",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "GTBank",
+        "countryCode": "NG",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "VIA GTWORLD OWN ACCOUNT TRANSFER",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "gtbank-ported-004",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "PennyWise GTBankParser (Small commission fee debit (no decimals lost)); see NOTICE.md",
+    "input": {
+      "sender": "GTBank",
+      "body": "Acct:******4321\nAmt:NGN25.00 DR\nDesc:Commission on NIP Transfer\nBal:NGN19,975.00\nDate:2026-08-23 9:36AM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.gtbank.template004",
+      "candidate": {
+        "amountMinor": 2500,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "GTBank",
+        "countryCode": "NG",
+        "accountLast4": "4321",
+        "reference": null,
+        "counterparty": "Commission on NIP Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "gtbank-ported-005",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "PennyWise GTBankParser (Commission fee on second account); see NOTICE.md",
+    "input": {
+      "sender": "GTBank",
+      "body": "Acct:******5678\nAmt:NGN50.00 DR\nDesc:Commission on NIP Transfer\nBal:NGN150,000.00\nDate:2026-08-13 2:06PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.gtbank.template005",
+      "candidate": {
+        "amountMinor": 5000,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "GTBank",
+        "countryCode": "NG",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "Commission on NIP Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "gtbank-ported-006",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "PennyWise GTBankParser (Transfer to Opay with large balance); see NOTICE.md",
+    "input": {
+      "sender": "GTBank",
+      "body": "Acct:******5678\nAmt:NGN4,200.00 DR\nDesc:BREAD TO OPAY - JOHN DOE\nBal:NGN400,000.00\nDate:2026-08-11 10:25PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.gtbank.template005",
+      "candidate": {
+        "amountMinor": 420000,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "GTBank",
+        "countryCode": "NG",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "BREAD TO OPAY - JOHN DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

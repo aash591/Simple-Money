@@ -6,10 +6,8 @@ import 'package:drift/drift.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
 
 import '../db/app_database.dart';
-import '../sms_inbox_platform.dart';
 import '../statements/statement_table.dart';
 import '../user_sms_rules.dart';
 
@@ -68,6 +66,38 @@ String _canonical(Object? value) => switch (value) {
   final List<Object?> list => '[${list.map(_canonical).join(',')}]',
   _ => jsonEncode(value),
 };
+
+/// How often a shared fix was used here, and the rule IDs it read under.
+class FixUse {
+  const FixUse(this.count, this.ruleIds);
+  final int count;
+  final List<String> ruleIds;
+}
+
+/// A message a shared SMS fix read on this phone. Once saved, its text comes
+/// from the transaction's note, where the app keeps the original SMS;
+/// [body] is null only when that note was edited away.
+class FixSample {
+  const FixSample({
+    required this.id,
+    required this.sender,
+    required this.body,
+    required this.candidate,
+    required this.receivedAt,
+    this.transactionId,
+  });
+
+  /// The message's fingerprint in the SMS queue.
+  final String id;
+  final String sender;
+  final String? body;
+
+  /// What the fix read. After saving, only a few keys are left: the
+  /// transaction ([transactionId]) then says what it became.
+  final Map<String, dynamic> candidate;
+  final DateTime receivedAt;
+  final int? transactionId;
+}
 
 /// The downloaded fixes, kept in the database so the background SMS handler
 /// can use them too.
@@ -134,11 +164,140 @@ class CommunityFixRepository {
               .getSingle())
           .read<String>('hashes');
 
+  static const _usedLayoutsKey = 'community.used_layouts';
+
+  /// A shared statement layout read a file here.
+  Future<void> noteLayoutUsed(String signature) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final used = {...?prefs.getStringList(_usedLayoutsKey)};
+      if (used.add(signature)) {
+        await prefs.setStringList(_usedLayoutsKey, used.toList());
+      }
+    } catch (_) {}
+  }
+
+  /// How each shared fix was used on this phone, by hash: the messages an SMS
+  /// format read (and the rule IDs it read them under), or 1 for a statement
+  /// layout that read a file. Unused ones are left out.
+  Future<Map<String, FixUse>> uses(List<CommunityFix> fixes) async {
+    final counts = {
+      for (final r
+          in await database
+              .customSelect(
+                "SELECT rule_id, count(*) AS n FROM sms_imports WHERE rule_id LIKE 'community.%' GROUP BY rule_id",
+              )
+              .get())
+        r.read<String>('rule_id'): r.read<int>('n'),
+    };
+    var layouts = const <String>{};
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      layouts = {...?prefs.getStringList(_usedLayoutsKey)};
+    } catch (_) {}
+    // Messages read before rule IDs came from the hash carry an index
+    // instead: they count for their bank's fix when it has only one.
+    final current = {
+      for (final fix in fixes)
+        if (fix.kind == CommunityKind.smsRule) ruleId(fix),
+    };
+    final bankOf = <String, List<CommunityFix>>{};
+    for (final fix in fixes) {
+      if (fix.kind != CommunityKind.smsRule) continue;
+      final id = ruleId(fix);
+      bankOf
+          .putIfAbsent(id.substring(0, id.lastIndexOf('.')), () => [])
+          .add(fix);
+    }
+    final legacy = <String, List<String>>{};
+    for (final id in counts.keys) {
+      if (current.contains(id) || !id.contains('.')) continue;
+      if (bankOf[id.substring(0, id.lastIndexOf('.'))] case [final only]) {
+        legacy.putIfAbsent(only.hash, () => []).add(id);
+      }
+    }
+    final uses = <String, FixUse>{};
+    for (final fix in fixes) {
+      switch (fix.kind) {
+        case CommunityKind.smsRule:
+          final ids = [ruleId(fix), ...?legacy[fix.hash]];
+          final n = ids.fold(0, (sum, id) => sum + (counts[id] ?? 0));
+          if (n > 0) uses[fix.hash] = FixUse(n, ids);
+        case CommunityKind.statementLayout:
+          if (layouts.contains(fix.payload['signature'])) {
+            uses[fix.hash] = const FixUse(1, []);
+          }
+      }
+    }
+    return uses;
+  }
+
+  /// The latest message [use] read here, preferring one whose text is still
+  /// kept: what it said, and what the rule made of it.
+  Future<FixSample?> sample(FixUse use) async {
+    if (use.ruleIds.isEmpty) return null;
+    // A saved one first: what it became is the entry the user kept.
+    final row = await database
+        .customSelect(
+          'SELECT i.fingerprint, i.sender, i.body, i.candidate, i.received_at, '
+          't.id AS transaction_id, t.note FROM sms_imports i '
+          'LEFT JOIN transactions t ON t.id = i.transaction_id '
+          'WHERE i.rule_id IN (${List.filled(use.ruleIds.length, '?').join(',')}) '
+          'ORDER BY t.id IS NULL, i.received_at DESC LIMIT 1',
+          variables: [for (final id in use.ruleIds) Variable(id)],
+        )
+        .getSingleOrNull();
+    if (row == null) return null;
+    return FixSample(
+      id: row.read<String>('fingerprint'),
+      transactionId: row.readNullable<int>('transaction_id'),
+      sender: row.read<String>('sender'),
+      body:
+          row.readNullable<String>('body') ??
+          _smsInNote(row.readNullable<String>('note')),
+      candidate: Map<String, dynamic>.from(
+        jsonDecode(row.read<String>('candidate')) as Map,
+      ),
+      receivedAt: DateTime.fromMillisecondsSinceEpoch(
+        row.read<int>('received_at'),
+      ),
+    );
+  }
+
+  /// The SMS a saved transaction's note keeps: "Sender: X", a blank line,
+  /// then the text.
+  static String? _smsInNote(String? note) {
+    if (note == null || !note.startsWith('Sender: ')) return null;
+    final at = note.indexOf('\n\n');
+    final text = at < 0 ? '' : note.substring(at + 2).trim();
+    return text.isEmpty ? null : text;
+  }
+
+  /// The rule ID an SMS fix reads messages under, from its hash so it stays
+  /// the same across downloads.
+  static String ruleId(CommunityFix fix) => userSmsRuleId(
+    fix.payload['bankName'] as String? ?? 'bank',
+    _label(fix.hash),
+    prefix: 'community',
+    country: switch (fix.payload['format']) {
+      final Map format => ruleCountry(Map<String, dynamic>.from(format)),
+      _ => 'IN',
+    },
+  );
+
+  static int _label(String hash) => int.parse(hash.substring(0, 12), radix: 16);
+
   /// Shared layouts by header signature, as saved mappings are stored.
   Future<Map<String, Object?>> statementLayouts() async => {
     for (final fix in await load(kind: CommunityKind.statementLayout))
       fix.payload['signature'] as String: fix.payload['mapping'],
   };
+
+  /// The shared SMS rules, for what they say about their senders.
+  Future<List<UserSmsRule>> smsRules() async => [
+    for (final fix in await load(kind: CommunityKind.smsRule))
+      _asRule(_label(fix.hash), fix.payload),
+  ];
 
   /// The shared SMS rules in use as one runtime pack, or null. Formats the
   /// user already has are left out (the same pattern twice won't compile);
@@ -151,18 +310,14 @@ class CommunityFixRepository {
         _canonical(rule.format),
     };
     final rules = [
-      for (final (i, fix) in fixes.indexed)
+      for (final fix in fixes)
         if (!own.contains(_canonical(fix.payload['format'])))
-          _asRule(i, fix.payload),
+          _asRule(_label(fix.hash), fix.payload),
     ];
     if (rules.isEmpty) return null;
     try {
       return jsonEncode(
-        compileUserSmsRules(
-          await indiaRuleSource(),
-          rules,
-          prefix: 'community',
-        ).toJson(),
+        (await compileUserSmsRules(rules, prefix: 'community')).toJson(),
       );
     } catch (_) {
       return null;
@@ -186,16 +341,13 @@ class CommunitySync {
   CommunitySync(
     this.database, {
     this.client,
-    SmsInboxPlatform? inbox,
     this.baseUrl = communityUrl,
     DateTime Function()? now,
-  }) : inbox = inbox ?? SmsInboxPlatform(),
-       _now = now ?? DateTime.now;
+  }) : _now = now ?? DateTime.now;
   final AppDatabase database;
 
   /// For tests; each call opens its own otherwise.
   final http.Client? client;
-  final SmsInboxPlatform inbox;
   final String baseUrl;
   final DateTime Function() _now;
 
@@ -210,9 +362,6 @@ class CommunitySync {
   static const refreshEvery = Duration(hours: 20);
   static const _timeout = Duration(seconds: 20);
   static const _maxOutbox = 50;
-
-  /// How far back a format's fixed text is looked for.
-  static const repeatWindow = Duration(days: 180);
 
   /// One send at a time, across every instance.
   static Future<void>? _flushing;
@@ -271,7 +420,6 @@ class CommunitySync {
   Future<List<CommunityFix>?> _read(Object? pack) async {
     if (pack is! Map) return null;
     final hash = RegExp(r'^[a-f0-9]{64}$');
-    final country = await indiaRuleSource();
     final fixes = <CommunityFix>[];
     for (final (i, item) in ((pack['sms'] as List?) ?? const []).indexed) {
       if (item is! Map ||
@@ -291,9 +439,7 @@ class CommunitySync {
         'format': item['format'],
       };
       try {
-        compileUserSmsRules(country, [
-          _asRule(i, payload),
-        ], prefix: 'community');
+        await compileUserSmsRules([_asRule(i, payload)], prefix: 'community');
       } catch (_) {
         continue;
       }
@@ -346,8 +492,9 @@ class CommunitySync {
     await flush();
   }
 
-  /// Sends what's queued. Kept for later when offline; an SMS format that
-  /// fails the repeat check is dropped.
+  /// Sends what's queued. Offline, it all waits until the phone is back
+  /// online or the app next starts. Every fix is checked on the dashboard
+  /// before it goes live, so nothing is held back here.
   Future<void> flush() async {
     while (_flushing != null) {
       await _flushing;
@@ -357,7 +504,7 @@ class CommunitySync {
     try {
       await _flush();
     } catch (_) {
-      // Tried again on the next start.
+      // Tried again when back online, or on the next start.
     } finally {
       _flushing = null;
       done.complete();
@@ -368,82 +515,39 @@ class CommunitySync {
     final prefs = await SharedPreferences.getInstance();
     final queued = prefs.getStringList(outboxKey) ?? const [];
     if (queued.isEmpty) return;
-    final items = <Map<String, Object?>>[];
-    for (final text in queued.take(20)) {
-      final item = Map<String, Object?>.from(jsonDecode(text) as Map);
-      final payload = Map<String, Object?>.from(item['payload'] as Map);
-      if (item['kind'] == CommunityKind.smsRule.id &&
-          !await repeatsInInbox(payload)) {
-        continue;
-      }
-      items.add(item);
-    }
-    if (items.isNotEmpty) {
-      final body = jsonEncode({
-        'install': await _install(prefs),
-        'appVersion': await _appVersion(),
-        'items': items,
-      });
-      final response = await _withClient(
-        (client) => client
-            .post(
-              Uri.parse('$baseUrl/v1/submit'),
-              headers: {'Content-Type': 'application/json'},
-              body: body,
-            )
-            .timeout(_timeout),
-      );
-      // A refused fix (400) won't do better next time; anything else will.
-      if (response.statusCode != 200 && response.statusCode != 400) return;
-    }
+    final batch = queued.take(20).toList();
+    final body = jsonEncode({
+      'install': await _install(prefs),
+      'appVersion': await _appVersion(),
+      'items': [
+        for (final text in batch)
+          if (jsonDecode(text) case final Map item)
+            {'kind': item['kind'], 'payload': item['payload']},
+      ],
+    });
+    final response = await _withClient(
+      (client) => client
+          .post(
+            Uri.parse('$baseUrl/v1/submit'),
+            headers: {'Content-Type': 'application/json'},
+            body: body,
+          )
+          .timeout(_timeout),
+    );
+    // A refused fix (400) won't do better next time; anything else will.
+    if (response.statusCode != 200 && response.statusCode != 400) return;
+    // Fixes shared while this ran were added after the batch.
     await prefs.setStringList(
       outboxKey,
-      (prefs.getStringList(outboxKey) ?? const [])
-          .skip(queued.take(20).length)
-          .toList(),
+      (prefs.getStringList(outboxKey) ?? const []).skip(batch.length).toList(),
     );
   }
 
-  /// Whether every piece of fixed text in an SMS format shows up in two or
-  /// more of that bank's messages on this phone. Bank wording repeats; a
-  /// name or reference copied by mistake usually doesn't, so a format
-  /// carrying one stays on this phone. Without SMS access nothing is shared.
-  Future<bool> repeatsInInbox(Map<String, Object?> payload) async {
-    final senders = {
-      for (final s in (payload['senders'] as List? ?? const [])) '$s',
-    };
-    final literals = _fixedText(payload['format'])
-        .map(_plain)
-        .where((t) => t.contains(RegExp('[a-z]')))
-        .toSet();
-    if (literals.isEmpty) return true;
-    if (senders.isEmpty || !inbox.supported || !await inbox.hasPermission()) {
-      return false;
-    }
-    final seen = {for (final t in literals) t: 0};
-    final since = _now().subtract(repeatWindow).millisecondsSinceEpoch;
-    var after = 0;
-    // Up to 10,000 messages, newest pages last.
-    for (var page = 0; page < 50; page++) {
-      final rows = await inbox.readPage(afterId: after, since: since);
-      if (rows.isEmpty) break;
-      for (final row in rows) {
-        after = max(after, row.id);
-        if (!senders.contains(normalizeRuleSender(row.sms.sender))) continue;
-        final body = _plain(row.sms.body);
-        for (final text in literals) {
-          if (body.contains(text)) seen[text] = seen[text]! + 1;
-        }
-      }
-      if (seen.values.every((n) => n >= 2)) return true;
-    }
-    return seen.values.every((n) => n >= 2);
-  }
-
-  /// The user turned a shared fix off: it stops being used here, and the
-  /// server hears that it read messages wrong.
-  Future<void> turnOff(String hash) async {
+  /// The user turned a shared fix off: it stops being used here. With
+  /// [report], the server also hears that it read messages wrong.
+  Future<void> turnOff(String hash, {bool report = true}) async {
     await repository.setOff(hash, true);
+    if (!report) return;
     try {
       final prefs = await SharedPreferences.getInstance();
       final body = jsonEncode({'install': await _install(prefs), 'hash': hash});
@@ -463,16 +567,7 @@ class CommunitySync {
 
   /// A random ID made once, so the same phone sending a fix twice counts
   /// once. It says nothing about the user.
-  Future<String> _install(SharedPreferences prefs) async {
-    if (prefs.getString(installKey) case final id?) return id;
-    final random = Random.secure();
-    final id = [
-      for (var i = 0; i < 16; i++)
-        random.nextInt(256).toRadixString(16).padLeft(2, '0'),
-    ].join();
-    await prefs.setString(installKey, id);
-    return id;
-  }
+  Future<String> _install(SharedPreferences prefs) => communityInstallId(prefs);
 
   Future<String?> _appVersion() async {
     try {
@@ -483,21 +578,14 @@ class CommunitySync {
   }
 }
 
-/// A format's fixed text: its literals and its "requires" selectors.
-Iterable<String> _fixedText(Object? format) sync* {
-  if (format is! Map) return;
-  for (final token in (format['tokens'] as List?) ?? const []) {
-    if (token is Map && token['op'] == 'match_literal') {
-      if (token['value'] case final String value) yield value;
-    }
-  }
-  if (format['requires'] case final Map requires) {
-    for (final list in requires.values) {
-      if (list is List) yield* list.whereType<String>();
-    }
-  }
+/// The random ID this phone sends the community server, made once.
+Future<String> communityInstallId(SharedPreferences prefs) async {
+  if (prefs.getString(CommunitySync.installKey) case final id?) return id;
+  final random = Random.secure();
+  final id = [
+    for (var i = 0; i < 16; i++)
+      random.nextInt(256).toRadixString(16).padLeft(2, '0'),
+  ].join();
+  await prefs.setString(CommunitySync.installKey, id);
+  return id;
 }
-
-/// Text as a literal matches it: letters in any case, spaces collapsed.
-String _plain(String text) =>
-    text.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();

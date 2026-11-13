@@ -1,0 +1,64 @@
+[
+  {
+    "id": "ttb-variables-001",
+    "country": "TH",
+    "bankId": "th.ttb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "TTB",
+      "body": "ttb: Payment 321.09 THB via PromptPay A/C x9988 Bal 9876.54 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.ttb.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "TTB",
+        "countryCode": "TH",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "ttb-variables-002",
+    "country": "TH",
+    "bankId": "th.ttb",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "TTB",
+      "body": "ttb: รับเงินโอน 321.09 บาท บช x9988",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.ttb.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "TTB",
+        "countryCode": "TH",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

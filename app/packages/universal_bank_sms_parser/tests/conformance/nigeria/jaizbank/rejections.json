@@ -1,0 +1,162 @@
+[
+  {
+    "id": "jaizbank-reject-security",
+    "country": "NG",
+    "bankId": "ng.jaizbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Jaiz",
+      "body": "your otp is 123456. Acct:**737\nAmt:N50.00DR\nDesc:IFO NIBSS DIRECT DEBIT Mob Other Bank Trf # 70123\n04-JAN-26 17:46\nHelp:07007730000\nBal:N252.28\nBuy Airtime, Dial *773*Amount#",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jaizbank-reject-promotional",
+    "country": "NG",
+    "bankId": "ng.jaizbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Jaiz",
+      "body": "exclusive offer: apply now. Acct:**737\nAmt:N50.00DR\nDesc:IFO NIBSS DIRECT DEBIT Mob Other Bank Trf # 70123\n04-JAN-26 17:46\nHelp:07007730000\nBal:N252.28\nBuy Airtime, Dial *773*Amount#",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jaizbank-reject-failed",
+    "country": "NG",
+    "bankId": "ng.jaizbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Jaiz",
+      "body": "payment failed. Acct:**737\nAmt:N50.00DR\nDesc:IFO NIBSS DIRECT DEBIT Mob Other Bank Trf # 70123\n04-JAN-26 17:46\nHelp:07007730000\nBal:N252.28\nBuy Airtime, Dial *773*Amount#",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jaizbank-reject-pending",
+    "country": "NG",
+    "bankId": "ng.jaizbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Jaiz",
+      "body": "payment pending. Acct:**737\nAmt:N50.00DR\nDesc:IFO NIBSS DIRECT DEBIT Mob Other Bank Trf # 70123\n04-JAN-26 17:46\nHelp:07007730000\nBal:N252.28\nBuy Airtime, Dial *773*Amount#",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jaizbank-reject-future",
+    "country": "NG",
+    "bankId": "ng.jaizbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Jaiz",
+      "body": "will be debited. Acct:**737\nAmt:N50.00DR\nDesc:IFO NIBSS DIRECT DEBIT Mob Other Bank Trf # 70123\n04-JAN-26 17:46\nHelp:07007730000\nBal:N252.28\nBuy Airtime, Dial *773*Amount#",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jaizbank-reject-notice",
+    "country": "NG",
+    "bankId": "ng.jaizbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Jaiz",
+      "body": "statement generated. Acct:**737\nAmt:N50.00DR\nDesc:IFO NIBSS DIRECT DEBIT Mob Other Bank Trf # 70123\n04-JAN-26 17:46\nHelp:07007730000\nBal:N252.28\nBuy Airtime, Dial *773*Amount#",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jaizbank-reject-unknown-sender",
+    "country": "NG",
+    "bankId": "ng.jaizbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Acct:**737\nAmt:N50.00DR\nDesc:IFO NIBSS DIRECT DEBIT Mob Other Bank Trf # 70123\n04-JAN-26 17:46\nHelp:07007730000\nBal:N252.28\nBuy Airtime, Dial *773*Amount#",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "jaizbank-reject-balance-only",
+    "country": "NG",
+    "bankId": "ng.jaizbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "Jaiz",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

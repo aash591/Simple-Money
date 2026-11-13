@@ -82,7 +82,9 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
       };
   // A notifier rather than plain state: HomeScreen is built once by
   // onGenerateRoute, so it must listen to see theme changes.
-  final _themeMode = AppearanceController();
+  // Restored as it is made: preloaded in main, so the first frame already
+  // shows the saved look.
+  final _themeMode = AppearanceController()..restoreNow();
   final _security = SecurityController();
   final _upiSettings = UpiSettings();
   final _homeLayout = HomeLayout();
@@ -146,7 +148,6 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     _loans.load();
     _recurringPayments.load();
     _startSync();
-    _themeMode.restore();
     _upiSettings.restore();
     _homeLayout.restore();
     _mainCurrency.start();
@@ -160,7 +161,9 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
   /// Keeps the 8 pm / 10 pm nudges in line with whether today already has a
   /// transaction.
   void _syncDailyReminders() {
-    if (_transactions.loading) return;
+    // Not while the first-run setup is open: scheduling asks for the
+    // notification permission, and the setup's SMS step does that itself.
+    if (_setupPending || _transactions.loading) return;
     final now = DateTime.now();
     final added = _transactions.transactions.any(
       (t) =>
@@ -187,7 +190,9 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
   final _navigator = GlobalKey<NavigatorState>();
 
   Future<void> _startSync() async {
-    if (_isSmsNotification) return;
+    // Launcher sheets and SMS popups are short-lived; the main app syncs when
+    // it next resumes, and the work would only slow the sheet's opening.
+    if (_isSmsNotification || _quickAction != null) return;
     await _sync?.start();
   }
 
@@ -199,8 +204,13 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
       _quickAction == null &&
       !_isSmsNotification;
 
+  /// True from launch until the first-run setup is finished.
+  late bool _setupPending = _showOnboarding;
+
   /// The setup may have added accounts, transactions and balances.
   void _finishOnboarding() {
+    _setupPending = false;
+    _syncDailyReminders();
     _reloadLedger();
     _navigator.currentState?.pushReplacement(_homeRoute());
   }
@@ -287,6 +297,7 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
                     OnboardingScreen(
                       database: _database!,
                       sync: _sync,
+                      community: _community,
                       onDone: _finishOnboarding,
                     ),
               ),

@@ -1,0 +1,126 @@
+[
+  {
+    "id": "stcbank-ported-005",
+    "country": "SA",
+    "bankId": "sa.stcbank",
+    "provenance": "PennyWise STCBankParser (Flattened online purchase amount is parsed); see NOTICE.md",
+    "input": {
+      "sender": "STCBank",
+      "body": "Online Purchase Transaction Amount 45.67 SAR\nFrom: SYNTHETIC WALLET\nCard: *0007",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.stcbank.template005",
+      "candidate": {
+        "amountMinor": 4567,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "STC Bank",
+        "countryCode": "SA",
+        "accountLast4": "0007",
+        "reference": null,
+        "counterparty": "SYNTHETIC WALLET",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "stcbank-ported-006",
+    "country": "SA",
+    "bankId": "sa.stcbank",
+    "provenance": "PennyWise STCBankParser (Internal transfer uses incoming direction); see NOTICE.md",
+    "input": {
+      "sender": "STCBank",
+      "body": "Internal transfer\nAmount: 56.78 SAR\nFrom: SYNTHETIC SENDER",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.stcbank.template006",
+      "candidate": {
+        "amountMinor": 5678,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "STC Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SYNTHETIC SENDER",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "stcbank-ported-007",
+    "country": "SA",
+    "bankId": "sa.stcbank",
+    "provenance": "PennyWise STCBankParser (Purchase reversal is income); see NOTICE.md",
+    "input": {
+      "sender": "STCBank",
+      "body": "Purchase Reversal\nAmount: 67.89 SAR\nFrom: SYNTHETIC MERCHANT",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.stcbank.template007",
+      "candidate": {
+        "amountMinor": 6789,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "STC Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SYNTHETIC MERCHANT",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "stcbank-ported-020",
+    "country": "SA",
+    "bankId": "sa.stcbank",
+    "provenance": "PennyWise STCBankParser (Outward SARIE transfer is an expense); see NOTICE.md",
+    "input": {
+      "sender": "STCBank",
+      "body": "Outward SARIE Transfer\nAmount: 90.12 SAR\nTo: SYNTHETIC RECIPIENT",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.stcbank.template020",
+      "candidate": {
+        "amountMinor": 9012,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "STC Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SYNTHETIC RECIPIENT",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

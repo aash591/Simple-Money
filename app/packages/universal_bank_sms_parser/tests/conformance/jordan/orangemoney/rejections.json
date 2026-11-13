@@ -1,0 +1,162 @@
+[
+  {
+    "id": "orangemoney-reject-security",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "your otp is 123456. تمت عملية شراء من محفظتك 07XXXXXXXX بمبلغ 10 دينار بتاريخ 16/09/2026 الساعة 10:39:21 PM من OJO Payment Channel  بالرقم المرجعي OM20260916223921000000000000 رصيد المحفظة المتاح هو 0.000دينار أردني شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "orangemoney-reject-promotional",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "exclusive offer: apply now. تمت عملية شراء من محفظتك 07XXXXXXXX بمبلغ 10 دينار بتاريخ 16/09/2026 الساعة 10:39:21 PM من OJO Payment Channel  بالرقم المرجعي OM20260916223921000000000000 رصيد المحفظة المتاح هو 0.000دينار أردني شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "orangemoney-reject-failed",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "payment failed. تمت عملية شراء من محفظتك 07XXXXXXXX بمبلغ 10 دينار بتاريخ 16/09/2026 الساعة 10:39:21 PM من OJO Payment Channel  بالرقم المرجعي OM20260916223921000000000000 رصيد المحفظة المتاح هو 0.000دينار أردني شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "orangemoney-reject-pending",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "payment pending. تمت عملية شراء من محفظتك 07XXXXXXXX بمبلغ 10 دينار بتاريخ 16/09/2026 الساعة 10:39:21 PM من OJO Payment Channel  بالرقم المرجعي OM20260916223921000000000000 رصيد المحفظة المتاح هو 0.000دينار أردني شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "orangemoney-reject-future",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "will be debited. تمت عملية شراء من محفظتك 07XXXXXXXX بمبلغ 10 دينار بتاريخ 16/09/2026 الساعة 10:39:21 PM من OJO Payment Channel  بالرقم المرجعي OM20260916223921000000000000 رصيد المحفظة المتاح هو 0.000دينار أردني شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "orangemoney-reject-notice",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "statement generated. تمت عملية شراء من محفظتك 07XXXXXXXX بمبلغ 10 دينار بتاريخ 16/09/2026 الساعة 10:39:21 PM من OJO Payment Channel  بالرقم المرجعي OM20260916223921000000000000 رصيد المحفظة المتاح هو 0.000دينار أردني شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "orangemoney-reject-unknown-sender",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "تمت عملية شراء من محفظتك 07XXXXXXXX بمبلغ 10 دينار بتاريخ 16/09/2026 الساعة 10:39:21 PM من OJO Payment Channel  بالرقم المرجعي OM20260916223921000000000000 رصيد المحفظة المتاح هو 0.000دينار أردني شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "orangemoney-reject-balance-only",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

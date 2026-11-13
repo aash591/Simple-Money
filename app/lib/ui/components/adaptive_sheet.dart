@@ -350,10 +350,8 @@ class _DragHandle extends StatelessWidget {
 /// quiet and small, because the step's own [SheetStepHeading] is what the
 /// eye should land on. See [SheetHeader.flow].
 TextStyle sheetFlowTitleStyle(BuildContext context) => TextStyle(
-  fontSize: 14,
-  fontWeight: FontWeight.w500,
-  letterSpacing: 0,
-  color: SheetColors.of(context).muted,
+  // Same size and weight as every sheet title; only dimmed.
+  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: .6),
 );
 
 /// Shared secondary-page title bar for sheet pages.
@@ -389,8 +387,13 @@ class SheetHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SecondaryHeader(
     title: title,
-    centered: centered ?? (onBack == null && trailing == null && !_flow),
-    titleStyle: titleStyle ?? (_flow ? sheetFlowTitleStyle(context) : null),
+    // The main title is left-aligned; a flow step's dimmed title is centred.
+    centered: centered ?? false,
+    titleStyle:
+        titleStyle ??
+        (_flow
+            ? sheetFlowTitleStyle(context).copyWith(fontSize: 17)
+            : const TextStyle(fontSize: 17)),
     leading: onBack == null ? null : AppBackButton(onPressed: onBack),
     actions: [?trailing],
   );

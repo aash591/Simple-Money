@@ -23,4 +23,18 @@
         <item name="android:windowDisablePreview">true</item>
         <item name="android:colorAccent">#8055E8</item>
     </style>
+    <!-- Launcher widgets and shortcuts. The launcher itself stays drawn behind
+         (see windowIsFloating), wallpaper included: asking for the wallpaper
+         here moved it from the launcher to this window, and a live wallpaper
+         went black for a second or two while it switched over. -->
+    <style name="QuickEntryTheme.Wallpaper">
+        <!-- The sheet animates itself; a window open animation only delays
+             the launcher drawing again behind it. -->
+        <item name="android:windowAnimationStyle">@null</item>
+        <!-- Like the system's own pickers (a dialer's "Select number"): a
+             floating window never counts as covering the home screen, so the
+             launcher keeps drawing and no app-open transition blacks it out.
+             QuickEntryActivity stretches it to the full screen. -->
+        <item name="android:windowIsFloating">true</item>
+    </style>
 </resources>

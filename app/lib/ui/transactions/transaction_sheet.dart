@@ -163,6 +163,54 @@ Future<void> showViewTransactionSheet(
   ),
 );
 
+/// Opens a transaction that isn't saved yet — one an AI app suggested — on
+/// the edit page, so it can be corrected. Saving hands the result to
+/// [onSave] rather than adding it to the ledger.
+Future<void> showSuggestedTransactionSheet(
+  BuildContext context, {
+  required TransactionDraft draft,
+  required Future<void> Function(TransactionDraft) onSave,
+  required AccountStore accountStore,
+  required CategoryStore categoryStore,
+  required TransactionStore transactionStore,
+}) => showAdaptiveSheet<void>(
+  context,
+  entrance: SheetEntrance.fadeRise,
+  dismissible: false,
+  topClearance: _brandingClearance,
+  avoidKeyboard: false,
+  builder: (_) => TransactionSheet(
+    initialDraft: draft,
+    onSaveDraft: onSave,
+    accountStore: accountStore,
+    categoryStore: categoryStore,
+    transactionStore: transactionStore,
+  ),
+);
+
+/// [draft] as the edit page shows it, for looking only: Save stays off. For
+/// an entry a shared SMS fix would make, so how it reads can be checked.
+Future<void> showPreviewTransactionSheet(
+  BuildContext context, {
+  required TransactionDraft draft,
+  required AccountStore accountStore,
+  required CategoryStore categoryStore,
+  required TransactionStore transactionStore,
+}) => showAdaptiveSheet<void>(
+  context,
+  entrance: SheetEntrance.fadeRise,
+  topClearance: _brandingClearance,
+  avoidKeyboard: false,
+  builder: (_) => TransactionSheet(
+    initialDraft: draft,
+    onSaveDraft: (_) async {},
+    readOnly: true,
+    accountStore: accountStore,
+    categoryStore: categoryStore,
+    transactionStore: transactionStore,
+  ),
+);
+
 /// Add, view, and edit are one sheet with one draft — see FLUTTER_GUIDE.md
 /// §5. Editing opens straight on the Confirm page (its fields editable in
 /// place, with Cancel/Save) rather than sliding through the Add wizard;
@@ -178,6 +226,7 @@ class TransactionSheet extends StatefulWidget {
     this.initialDraft,
     this.onSaveDraft,
     this.requiredCurrency,
+    this.readOnly = false,
   });
   final AccountStore accountStore;
   final CategoryStore categoryStore;
@@ -190,6 +239,9 @@ class TransactionSheet extends StatefulWidget {
   final String? requiredCurrency;
   final TransactionDraft? initialDraft;
   final Future<void> Function(TransactionDraft)? onSaveDraft;
+
+  /// Shown to look at only: Save is never on.
+  final bool readOnly;
 
   @override
   State<TransactionSheet> createState() => _TransactionSheetState();
@@ -217,6 +269,11 @@ class _TransactionSheetState extends State<TransactionSheet> {
   int? _subcategoryParentId;
 
   bool get _isEditFlow => widget.transaction != null;
+
+  /// The transaction the View page shows: the one the sheet opened on, or what
+  /// it became after being edited from here.
+  MoneyTransaction? _viewed;
+  MoneyTransaction get _current => _viewed ?? widget.transaction!;
   bool get _busy => _saving || _deleting;
 
   Animation<double>? _routeAnimation;
@@ -502,7 +559,7 @@ class _TransactionSheetState extends State<TransactionSheet> {
   /// locked, and a transfer between currencies keeps its amounts and
   /// accounts, since there is no rate here to redo them.
   Future<void> _editInReview() async {
-    final transaction = widget.transaction!;
+    final transaction = _current;
     final account = _accountById(transaction.accountId);
     if (account == null) return;
     TransactionLink? link;
@@ -531,6 +588,10 @@ class _TransactionSheetState extends State<TransactionSheet> {
     await showTransactionReviewSheet(
       context,
       heading: 'Edit transaction',
+      titleSuggestions: (text, type, categoryId) => widget
+          .transactionStore
+          .titleSuggestions
+          .suggest(text, type: type, categoryId: categoryId),
       draft: ReviewDraft(
         type: transaction.type,
         amountMinor: transaction.amountMinor,
@@ -606,10 +667,17 @@ class _TransactionSheetState extends State<TransactionSheet> {
         saved = true;
       },
     );
-    // The view shows the transaction as it was; close it on the saved one.
+    // Back to the View, now showing the saved transaction.
     if (saved && mounted) {
       showAppToast(context, 'Transaction updated');
-      _close();
+      final updated = widget.transactionStore.transactions
+          .where((t) => t.id == transaction.id)
+          .firstOrNull;
+      if (updated == null) {
+        _close();
+      } else {
+        setState(() => _viewed = updated);
+      }
     }
   }
 
@@ -792,7 +860,9 @@ class _TransactionSheetState extends State<TransactionSheet> {
       VibrationSettings.lightImpact();
       showAppToast(
         context,
-        existingId != null
+        widget.onSaveDraft != null
+            ? 'Suggestion updated'
+            : existingId != null
             ? 'Transaction updated'
             : (_isIncome ? 'Income saved' : 'Expense saved'),
       );
@@ -1024,7 +1094,7 @@ class _TransactionSheetState extends State<TransactionSheet> {
       note: _draft.note,
       date: _draft.date,
       amountFitsAccount: _amountMinor != null,
-      canSave: _detailsValid,
+      canSave: _detailsValid && !widget.readOnly,
       saving: _saving,
       error: _error,
       onBack: _back,
@@ -1071,7 +1141,7 @@ class _TransactionSheetState extends State<TransactionSheet> {
   }
 
   Widget _buildViewPage() {
-    final transaction = widget.transaction!;
+    final transaction = _current;
     return TransactionViewPage(
       transaction: transaction,
       account: _accountById(transaction.accountId),

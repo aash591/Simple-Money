@@ -1,0 +1,162 @@
+[
+  {
+    "id": "millenniumbim-reject-security",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Mbim",
+      "body": "your otp is 123456. A conta 123456789 foi debitada no valor de 50.00 MZN as 10:14 do dia 31/05/26. Em caso de duvida, ligue 8003500. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "millenniumbim-reject-promotional",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Mbim",
+      "body": "exclusive offer: apply now. A conta 123456789 foi debitada no valor de 50.00 MZN as 10:14 do dia 31/05/26. Em caso de duvida, ligue 8003500. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "millenniumbim-reject-failed",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Mbim",
+      "body": "payment failed. A conta 123456789 foi debitada no valor de 50.00 MZN as 10:14 do dia 31/05/26. Em caso de duvida, ligue 8003500. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "millenniumbim-reject-pending",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Mbim",
+      "body": "payment pending. A conta 123456789 foi debitada no valor de 50.00 MZN as 10:14 do dia 31/05/26. Em caso de duvida, ligue 8003500. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "millenniumbim-reject-future",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Mbim",
+      "body": "will be debited. A conta 123456789 foi debitada no valor de 50.00 MZN as 10:14 do dia 31/05/26. Em caso de duvida, ligue 8003500. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "millenniumbim-reject-notice",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Mbim",
+      "body": "statement generated. A conta 123456789 foi debitada no valor de 50.00 MZN as 10:14 do dia 31/05/26. Em caso de duvida, ligue 8003500. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "millenniumbim-reject-unknown-sender",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "A conta 123456789 foi debitada no valor de 50.00 MZN as 10:14 do dia 31/05/26. Em caso de duvida, ligue 8003500. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "millenniumbim-reject-balance-only",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "Mbim",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

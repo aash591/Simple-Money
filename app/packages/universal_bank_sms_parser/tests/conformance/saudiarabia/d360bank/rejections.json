@@ -1,0 +1,162 @@
+[
+  {
+    "id": "d360bank-reject-security",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "D360Bank",
+      "body": "your otp is 123456. International Online Purchase\nAmount: TRY 200.00 (SAR 12.34)\nCard: *0007 - VISA (Ecommerce)\nFee: SAR 0.00\nAt: SYNTHETIC MERCHANT\nAccount number: *0008\nCountry: Turkey\nOn: 2026-07-08 22:08",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "d360bank-reject-promotional",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "D360Bank",
+      "body": "exclusive offer: apply now. International Online Purchase\nAmount: TRY 200.00 (SAR 12.34)\nCard: *0007 - VISA (Ecommerce)\nFee: SAR 0.00\nAt: SYNTHETIC MERCHANT\nAccount number: *0008\nCountry: Turkey\nOn: 2026-07-08 22:08",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "d360bank-reject-failed",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "D360Bank",
+      "body": "payment failed. International Online Purchase\nAmount: TRY 200.00 (SAR 12.34)\nCard: *0007 - VISA (Ecommerce)\nFee: SAR 0.00\nAt: SYNTHETIC MERCHANT\nAccount number: *0008\nCountry: Turkey\nOn: 2026-07-08 22:08",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "d360bank-reject-pending",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "D360Bank",
+      "body": "payment pending. International Online Purchase\nAmount: TRY 200.00 (SAR 12.34)\nCard: *0007 - VISA (Ecommerce)\nFee: SAR 0.00\nAt: SYNTHETIC MERCHANT\nAccount number: *0008\nCountry: Turkey\nOn: 2026-07-08 22:08",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "d360bank-reject-future",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "D360Bank",
+      "body": "will be debited. International Online Purchase\nAmount: TRY 200.00 (SAR 12.34)\nCard: *0007 - VISA (Ecommerce)\nFee: SAR 0.00\nAt: SYNTHETIC MERCHANT\nAccount number: *0008\nCountry: Turkey\nOn: 2026-07-08 22:08",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "d360bank-reject-notice",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "D360Bank",
+      "body": "statement generated. International Online Purchase\nAmount: TRY 200.00 (SAR 12.34)\nCard: *0007 - VISA (Ecommerce)\nFee: SAR 0.00\nAt: SYNTHETIC MERCHANT\nAccount number: *0008\nCountry: Turkey\nOn: 2026-07-08 22:08",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "d360bank-reject-unknown-sender",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "International Online Purchase\nAmount: TRY 200.00 (SAR 12.34)\nCard: *0007 - VISA (Ecommerce)\nFee: SAR 0.00\nAt: SYNTHETIC MERCHANT\nAccount number: *0008\nCountry: Turkey\nOn: 2026-07-08 22:08",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "d360bank-reject-balance-only",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "D360Bank",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,162 @@
+[
+  {
+    "id": "nationalsavingsbank-reject-security",
+    "country": "LK",
+    "bankId": "lk.nationalsavingsbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NSB",
+      "body": "your otp is 123456. Dear MR MASKED NAME,LKR 10,000.00 Credited to your A/c XXXXXXXX1234 on DD/MM/YYYY at HH:mm.AvlBal LKR 12,653.61.Transaction CEFT Inward Transfer Deposit.Thank you for banking with us.Call Centre 1972.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationalsavingsbank-reject-promotional",
+    "country": "LK",
+    "bankId": "lk.nationalsavingsbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NSB",
+      "body": "exclusive offer: apply now. Dear MR MASKED NAME,LKR 10,000.00 Credited to your A/c XXXXXXXX1234 on DD/MM/YYYY at HH:mm.AvlBal LKR 12,653.61.Transaction CEFT Inward Transfer Deposit.Thank you for banking with us.Call Centre 1972.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationalsavingsbank-reject-failed",
+    "country": "LK",
+    "bankId": "lk.nationalsavingsbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NSB",
+      "body": "payment failed. Dear MR MASKED NAME,LKR 10,000.00 Credited to your A/c XXXXXXXX1234 on DD/MM/YYYY at HH:mm.AvlBal LKR 12,653.61.Transaction CEFT Inward Transfer Deposit.Thank you for banking with us.Call Centre 1972.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationalsavingsbank-reject-pending",
+    "country": "LK",
+    "bankId": "lk.nationalsavingsbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NSB",
+      "body": "payment pending. Dear MR MASKED NAME,LKR 10,000.00 Credited to your A/c XXXXXXXX1234 on DD/MM/YYYY at HH:mm.AvlBal LKR 12,653.61.Transaction CEFT Inward Transfer Deposit.Thank you for banking with us.Call Centre 1972.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationalsavingsbank-reject-future",
+    "country": "LK",
+    "bankId": "lk.nationalsavingsbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NSB",
+      "body": "will be debited. Dear MR MASKED NAME,LKR 10,000.00 Credited to your A/c XXXXXXXX1234 on DD/MM/YYYY at HH:mm.AvlBal LKR 12,653.61.Transaction CEFT Inward Transfer Deposit.Thank you for banking with us.Call Centre 1972.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationalsavingsbank-reject-notice",
+    "country": "LK",
+    "bankId": "lk.nationalsavingsbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NSB",
+      "body": "statement generated. Dear MR MASKED NAME,LKR 10,000.00 Credited to your A/c XXXXXXXX1234 on DD/MM/YYYY at HH:mm.AvlBal LKR 12,653.61.Transaction CEFT Inward Transfer Deposit.Thank you for banking with us.Call Centre 1972.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationalsavingsbank-reject-unknown-sender",
+    "country": "LK",
+    "bankId": "lk.nationalsavingsbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Dear MR MASKED NAME,LKR 10,000.00 Credited to your A/c XXXXXXXX1234 on DD/MM/YYYY at HH:mm.AvlBal LKR 12,653.61.Transaction CEFT Inward Transfer Deposit.Thank you for banking with us.Call Centre 1972.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationalsavingsbank-reject-balance-only",
+    "country": "LK",
+    "bankId": "lk.nationalsavingsbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "NSB",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

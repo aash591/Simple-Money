@@ -45,11 +45,16 @@
         </activity>
         <activity android:name=".QuickEntryActivity" android:exported="false"
             android:taskAffinity="${applicationId}.quickentry" android:excludeFromRecents="true"
-            android:theme="@style/QuickEntryTheme" android:hardwareAccelerated="true"
+            android:theme="@style/QuickEntryTheme.Wallpaper" android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode">
-            <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/QuickEntryTheme" />
+            <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/QuickEntryTheme.Wallpaper" />
         </activity>
+        <receiver android:name=".QuickActionReceiver" android:exported="false" />
+        <activity android:name=".QuickShortcutActivity" android:exported="false"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:taskAffinity="${applicationId}.quickshortcut"
+            android:excludeFromRecents="true" android:noHistory="true" />
         <receiver android:name=".ScanUpiWidget" android:label="Scan UPI" android:exported="false">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/scan_upi_widget_info" />

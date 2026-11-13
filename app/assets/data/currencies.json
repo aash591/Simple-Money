@@ -774,7 +774,7 @@
     "territory": "IR",
     "code": "IRR",
     "name": "Iranian Rial",
-    "digits": 0
+    "digits": 2
   },
   {
     "country": "Iraq",

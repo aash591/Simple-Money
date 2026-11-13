@@ -19,6 +19,7 @@ import '../components/more_popup_button.dart';
 import '../transactions/transactions_screen.dart';
 import 'sms_suggestions.dart';
 import '../more/accounts/account_card.dart';
+import '../../domain/currency_digits.dart';
 
 class SmsResultsPage extends StatefulWidget {
   const SmsResultsPage({
@@ -122,7 +123,7 @@ class _SmsResultsPageState extends State<SmsResultsPage> {
               a.type == AccountType.cash &&
               !a.isArchived &&
               a.currency == currency &&
-              a.digits == 2,
+              a.digits == currencyDigits(a.currency),
         ),
       )
       .toSet();
@@ -164,7 +165,7 @@ class _SmsResultsPageState extends State<SmsResultsPage> {
       items: [
         for (final a in widget.accounts.accounts)
           if (a.currency == sms.currency &&
-              a.digits == 2 &&
+              a.digits == currencyDigits(a.currency) &&
               a.archivedAt == null)
             ChoiceItem(
               value: a.id,
@@ -190,15 +191,21 @@ class _SmsResultsPageState extends State<SmsResultsPage> {
     }
   }
 
+  /// Decimal places for amounts typed for the bank group [bankKey].
+  int _digitsOf(String bankKey) =>
+      groups.where((g) => g.bankKey == bankKey).firstOrNull?.digits ?? 2;
+
   Future<void> createAccounts() async {
     if (saving || widget.store.busy) return;
     final openingBalances = <String, int>{};
     for (final entry in _balanceInputs.entries) {
       if (entry.value.text.trim().isEmpty) continue;
-      final amount = parseAccountAmount(entry.value.text.trim(), 2);
+      final digits = _digitsOf(entry.key);
+      final amount = parseAccountAmount(entry.value.text.trim(), digits);
       if (amount == null) {
         setState(
-          () => error = 'Enter a valid balance with up to 2 decimal places.',
+          () => error =
+              'Enter a valid balance with up to $digits decimal places.',
         );
         return;
       }
@@ -213,10 +220,12 @@ class _SmsResultsPageState extends State<SmsResultsPage> {
     ]) {
       for (final entry in pair.$1.entries) {
         if (entry.value.text.trim().isEmpty) continue;
-        final amount = parseAccountAmount(entry.value.text.trim(), 2);
+        final digits = _digitsOf(entry.key);
+        final amount = parseAccountAmount(entry.value.text.trim(), digits);
         if (amount == null || amount < 0) {
           setState(
-            () => error = 'Enter a valid limit with up to 2 decimal places.',
+            () => error =
+                'Enter a valid limit with up to $digits decimal places.',
           );
           return;
         }
@@ -247,7 +256,7 @@ class _SmsResultsPageState extends State<SmsResultsPage> {
         await widget.accounts.repository.save(
           name: 'Cash',
           currency: currency,
-          digits: 2,
+          digits: currencyDigits(currency),
           openingBalance: 0,
           type: AccountType.cash,
           icon: 'wallet_one',
@@ -394,7 +403,9 @@ class _SmsResultsPageState extends State<SmsResultsPage> {
                               id: -i - 1,
                               name: 'Cash',
                               currency: cashCurrencies[i - bankGroups.length],
-                              digits: 2,
+                              digits: currencyDigits(
+                                cashCurrencies[i - bankGroups.length],
+                              ),
                               balanceMinor: 0,
                               type: AccountType.cash,
                               icon: 'wallet_one',
@@ -426,7 +437,7 @@ class _SmsResultsPageState extends State<SmsResultsPage> {
                             currency: sms.currency,
                             territory: sms.data['countryCode'] as String?,
                             icon: smsBankIcon(sms),
-                            digits: 2,
+                            digits: sms.digits,
                             balanceMinor: balance ?? 0,
                             type: sms.creditCard
                                 ? AccountType.creditCard

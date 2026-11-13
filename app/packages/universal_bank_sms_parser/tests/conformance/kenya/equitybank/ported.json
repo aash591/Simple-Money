@@ -1,0 +1,33 @@
+[
+  {
+    "id": "equitybank-ported-001",
+    "country": "KE",
+    "bankId": "ke.equitybank",
+    "provenance": "PennyWise EquityBankKenyaParser (Incoming payment with runs of spaces still parses); see NOTICE.md",
+    "input": {
+      "sender": "Equity Bank",
+      "body": "You have  received  2000.00 KES from TEST ENTERPRISES 0********1111 to your Equity account 0********1234. Ref. TESTREF0002 on 12 Sep 2026 at 17:56 EAT",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ke.equitybank.template001",
+      "candidate": {
+        "amountMinor": 200000,
+        "currencyCode": "KES",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Equity Bank",
+        "countryCode": "KE",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "TEST ENTERPRISES",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

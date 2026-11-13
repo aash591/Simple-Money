@@ -1,0 +1,95 @@
+[
+  {
+    "id": "standardbankmozambique-ported-001",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "PennyWise StandardBankMozambiqueParser (Credit (MZN) - income); see NOTICE.md",
+    "input": {
+      "sender": "STDBank",
+      "body": "Caro Cliente, ocorreu um credito de 1.234,56 MZN na sua conta 1234567890123 a 22/05/2026, 14:54, disponivel em 22/05/2026. Mais info: 800412412/21355700",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.standardbankmozambique.template001",
+      "candidate": {
+        "amountMinor": 123456,
+        "currencyCode": "MZN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Bank Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": "0123",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "standardbankmozambique-ported-002",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "PennyWise StandardBankMozambiqueParser (Purchase (MT -> MZN) - expense with merchant); see NOTICE.md",
+    "input": {
+      "sender": "STDBank",
+      "body": "Caro Cliente, ocorreu uma operacao de compra de 1.234,56, MT na sua conta 1234567890123 a 09/05/2026, 13:41, MM INVESTMENTS S. Comissao: 0.00MT e Imposto de selo: 0.00MT. Mais info: 800412412/21355700",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.standardbankmozambique.template002",
+      "candidate": {
+        "amountMinor": 123456,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Bank Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": "0123",
+        "reference": null,
+        "counterparty": "MM INVESTMENTS S",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "standardbankmozambique-ported-003",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "PennyWise StandardBankMozambiqueParser (Debit (USD) - expense with location); see NOTICE.md",
+    "input": {
+      "sender": "7832265",
+      "body": "Caro Cliente, ocorreu um debito de 1.234,56 USD na sua conta 1234567890123 a 15/05/2026, 13:30, C01 AGENCIA DA BEIRA. Comissao: 0.00USD e Imposto de selo: 0.00USD. Mais info: 800412412/21355700",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.standardbankmozambique.template003",
+      "candidate": {
+        "amountMinor": 123456,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Bank Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": "0123",
+        "reference": null,
+        "counterparty": "C01 AGENCIA DA BEIRA",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

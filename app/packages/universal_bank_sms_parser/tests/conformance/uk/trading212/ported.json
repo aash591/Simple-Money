@@ -1,0 +1,33 @@
+[
+  {
+    "id": "trading212-ported-001",
+    "country": "GB",
+    "bankId": "gb.trading212",
+    "provenance": "PennyWise Trading212Parser (Interest on uninvested cash (GBP)); see NOTICE.md",
+    "input": {
+      "sender": "Trading212",
+      "body": "💸 You earned £0.24 interest on uninvested cash!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "gb.trading212.template001",
+      "candidate": {
+        "amountMinor": 24,
+        "currencyCode": "GBP",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Trading 212",
+        "countryCode": "GB",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Trading 212 Interest",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "standardbankmozambique-variables-001",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "STDBank",
+      "body": "Caro Cliente, ocorreu um credito de 321,09 MZN na sua conta 1234567899988 a 02-DEC-2027, 11:22:33, disponivel em 02-DEC-2027. Mais info: 9876.54/9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.standardbankmozambique.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Bank Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "standardbankmozambique-variables-002",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "STDBank",
+      "body": "Caro Cliente, ocorreu uma operacao de compra de 321,09, MT na sua conta 1234567899988 a 02-DEC-2027, 11:22:33, MIGRATIONSHOP. Comissao: 9876.54.00MT e Imposto de selo: 9876.54.00MT. Mais info: 9876.54/9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.standardbankmozambique.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Bank Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "standardbankmozambique-variables-003",
+    "country": "MZ",
+    "bankId": "mz.standardbankmozambique",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "7832265",
+      "body": "Caro Cliente, ocorreu um debito de 321,09 USD na sua conta 1234567899988 a 02-DEC-2027, 11:22:33, MIGRATIONSHOP. Comissao: 9876.54.00USD e Imposto de selo: 9876.54.00USD. Mais info: 9876.54/9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.standardbankmozambique.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Bank Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

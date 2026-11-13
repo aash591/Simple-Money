@@ -1,0 +1,95 @@
+[
+  {
+    "id": "nmbbanktanzania-variables-002",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NMB",
+      "body": "Kumb: MIG123456 Imethibitishwa. Kiasi cha TSH321.09 kimetumwa kutoka katika akaunti inayoishia na XXXX kwenda MIGRATIONSHOP META998877. Tarehe:02-DEC-2027 11:22:33. Teleza Kidigitali na Mshiko Fasta",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.nmbbanktanzania.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "NMB Bank Tanzania",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nmbbanktanzania-variables-003",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NMB",
+      "body": "You have paid TZS 321.09 with account ending XXXX to MIGRATIONSHOP 9876.54 on 02-DEC-2027 11:22:33. NMB Karibu Yako",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.nmbbanktanzania.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "NMB Bank Tanzania",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nmbbanktanzania-variables-006",
+    "country": "TZ",
+    "bankId": "tz.nmbbanktanzania",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NMB",
+      "body": "Kumb: MIG123456 Imethibitishwa. Kiasi cha TShs 321.09 kimetumwa kutoka katika akaunti inayoishia na XXXX kwenda MIGRATIONSHOP META998877. Tarehe:02-DEC-2027 11:22:33.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.nmbbanktanzania.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "NMB Bank Tanzania",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

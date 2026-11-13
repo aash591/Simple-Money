@@ -5,7 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
 
+import '../../../data/db/app_database.dart';
 import '../../../data/reportable_sms.dart';
+import '../../../state/sms_import_store.dart';
 import '../../../domain/account.dart';
 import '../../../domain/realtime_sms_category.dart';
 import '../../components/action_buttons.dart';
@@ -25,7 +27,12 @@ import '../../theme/sheet_colors.dart';
 /// it read (perhaps wrongly) and the rest. Nothing is sent until they tap
 /// Report on a message (or Report all).
 class ReportSmsScreen extends StatefulWidget {
-  const ReportSmsScreen({super.key});
+  const ReportSmsScreen({super.key, this.database});
+
+  /// Reads messages with the user's own and shared rules too, so a message
+  /// one of them reads shows under Read, not Missed. Without it, only the
+  /// bundled rules.
+  final AppDatabase? database;
 
   @override
   State<ReportSmsScreen> createState() => _ReportSmsScreenState();
@@ -33,8 +40,16 @@ class ReportSmsScreen extends StatefulWidget {
 
 enum _Tab { missed, detected, other, reported }
 
-class _ReportSmsScreenState extends State<ReportSmsScreen> {
-  final _repository = ReportableSmsRepository();
+class _ReportSmsScreenState extends State<ReportSmsScreen>
+    with SingleTickerProviderStateMixin {
+  late final _tabs = TabController(length: _Tab.values.length, vsync: this)
+    ..addListener(() => setState(() {}));
+  late final _repository = ReportableSmsRepository(
+    engineLoader: switch (widget.database) {
+      final database? => () => loadSmsEngine(database),
+      null => null,
+    },
+  );
   final _search = TextEditingController();
   final _messages = <ReportableSms>[];
   StreamSubscription<List<ReportableSms>>? _scan;
@@ -43,7 +58,6 @@ class _ReportSmsScreenState extends State<ReportSmsScreen> {
   bool _scanning = true;
   Set<String> _reported = {};
   final _sending = <String>{};
-  _Tab _tab = _Tab.missed;
   bool _needsPermission = false;
   String? _error;
 
@@ -58,6 +72,7 @@ class _ReportSmsScreenState extends State<ReportSmsScreen> {
   @override
   void dispose() {
     _scan?.cancel();
+    _tabs.dispose();
     _search.dispose();
     super.dispose();
   }
@@ -137,13 +152,19 @@ class _ReportSmsScreenState extends State<ReportSmsScreen> {
 
   Future<void> _report(List<ReportableSms> messages) async {
     if (_busy || messages.isEmpty) return;
-    final details = await showAdaptiveSheet<_ReportDetails>(
+    // One sender: ask which bank it is, so the report can be matched to it.
+    final senders = {
+      for (final m in messages)
+        normalizeRuleSender(m.sms.sender) ?? m.sms.sender,
+    };
+    final details = await showReportSmsSheet(
       context,
-      builder: (_) => _ReportSheet(
-        count: messages.length,
-        kind: messages.first.kind,
-        contact: _repository.savedContact(),
-      ),
+      count: messages.length,
+      kind: messages.first.kind,
+      contact: _repository.savedContact(),
+      bank: senders.length == 1
+          ? messages.map((m) => m.bank).nonNulls.firstOrNull ?? ''
+          : null,
     );
     if (details == null || !mounted) return;
     setState(() => _sending.addAll(messages.map((m) => m.id)));
@@ -152,6 +173,7 @@ class _ReportSmsScreenState extends State<ReportSmsScreen> {
         messages,
         note: details.note,
         contact: details.contact,
+        bank: details.bank,
       );
       if (!mounted) return;
       setState(() => _reported.addAll(messages.map((m) => m.id)));
@@ -220,81 +242,62 @@ class _ReportSmsScreenState extends State<ReportSmsScreen> {
     final muted = theme.textTheme.bodySmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
-    final shown = _visible(_tab);
-    final header = [
-      SegmentedPill<_Tab>(
-        segments: const [
-          PillSegment(_Tab.missed, 'Missed'),
-          PillSegment(_Tab.detected, 'Read'),
-          PillSegment(_Tab.other, 'Other'),
-          PillSegment(_Tab.reported, 'Sent'),
-        ],
-        value: _tab,
-        onChanged: (tab) => setState(() => _tab = tab),
-      ),
-      const SizedBox(height: 12),
-      SearchField(
-        controller: _search,
-        hintText: 'Search',
-        onChanged: (_) => setState(() {}),
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(4, 12, 0, 4),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                '${shown.length} · ${_caption(_tab)}',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+    // Other can run to thousands of messages, so cards are built lazily.
+    Widget page(_Tab tab) {
+      final shown = _visible(tab);
+      final header = [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 4, 0, 4),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${shown.length} · ${_caption(tab)}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
-            ),
-            if (_tab == _Tab.missed && shown.length > 1)
-              TextButton(
-                onPressed: _busy ? null : () => _report(shown),
-                child: const Text('Report all'),
-              ),
-          ],
-        ),
-      ),
-      if (_error != null)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
-          child: Semantics(
-            liveRegion: true,
-            child: Text(
-              _error!,
-              style: TextStyle(color: theme.colorScheme.error),
-            ),
+              if (tab == _Tab.missed && shown.length > 1)
+                TextButton(
+                  onPressed: _busy ? null : () => _report(shown),
+                  child: const Text('Report all'),
+                ),
+            ],
           ),
         ),
-      const SizedBox(height: 8),
-    ];
-    final footer = [
-      if (_scanning)
-        const _Scanning()
-      else if (shown.isEmpty)
-        _NothingHere(tab: _tab),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
-        child: Text(
-          'Last ${ReportableSmsRepository.window.inDays} days. Personal '
-          'messages and OTPs are hidden.',
-          textAlign: TextAlign.center,
-          style: muted,
+        if (_error != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+            child: Semantics(
+              liveRegion: true,
+              child: Text(
+                _error!,
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
+            ),
+          ),
+        const SizedBox(height: 8),
+      ];
+      final footer = [
+        if (_scanning)
+          const _Scanning()
+        else if (shown.isEmpty)
+          _NothingHere(tab: tab),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+          child: Text(
+            'Last ${ReportableSmsRepository.window.inDays} days. Personal '
+            'messages and OTPs are hidden.',
+            textAlign: TextAlign.center,
+            style: muted,
+          ),
         ),
-      ),
-    ];
-    // Other can run to thousands of messages, so cards are built lazily.
-    return SegmentSwipe<_Tab>(
-      values: _Tab.values,
-      value: _tab,
-      onChanged: (tab) => setState(() => _tab = tab),
-      child: RefreshIndicator(
+      ];
+      return RefreshIndicator(
         onRefresh: _load,
         child: ListView.builder(
-          padding: const EdgeInsets.fromLTRB(18, 8, 18, 40),
+          padding: const EdgeInsets.fromLTRB(18, 0, 18, 40),
           itemCount: header.length + shown.length + footer.length,
           itemBuilder: (context, index) {
             if (index < header.length) return header[index];
@@ -313,7 +316,33 @@ class _ReportSmsScreenState extends State<ReportSmsScreen> {
             );
           },
         ),
-      ),
+      );
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 8, 18, 0),
+          child: SegmentedPillTabBar(
+            controller: _tabs,
+            labels: const ['Missed', 'Read', 'Other', 'Sent'],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 12, 18, 4),
+          child: SearchField(
+            controller: _search,
+            hintText: 'Search',
+            onChanged: (_) => setState(() {}),
+          ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabs,
+            children: [for (final tab in _Tab.values) page(tab)],
+          ),
+        ),
+      ],
     );
   }
 
@@ -349,45 +378,92 @@ class _Scanning extends StatelessWidget {
   );
 }
 
-class _ReportDetails {
-  const _ReportDetails(this.note, this.contact);
-  final String note, contact;
+/// What the user said about the messages they report.
+class ReportSmsDetails {
+  const ReportSmsDetails(this.note, this.contact, this.bank);
+  final String note, contact, bank;
 }
 
+/// The Report SMS sheet: what's wrong, the bank, details and contact. Null
+/// when cancelled. [intro] says where the report comes from, when it's not
+/// the Report SMS screen.
+Future<ReportSmsDetails?> showReportSmsSheet(
+  BuildContext context, {
+  required int count,
+  required ReportableKind kind,
+  required Future<String> contact,
+  String? bank,
+  String? intro,
+}) => showAdaptiveSheet<ReportSmsDetails>(
+  context,
+  builder: (_) => ReportSmsSheet(
+    count: count,
+    kind: kind,
+    contact: contact,
+    bank: bank,
+    intro: intro,
+  ),
+);
+
 /// Asks what's wrong and how to reply, both optional, before sending.
-class _ReportSheet extends StatefulWidget {
-  const _ReportSheet({
+class ReportSmsSheet extends StatefulWidget {
+  const ReportSmsSheet({
+    super.key,
     required this.count,
     required this.kind,
     required this.contact,
+    this.bank,
+    this.intro,
   });
   final int count;
   final ReportableKind kind;
   final Future<String> contact;
+  final String? intro;
+
+  /// The bank the app thinks these are from; null hides the field (messages
+  /// from several senders each keep their own).
+  final String? bank;
 
   @override
-  State<_ReportSheet> createState() => _ReportSheetState();
+  State<ReportSmsSheet> createState() => _ReportSmsSheetState();
 }
 
-class _ReportSheetState extends State<_ReportSheet> {
+class _ReportSmsSheetState extends State<ReportSmsSheet> {
   final _note = TextEditingController();
   final _contact = TextEditingController();
+  late final _bank = TextEditingController(text: widget.bank ?? '');
   final _picked = <String>{};
 
   List<String> get _reasons => switch (widget.kind) {
     ReportableKind.detected => const [
-      'Wrong amount',
-      'Wrong debit/credit',
-      'Wrong account',
-      'Wrong name',
-      'Wrong category',
+      'Not a debit',
+      'Not a credit',
+      'Amount incorrect',
+      'Balance incorrect',
+      'Account incorrect',
+      'Name incorrect',
+      'Bank or merchant wrong',
+      'Category incorrect',
+      'Date incorrect',
       'Not a transaction',
     ],
     ReportableKind.missed || ReportableKind.other => const [
-      'Is a transaction',
+      'It’s a debit',
+      'It’s a credit',
+      'Amount not read',
+      'Balance not read',
+      'Account not read',
       'Balance update',
       'Bill or due date',
     ],
+  };
+
+  /// Choices that contradict each other: picking one clears the other.
+  static const _opposites = {
+    'It’s a debit': 'It’s a credit',
+    'It’s a credit': 'It’s a debit',
+    'Not a debit': 'Not a credit',
+    'Not a credit': 'Not a debit',
   };
 
   @override
@@ -402,17 +478,19 @@ class _ReportSheetState extends State<_ReportSheet> {
   void dispose() {
     _note.dispose();
     _contact.dispose();
+    _bank.dispose();
     super.dispose();
   }
 
   void _send() => Navigator.pop(
     context,
-    _ReportDetails(
+    ReportSmsDetails(
       [
         ..._picked,
         if (_note.text.trim().isNotEmpty) _note.text.trim(),
       ].join('; '),
       _contact.text.trim(),
+      _bank.text.trim(),
     ),
   );
 
@@ -426,6 +504,10 @@ class _ReportSheetState extends State<_ReportSheet> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (widget.intro case final intro?) ...[
+            Text(intro, style: TextStyle(fontSize: 14, color: colors.text)),
+            const SizedBox(height: 16),
+          ],
           Text(
             'What’s wrong?',
             style: TextStyle(fontSize: 13, color: colors.muted),
@@ -439,13 +521,29 @@ class _ReportSheetState extends State<_ReportSheet> {
                 FilterChip(
                   label: Text(reason),
                   selected: _picked.contains(reason),
-                  onSelected: (on) => setState(
-                    () => on ? _picked.add(reason) : _picked.remove(reason),
-                  ),
+                  onSelected: (on) => setState(() {
+                    if (!on) {
+                      _picked.remove(reason);
+                      return;
+                    }
+                    _picked.add(reason);
+                    final opposite = _opposites[reason];
+                    if (opposite != null) _picked.remove(opposite);
+                  }),
                 ),
             ],
           ),
           const SizedBox(height: 18),
+          if (widget.bank != null) ...[
+            SheetTextField(
+              controller: _bank,
+              label: 'Bank or merchant',
+              hintText: 'As the SMS signs it, like HDFC Bank or Meesho',
+              maxLength: 60,
+              autofocus: false,
+            ),
+            const SizedBox(height: 8),
+          ],
           SheetTextField(
             controller: _note,
             label: 'Details',
@@ -468,7 +566,7 @@ class _ReportSheetState extends State<_ReportSheet> {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  'Encrypted. Only the developer can read it.',
+                  'Sent privately. Only the developer can see it.',
                   style: TextStyle(fontSize: 13, color: colors.muted),
                 ),
               ),
@@ -619,10 +717,12 @@ class _ReadAs extends StatelessWidget {
       digits: 2,
       currency: parsed.currencyCode,
     );
-    final account = [
-      ?parsed.bankName,
-      if (parsed.accountLast4 case final last4?) '••$last4',
-    ].join(' ');
+    // Only an account number names an account. Without one, the bank name is
+    // just the sender (Meesho, say), which isn't where the money went.
+    final account = switch (parsed.accountLast4) {
+      final last4? => [?parsed.bankName, '••$last4'].join(' '),
+      null => '',
+    };
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),

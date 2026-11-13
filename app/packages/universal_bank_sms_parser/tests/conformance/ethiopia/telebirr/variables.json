@@ -1,0 +1,250 @@
+[
+  {
+    "id": "telebirr-variables-001",
+    "country": "ET",
+    "bankId": "et.telebirr",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "127",
+      "body": "Dear Name You have received ETB 321.09 from PERSON NME(9876.54****9876.54) on 02-DEC-2027 11:22:33. Your transaction number is MIG123456. Your current E-Money Account balance is ETB 9876.54. Thank you for using telebirr Ethio telecom",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.telebirr.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "wallet",
+        "bankName": "Telebirr",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "PERSON NME (2519****2078)",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "telebirr-variables-002",
+    "country": "ET",
+    "bankId": "et.telebirr",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "127",
+      "body": "Dear [Name] You have transferred ETB 321.09 successfully from your telebirr account 9876.54 to MIGRATIONSHOP on 02-DEC-2027 11:22:33. Your telebirr transaction number is META998877 and your bank transaction number is MIG123456. The service fee is ETB 9876.54 and 9876.54% VAT on the service fee is ETB 9876.54. Your current balance is ETB 9876.54. To download your payment information please click this link: https://transactioninfo.ethiotelecom.et/receipt/META998877 Thank you for using telebirr Ethio telecom",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.telebirr.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Telebirr",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "telebirr-variables-003",
+    "country": "ET",
+    "bankId": "et.telebirr",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "127",
+      "body": "Dear [Name] You have transferred ETB 321.09 to MIGRATIONSHOP on 02-DEC-2027 11:22:33. Your transaction number is MIG123456. The service fee is ETB 9876.54 and 9876.54% VAT on the service fee is ETB 9876.54. Your current E-Money Account balance is ETB 9876.54. To download your payment information please click this link: https://transactioninfo.ethiotelecom.et/receipt/META998877. Thank you for using telebirr Ethio telecom",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.telebirr.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Telebirr",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "telebirr-variables-004",
+    "country": "ET",
+    "bankId": "et.telebirr",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "127",
+      "body": "Dear [Name], You have received ETB 321.09 by transaction number MIG123456 on 02-DEC-2027 11:22:33 from MIGRATIONSHOP to your telebirr Account 9876.54 - [Name]. Your current balance is ETB 9876.54. Thank you for using telebirr Ethio telecom",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.telebirr.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "wallet",
+        "bankName": "Telebirr",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "telebirr-variables-006",
+    "country": "ET",
+    "bankId": "et.telebirr",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "127",
+      "body": "Dear [Name] You have paid ETB 321.09 for goods purchased from MIGRATIONSHOP on 02-DEC-2027 11:22:33. Your transaction number is MIG123456. Your current balance is ETB 9876.54. To download your payment information please click this link: https://transactioninfo.ethiotelecom.et/receipt/META998877 Thank you for using telebirr Ethio telecom",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.telebirr.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Telebirr",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "telebirr-variables-008",
+    "country": "ET",
+    "bankId": "et.telebirr",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "127",
+      "body": "Dear [Name] You have successfully deposited ETB 321.09 to your MIGRATIONSHOP on 02-DEC-2027 11:22:33. Your telebirr transaction number is MIG123456. Your current Saving balance is ETB 9876.54 and Your current telebirr Account balance is ETB 9876.54. Thank you for using telebirr Ethio telecom",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.telebirr.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Telebirr",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "telebirr-variables-009",
+    "country": "ET",
+    "bankId": "et.telebirr",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "127",
+      "body": "Dear [Name], You have successfully Withdraw ETB 321.09 from your MIGRATIONSHOP on 02-DEC-2027 11:22:33. Your transaction number is MIG123456. Your current saving balance is ETB 9876.54 and Your current e-money account balance is ETB 9876.54. Thank you for using telebirr Ethio telecom",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.telebirr.template009",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "wallet",
+        "bankName": "Telebirr",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "telebirr-variables-010",
+    "country": "ET",
+    "bankId": "et.telebirr",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "127",
+      "body": "Dear NAME You have paid ETB 321.09 for fuel purchased from 9876.54 - JOHN SMITH NAME for plate number 3AA33 on 02-DEC-2027 11:22:33. Your transaction number is MIG123456. Your current balance is ETB 9876.54. To download your payment information please click this link: https://transactioninfo.ethiotelecom.et/receipt/META998877 You can also use telebirr to pay traffic fines, electricity, water, DSTV, CANAL+ and other payments. Thank you for using telebirr Ethio telecom",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.telebirr.template010",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Telebirr",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "for fuel purchased from 555552 - JOHN SMITH NAME for plate number  3AA33",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

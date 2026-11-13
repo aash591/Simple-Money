@@ -1,0 +1,126 @@
+[
+  {
+    "id": "commercialbankofceylon-ported-001",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "PennyWise ComBankParser (Debit card purchase authorised (LKR)); see NOTICE.md",
+    "input": {
+      "sender": "ComBank",
+      "body": "Dear Cardholder, Purchase at Dialog Axiata PLC Colombo 02 LK for LKR 672.00 on 27/09/26 09:32 PM has been authorised on your debit card ending #5555.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.commercialbankofceylon.template001",
+      "candidate": {
+        "amountMinor": 67200,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Commercial Bank of Ceylon",
+        "countryCode": "LK",
+        "accountLast4": "5555",
+        "reference": null,
+        "counterparty": "Dialog Axiata PLC Colombo 02 LK",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "commercialbankofceylon-ported-002",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "PennyWise ComBankParser (Credit card purchase authorised, Rs. amount); see NOTICE.md",
+    "input": {
+      "sender": "ComBank",
+      "body": "Dear Cardholder, Purchase at KEELLS SUPER NUGEGODA LK for Rs. 12,450.75 on 01/10/26 11:05 AM has been authorised on your credit card ending #1234.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.commercialbankofceylon.template002",
+      "candidate": {
+        "amountMinor": 1245075,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Commercial Bank of Ceylon",
+        "countryCode": "LK",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "KEELLS SUPER NUGEGODA LK",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "commercialbankofceylon-ported-003",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "PennyWise ComBankParser (Foreign-currency purchase keeps its own currency); see NOTICE.md",
+    "input": {
+      "sender": "ComBank",
+      "body": "Dear Cardholder, Purchase at AWS EMEA SARL LU for USD 15.00 on 02/10/26 04:12 AM has been authorised on your credit card ending #1234.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.commercialbankofceylon.template003",
+      "candidate": {
+        "amountMinor": 1500,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Commercial Bank of Ceylon",
+        "countryCode": "LK",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "AWS EMEA SARL LU",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "commercialbankofceylon-ported-004",
+    "country": "LK",
+    "bankId": "lk.commercialbankofceylon",
+    "provenance": "PennyWise ComBankParser (Credit to account (amount before account)); see NOTICE.md",
+    "input": {
+      "sender": "ComBank",
+      "body": "Credit for Rs. 25,000.00 to A/C #1234 on 03/10/26.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.commercialbankofceylon.template004",
+      "candidate": {
+        "amountMinor": 2500000,
+        "currencyCode": "LKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ceylon",
+        "countryCode": "LK",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

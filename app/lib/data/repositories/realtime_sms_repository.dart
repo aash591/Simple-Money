@@ -9,11 +9,14 @@ import '../../domain/bank_institution_icon.dart';
 import '../../domain/category.dart';
 import '../../domain/realtime_sms_category.dart';
 import '../../domain/transaction.dart';
+import '../bank_sms_parser.dart';
 import '../db/app_database.dart';
 import 'account_repository.dart';
+import 'loan_repository.dart';
 import 'category_repository.dart';
 import 'sms_import_repository.dart';
 import 'transaction_repository.dart';
+import '../../domain/currency_digits.dart';
 
 class LiveSms {
   LiveSms(
@@ -363,7 +366,9 @@ class RealtimeSmsRepository {
           )
           .getSingleOrNull();
       if (transaction == null) return null;
-      final credit = candidate['direction'] == 'credit';
+      final credit =
+          (candidate[correctedDirectionKey] ?? candidate['direction']) ==
+          'credit';
       final transfer = transaction.read<String>('type') == 'transfer';
       // Amount/date/direction edits in the full editor supersede this SMS.
       if (transaction.read<int>('amount_minor') != candidate['amountMinor'] ||
@@ -419,7 +424,11 @@ class RealtimeSmsRepository {
       final previous = await load(id);
       if (previous != null) return previous;
       final imports = SmsImportRepository(db);
-      await imports.enqueue(message, result);
+      await imports.enqueue(
+        message,
+        result,
+        role: smsSenderRole(engine, message.sender),
+      );
       final pending = await db
           .customSelect(
             "SELECT * FROM sms_imports WHERE fingerprint=? AND status='pending'",
@@ -442,10 +451,12 @@ class RealtimeSmsRepository {
       var account = accounts
           .where(
             (a) =>
-                a.id == links[sms.bankKey] &&
+                a.id ==
+                    (sms.data['assignedAccountId'] ??
+                        (sms.holdsMoney ? links[sms.bankKey] : null)) &&
                 !a.isArchived &&
                 a.currency == sms.currency &&
-                a.digits == 2,
+                a.digits == currencyDigits(a.currency),
           )
           .firstOrNull;
       // A last-four match also requires the institution, currency and type.
@@ -454,7 +465,7 @@ class RealtimeSmsRepository {
             .where(
               (a) =>
                   !a.isArchived &&
-                  a.digits == 2 &&
+                  a.digits == currencyDigits(a.currency) &&
                   a.currency == sms.currency &&
                   a.lastDigits == sms.accountLast4 &&
                   a.institution?.toLowerCase() == sms.bankName.toLowerCase() &&
@@ -487,7 +498,17 @@ class RealtimeSmsRepository {
       }
       final categories = CategoryRepository(db);
       var category = realtimeSmsCategory(sms, await categories.load());
-      final merchant = _merchant(sms);
+      // A correction the user approved for messages like this one.
+      final assigned = (await categories.load())
+          .where(
+            (c) =>
+                c.id == sms.data['assignedCategoryId'] &&
+                c.type ==
+                    (sms.credit ? CategoryType.income : CategoryType.expense),
+          )
+          .firstOrNull;
+      final merchant = assigned != null ? null : _merchant(sms);
+      category = assigned ?? category;
       if (merchant != null) {
         final remembered = await db
             .customSelect(
@@ -552,6 +573,17 @@ class RealtimeSmsRepository {
           return load(id);
         }
         await edit(id, accountId: account.id, categoryId: category.id);
+        if (sms.assignedLoanId case final loanId?) {
+          try {
+            // Together: a payment the loan refuses stays a plain expense.
+            await db.transaction(() async {
+              final saved = await load(id);
+              await LoanRepository(db).payWith(loanId, saved!.transactionId!);
+            });
+          } catch (_) {
+            /* Linked from the loan's screen instead. */
+          }
+        }
       }
       return load(id);
     });
@@ -578,7 +610,7 @@ class RealtimeSmsRepository {
             a.id == account &&
             !a.isArchived &&
             a.currency == sms.currency &&
-            a.digits == 2,
+            a.digits == currencyDigits(a.currency),
       )) {
         throw StateError('Choose an active account in ${sms.currency}.');
       }

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "nationaldevelopmentbank-variables-001",
+    "country": "LK",
+    "bankId": "lk.nationaldevelopmentbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NDB ALERT",
+      "body": "LKR 321.09 debited from AC XXXXXXXX9988 as POS TXN on 9876.54 Jul 9876.54 11:22:33 at MIGRATIONSHOP. Avl Bal 9876.54 Call 9876.54 for info",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.nationaldevelopmentbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "National Development Bank",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationaldevelopmentbank-variables-002",
+    "country": "LK",
+    "bankId": "lk.nationaldevelopmentbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NDB ALERT",
+      "body": "LKR 321.09 debited from AC XXXXXXXX9988 on 9876.54 Jul 9876.54 11:22:33 as MIGRATIONSHOP. Avl Bal 9876.54 Call 9876.54 for info",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.nationaldevelopmentbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "National Development Bank",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationaldevelopmentbank-variables-003",
+    "country": "LK",
+    "bankId": "lk.nationaldevelopmentbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NDB ALERT",
+      "body": "LKR 321.09 credited to AC XXXXXXXX9988 on 9876.54 Jul 9876.54 11:22:33 as MIGRATIONSHOP. Avl Bal 9876.54 Call 9876.54 for info",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.nationaldevelopmentbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "LKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "National Development Bank",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

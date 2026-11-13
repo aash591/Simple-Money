@@ -1,0 +1,219 @@
+[
+  {
+    "id": "emiratesnbd-ported-001",
+    "country": "AE",
+    "bankId": "ae.emiratesnbd",
+    "provenance": "PennyWise EmiratesNBDParser (Credit Card Purchase with Available Limit); see NOTICE.md",
+    "input": {
+      "sender": "EmiratesNBD",
+      "body": "Purchase of AED 27.74 with Credit Card ending 9074 at Keeta, Dubai. Avl Cr. Limit is AED 30,978.13",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.emiratesnbd.template001",
+      "candidate": {
+        "amountMinor": 2774,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Emirates NBD",
+        "countryCode": "AE",
+        "accountLast4": "9074",
+        "reference": null,
+        "counterparty": "Keeta, Dubai",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "emiratesnbd-ported-002",
+    "country": "AE",
+    "bankId": "ae.emiratesnbd",
+    "provenance": "PennyWise EmiratesNBDParser (Account Debit); see NOTICE.md",
+    "input": {
+      "sender": "ENBD",
+      "body": "AED 500.00 debited from A/C xxxx1234 on 24-Dec-25. Avl Bal is AED 15,234.50",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.emiratesnbd.template002",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Emirates NBD",
+        "countryCode": "AE",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "emiratesnbd-ported-003",
+    "country": "AE",
+    "bankId": "ae.emiratesnbd",
+    "provenance": "PennyWise EmiratesNBDParser (Account Credit); see NOTICE.md",
+    "input": {
+      "sender": "EmiratesNB",
+      "body": "AED 2,500.00 credited to A/C xxxx5678 on 24-Dec-25. Available Balance: AED 25,750.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.emiratesnbd.template003",
+      "candidate": {
+        "amountMinor": 250000,
+        "currencyCode": "AED",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Emirates NBD",
+        "countryCode": "AE",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "emiratesnbd-ported-004",
+    "country": "AE",
+    "bankId": "ae.emiratesnbd",
+    "provenance": "PennyWise EmiratesNBDParser (Credit Card Purchase - Simple); see NOTICE.md",
+    "input": {
+      "sender": "EmiratesNBD",
+      "body": "Purchase of AED 150.00 with Credit Card ending 4321 at Mall of Emirates. Avl Cr. Limit is AED 45,000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.emiratesnbd.template001",
+      "candidate": {
+        "amountMinor": 15000,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Emirates NBD",
+        "countryCode": "AE",
+        "accountLast4": "4321",
+        "reference": null,
+        "counterparty": "Mall of Emirates",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "emiratesnbd-ported-005",
+    "country": "AE",
+    "bankId": "ae.emiratesnbd",
+    "provenance": "PennyWise EmiratesNBDParser (Multi-currency Purchase - USD); see NOTICE.md",
+    "input": {
+      "sender": "EmiratesNBD",
+      "body": "Purchase of USD 100.00 with Credit Card ending 9074 at Amazon.com. Avl Cr. Limit is USD 10,000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.emiratesnbd.template005",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Emirates NBD",
+        "countryCode": "AE",
+        "accountLast4": "9074",
+        "reference": null,
+        "counterparty": "Amazon.com",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "emiratesnbd-ported-006",
+    "country": "AE",
+    "bankId": "ae.emiratesnbd",
+    "provenance": "PennyWise EmiratesNBDParser (Multi-currency Purchase - EUR); see NOTICE.md",
+    "input": {
+      "sender": "ENBD",
+      "body": "Purchase of EUR 75.50 with Credit Card ending 4321 at Booking.com. Avl Cr. Limit is EUR 5,000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.emiratesnbd.template006",
+      "candidate": {
+        "amountMinor": 7550,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Emirates NBD",
+        "countryCode": "AE",
+        "accountLast4": "4321",
+        "reference": null,
+        "counterparty": "Booking.com",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "emiratesnbd-ported-007",
+    "country": "AE",
+    "bankId": "ae.emiratesnbd",
+    "provenance": "PennyWise EmiratesNBDParser (Multi-currency Debit - GBP); see NOTICE.md",
+    "input": {
+      "sender": "EmiratesNBD",
+      "body": "GBP 200.00 debited from A/C xxxx5678 on 25-Dec-25. Avl Bal is GBP 3,500.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.emiratesnbd.template007",
+      "candidate": {
+        "amountMinor": 20000,
+        "currencyCode": "GBP",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Emirates NBD",
+        "countryCode": "AE",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,126 @@
+[
+  {
+    "id": "vfdmicrofinancebank-variables-001",
+    "country": "NG",
+    "bankId": "ng.vfdmicrofinancebank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VFD",
+      "body": "Acct: xxx988 Amt: N321.09 CR Date: 02-DEC-2027 11:22:33 Chgs: N0.9876.54 (COMM VAT) Desc: MIGRATIONSHOP Balance:N3,9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.vfdmicrofinancebank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "VFD Microfinance Bank",
+        "countryCode": "NG",
+        "accountLast4": "988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "vfdmicrofinancebank-variables-002",
+    "country": "NG",
+    "bankId": "ng.vfdmicrofinancebank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VFD",
+      "body": "Acct: xxx988 Amt: N321.09 DR Date: 02-DEC-2027 11:22:33 Chgs: N0.9876.54 (COMM VAT) Desc: MIGRATIONSHOP Balance:N900.9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.vfdmicrofinancebank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "VFD Microfinance Bank",
+        "countryCode": "NG",
+        "accountLast4": "988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "vfdmicrofinancebank-variables-003",
+    "country": "NG",
+    "bankId": "ng.vfdmicrofinancebank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VFD",
+      "body": "Acct: xxx988 Amt: N321.09 DR Date: 02-DEC-2027 11:22:33 Chgs: N25.9876.54 (COMM VAT) Desc: MIGRATIONSHOP Balance:N30,9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.vfdmicrofinancebank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "VFD Microfinance Bank",
+        "countryCode": "NG",
+        "accountLast4": "988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "vfdmicrofinancebank-variables-004",
+    "country": "NG",
+    "bankId": "ng.vfdmicrofinancebank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "VFD",
+      "body": "Acct: xxx988 Amt: N321.09 CR Date: 02-DEC-2027 11:22:33 Chgs: N0.9876.54 (COMM VAT) Desc: MIGRATIONSHOP Balance:N200,9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.vfdmicrofinancebank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "VFD Microfinance Bank",
+        "countryCode": "NG",
+        "accountLast4": "988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

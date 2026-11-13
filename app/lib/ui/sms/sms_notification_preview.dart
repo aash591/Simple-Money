@@ -11,6 +11,7 @@ import '../../data/repositories/transaction_repository.dart';
 import '../../domain/account.dart';
 import '../../domain/bank_institution_icon.dart';
 import '../../domain/category.dart';
+import '../../domain/transaction.dart';
 import '../../domain/loan.dart';
 import '../../state/account_store.dart';
 import '../../state/category_store.dart';
@@ -27,6 +28,7 @@ import '../transactions/transaction_widgets.dart';
 import '../transactions/transaction_sheet.dart';
 import 'sms_notification_screen.dart';
 import 'sms_preview_content.dart';
+import '../../domain/currency_digits.dart';
 
 /// The notification's SMS preview: the same modal as reviewing a bank SMS.
 /// Record as, category and accounts are a draft until Save; with nothing
@@ -61,6 +63,9 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
   // The draft, seeded from [live] on every load.
   bool transfer = false;
   int? categoryId, accountId, otherAccountId;
+
+  /// The title as edited here; null leaves the transaction's own.
+  String? _title;
 
   /// The loan this payment goes to, chosen in place of a category.
   int? loanId;
@@ -181,7 +186,7 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
 
   Future<void> pickCategory() async {
     final sms = live!.sms;
-    final cards = repayableCards(accounts.accounts, sms.currency, 2);
+    final cards = repayableCards(accounts.accounts, sms.currency, sms.digits);
     final pick = await showSmsCategoryPicker(
       context,
       categories: categories.categories,
@@ -233,7 +238,7 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
         for (final a in accounts.accounts)
           if (a.currency == sms.currency &&
               a.archivedAt == null &&
-              a.digits == 2 &&
+              a.digits == currencyDigits(a.currency) &&
               (!cardsOnly || a.type == AccountType.creditCard) &&
               (!transfer || a.id != (other ? accountId : otherAccountId)))
             ChoiceItem(
@@ -312,6 +317,7 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
         final saved = await repository.load(widget.id);
         await loanRepository.payWith(loan, saved!.transactionId!);
       }
+      if (done && !transfer) await _saveTitle(value);
       if (!mounted) return;
       if (done) {
         Navigator.pop(context);
@@ -328,6 +334,32 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
         });
       }
     }
+  }
+
+  /// Puts an edited title on the saved transaction.
+  Future<void> _saveTitle(LiveSms value) async {
+    final typed = _title?.trim();
+    if (typed == null || typed.isEmpty) return;
+    final id = (await repository.load(widget.id))?.transactionId;
+    if (id == null) return;
+    await transactions.load();
+    final t = transactions.transactions.where((t) => t.id == id).firstOrNull;
+    if (t == null ||
+        t.type == TransactionType.transfer ||
+        (t.title ?? '') == typed) {
+      return;
+    }
+    await transactions.edit(
+      id: t.id,
+      type: t.type,
+      amountMinor: t.amountMinor,
+      accountId: t.accountId,
+      toAccountId: t.toAccountId,
+      categoryId: t.categoryId,
+      title: typed,
+      note: t.note,
+      date: t.date,
+    );
   }
 
   /// The SMS text. Once saved its body is dropped from the SMS table and
@@ -387,6 +419,13 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
       body: SmsPreviewContent(
         sms: sms,
         transfer: transfer,
+        title: _title,
+        onTitleChanged: busy ? null : (text) => _title = text,
+        titleSuggestions: (text) => transactions.titleSuggestions.suggest(
+          text,
+          type: sms.credit ? TransactionType.income : TransactionType.expense,
+          categoryId: categoryId,
+        ),
         onTransferChanged: busy ? null : (v) => setState(() => transfer = v),
         message: _message(value),
         error: error,

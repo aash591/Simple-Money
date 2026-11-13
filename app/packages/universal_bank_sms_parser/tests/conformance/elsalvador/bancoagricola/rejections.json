@@ -1,0 +1,162 @@
+[
+  {
+    "id": "bancoagricola-reject-security",
+    "country": "SV",
+    "bankId": "sv.bancoagricola",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Agricola",
+      "body": "your otp is 123456. B.AGRICOLA-TRANSFER365: ha recibido un Abono a Cuenta de GIVEN NAME SURNAME por USD6.91 desde ANOTHER BANK NAME",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bancoagricola-reject-promotional",
+    "country": "SV",
+    "bankId": "sv.bancoagricola",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Agricola",
+      "body": "exclusive offer: apply now. B.AGRICOLA-TRANSFER365: ha recibido un Abono a Cuenta de GIVEN NAME SURNAME por USD6.91 desde ANOTHER BANK NAME",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bancoagricola-reject-failed",
+    "country": "SV",
+    "bankId": "sv.bancoagricola",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Agricola",
+      "body": "payment failed. B.AGRICOLA-TRANSFER365: ha recibido un Abono a Cuenta de GIVEN NAME SURNAME por USD6.91 desde ANOTHER BANK NAME",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bancoagricola-reject-pending",
+    "country": "SV",
+    "bankId": "sv.bancoagricola",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Agricola",
+      "body": "payment pending. B.AGRICOLA-TRANSFER365: ha recibido un Abono a Cuenta de GIVEN NAME SURNAME por USD6.91 desde ANOTHER BANK NAME",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bancoagricola-reject-future",
+    "country": "SV",
+    "bankId": "sv.bancoagricola",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Agricola",
+      "body": "will be debited. B.AGRICOLA-TRANSFER365: ha recibido un Abono a Cuenta de GIVEN NAME SURNAME por USD6.91 desde ANOTHER BANK NAME",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bancoagricola-reject-notice",
+    "country": "SV",
+    "bankId": "sv.bancoagricola",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Agricola",
+      "body": "statement generated. B.AGRICOLA-TRANSFER365: ha recibido un Abono a Cuenta de GIVEN NAME SURNAME por USD6.91 desde ANOTHER BANK NAME",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bancoagricola-reject-unknown-sender",
+    "country": "SV",
+    "bankId": "sv.bancoagricola",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "B.AGRICOLA-TRANSFER365: ha recibido un Abono a Cuenta de GIVEN NAME SURNAME por USD6.91 desde ANOTHER BANK NAME",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bancoagricola-reject-balance-only",
+    "country": "SV",
+    "bankId": "sv.bancoagricola",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "Agricola",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,64 @@
+[
+  {
+    "id": "ttb-ported-001",
+    "country": "TH",
+    "bankId": "th.ttb",
+    "provenance": "PennyWise TTBBankParser (TTB payment (English)); see NOTICE.md",
+    "input": {
+      "sender": "TTB",
+      "body": "ttb: Payment 1,500.00 THB via PromptPay A/C x9012 Bal 7,200.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.ttb.template001",
+      "candidate": {
+        "amountMinor": 150000,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "TTB",
+        "countryCode": "TH",
+        "accountLast4": "9012",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "ttb-ported-002",
+    "country": "TH",
+    "bankId": "th.ttb",
+    "provenance": "PennyWise TTBBankParser (TTB receive transfer (Thai)); see NOTICE.md",
+    "input": {
+      "sender": "TTB",
+      "body": "ttb: รับเงินโอน 8,000.00 บาท บช x9012",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.ttb.template002",
+      "candidate": {
+        "amountMinor": 800000,
+        "currencyCode": "THB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "TTB",
+        "countryCode": "TH",
+        "accountLast4": "9012",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

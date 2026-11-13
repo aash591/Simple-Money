@@ -1,0 +1,405 @@
+[
+  {
+    "id": "firstabudhabibank-ported-001",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (Credit card purchase); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "Credit Card Purchase\nDebit\nAccount XXXX0002\nCard XXXX1234\nAED 8.00\nTR              DUBAI           ARE\n23/09/25 16:17\nAvailable Balance AED 4530.16",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template001",
+      "candidate": {
+        "amountMinor": 800,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "0002",
+        "reference": null,
+        "counterparty": "TR              DUBAI           ARE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "firstabudhabibank-ported-002",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (Inward remittance); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "Inward Remittance\nCredit\nAccount XXXX5678\nAED 444.00\nValue Date 18/09/2025\nAvailable Balance AED 5444.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template002",
+      "candidate": {
+        "amountMinor": 44400,
+        "currencyCode": "AED",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "firstabudhabibank-ported-003",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (Payment instructions); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "Dear Customer, Your payment instructions of AED 250.00 to 5xxx**1xxx has been processed on 10/09/2025 15:28",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template003",
+      "candidate": {
+        "amountMinor": 25000,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "firstabudhabibank-ported-004",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (Debit card purchase (THB)); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "Debit Card Purchase\nDebit\nAccount XXXX9876\nCard XXXX2865\nTHB 1500.50\nWWW.GRAB.COM          BANGKOK         TH\n26/07/25 17:55\nAvailable Balance AED 8500.25",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template004",
+      "candidate": {
+        "amountMinor": 150050,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9876",
+        "reference": null,
+        "counterparty": "WWW.GRAB.COM          BANGKOK         TH",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "firstabudhabibank-ported-005",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (ATM cash withdrawal (THB)); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "ATM Cash withdrawal\nDebit\nAccount XXXX4321\nCard XXXX8765\nTHB 5000.00\n18/06/25 13:06\nAvailable Balance AED 15000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template005",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "4321",
+        "reference": null,
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "firstabudhabibank-ported-006",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (Grab payment (THB)); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "Debit Card Purchase \nDebit \nAccount XXXX0002 \nCard XXXX2865\nTHB 283.00\nWWW.GRAB.COM          BANGKOK         TH \n26/06/25 11:51 \nAvailable Balance AED 9999.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template004",
+      "candidate": {
+        "amountMinor": 28300,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "0002",
+        "reference": null,
+        "counterparty": "WWW.GRAB.COM          BANGKOK         TH",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "firstabudhabibank-ported-007",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (Outward remittance); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "Outward Remittance\nDebit\nAccount XXXX0002\nAED 150.00\nValue Date 10/07/24\nAvailable Balance AED 6337.92",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template007",
+      "candidate": {
+        "amountMinor": 15000,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "0002",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "firstabudhabibank-ported-008",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (USD payment); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "Debit Card Purchase\nDebit\nAccount XXXX0002\nCard XXXX9879\nUSD 20.00\nCLAUDE.AI SUBSCRIPTION+14152360599 CA US\n10/07/24 20:07\nAvailable Balance AED 5978.78",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template008",
+      "candidate": {
+        "amountMinor": 2000,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "0002",
+        "reference": null,
+        "counterparty": "CLAUDE.AI SUBSCRIPTION+14152360599 CA US",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "firstabudhabibank-ported-009",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (Grab payment in Thailand); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "Debit Card Purchase \nDebit \nAccount XXXX1234\nCard XXXX5678\nTHB 636.00\nWWW.GRAB.COM          BANGKOK         TH \n26/07/25 17:55 \nAvailable Balance AED 8888.30",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template004",
+      "candidate": {
+        "amountMinor": 63600,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "WWW.GRAB.COM          BANGKOK         TH",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "firstabudhabibank-ported-010",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (Outward remittance without merchant); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "Outward Remittance \nDebit \nAccount XXXX9876\nAED 500.00\nValue Date 20/06/2025  \nAvailable Balance AED 12345.67",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template007",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9876",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "firstabudhabibank-ported-011",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (Cash deposit income); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "Cash Deposit \nCredit \nAccount XXXX4321\nAED 10000.00\nDate 20/06/25",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template011",
+      "candidate": {
+        "amountMinor": 1000000,
+        "currencyCode": "AED",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "4321",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "firstabudhabibank-ported-012",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (ATM withdrawal in Thailand); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "ATM Cash withdrawal \nDebit \nAccount XXXX8888\nCard XXXX9999\nTHB 3000.00\n18/06/25 13:06 \nAvailable Balance AED 5500.50",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template005",
+      "candidate": {
+        "amountMinor": 300000,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "8888",
+        "reference": null,
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "firstabudhabibank-ported-017",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "PennyWise FABParser (Generic account credit); see NOTICE.md",
+    "input": {
+      "sender": "FAB",
+      "body": "An amount of AED 555.00 has been credited to your FAB account XXXX0002 on 08/06/25 .Your Available Balance is AED 5555.43",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template017",
+      "candidate": {
+        "amountMinor": 55500,
+        "currencyCode": "AED",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "0002",
+        "reference": null,
+        "counterparty": "Account Credited",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

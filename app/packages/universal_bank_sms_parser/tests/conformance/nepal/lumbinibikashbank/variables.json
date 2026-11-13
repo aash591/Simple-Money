@@ -1,0 +1,64 @@
+[
+  {
+    "id": "lumbinibikashbank-variables-001",
+    "country": "NP",
+    "bankId": "np.lumbinibikashbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "LBBL_SMART",
+      "body": "Dear Customer, NPR 321.09 has been withdrawn from your A/C 050######9988 on 02-DEC-2027 11:22:33. Remarks: 556677/88;9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.lumbinibikashbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Lumbini Bikash Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "lumbinibikashbank-variables-002",
+    "country": "NP",
+    "bankId": "np.lumbinibikashbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "LBBL_SMART",
+      "body": "Dear Customer, NPR 321.09 has been deposited in your A/C 050#####9988 on 02-DEC-2027 11:22:33. Remarks: 556677/88;9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.lumbinibikashbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Lumbini Bikash Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

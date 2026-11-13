@@ -18,6 +18,9 @@ import '../../components/confirmation_alert.dart';
         'bankName': p['bankName'],
         'senders': p['senders'],
         'format': p['format'],
+        // The category the rule files a message under, for the dashboard.
+        if (_ruleCategory(s) case final category?)
+          'resolved': {'category': category},
       },
     ),
     AgentSuggestionKind.statementLayout => (
@@ -26,6 +29,25 @@ import '../../components/confirmation_alert.dart';
     ),
     _ => null,
   };
+}
+
+/// The category a rule's messages file under: the one the parser found, or
+/// else the one the user picked when saving its sample. The catch-all
+/// "Personal" says nothing.
+String? _ruleCategory(AgentSuggestion s) {
+  String? real(String? name) {
+    final clean = name?.trim();
+    return clean == null || clean.isEmpty || clean.toLowerCase() == 'personal'
+        ? null
+        : clean;
+  }
+
+  for (final line in s.detail) {
+    if (line.startsWith('Category: ')) {
+      if (real(line.substring(10)) case final name?) return name;
+    }
+  }
+  return real(s.payload['savedCategory'] as String?);
 }
 
 /// Right after fixes are approved: a well-done note that offers to share the

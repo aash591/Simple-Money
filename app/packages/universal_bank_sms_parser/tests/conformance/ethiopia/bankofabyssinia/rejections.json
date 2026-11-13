@@ -1,0 +1,162 @@
+[
+  {
+    "id": "bankofabyssinia-reject-security",
+    "country": "ET",
+    "bankId": "et.bankofabyssinia",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BOA",
+      "body": "your otp is 123456. Dear John, your account 1*34 was credited with ETB 10,000.00 by John Doe. Available Balance: ETB 10,276.49. Receipt: [receipt link] For help, call 0000 (24/7 Toll-Free). Bank of Abyssinia.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankofabyssinia-reject-promotional",
+    "country": "ET",
+    "bankId": "et.bankofabyssinia",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BOA",
+      "body": "exclusive offer: apply now. Dear John, your account 1*34 was credited with ETB 10,000.00 by John Doe. Available Balance: ETB 10,276.49. Receipt: [receipt link] For help, call 0000 (24/7 Toll-Free). Bank of Abyssinia.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankofabyssinia-reject-failed",
+    "country": "ET",
+    "bankId": "et.bankofabyssinia",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BOA",
+      "body": "payment failed. Dear John, your account 1*34 was credited with ETB 10,000.00 by John Doe. Available Balance: ETB 10,276.49. Receipt: [receipt link] For help, call 0000 (24/7 Toll-Free). Bank of Abyssinia.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankofabyssinia-reject-pending",
+    "country": "ET",
+    "bankId": "et.bankofabyssinia",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BOA",
+      "body": "payment pending. Dear John, your account 1*34 was credited with ETB 10,000.00 by John Doe. Available Balance: ETB 10,276.49. Receipt: [receipt link] For help, call 0000 (24/7 Toll-Free). Bank of Abyssinia.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankofabyssinia-reject-future",
+    "country": "ET",
+    "bankId": "et.bankofabyssinia",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BOA",
+      "body": "will be debited. Dear John, your account 1*34 was credited with ETB 10,000.00 by John Doe. Available Balance: ETB 10,276.49. Receipt: [receipt link] For help, call 0000 (24/7 Toll-Free). Bank of Abyssinia.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankofabyssinia-reject-notice",
+    "country": "ET",
+    "bankId": "et.bankofabyssinia",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BOA",
+      "body": "statement generated. Dear John, your account 1*34 was credited with ETB 10,000.00 by John Doe. Available Balance: ETB 10,276.49. Receipt: [receipt link] For help, call 0000 (24/7 Toll-Free). Bank of Abyssinia.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankofabyssinia-reject-unknown-sender",
+    "country": "ET",
+    "bankId": "et.bankofabyssinia",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Dear John, your account 1*34 was credited with ETB 10,000.00 by John Doe. Available Balance: ETB 10,276.49. Receipt: [receipt link] For help, call 0000 (24/7 Toll-Free). Bank of Abyssinia.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankofabyssinia-reject-balance-only",
+    "country": "ET",
+    "bankId": "et.bankofabyssinia",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "BOA",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

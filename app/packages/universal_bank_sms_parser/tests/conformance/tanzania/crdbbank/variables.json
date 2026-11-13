@@ -1,0 +1,312 @@
+[
+  {
+    "id": "crdbbank-variables-003",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "Muamala umefanikiwa TZS321.09 AIRTEL kwenda MIGRATIONSHOP 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-variables-004",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "Malipo yamekamilika MIGRATIONSHOP TZS 321.09",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-variables-005",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "Umepokea TZS 321.09 kutoka JOHN DOE kwenda akaunti yako Balance is TZS 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-variables-006",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "Umetuma TZS 321.09 kwenda JANE DOE. JANE DOE has received the funds. Bal:TZS 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-variables-007",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CRDB",
+      "body": "Malipo yamekamilika.META998877 9876.54 TOKEN 9876.54 9876.54 9876.54 9876.54 9876.54 9876.54.2KWH Cost 9876.54 VAT 9876.54% 9876.54 EWURA 9876.54% 9876.54 REA 9876.54% 9876.54 Debt Collected 9876.54 TOTAL TZS 321.09 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "LUKU",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-variables-008",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CRDB",
+      "body": "KUMB:META998877 Muamala umefanikiwa TZS321.09 SELCOM BANK kwenda MIGRATIONSHOP META998877 Risiti:MIG123456 02-DEC-2027 11:22:33 CRDB SIMBANKING APP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-variables-009",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CRDB",
+      "body": "Umetuma TZS 321.09 kutoka AC:9876.54***9876.54 kwenda MIGRATIONSHOP AC: 9876.54 REF: MIG123456 02-DEC-2027 11:22:33. Kwa msaada piga 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template009",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-variables-010",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CRDB",
+      "body": "KUMB:META998877 Muamala umefanikiwa TZS321.09 VODACOM kwenda LIPA MIGRATIONSHOP 9876.54 Risiti:MIG123456 02-DEC-2027 11:22:33 CRDB SIMBANKING APP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template010",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-variables-011",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CRDB",
+      "body": "Dear Customer, you have received TZS321.09 in your account number: 9876.54********9876.54 02-DEC-2027T19:9876.54 REF:MIG123456 . For queries call 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template011",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-variables-013",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CRDB",
+      "body": "KUMB:MIG123456 Muamala umefanikiwa TZS321.09 AIRTEL kwenda MIGRATIONSHOP META998877 02-DEC-2027 11:22:33 CRDB SIMBANKING APP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template013",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

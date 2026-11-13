@@ -1,0 +1,95 @@
+[
+  {
+    "id": "bankmuscat-variables-001",
+    "country": "OM",
+    "bankId": "om.bankmuscat",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BankMuscat",
+      "body": "تم خصم 321.09 OMR من حسابك رقم XXXXX9988 بإستخدام بطاقة الخصم المباشر في 9876.54-MIGRATIONSHOP بتاريخ 02-DEC-2027 11:22:33. رصيدك الحالي هو 9876.54 OMR.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "om.bankmuscat.template001",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "OMR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Bank Muscat",
+        "countryCode": "OM",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankmuscat-variables-002",
+    "country": "OM",
+    "bankId": "om.bankmuscat",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BankMuscat",
+      "body": "تم خصم OMR 321.09 من حسابك رقم XXXXXXX9988 بإستخدام بطاقة الخصم المباشر في MIGRATIONSHOP-9876.54 بتاريخ 02-DEC-2027 11:22:33. رصيدك الحالي هو 9876.54 OMR.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "om.bankmuscat.template002",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "OMR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Bank Muscat",
+        "countryCode": "OM",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bankmuscat-variables-003",
+    "country": "OM",
+    "bankId": "om.bankmuscat",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BankMuscat",
+      "body": "تم خصم OMR 321.09 من حسابك رقم XXXXXXX9988 بإستخدام بطاقة الخصم المباشر في MASAKEN AL RAHA LLC-9876.54 KHOOM بتاريخ 02-DEC-2027 11:22:33. رصيدك الحالي هو 9876.54 OMR.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "om.bankmuscat.template003",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "OMR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Bank Muscat",
+        "countryCode": "OM",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MASAKEN AL RAHA LLC KHOOM",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

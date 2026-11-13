@@ -1,0 +1,162 @@
+[
+  {
+    "id": "primecommercialbank-reject-security",
+    "country": "NP",
+    "bankId": "np.primecommercialbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "PCBLNPKA",
+      "body": "your otp is 123456. Dear Customer, NPR 1,234.50 is withdrawn from A/C XXX#1234 on 01/01/2026 05:55. Rmk: 9812345678. Good Baln: NPR 321.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "primecommercialbank-reject-promotional",
+    "country": "NP",
+    "bankId": "np.primecommercialbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "PCBLNPKA",
+      "body": "exclusive offer: apply now. Dear Customer, NPR 1,234.50 is withdrawn from A/C XXX#1234 on 01/01/2026 05:55. Rmk: 9812345678. Good Baln: NPR 321.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "primecommercialbank-reject-failed",
+    "country": "NP",
+    "bankId": "np.primecommercialbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "PCBLNPKA",
+      "body": "payment failed. Dear Customer, NPR 1,234.50 is withdrawn from A/C XXX#1234 on 01/01/2026 05:55. Rmk: 9812345678. Good Baln: NPR 321.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "primecommercialbank-reject-pending",
+    "country": "NP",
+    "bankId": "np.primecommercialbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "PCBLNPKA",
+      "body": "payment pending. Dear Customer, NPR 1,234.50 is withdrawn from A/C XXX#1234 on 01/01/2026 05:55. Rmk: 9812345678. Good Baln: NPR 321.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "primecommercialbank-reject-future",
+    "country": "NP",
+    "bankId": "np.primecommercialbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "PCBLNPKA",
+      "body": "will be debited. Dear Customer, NPR 1,234.50 is withdrawn from A/C XXX#1234 on 01/01/2026 05:55. Rmk: 9812345678. Good Baln: NPR 321.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "primecommercialbank-reject-notice",
+    "country": "NP",
+    "bankId": "np.primecommercialbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "PCBLNPKA",
+      "body": "statement generated. Dear Customer, NPR 1,234.50 is withdrawn from A/C XXX#1234 on 01/01/2026 05:55. Rmk: 9812345678. Good Baln: NPR 321.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "primecommercialbank-reject-unknown-sender",
+    "country": "NP",
+    "bankId": "np.primecommercialbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Dear Customer, NPR 1,234.50 is withdrawn from A/C XXX#1234 on 01/01/2026 05:55. Rmk: 9812345678. Good Baln: NPR 321.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "primecommercialbank-reject-balance-only",
+    "country": "NP",
+    "bankId": "np.primecommercialbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "PCBLNPKA",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

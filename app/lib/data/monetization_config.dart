@@ -48,12 +48,12 @@ abstract final class MonetizationConfig {
   /// in release builds.
   static const debugPro = bool.fromEnvironment('DEBUG_PRO');
 
-  static const freeUses = int.fromEnvironment('AD_FREE_USES', defaultValue: 2);
+  static const freeUses = int.fromEnvironment('AD_FREE_USES', defaultValue: 0);
   static const minGap = Duration(
-    minutes: int.fromEnvironment('AD_MIN_GAP_MINUTES', defaultValue: 3),
+    minutes: int.fromEnvironment('AD_MIN_GAP_MINUTES', defaultValue: 0),
   );
   static const maxPerDay = int.fromEnvironment(
     'AD_MAX_PER_DAY',
-    defaultValue: 4,
+    defaultValue: 1000000,
   );
 }

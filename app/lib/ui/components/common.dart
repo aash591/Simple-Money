@@ -6,6 +6,7 @@ import '../../state/appearance_controller.dart' show AppearanceScope;
 import '../theme/app_theme.dart' show AppChrome, usesGlass, usesAurora;
 import '../theme/surface_style.dart';
 import 'glass_surface.dart';
+import 'search_field.dart' show SearchField;
 
 export '../theme/surface_style.dart'
     show appCardGap, appCardRadius, homeCardGap;
@@ -57,6 +58,8 @@ class MoneyCard extends StatelessWidget {
           gradient: wash,
           borderRadius: radius,
           border: border == null ? null : Border.all(color: border),
+          // Plain light style: the same soft shadow as the white buttons.
+          boxShadow: SearchField.softShadow(context),
         ),
         child: _clipped(radius),
       );
@@ -70,7 +73,7 @@ class MoneyCard extends StatelessWidget {
         AppearanceScope.maybeOf(context)?.wallpaperPath != null) {
       body = ClipRRect(
         borderRadius: radius,
-        child: BackdropFilter(
+        child: BackdropFilter.grouped(
           filter: ui.ImageFilter.blur(
             sigmaX: 22,
             sigmaY: 22,

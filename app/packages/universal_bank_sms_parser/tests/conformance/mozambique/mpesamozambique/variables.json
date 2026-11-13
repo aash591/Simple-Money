@@ -1,0 +1,157 @@
+[
+  {
+    "id": "mpesamozambique-variables-001",
+    "country": "MZ",
+    "bankId": "mz.mpesamozambique",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "M-Pesa",
+      "body": "Confirmado MIG123456. Transferiste 321.09MT e a taxa foi de 9876.54.23MT para 9876.54 - MIGRATIONSHOP aos 02-DEC-2027 as 11:22:33. O teu novo saldo M-Pesa e de 9876.54.67MT. Continua a transferir SEM TAXAS de M-Pesa para M-Pesa. Em caso de duvida, liga 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.mpesamozambique.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "M-Pesa Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mpesamozambique-variables-002",
+    "country": "MZ",
+    "bankId": "mz.mpesamozambique",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "M-Pesa",
+      "body": "Confirmado MIG123456. Registamos uma operacao de compra no valor de 321.09MT e a taxa foi de 9876.54.00MT na entidade MIGRATIONSHOP com referencia aos 02-DEC-2027 as 11:22:33. O teu novo saldo M-Pesa e de 9876.54.56MT. Em caso de duvida, liga 9876.54. M-Pesa e facil!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.mpesamozambique.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "M-Pesa Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mpesamozambique-variables-003",
+    "country": "MZ",
+    "bankId": "mz.mpesamozambique",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "M-Pesa",
+      "body": "Confirmado MIG123456. Aos 02-DEC-2027 as 11:22:33 levantaste 321.09MT no agente 9876.54 - MIGRATIONSHOP. O novo saldo M-Pesa e de 9876.54.56MT e a taxa foi de 9876.54.34MT. Em caso de duvida, liga 9876.54. M-Pesa e facil!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.mpesamozambique.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "M-Pesa Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mpesamozambique-variables-004",
+    "country": "MZ",
+    "bankId": "mz.mpesamozambique",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "M-Pesa",
+      "body": "Confirmado MIG123456. Depositaste o valor de 321.09MT no agente MIGRATIONSHOP aos 02-DEC-2027 as 11:22:33. O teu novo saldo M-Pesa e de 9876.54.67MT. Aproveita e transfere SEM TAXAS de M-Pesa para M-Pesa. Em caso de duvida, liga 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.mpesamozambique.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "credit",
+        "channel": "wallet",
+        "bankName": "M-Pesa Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "mpesamozambique-variables-005",
+    "country": "MZ",
+    "bankId": "mz.mpesamozambique",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "M-Pesa",
+      "body": "Confirmado MIG123456. Recebeste 321.09MT de 9876.54 - MIGRATIONSHOP aos 02-DEC-2027 as 11:22:33 o novo saldo M-Pesa e de 9876.54.56MT. Aproveita e transfere SEM TAXAS de M-Pesa para M-Pesa. Em caso de duvida, liga 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.mpesamozambique.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "credit",
+        "channel": "wallet",
+        "bankName": "M-Pesa Mozambique",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

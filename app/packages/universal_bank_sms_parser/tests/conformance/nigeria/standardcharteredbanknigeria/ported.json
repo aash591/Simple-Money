@@ -1,0 +1,95 @@
+[
+  {
+    "id": "standardcharteredbanknigeria-ported-001",
+    "country": "NG",
+    "bankId": "ng.standardcharteredbanknigeria",
+    "provenance": "PennyWise StandardCharteredNigeriaParser (Credit alert (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "StanChart",
+      "body": "Credit Alert! Acct:xxxxxx1234, Amt:NGN1000.00, Desc:JANE DOE 100000000000000000000000000000TEST I, Date:2026-08-24, Bal:NGN1500000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.standardcharteredbanknigeria.template001",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Chartered Bank Nigeria",
+        "countryCode": "NG",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "JANE DOE 100000000000000000000000000000TEST I",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "standardcharteredbanknigeria-ported-002",
+    "country": "NG",
+    "bankId": "ng.standardcharteredbanknigeria",
+    "provenance": "PennyWise StandardCharteredNigeriaParser (Large debit alert (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "StanChart",
+      "body": "Debit Alert! Acct:xxxxxx1234, Amt:NGN1000000.00, Desc:JANE DOE LENDING NG-013-000000-000000000-000000-, Date:2026-08-14, Bal:NGN1400000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.standardcharteredbanknigeria.template002",
+      "candidate": {
+        "amountMinor": 100000000,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Chartered Bank Nigeria",
+        "countryCode": "NG",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "JANE DOE LENDING NG-013-000000-000000000-000000-",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "standardcharteredbanknigeria-ported-004",
+    "country": "NG",
+    "bankId": "ng.standardcharteredbanknigeria",
+    "provenance": "PennyWise StandardCharteredNigeriaParser (Paystack credit alert (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "StanChart",
+      "body": "Credit Alert! Acct:xxxxxx1234, Amt:NGN1200000.00, Desc:PAYSTACK 0000000000000TRANSFER FROM SAVINGSAPPSAVINGSAPP IL000000, Date:2026-08-06, Bal:NGN1600000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.standardcharteredbanknigeria.template001",
+      "candidate": {
+        "amountMinor": 120000000,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Chartered Bank Nigeria",
+        "countryCode": "NG",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "PAYSTACK 0000000000000TRANSFER FROM SAVINGSAPPSAVINGSAPP IL000000",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

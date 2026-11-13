@@ -100,8 +100,8 @@ void main() {
     expect(find.text('Statement row'), findsOneWidget);
     await tester.tap(find.bySemanticsLabel(RegExp('^Edit title')));
     await tester.pumpAndSettle();
+    // The title is edited in place; Done keeps it.
     await tester.enterText(find.byType(TextField).last, 'Sakkeer rent');
-    await tester.tap(find.widgetWithText(GlassButton, 'Save').last);
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(GlassButton, 'Done'));
     await tester.pumpAndSettle();

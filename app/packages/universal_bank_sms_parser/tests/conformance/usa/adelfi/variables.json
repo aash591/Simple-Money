@@ -1,0 +1,33 @@
+[
+  {
+    "id": "adelfi-variables-002",
+    "country": "US",
+    "bankId": "us.adelfi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "42141",
+      "body": "Transaction Alert from AdelFi. **9988 had a transaction of ($321.09). Description: 9876.54 MIGRATIONSHOP. Date: 02-DEC-2027",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.adelfi.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "AdelFi",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

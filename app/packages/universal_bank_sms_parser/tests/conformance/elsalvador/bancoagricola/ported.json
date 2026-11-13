@@ -1,0 +1,64 @@
+[
+  {
+    "id": "bancoagricola-ported-001",
+    "country": "SV",
+    "bankId": "sv.bancoagricola",
+    "provenance": "PennyWise BancoAgricolaParser (Transfer365 credit from the bank's own sender); see NOTICE.md",
+    "input": {
+      "sender": "Agricola",
+      "body": "B.AGRICOLA-TRANSFER365: ha recibido un Abono a Cuenta de GIVEN NAME SURNAME por USD6.91 desde ANOTHER BANK NAME",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sv.bancoagricola.template001",
+      "candidate": {
+        "amountMinor": 691,
+        "currencyCode": "USD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Banco Agricola",
+        "countryCode": "SV",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "ANOTHER BANK NAME",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bancoagricola-ported-002",
+    "country": "SV",
+    "bankId": "sv.bancoagricola",
+    "provenance": "PennyWise BancoAgricolaParser (Transfer365 credit from the shared Transfer365 sender); see NOTICE.md",
+    "input": {
+      "sender": "Transfer365",
+      "body": "B.AGRICOLA-TRANSFER365: ha recibido un Abono a Cuenta de GIVEN NAME SURNAME por USD20.00 desde ANOTHER BANK NAME",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sv.bancoagricola.template001",
+      "candidate": {
+        "amountMinor": 2000,
+        "currencyCode": "USD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Banco Agricola",
+        "countryCode": "SV",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "ANOTHER BANK NAME",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

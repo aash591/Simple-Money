@@ -1,0 +1,95 @@
+[
+  {
+    "id": "siketbank-ported-001",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "PennyWise SiketBankParser (Credit transaction); see NOTICE.md",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "Dear Siket Bank Family, Your Account 1****1234 has been Credited with ETB 30,000.00. Your Current Balance is ETB 577,453.30. Thank you for Banking with Siket Bank! For any queries call 8342.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.siketbank.template001",
+      "candidate": {
+        "amountMinor": 3000000,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Siket Bank",
+        "countryCode": "ET",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "siketbank-ported-002",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "PennyWise SiketBankParser (Regular debit transaction); see NOTICE.md",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "Dear Siket Bank Family, Your Account 1****1234 has been Debited with ETB 50,000.00. Your Current Balance is ETB 315,022.41. Thank you for Banking with Siket Bank!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.siketbank.template002",
+      "candidate": {
+        "amountMinor": 5000000,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Siket Bank",
+        "countryCode": "ET",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "siketbank-ported-003",
+    "country": "ET",
+    "bankId": "et.siketbank",
+    "provenance": "PennyWise SiketBankParser (Transfer debit uses transfer amount not service charge); see NOTICE.md",
+    "input": {
+      "sender": "Siket Bank",
+      "body": "Dear Siket Bank Family, You have transferred ETB 10,012.00 from your account 1****1234 to telebirr account 251900000000 on 06 MAR 26 with Reference number FT00000000000. The Service Charge is ETB10.00 and VAT of ETB1.50. Your Current Balance is ETB 128,330.87. Thank you for Banking with Siket Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.siketbank.template003",
+      "candidate": {
+        "amountMinor": 1001200,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Siket Bank",
+        "countryCode": "ET",
+        "accountLast4": "1234",
+        "reference": "FT00000000000",
+        "counterparty": "telebirr account 251900000000",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

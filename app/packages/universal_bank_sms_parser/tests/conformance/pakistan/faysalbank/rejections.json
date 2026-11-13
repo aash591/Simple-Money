@@ -1,0 +1,162 @@
+[
+  {
+    "id": "faysalbank-reject-security",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "FBL",
+      "body": "your otp is 123456. PKR 250,000.00 received from ACME SERVICES  A/C *4388 in FBL A/C *1234 on 06/FEB/2026 at 02:19 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "faysalbank-reject-promotional",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "FBL",
+      "body": "exclusive offer: apply now. PKR 250,000.00 received from ACME SERVICES  A/C *4388 in FBL A/C *1234 on 06/FEB/2026 at 02:19 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "faysalbank-reject-failed",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "FBL",
+      "body": "payment failed. PKR 250,000.00 received from ACME SERVICES  A/C *4388 in FBL A/C *1234 on 06/FEB/2026 at 02:19 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "faysalbank-reject-pending",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "FBL",
+      "body": "payment pending. PKR 250,000.00 received from ACME SERVICES  A/C *4388 in FBL A/C *1234 on 06/FEB/2026 at 02:19 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "faysalbank-reject-future",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "FBL",
+      "body": "will be debited. PKR 250,000.00 received from ACME SERVICES  A/C *4388 in FBL A/C *1234 on 06/FEB/2026 at 02:19 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "faysalbank-reject-notice",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "FBL",
+      "body": "statement generated. PKR 250,000.00 received from ACME SERVICES  A/C *4388 in FBL A/C *1234 on 06/FEB/2026 at 02:19 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "faysalbank-reject-unknown-sender",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "PKR 250,000.00 received from ACME SERVICES  A/C *4388 in FBL A/C *1234 on 06/FEB/2026 at 02:19 PM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "faysalbank-reject-balance-only",
+    "country": "PK",
+    "bankId": "pk.faysalbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "FBL",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

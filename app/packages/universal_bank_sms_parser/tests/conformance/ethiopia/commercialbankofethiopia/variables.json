@@ -1,0 +1,374 @@
+[
+  {
+    "id": "commercialbankofethiopia-variables-001",
+    "country": "ET",
+    "bankId": "et.commercialbankofethiopia",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CBE",
+      "body": "Dear [Name] your Account 1*********9988 has been Credited with ETB 321.09 from MIGRATIONSHOP, on 02-DEC-2027 at 11:22:33 with Ref No ********* Your Current Balance is ETB 9876.54. Thank you for Banking with CBE!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.commercialbankofethiopia.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ethiopia",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofethiopia-variables-002",
+    "country": "ET",
+    "bankId": "et.commercialbankofethiopia",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CBE",
+      "body": "Dear [Name] your Account 1*********9988 has been debited with ETB 9876.54. Your Current Balance is ETB 321.09 Thank you for Banking with CBE! https://apps.cbe.com.et:9876.54/?id=MIG123456",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.commercialbankofethiopia.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ethiopia",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofethiopia-variables-003",
+    "country": "ET",
+    "bankId": "et.commercialbankofethiopia",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CBE",
+      "body": "Dear [Name], You have transfered ETB 321.09 to MIGRATIONSHOP on 02-DEC-2027 at 11:22:33 from your account 1*********9988. Your account has been debited with a S.charge of ETB 9876.54 and 9876.54% VAT of ETB0.9876.54, with a total of META998877. Your Current Balance is ETB 9876.54. Thank you for Banking with CBE!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.commercialbankofethiopia.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ethiopia",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofethiopia-variables-004",
+    "country": "ET",
+    "bankId": "et.commercialbankofethiopia",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CBEBANK",
+      "body": "Dear Customer your Account 1*********9988 has been Credited with ETB 321.09 from MIGRATIONSHOP, on 02-DEC-2027 at 11:22:33 with Ref No MIG123456 Your Current Balance is ETB 9876.54. Thank you for Banking with CBE!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.commercialbankofethiopia.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ethiopia",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofethiopia-variables-005",
+    "country": "ET",
+    "bankId": "et.commercialbankofethiopia",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CBE",
+      "body": "Dear [Name] your Account 1*********9988 has been Credited with ETB 321.09 from MIGRATIONSHOP, on 02-DEC-2027 at 11:22:33 Your Current Balance is ETB 9876.54. Thank you for Banking with CBE!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.commercialbankofethiopia.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ethiopia",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofethiopia-variables-006",
+    "country": "ET",
+    "bankId": "et.commercialbankofethiopia",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CBE",
+      "body": "Dear Name, You have transfered ETB 9876.54 to MIGRATIONSHOP on 02-DEC-2027 at 11:22:33 from your account 1*********9988. Your account has been debited with a S.charge of ETB 9876.54 and VAT(9876.54%) of ETB1.9876.54 and Disaster Fund (9876.54%) of ETB0.9876.54, with a total of ETB 321.09. Your Current Balance is ETB 9876.54. Thank you for Banking with CBE! https://apps.cbe.com.et:9876.54/?id=META998877 For feedback click the link https://forms.gle/META998877",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.commercialbankofethiopia.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ethiopia",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofethiopia-variables-007",
+    "country": "ET",
+    "bankId": "et.commercialbankofethiopia",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CBE",
+      "body": "Dear Name your Account 1*********9988 has been debited with ETB10,9876.54. Service charge of ETB 9876.54 and VAT(9876.54%) of ETB1.9876.54 and Disaster Fund (9876.54%) of ETB0.9876.54 with a total of ETB 321.09. Your Current Balance is ETB 9876.54. Thank you for Banking with CBE! https://apps.cbe.com.et:9876.54/?id=META998877",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.commercialbankofethiopia.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ethiopia",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofethiopia-variables-008",
+    "country": "ET",
+    "bankId": "et.commercialbankofethiopia",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CBE",
+      "body": "Dear Name your Account 1*********9988 has been debited with ETB5,9876.54. Service charge of ETB 9876.54 and VAT(9876.54%) of ETB1.9876.54 and Disaster Fund (9876.54%) of ETB0.9876.54 with a total of ETB 321.09. Your Current Balance is ETB 9876.54. Thank you for Banking with CBE! https://apps.cbe.com.et:9876.54/?id=META998877",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.commercialbankofethiopia.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ethiopia",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofethiopia-variables-009",
+    "country": "ET",
+    "bankId": "et.commercialbankofethiopia",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CBE",
+      "body": "Dear Name your Account 1*********9988 has been Credited with ETB 321.09. Your Current Balance is ETB 9876.54 Thank you for Banking with CBE! https://apps.cbe.com.et:9876.54/?id=META998877",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.commercialbankofethiopia.template009",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ethiopia",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofethiopia-variables-010",
+    "country": "ET",
+    "bankId": "et.commercialbankofethiopia",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CBE",
+      "body": "Dear Mr NAME your Account 1********9988 has been credited by MIGRATIONSHOP with ETB 321.09. Your Current Balance is ETB 9876.54. Thank you for Banking with CBE! for Reciept https://apps.cbe.com.et:9876.54/BranchReceipt/META998877&9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.commercialbankofethiopia.template010",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ethiopia",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofethiopia-variables-011",
+    "country": "ET",
+    "bankId": "et.commercialbankofethiopia",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CBE",
+      "body": "Dear Mr Name your Account 1********9988 has been debited for MIGRATIONSHOP with ETB 321.09. Your Current Balance is ETB 9876.54. Thank you for Banking with CBE!. For feedback metadatavalue for Reciept https://apps.cbe.com.et:9876.54/BranchReceipt/META998877&9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.commercialbankofethiopia.template011",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ethiopia",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "commercialbankofethiopia-variables-012",
+    "country": "ET",
+    "bankId": "et.commercialbankofethiopia",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CBE",
+      "body": "Dear Mr Name your Account 1********9988 has been debited with ETB 321.09. Your Current Balance is ETB 9876.54. Thank you for Banking with CBE!. For feedback metadatavalue for Reciept https://apps.cbe.com.et:9876.54/BranchReceipt/META998877&9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.commercialbankofethiopia.template012",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Commercial Bank of Ethiopia",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

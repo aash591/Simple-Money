@@ -1,0 +1,33 @@
+[
+  {
+    "id": "chaseuk-ported-001",
+    "country": "GB",
+    "bankId": "gb.chaseuk",
+    "provenance": "PennyWise ChaseUKParser (Money in (app notification)); see NOTICE.md",
+    "input": {
+      "sender": "ChaseUK",
+      "body": "🎉 £0.01 just landed in Test's Account from Jane Doe",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "gb.chaseuk.template001",
+      "candidate": {
+        "amountMinor": 1,
+        "currencyCode": "GBP",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Chase UK",
+        "countryCode": "GB",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "Jane Doe",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

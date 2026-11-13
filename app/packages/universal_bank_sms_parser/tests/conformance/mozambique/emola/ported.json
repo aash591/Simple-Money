@@ -1,0 +1,95 @@
+[
+  {
+    "id": "emola-ported-001",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "PennyWise EMolaParser (Outgoing transfer - expense); see NOTICE.md",
+    "input": {
+      "sender": "eMola",
+      "body": "Transaction ID PP260530.0934.w91238. You transfered 100.00MT to 871234566, name: John Doe at 09:34:45 on 30/05/2026. Fee: 0.00MT. Your account balance is 3,123.45MT. Content: . In case of doubt, please call 100. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.emola.template001",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "eMola",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "PP260530.0934.w91238",
+        "counterparty": "John Doe",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "emola-ported-002",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "PennyWise EMolaParser (Incoming transfer - income); see NOTICE.md",
+    "input": {
+      "sender": "eMola",
+      "body": "Transaction ID: PP260603.0854.K00983. You received 123.45MT from 871234567, name: JOHN DOE at 08:54:09 on 03/06/2026. Content: campo. Your account balance is 1,234.56MT. In case of doubt, please call 100. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.emola.template002",
+      "candidate": {
+        "amountMinor": 12345,
+        "currencyCode": "MZN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "eMola",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "PP260603.0854.K00983",
+        "counterparty": "JOHN DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "emola-ported-003",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "PennyWise EMolaParser (Agent withdrawal - expense); see NOTICE.md",
+    "input": {
+      "sender": "eMola",
+      "body": "Transaction ID: CO260528.1806.W15992. You withdrew 50.00MT in the Agent with code ID 123456, Name JOHN DOE at 18:06:25 on 28/05/2026. Fee: 3.00 MT. Your account balance is 1,234.23MT. In case of doubt, please call 100. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.emola.template003",
+      "candidate": {
+        "amountMinor": 5000,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "eMola",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "CO260528.1806.W15992",
+        "counterparty": "JOHN DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "kasikornbank-ported-001",
+    "country": "TH",
+    "bankId": "th.kasikornbank",
+    "provenance": "PennyWise KasikornBankParser (KBank spending (English)); see NOTICE.md",
+    "input": {
+      "sender": "KBank",
+      "body": "KBank: You spent 1,250.00 THB at SHOPEE. A/C x5678 Bal 8,430.20 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.kasikornbank.template001",
+      "candidate": {
+        "amountMinor": 125000,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Kasikorn Bank",
+        "countryCode": "TH",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kasikornbank-ported-002",
+    "country": "TH",
+    "bankId": "th.kasikornbank",
+    "provenance": "PennyWise KasikornBankParser (KBank receive (English)); see NOTICE.md",
+    "input": {
+      "sender": "KBank",
+      "body": "KBank: Receive 10,000.00 THB from A/C x5678 Bal 18,430.20 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.kasikornbank.template002",
+      "candidate": {
+        "amountMinor": 1000000,
+        "currencyCode": "THB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Kasikorn Bank",
+        "countryCode": "TH",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "kasikornbank-ported-003",
+    "country": "TH",
+    "bankId": "th.kasikornbank",
+    "provenance": "PennyWise KasikornBankParser (KBank PromptPay transfer (Thai)); see NOTICE.md",
+    "input": {
+      "sender": "KBank",
+      "body": "KBank: โอนเงินผ่านพร้อมเพย์ 500.00 บาท บช x5678 คงเหลือ 17,930.20 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.kasikornbank.template003",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Kasikorn Bank",
+        "countryCode": "TH",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

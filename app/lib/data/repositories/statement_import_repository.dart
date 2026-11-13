@@ -1,5 +1,6 @@
 import '../community/community_fixes.dart';
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
@@ -10,6 +11,7 @@ import '../../domain/transaction.dart';
 import '../db/app_database.dart';
 import '../ledger_match.dart';
 import '../statements/statement_reconciliation.dart';
+import '../statements/statement_table.dart';
 import '../statements/upi_statement.dart';
 import 'transaction_repository.dart';
 
@@ -134,6 +136,21 @@ class StatementImportRepository {
       shared = await CommunityFixRepository(database).statementLayouts();
     } catch (_) {}
     return {...shared, ...await columnMappings()};
+  }
+
+  /// The saved or shared layout that reads [rows], or null. A shared layout
+  /// used here is noted, so Shared fixes lists it.
+  Future<TableMapping?> mappingFor(List<List<String>> rows) async {
+    final saved = await knownMappings();
+    final mapping = findSavedMapping(rows, saved);
+    if (mapping != null) {
+      if (savedMappingSignature(rows, saved) case final signature?) {
+        if (!(await columnMappings()).containsKey(signature)) {
+          unawaited(CommunityFixRepository(database).noteLayoutUsed(signature));
+        }
+      }
+    }
+    return mapping;
   }
 
   Future<void> saveColumnMapping(String signature, Object mapping) async {

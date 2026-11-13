@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../theme/app_theme.dart' show usesGlass;
 import '../theme/sheet_colors.dart';
 import 'adaptive_sheet.dart';
 
@@ -35,6 +36,13 @@ class DatePickerSheet extends StatelessWidget {
     ),
   );
 }
+
+/// The fill of the month, year and day buttons: white on the plain light
+/// style's grey surface, the sheet's own control colour elsewhere.
+Color _chipColor(BuildContext context, SheetColors colors) =>
+    !usesGlass(context) && Theme.of(context).brightness == Brightness.light
+    ? Colors.white
+    : colors.control;
 
 class CalendarPicker extends StatefulWidget {
   const CalendarPicker({
@@ -304,7 +312,7 @@ class _PeriodButton extends StatelessWidget {
     final colors = SheetColors.of(context);
     final foreground = colors.text;
     return Material(
-      color: colors.control,
+      color: _chipColor(context, colors),
       shape: const StadiumBorder(),
       child: InkWell(
         onTap: onTap,
@@ -688,7 +696,7 @@ class _Cell extends StatelessWidget {
         : current
         ? colors.primary.withValues(alpha: .12)
         : !circle
-        ? colors.control
+        ? _chipColor(context, colors)
         : Colors.transparent;
     final foreground = selected
         ? Colors.white

@@ -1,0 +1,162 @@
+[
+  {
+    "id": "emola-reject-security",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "eMola",
+      "body": "your otp is 123456. Transaction ID PP260530.0934.w91238. You transfered 100.00MT to 871234566, name: John Doe at 09:34:45 on 30/05/2026. Fee: 0.00MT. Your account balance is 3,123.45MT. Content: . In case of doubt, please call 100. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emola-reject-promotional",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "eMola",
+      "body": "exclusive offer: apply now. Transaction ID PP260530.0934.w91238. You transfered 100.00MT to 871234566, name: John Doe at 09:34:45 on 30/05/2026. Fee: 0.00MT. Your account balance is 3,123.45MT. Content: . In case of doubt, please call 100. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emola-reject-failed",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "eMola",
+      "body": "payment failed. Transaction ID PP260530.0934.w91238. You transfered 100.00MT to 871234566, name: John Doe at 09:34:45 on 30/05/2026. Fee: 0.00MT. Your account balance is 3,123.45MT. Content: . In case of doubt, please call 100. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emola-reject-pending",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "eMola",
+      "body": "payment pending. Transaction ID PP260530.0934.w91238. You transfered 100.00MT to 871234566, name: John Doe at 09:34:45 on 30/05/2026. Fee: 0.00MT. Your account balance is 3,123.45MT. Content: . In case of doubt, please call 100. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emola-reject-future",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "eMola",
+      "body": "will be debited. Transaction ID PP260530.0934.w91238. You transfered 100.00MT to 871234566, name: John Doe at 09:34:45 on 30/05/2026. Fee: 0.00MT. Your account balance is 3,123.45MT. Content: . In case of doubt, please call 100. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emola-reject-notice",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "eMola",
+      "body": "statement generated. Transaction ID PP260530.0934.w91238. You transfered 100.00MT to 871234566, name: John Doe at 09:34:45 on 30/05/2026. Fee: 0.00MT. Your account balance is 3,123.45MT. Content: . In case of doubt, please call 100. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emola-reject-unknown-sender",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Transaction ID PP260530.0934.w91238. You transfered 100.00MT to 871234566, name: John Doe at 09:34:45 on 30/05/2026. Fee: 0.00MT. Your account balance is 3,123.45MT. Content: . In case of doubt, please call 100. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emola-reject-balance-only",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "eMola",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

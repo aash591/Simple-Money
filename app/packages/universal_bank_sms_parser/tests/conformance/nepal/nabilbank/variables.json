@@ -1,0 +1,64 @@
+[
+  {
+    "id": "nabilbank-variables-001",
+    "country": "NP",
+    "bankId": "np.nabilbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NABIL_ALERT",
+      "body": "Dear Customer, Your 091##09988 has been withdrawn by NPR 321.09 on 02-DEC-2027 11:22:33, Remarks: MIG123456 Download App: metadatavalue",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.nabilbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Nabil Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nabilbank-variables-002",
+    "country": "NP",
+    "bankId": "np.nabilbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NABIL_ALERT",
+      "body": "Dear Customer, Your 091##09988 has been withdrawn by NPR 321.09 on 02-DEC-2027 11:22:33, Remarks: MIG123456",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.nabilbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Nabil Bank",
+        "countryCode": "NP",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

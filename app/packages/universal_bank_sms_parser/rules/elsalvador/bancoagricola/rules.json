@@ -1,0 +1,56 @@
+{
+  "id": "sv.bancoagricola",
+  "name": "Banco Agricola",
+  "senders": [
+    "AGRICOLA",
+    "TRANSFER365"
+  ],
+  "formats": [
+    {
+      "id": "sv.bancoagricola.template001",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "B.AGRICOLA-"
+        },
+        {
+          "op": "capture_reference",
+          "name": "meta0",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": ": ha recibido un Abono a Cuenta de GIVEN NAME SURNAME por USD"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " desde "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 256
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    }
+  ]
+}

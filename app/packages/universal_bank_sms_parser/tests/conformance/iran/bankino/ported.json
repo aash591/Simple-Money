@@ -1,0 +1,95 @@
+[
+  {
+    "id": "bankino-ported-001",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "PennyWise BankinoBankParser (Purchase / debit (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "20004861",
+      "body": "بانک خاورمیانه\nخرید با کارت 7284\n-3,300,000\nXXX/XXXXXXXX\nمانده 14,412,600\n03/22\n12:49",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.bankino.template001",
+      "candidate": {
+        "amountMinor": 330000000,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Bankino",
+        "countryCode": "IR",
+        "accountLast4": "7284",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bankino-ported-002",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "PennyWise BankinoBankParser (Second purchase / debit (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "+98 20 0048 61",
+      "body": "بانک خاورمیانه\nخرید با کارت 7284\n-1,100,000\nXXX/XXXXXXXXX\nمانده 17,712,600\n03/22\n12:42",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.bankino.template002",
+      "candidate": {
+        "amountMinor": 110000000,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Bankino",
+        "countryCode": "IR",
+        "accountLast4": "7284",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bankino-ported-003",
+    "country": "IR",
+    "bankId": "ir.bankino",
+    "provenance": "PennyWise BankinoBankParser (Internet-bank transfer / credit (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "98200048610",
+      "body": "بانک خاورمیانه\nانتقال از اینترنت بانک از کارت 9286\n+2,500,000\nXXX/XXXXXXXXX\nمانده 19,021,600\n03/22\n07:28",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.bankino.template003",
+      "candidate": {
+        "amountMinor": 250000000,
+        "currencyCode": "IRR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Bankino",
+        "countryCode": "IR",
+        "accountLast4": "9286",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

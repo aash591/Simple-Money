@@ -1,0 +1,188 @@
+[
+  {
+    "id": "bracbank-variables-001",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "TK 321.09 withdrawn from A/C#11111**9988 on 02-DEC-2027 @11:22:33 from TEST MARKET ATM DHAKA BD. Balance TK 9876.54. BRAC Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bracbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "BDT",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "BRAC Bank",
+        "countryCode": "BD",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bracbank-variables-002",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "BDT 321.09 transacted at MIGRATIONSHOP on 02-DEC-2027 [11:22:33 BST] using Card#***9988. Available balance: BDT 9876.54. Helpline 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bracbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "BDT",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "BRAC Bank",
+        "countryCode": "BD",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bracbank-variables-003",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "Tk 321.09 has been transferred from your BBL A/C: 11119**988 to A/C: 9876.54**9876.54. Available balance is Tk17,9876.54. Queries: call 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bracbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "BDT",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "BRAC Bank",
+        "countryCode": "BD",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "Fund Transfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bracbank-variables-004",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "TK 321.09 credited to A/C#11111**9988 on 02-DEC-2027 @11:22:33 from MIGRATIONSHOP. Balance TK 9876.54. BRAC Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bracbank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "BDT",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "BRAC Bank",
+        "countryCode": "BD",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bracbank-variables-005",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "Tk 321.09 (incl. charges) has been debited from your BBL A/C: 11111**9988 to A/C: 9876.54**9876.54 for MIGRATIONSHOP. Available balance: Tk. 9876.54. Helpline:9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bracbank.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "BDT",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "BRAC Bank",
+        "countryCode": "BD",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "bracbank-variables-006",
+    "country": "BD",
+    "bankId": "bd.bracbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BRAC BANK",
+      "body": "TK 321.09 withdrawn from A/C#11111**9988 on 02-DEC-2027 @11:22:33 from OTHER BANK ATM. Balance TK 9876.54. BRAC Bank.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "bd.bracbank.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "BDT",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "BRAC Bank",
+        "countryCode": "BD",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

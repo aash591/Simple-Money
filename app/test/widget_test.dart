@@ -54,6 +54,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Customization'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Customization'));
     await tester.pumpAndSettle();
     expect(find.byType(CustomizationScreen), findsOneWidget);

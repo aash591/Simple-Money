@@ -1,0 +1,64 @@
+[
+  {
+    "id": "keystonebank-variables-001",
+    "country": "NG",
+    "bankId": "ng.keystonebank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "KEYSTONE",
+      "body": "Debit! Acct:609****988 Amt:NGN-321.09 Desc:MIGRATIONSHOP Date:02-DEC-2027 11:22:33 Bal:NGN1,9876.54 Download Keymobile bit.ly/META998877",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.keystonebank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Keystone Bank",
+        "countryCode": "NG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "keystonebank-variables-002",
+    "country": "NG",
+    "bankId": "ng.keystonebank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "KEYSTONE",
+      "body": "Credit! Acct:609****988 Amt:NGN321.09 Desc:NXG :MOBILE TRF TO KSB OBAYUWANA C Date:02-DEC-2027 11:22:33 Bal:NGN59,9876.54 Download Keymobile bit.ly/META998877",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.keystonebank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Keystone Bank",
+        "countryCode": "NG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "NXG :MOBILE TRF TO KSB  OBAYUWANA C",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

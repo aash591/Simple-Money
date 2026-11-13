@@ -1,0 +1,33 @@
+[
+  {
+    "id": "manjushreefinance-ported-001",
+    "country": "NP",
+    "bankId": "np.manjushreefinance",
+    "provenance": "PennyWise ManjushreeFinanceParser (Debited example with merchant); see NOTICE.md",
+    "input": {
+      "sender": "MFL_ALERT",
+      "body": "Your A/C ##0168658000001, has been debited by NPR 15,000.00 on 01/04/2026 10:27,Remarks:9800000000~2309320,IBFT,transfer FIRST LAST~RBB\nManjushree Finance",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.manjushreefinance.template001",
+      "candidate": {
+        "amountMinor": 1500000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Manjushree Finance",
+        "countryCode": "NP",
+        "accountLast4": null,
+        "reference": "9800000000~2309320",
+        "counterparty": "FIRST LAST",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

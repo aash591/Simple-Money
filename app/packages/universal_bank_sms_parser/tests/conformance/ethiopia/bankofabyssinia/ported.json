@@ -1,0 +1,64 @@
+[
+  {
+    "id": "bankofabyssinia-ported-001",
+    "country": "ET",
+    "bankId": "et.bankofabyssinia",
+    "provenance": "PennyWise BankOfAbyssiniaParser (Credit transaction with counterparty); see NOTICE.md",
+    "input": {
+      "sender": "BOA",
+      "body": "Dear John, your account 1*34 was credited with ETB 10,000.00 by John Doe. Available Balance: ETB 10,276.49. Receipt: [receipt link] For help, call 0000 (24/7 Toll-Free). Bank of Abyssinia.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.bankofabyssinia.template001",
+      "candidate": {
+        "amountMinor": 1000000,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Bank of Abyssinia",
+        "countryCode": "ET",
+        "accountLast4": "134",
+        "reference": null,
+        "counterparty": "John Doe",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bankofabyssinia-ported-002",
+    "country": "ET",
+    "bankId": "et.bankofabyssinia",
+    "provenance": "PennyWise BankOfAbyssiniaParser (Debit transaction); see NOTICE.md",
+    "input": {
+      "sender": "BOA",
+      "body": "Dear John, your account 1*34 was debited with ETB 6,030.63. Available Balance: ETB 4,245.86. Receipt: [receipt link] For help, call 0000 (24/7 Toll-Free). Bank of Abyssinia.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.bankofabyssinia.template002",
+      "candidate": {
+        "amountMinor": 603063,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Bank of Abyssinia",
+        "countryCode": "ET",
+        "accountLast4": "134",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

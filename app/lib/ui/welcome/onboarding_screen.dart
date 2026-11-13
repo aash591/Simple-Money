@@ -1,32 +1,41 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/db/app_database.dart';
 import '../../data/repositories/account_repository.dart';
+import '../../data/community/community_fixes.dart';
 import '../../data/repositories/sms_import_repository.dart';
 import '../../data/repositories/transaction_repository.dart';
 import '../../domain/account.dart';
+import '../../domain/currency.dart';
+import '../../state/main_currency_controller.dart';
 import '../../state/onboarding.dart';
 import '../../state/sms_import_store.dart';
 import '../../state/sync_controller.dart';
 import '../components/action_buttons.dart';
 import '../components/common.dart';
+import '../components/currency_flag.dart';
+import '../components/feature_page.dart';
 import '../components/menu_list.dart';
 import '../more/accounts/account_card.dart';
+import '../more/accounts/currency_screen.dart';
 import '../more/settings/sync/backup_widgets.dart';
 import '../more/settings/sync/backup_pin_screen.dart';
 import '../more/settings/sync/sync_flow.dart';
 import 'backup_welcome_screen.dart';
 import 'privacy_card.dart';
 
-enum _Step { welcome, backup, sms, accounts }
+enum _Step { welcome, currency, backup, sms, accounts }
 
 /// The first-open setup, one step at a time with its buttons at the bottom:
-/// a welcome that lists what comes next, Drive backup, then bank SMS (one
+/// a welcome that lists what comes next, the main currency (guessed from the
+/// phone's region), Drive backup, then bank SMS (one
 /// prompt for SMS and alerts), then the accounts the first scan found, with
 /// their balances to check.
 class OnboardingScreen extends StatefulWidget {
@@ -35,11 +44,16 @@ class OnboardingScreen extends StatefulWidget {
     required this.database,
     required this.onDone,
     this.sync,
+    this.community,
     this.sms,
     this.smsOnly = false,
   });
   final AppDatabase database;
   final SyncController? sync;
+
+  /// Shared SMS rules, downloaded here so the first scan already knows them
+  /// rather than waiting for the home screen.
+  final CommunitySync? community;
 
   /// Called once, after the choices are saved.
   final VoidCallback onDone;
@@ -73,14 +87,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   List<_BalanceRow>? _rows;
   String? _error;
 
+  /// The main currency on offer: the phone's region to begin with.
+  Currency? _currency;
+
   _Step? get _step => _steps?[_index];
 
   @override
   void initState() {
     super.initState();
     _sms.addListener(_smsChanged);
+    // Starts now, so it is done by the time the SMS step scans.
+    _rules = widget.community?.refresh(force: true);
     _decide();
   }
+
+  /// The shared rules' download, if there is one.
+  Future<bool>? _rules;
 
   @override
   void dispose() {
@@ -113,7 +135,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             await _sms.platform.hasPermission();
       } catch (_) {}
     }
-    final setup = [if (backup) _Step.backup, if (_sms.supported) _Step.sms];
+    // Always offered where the app can keep the answer. A currency saved
+    // before (restored by Android backup after a reinstall, say) is the one
+    // on offer; otherwise the phone's region.
+    var currency = false;
+    // Not dependOn…: this can run inside initState.
+    if (mounted &&
+        context.getInheritedWidgetOfExactType<MainCurrencyScope>() != null) {
+      try {
+        final all = await Currency.load();
+        _currency =
+            await _savedCurrency(all) ??
+            Currency.forRegion(all, Currency.deviceRegion()) ??
+            Currency.forRegion(all, 'IN');
+        currency = _currency != null;
+      } catch (_) {}
+    }
+    final setup = [
+      if (currency) _Step.currency,
+      if (backup) _Step.backup,
+      if (_sms.supported) _Step.sms,
+    ];
     if (!mounted) return;
     if (setup.isEmpty) return _finish();
     setState(() => _steps = [_Step.welcome, ...setup]);
@@ -125,6 +167,57 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     } else {
       _finish();
     }
+  }
+
+  /// The main currency saved on an earlier run, if there is one.
+  Future<Currency?> _savedCurrency(List<Currency> all) async {
+    final prefs = await SharedPreferences.getInstance();
+    final text = prefs.getString(MainCurrencyController.preferenceKey);
+    if (text == null) return null;
+    final saved = jsonDecode(text) as Map<String, dynamic>;
+    final byCountry = Currency.forRegion(all, saved['territory'] as String?);
+    if (byCountry != null && byCountry.code == saved['code']) return byCountry;
+    for (final currency in all) {
+      if (currency.code == saved['code']) return currency;
+    }
+    return null;
+  }
+
+  Future<void> _pickCurrency() async {
+    final current = _currency!;
+    final picked = await Navigator.of(context).push<Currency>(
+      FeatureRoute<Currency>(
+        CurrencyScreen(
+          selectedCode: current.code,
+          selectedTerritory: current.territory,
+        ),
+      ),
+    );
+    if (picked != null && mounted) setState(() => _currency = picked);
+  }
+
+  Future<void> _saveCurrency() async {
+    final controller = MainCurrencyScope.maybeOf(context);
+    final currency = _currency;
+    if (controller != null && currency != null) {
+      setState(() {
+        _saving = true;
+        _error = null;
+      });
+      try {
+        await controller.setCurrency(currency);
+      } catch (_) {
+        if (!mounted) return;
+        setState(() {
+          _saving = false;
+          _error = 'Could not save the currency. Please try again.';
+        });
+        return;
+      }
+      if (!mounted) return;
+      setState(() => _saving = false);
+    }
+    _next();
   }
 
   Future<void> _connect() async {
@@ -155,7 +248,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _smsDenied = false;
     });
     unawaited(
-      _sms.enable().whenComplete(() {
+      _rulesThenEnable().whenComplete(() {
         if (!mounted) return;
         if (_sms.enabled) {
           _loadAccounts();
@@ -167,6 +260,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         }
       }),
     );
+  }
+
+  /// Waits (briefly) for the shared rules, so the first scan reads messages
+  /// with them; offline or slow, the scan goes ahead without.
+  Future<void> _rulesThenEnable() async {
+    try {
+      await _rules?.timeout(const Duration(seconds: 6));
+    } catch (_) {}
+    await _sms.enable();
   }
 
   void _smsChanged() {
@@ -323,9 +425,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     : const Alignment(0, -1),
                 child: switch (step) {
                   _Step.welcome => _WelcomeContent(
+                    currency: _steps!.contains(_Step.currency),
                     backup: _steps!.contains(_Step.backup),
                     sms: _steps!.contains(_Step.sms),
                   ),
+                  _Step.currency => _currencyContent(context),
                   _Step.backup => const BackupWelcomeContent(),
                   _Step.sms => _SmsContent(denied: _smsDenied),
                   _Step.accounts => _accountsContent(context),
@@ -337,6 +441,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
       switch (step) {
         _Step.welcome => _welcomeBar(),
+        _Step.currency => _currencyBar(),
         _Step.backup => _backupBar(),
         _Step.sms => _smsBar(),
         _Step.accounts => _accountsBar(),
@@ -391,6 +496,67 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: PillButton(label: 'Get started', onPressed: _next),
     ),
   );
+
+  Widget _currencyBar() => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+    child: SizedBox(
+      width: double.infinity,
+      child: PillButton(
+        label: 'Continue',
+        loading: _saving,
+        onPressed: _saveCurrency,
+      ),
+    ),
+  );
+
+  Widget _currencyContent(BuildContext context) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final currency = _currency!;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const HeroSlot(child: RoundIcon(Icons.currency_exchange_rounded)),
+        const SizedBox(height: 24),
+        Text(
+          'Choose your currency',
+          textAlign: TextAlign.center,
+          style: text.headlineMedium,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Each account can have its own currency, so you can mix them. This '
+          'main one is used for combined totals and summaries. Change it '
+          'anytime in More › Settings.',
+          textAlign: TextAlign.center,
+          style: text.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 24),
+        MoneyCard(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+          child: Material(
+            type: MaterialType.transparency,
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: CurrencyFlag(currency.territory),
+              title: Text(currency.code, style: text.titleMedium),
+              subtitle: Text(currency.name),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: _pickCurrency,
+            ),
+          ),
+        ),
+        if (_error != null) ...[
+          const SizedBox(height: 14),
+          ErrorBanner(_error!),
+        ],
+      ],
+    );
+  }
 
   Widget _backupBar() {
     final sync = widget.sync!;
@@ -595,8 +761,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
 /// The welcome: what Simple Money does, and the steps that follow.
 class _WelcomeContent extends StatelessWidget {
-  const _WelcomeContent({required this.backup, required this.sms});
-  final bool backup, sms;
+  const _WelcomeContent({
+    required this.currency,
+    required this.backup,
+    required this.sms,
+  });
+  final bool currency, backup, sms;
 
   @override
   Widget build(BuildContext context) {
@@ -626,6 +796,13 @@ class _WelcomeContent extends StatelessWidget {
         MenuGroup(
           label: 'What you’ll set up',
           children: [
+            if (currency)
+              const MenuRow(
+                icon: Icons.currency_exchange_rounded,
+                title: 'Choose your currency',
+                subtitle: 'Set from your phone’s region',
+                trailing: SizedBox.shrink(),
+              ),
             if (backup)
               MenuRow(
                 icon: Icons.cloud_rounded,

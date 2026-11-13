@@ -1,0 +1,95 @@
+[
+  {
+    "id": "millenniumbim-ported-001",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "PennyWise MillenniumBimParser (Debit - expense); see NOTICE.md",
+    "input": {
+      "sender": "Mbim",
+      "body": "A conta 123456789 foi debitada no valor de 50.00 MZN as 10:14 do dia 31/05/26. Em caso de duvida, ligue 8003500. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.millenniumbim.template001",
+      "candidate": {
+        "amountMinor": 5000,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Millennium BIM",
+        "countryCode": "MZ",
+        "accountLast4": "6789",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "millenniumbim-ported-002",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "PennyWise MillenniumBimParser (Credit - income); see NOTICE.md",
+    "input": {
+      "sender": "Mbim",
+      "body": "A conta 123456789 recebeu o valor de 1000.00 MZN as 12:16 do dia 26/04/26. Em  caso de duvida, ligue 8003500. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.millenniumbim.template002",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "MZN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Millennium BIM",
+        "countryCode": "MZ",
+        "accountLast4": "6789",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "millenniumbim-ported-003",
+    "country": "MZ",
+    "bankId": "mz.millenniumbim",
+    "provenance": "PennyWise MillenniumBimParser (Debit with commission - expense); see NOTICE.md",
+    "input": {
+      "sender": "Mbim",
+      "body": "A conta 123456789 foi debitada no valor de 1000.00 MZN as 12:25 do dia 27/01/26, comissao 30.00 MZN. Em caso de duvida, ligue 8003500. Millennium bim",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.millenniumbim.template003",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Millennium BIM",
+        "countryCode": "MZ",
+        "accountLast4": "6789",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

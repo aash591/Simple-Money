@@ -1,0 +1,33 @@
+[
+  {
+    "id": "opay-variables-001",
+    "country": "NG",
+    "bankId": "ng.opay",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Opay",
+      "body": "Dear OPay user, N321.09 has been debited for MIGRATIONSHOP on 02-DEC-2027 11:22:33.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.opay.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Opay",
+        "countryCode": "NG",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

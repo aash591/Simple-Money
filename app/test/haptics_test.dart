@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_money/ui/components/menu_list.dart';
 import 'package:simple_money/state/vibration_settings.dart';
 import 'package:simple_money/ui/more/settings/settings_screen.dart';
 import 'package:simple_money/ui/components/number_keypad.dart';
@@ -43,7 +44,12 @@ void main() {
     expect(VibrationSettings.instance.enabled, isTrue);
     await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
     expect(find.text('Vibrations'), findsOneWidget);
-    await tester.tap(find.byType(Switch));
+    // Settings has more than one switch now: the one in the Vibrations row.
+    final vibrations = find.descendant(
+      of: find.widgetWithText(MenuSwitchRow, 'Vibrations'),
+      matching: find.byType(Switch),
+    );
+    await tester.tap(vibrations);
     await tester.pumpAndSettle();
     expect(find.text('Disabled'), findsOneWidget);
     await VibrationSettings.instance.restore();
@@ -52,7 +58,7 @@ void main() {
     await VibrationSettings.lightImpact();
     await VibrationSettings.softTick();
     expect(feedback, isEmpty);
-    await tester.tap(find.byType(Switch));
+    await tester.tap(vibrations);
     await tester.pumpAndSettle();
     await VibrationSettings.selectionClick();
     expect(feedback, ['HapticFeedbackType.selectionClick']);
@@ -130,6 +136,10 @@ void main() {
       controller.jumpTo(controller.position.maxScrollExtent);
       await tester.pumpAndSettle();
       expect(feedback.length, 1);
+      // Ticks closer than 600 ms (wall clock) are merged into one.
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 650)),
+      );
       await tester.drag(find.byType(ListView), const Offset(0, -150));
       await tester.pumpAndSettle();
       expect(feedback.length, 2);

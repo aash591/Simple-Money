@@ -1,0 +1,188 @@
+[
+  {
+    "id": "d360bank-variables-001",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "D360Bank",
+      "body": "International Online Purchase Amount: TRY 9876.54 (SAR 321.09) Card: *9988 - VISA (Ecommerce) Fee: SAR 9876.54 At: MIGRATIONSHOP Account number: *9876.54 Country: Turkey On: 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.d360bank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "D360 Bank",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "d360bank-variables-002",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "D360BANK",
+      "body": "International ATM Withdrawal Amount: TRY 9876.54 (SAR 321.09) Card: *9988 - VISA Fee: 9876.54 At: SYNTHETIC ATM Country: Turkey On: 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.d360bank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "D360 Bank",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "d360bank-variables-003",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "D360BANK",
+      "body": "Incoming Transfer: MIGRATIONSHOP Amount: SAR 321.09 From: *9876.54 IBAN: SA00 at: 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.d360bank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "D360 Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "d360bank-variables-004",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "D360BANK",
+      "body": "Outgoing Transfer: MIGRATIONSHOP Amount: SAR 321.09 To: *9876.54 IBAN: SA00 at: 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.d360bank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "D360 Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "d360bank-variables-005",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "D360BANK",
+      "body": "International Online Purchase Amount: SAR 321.09 Card: *9876.54 - VISA (Ecommerce) Fee: SAR 9876.54 At: MIGRATIONSHOP Account number: *9876.54 Country: Saudi Arabia On: 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.d360bank.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "D360 Bank",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "d360bank-variables-008",
+    "country": "SA",
+    "bankId": "sa.d360bank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "D360BANK",
+      "body": "International Online Purchase Amount: USD 9876.54 (321.09 SAR) Card: *9988 - VISA Fee: SAR 9876.54 At: MIGRATIONSHOP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.d360bank.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "D360 Bank",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

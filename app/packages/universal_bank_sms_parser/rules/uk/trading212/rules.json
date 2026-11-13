@@ -1,0 +1,44 @@
+{
+  "id": "gb.trading212",
+  "name": "Trading 212",
+  "senders": [
+    "TRADING212"
+  ],
+  "formats": [
+    {
+      "id": "gb.trading212.template001",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "💸 You earned £"
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " interest on uninvested cash!"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "value": "Trading 212 Interest"
+        }
+      },
+      "defaults": {
+        "case": "exact"
+      }
+    }
+  ]
+}

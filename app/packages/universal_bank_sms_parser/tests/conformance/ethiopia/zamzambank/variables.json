@@ -1,0 +1,64 @@
+[
+  {
+    "id": "zamzambank-variables-001",
+    "country": "ET",
+    "bankId": "et.zamzambank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ZamZam Bank",
+      "body": "Dear Customer, your account ****9988 has been credited by MIGRATIONSHOP with ETB 321.09 on 02-DEC-2027. Your current balance is ETB 9876.54. Thank you for banking with us!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.zamzambank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "ZamZam Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zamzambank-variables-002",
+    "country": "ET",
+    "bankId": "et.zamzambank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ZamZam Bank",
+      "body": "Dear John Doe, your account ***9988 has been debited with ETB 321.09 on 02-DEC-2027 11:22:33.0. Your current balance is ETB 9876.54. Thank you for banking with us!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.zamzambank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "ZamZam Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

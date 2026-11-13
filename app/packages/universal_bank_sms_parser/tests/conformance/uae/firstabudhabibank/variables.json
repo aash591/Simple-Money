@@ -1,0 +1,405 @@
+[
+  {
+    "id": "firstabudhabibank-variables-001",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "Credit Card Purchase Debit Account XXXX9988 Card META998877 AED 321.09 TR DUBAI ARE 02-DEC-2027 11:22:33 Available Balance AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "TR              DUBAI           ARE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-variables-002",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "Inward Remittance Credit Account XXXX9988 AED 321.09 Value Date 02-DEC-2027 Available Balance AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "AED",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-variables-003",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "Dear Customer, Your payment instructions of AED 321.09 to 5xxx**1xxx has been processed on 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-variables-004",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "Debit Card Purchase Debit Account XXXX9988 Card META998877 THB 321.09 WWW.GRAB.COM BANGKOK TH 02-DEC-2027 11:22:33 Available Balance AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "WWW.GRAB.COM          BANGKOK         TH",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-variables-005",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "ATM Cash withdrawal Debit Account XXXX9988 Card META998877 THB 321.09 02-DEC-2027 11:22:33 Available Balance AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-variables-006",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "Debit Card Purchase Debit Account XXXX9988 Card META998877 THB 321.09 WWW.GRAB.COM BANGKOK TH 02-DEC-2027 11:22:33 Available Balance AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "WWW.GRAB.COM          BANGKOK         TH",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-variables-007",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "Outward Remittance Debit Account XXXX9988 AED 321.09 Value Date 02-DEC-2027 Available Balance AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-variables-008",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "Debit Card Purchase Debit Account XXXX9988 Card META998877 USD 321.09 MIGRATIONSHOP 02-DEC-2027 11:22:33 Available Balance AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-variables-009",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "Debit Card Purchase Debit Account XXXX9988 Card META998877 THB 321.09 WWW.GRAB.COM BANGKOK TH 02-DEC-2027 11:22:33 Available Balance AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "WWW.GRAB.COM          BANGKOK         TH",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-variables-010",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "Outward Remittance Debit Account XXXX9988 AED 321.09 Value Date 02-DEC-2027 Available Balance AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-variables-011",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "Cash Deposit Credit Account XXXX9988 AED 321.09 Date 02-DEC-2027",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template011",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "AED",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-variables-012",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "ATM Cash withdrawal Debit Account XXXX9988 Card META998877 THB 321.09 02-DEC-2027 11:22:33 Available Balance AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-variables-017",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "An amount of AED 321.09 has been credited to your FAB account XXXX9988 on 02-DEC-2027 .Your Available Balance is AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.firstabudhabibank.template017",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "AED",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "First Abu Dhabi Bank",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "Account Credited",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

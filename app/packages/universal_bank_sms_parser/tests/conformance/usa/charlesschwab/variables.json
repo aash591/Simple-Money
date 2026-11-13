@@ -1,0 +1,374 @@
+[
+  {
+    "id": "charlesschwab-variables-001",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A $321.09 debit card transaction was debited from account ending 9988. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-variables-002",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A $321.09 debit card transaction was debited from account ending 9988. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-variables-003",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A $321.09 ATM transaction was debited from account ending 9988. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-variables-004",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A $321.09 ACH was debited from account ending 9988. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-variables-005",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CHARLES SCHWAB",
+      "body": "A $321.09 debit card transaction was debited from account ending 9988. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-variables-006",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB BANK",
+      "body": "A $321.09 debit card transaction was debited from account ending 9988. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-variables-007",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "24465",
+      "body": "A $321.09 debit card transaction was debited from account ending 9988. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-variables-008",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A €321.09 debit card transaction was debited from account ending 9988. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template008",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-variables-009",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A £321.09 ATM transaction was debited from account ending 9988. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template009",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "GBP",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-variables-010",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A CAD 321.09 debit card transaction was debited from account ending 9988. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template010",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "CAD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-variables-011",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A AED 321.09 debit card transaction was debited from account ending 9988. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template011",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "charlesschwab-variables-012",
+    "country": "US",
+    "bankId": "us.charlesschwab",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "SCHWAB",
+      "body": "A ฿321.09 ATM transaction was debited from account ending 9988. Reply STOP to end Schwab Text Alerts.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.charlesschwab.template012",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Charles Schwab",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

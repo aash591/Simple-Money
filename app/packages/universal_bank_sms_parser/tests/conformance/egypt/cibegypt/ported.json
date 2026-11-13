@@ -1,0 +1,126 @@
+[
+  {
+    "id": "cibegypt-ported-001",
+    "country": "EG",
+    "bankId": "eg.cibegypt",
+    "provenance": "PennyWise CIBEgyptParser (Credit Card Charge - User Example); see NOTICE.md",
+    "input": {
+      "sender": "CIB",
+      "body": "Your credit card ending with#8016 was charged for EGP 118.00 at SAOOD MARKET on 24/11/25  at 18:27. Card available limit is EGP  10000.21. For more details, please visit https://cib.eg/mb",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.cibegypt.template001",
+      "candidate": {
+        "amountMinor": 11800,
+        "currencyCode": "EGP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "CIB Egypt",
+        "countryCode": "EG",
+        "accountLast4": "8016",
+        "reference": null,
+        "counterparty": "SAOOD MARKET",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "cibegypt-ported-003",
+    "country": "EG",
+    "bankId": "eg.cibegypt",
+    "provenance": "PennyWise CIBEgyptParser (Large Amount Transaction); see NOTICE.md",
+    "input": {
+      "sender": "CIB",
+      "body": "Your credit card ending with#1234 was charged for EGP 1,500.00 at CARREFOUR EGYPT on 10/12/25  at 14:30. Card available limit is EGP  25000.00. For more details, please visit https://cib.eg/mb",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.cibegypt.template001",
+      "candidate": {
+        "amountMinor": 150000,
+        "currencyCode": "EGP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "CIB Egypt",
+        "countryCode": "EG",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "CARREFOUR EGYPT",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "cibegypt-ported-004",
+    "country": "EG",
+    "bankId": "eg.cibegypt",
+    "provenance": "PennyWise CIBEgyptParser (USD Transaction); see NOTICE.md",
+    "input": {
+      "sender": "CIB",
+      "body": "Your credit card ending with#5678 was charged for USD 99.99 at AMAZON on 05/01/26  at 09:15. Card available limit is EGP  15000.50. For more details, please visit https://cib.eg/mb",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.cibegypt.template004",
+      "candidate": {
+        "amountMinor": 9999,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "CIB Egypt",
+        "countryCode": "EG",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "AMAZON",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "cibegypt-ported-005",
+    "country": "EG",
+    "bankId": "eg.cibegypt",
+    "provenance": "PennyWise CIBEgyptParser (Refund Transaction); see NOTICE.md",
+    "input": {
+      "sender": "CIB",
+      "body": "The transaction on your credit card#9876  from NETFLIX  with USD 15.99 on 20/11/25  at 12:00 has been refunded. Please try again. Thank you",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.cibegypt.template005",
+      "candidate": {
+        "amountMinor": 1599,
+        "currencyCode": "USD",
+        "direction": "credit",
+        "channel": "card",
+        "bankName": "CIB Egypt",
+        "countryCode": "EG",
+        "accountLast4": "9876",
+        "reference": null,
+        "counterparty": "NETFLIX",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

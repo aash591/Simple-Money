@@ -1,0 +1,95 @@
+[
+  {
+    "id": "moniepoint-ported-001",
+    "country": "NG",
+    "bankId": "ng.moniepoint",
+    "provenance": "PennyWise MoniepointParser (Credit alert (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "Moniepoint",
+      "body": "CREDIT ALERT\n\nAcc: 512****904 (Personal)\nAmt: NGN1,000.00\nBal: NGN5,000.00\nDate: 15/01/26\nTime: 03:09 PM\nDesc: Transfer from JANE DOE",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.moniepoint.template001",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Moniepoint",
+        "countryCode": "NG",
+        "accountLast4": "2904",
+        "reference": null,
+        "counterparty": "Transfer from JANE DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "moniepoint-ported-002",
+    "country": "NG",
+    "bankId": "ng.moniepoint",
+    "provenance": "PennyWise MoniepointParser (Debit alert (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "Moniepoint",
+      "body": "DEBIT ALERT\n\nAcc: 512****904 (Personal)\nAmt: NGN1,000.00\nBal: NGN3,000.00\nDate: 15/01/26\nTime: 03:01 PM\nDesc: Test SMS",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.moniepoint.template002",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Moniepoint",
+        "countryCode": "NG",
+        "accountLast4": "2904",
+        "reference": null,
+        "counterparty": "Test SMS",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "moniepoint-ported-003",
+    "country": "NG",
+    "bankId": "ng.moniepoint",
+    "provenance": "PennyWise MoniepointParser (Business account label is not absorbed into the account number); see NOTICE.md",
+    "input": {
+      "sender": "Moniepoint",
+      "body": "CREDIT ALERT\n\nAcc: 512****904 (Business)\nAmt: NGN250,000.50\nBal: NGN1,250,000.00\nDate: 15/01/26\nTime: 11:45 AM\nDesc: Transfer from ACME LTD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.moniepoint.template003",
+      "candidate": {
+        "amountMinor": 25000050,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Moniepoint",
+        "countryCode": "NG",
+        "accountLast4": "2904",
+        "reference": null,
+        "counterparty": "Transfer from ACME LTD",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

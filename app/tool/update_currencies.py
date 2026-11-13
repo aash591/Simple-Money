@@ -15,6 +15,11 @@ data = read('cldr-json/cldr-core/supplemental/currencyData.json')['supplemental'
 names = read('cldr-json/cldr-numbers-full/main/en/currencies.json')['main']['en']['numbers']['currencies']
 territories = read('cldr-json/cldr-localenames-full/main/en/territories.json')['main']['en']['localeDisplayNames']['territories']
 today = datetime.date.today().isoformat()
+# The bank SMS parser reads Iranian rial amounts with two decimals (the Iran
+# pack's "exponents": {"IRR": 2}) and the app stores SMS-detected accounts
+# with two digits. Keep the list the same, or a hand-made rial account could
+# not take those messages.
+DIGITS_OVERRIDE = {'IRR': 2}
 rows = []
 for territory, entries in data['region'].items():
     if len(territory) != 2 or territory not in territories:
@@ -25,7 +30,7 @@ for territory, entries in data['region'].items():
                 continue
             rows.append(dict(country=territories[territory], territory=territory, code=code,
                              name=names[code]['displayName'],
-                             digits=int(data['fractions'].get(code, data['fractions']['DEFAULT'])['_digits'])))
+                             digits=DIGITS_OVERRIDE.get(code, int(data['fractions'].get(code, data['fractions']['DEFAULT'])['_digits']))))
 rows.sort(key=lambda row: (row['country'], row['code']))
 target = ROOT / 'assets/data'
 target.mkdir(parents=True, exist_ok=True)

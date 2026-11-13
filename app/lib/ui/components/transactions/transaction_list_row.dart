@@ -22,7 +22,13 @@ class TransactionListRow extends StatelessWidget {
     required this.onTap,
     this.showDate = false,
     this.amountColor,
+    this.subtitle,
+    this.subtitleColor,
   });
+
+  /// Replaces the usual subtitle, for a prompt such as "Select an account".
+  final String? subtitle;
+  final Color? subtitleColor;
   final MoneyTransaction transaction;
   final Account? account;
   final Account? toAccount;
@@ -62,7 +68,8 @@ class TransactionListRow extends StatelessWidget {
               badgeKey: transaction.badgeIcon,
             ),
       title: title,
-      subtitle: subtitle,
+      subtitle: this.subtitle ?? subtitle,
+      subtitleColor: subtitleColor,
       amount: formattedAmount,
       amountColor:
           amountColor ??

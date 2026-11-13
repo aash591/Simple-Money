@@ -1,0 +1,64 @@
+[
+  {
+    "id": "zenithbank-ported-001",
+    "country": "NG",
+    "bankId": "ng.zenithbank",
+    "provenance": "PennyWise ZenithBankParser (Debit transaction (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "ZENITHBANK",
+      "body": "Acct:421****577\nDT:09/06/2026 03:23:17 PM\nCIP/CR/MOB/OLIVER TWIST LOKOGO\nDR Amt:650.00\nBal:289.69\nDial *966# for quick airtime/Data purchase",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.zenithbank.template001",
+      "candidate": {
+        "amountMinor": 65000,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Zenith Bank",
+        "countryCode": "NG",
+        "accountLast4": "1577",
+        "reference": null,
+        "counterparty": "CIP/CR/MOB/OLIVER TWIST LOKOGO",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "zenithbank-ported-002",
+    "country": "NG",
+    "bankId": "ng.zenithbank",
+    "provenance": "PennyWise ZenithBankParser (Credit transaction (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "ZENITHBANK",
+      "body": "Acct:421****577\nDT:24/05/2026 08:05:26 AM\nETI NXG  MOBILE TRF TO ZIB  CO\nCR Amt:40,000.00\nBal:40,277.08\nDial *966# for quick airtime/Data purchase",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.zenithbank.template002",
+      "candidate": {
+        "amountMinor": 4000000,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Zenith Bank",
+        "countryCode": "NG",
+        "accountLast4": "1577",
+        "reference": null,
+        "counterparty": "ETI NXG  MOBILE TRF TO ZIB  CO",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,126 @@
+[
+  {
+    "id": "siddharthabank-ported-001",
+    "country": "NP",
+    "bankId": "np.siddharthabank",
+    "provenance": "PennyWise SiddharthaBankParser (Debit - Fund Transfer (IBFT)); see NOTICE.md",
+    "input": {
+      "sender": "SBL_Alert",
+      "body": "Dear [NAME], AC ###XXXX1234, NPR 97.00 withdrawn on 09/12/2025 12:31:20 for Fund Trf to A/C PAYABLE IBFT (IN-670725619,222",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.siddharthabank.template001",
+      "candidate": {
+        "amountMinor": 9700,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Siddhartha Bank",
+        "countryCode": "NP",
+        "accountLast4": "1234",
+        "reference": "IN-670725619",
+        "counterparty": "Fund Transfer (IBFT)",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "siddharthabank-ported-002",
+    "country": "NP",
+    "bankId": "np.siddharthabank",
+    "provenance": "PennyWise SiddharthaBankParser (Debit - QR Payment); see NOTICE.md",
+    "input": {
+      "sender": "SBL_Alert",
+      "body": "Dear [NAME], AC ###XXXX1234, NPR 810.00 withdrawn on 05/12/2025 18:06:50 for QR Payment to FALCHA KHAJA GHAR - falcha",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.siddharthabank.template002",
+      "candidate": {
+        "amountMinor": 81000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Siddhartha Bank",
+        "countryCode": "NP",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "FALCHA KHAJA GHAR",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "siddharthabank-ported-003",
+    "country": "NP",
+    "bankId": "np.siddharthabank",
+    "provenance": "PennyWise SiddharthaBankParser (Credit - Deposit (Fund Transfer)); see NOTICE.md",
+    "input": {
+      "sender": "SBL_Alert",
+      "body": "Dear [NAME], AC ###XXXX1234, NPR 120,000.00 deposited on 28/11/2025 20:13:59 for Fund Trf frm A/C PAYABLE IBF-FON:IBFT:1171853",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.siddharthabank.template003",
+      "candidate": {
+        "amountMinor": 12000000,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Siddhartha Bank",
+        "countryCode": "NP",
+        "accountLast4": "1234",
+        "reference": "1171853",
+        "counterparty": "Fund Transfer (IBFT)",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "siddharthabank-ported-004",
+    "country": "NP",
+    "bankId": "np.siddharthabank",
+    "provenance": "PennyWise SiddharthaBankParser (Debit - Utility Bill (NEA)); see NOTICE.md",
+    "input": {
+      "sender": "SBL_Alert",
+      "body": "Dear [NAME], AC ###XXXX1234, NPR 1,822.00 withdrawn on 09/12/2025 12:29:06 for Fund Trf to A/C PAYABLE IBFT (IN-670724040,NEA",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.siddharthabank.template004",
+      "candidate": {
+        "amountMinor": 182200,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Siddhartha Bank",
+        "countryCode": "NP",
+        "accountLast4": "1234",
+        "reference": "IN-670724040",
+        "counterparty": "Nepal Electricity Authority",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

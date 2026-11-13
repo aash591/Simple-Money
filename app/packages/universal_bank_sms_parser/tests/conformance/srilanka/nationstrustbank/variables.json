@@ -1,0 +1,64 @@
+[
+  {
+    "id": "nationstrustbank-variables-001",
+    "country": "LK",
+    "bankId": "lk.nationstrustbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NationsSMS",
+      "body": "Transaction Approved on your Card 123456******9988 for LKR 321.09 at MIGRATIONSHOP Available Bal LKR 9876.54 Call 9876.54 for any inquiry.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.nationstrustbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Nations Trust Bank",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationstrustbank-variables-002",
+    "country": "LK",
+    "bankId": "lk.nationstrustbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NationsSMS",
+      "body": "Transaction Approved on your Card 123456******9988 for LKR 321.09 at MIGRATIONSHOP Available Bal LKR 9876.54 Call 9876.54 for any inquiry.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.nationstrustbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Nations Trust Bank",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

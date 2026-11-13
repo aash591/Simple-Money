@@ -1,0 +1,162 @@
+[
+  {
+    "id": "krungsri-reject-security",
+    "country": "TH",
+    "bankId": "th.krungsri",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BAY",
+      "body": "your otp is 123456. Krungsri: ATM withdrawal 1,000.00 THB A/C x3344 Bal 9,540.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "krungsri-reject-promotional",
+    "country": "TH",
+    "bankId": "th.krungsri",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BAY",
+      "body": "exclusive offer: apply now. Krungsri: ATM withdrawal 1,000.00 THB A/C x3344 Bal 9,540.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "krungsri-reject-failed",
+    "country": "TH",
+    "bankId": "th.krungsri",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BAY",
+      "body": "payment failed. Krungsri: ATM withdrawal 1,000.00 THB A/C x3344 Bal 9,540.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "krungsri-reject-pending",
+    "country": "TH",
+    "bankId": "th.krungsri",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BAY",
+      "body": "payment pending. Krungsri: ATM withdrawal 1,000.00 THB A/C x3344 Bal 9,540.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "krungsri-reject-future",
+    "country": "TH",
+    "bankId": "th.krungsri",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BAY",
+      "body": "will be debited. Krungsri: ATM withdrawal 1,000.00 THB A/C x3344 Bal 9,540.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "krungsri-reject-notice",
+    "country": "TH",
+    "bankId": "th.krungsri",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BAY",
+      "body": "statement generated. Krungsri: ATM withdrawal 1,000.00 THB A/C x3344 Bal 9,540.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "krungsri-reject-unknown-sender",
+    "country": "TH",
+    "bankId": "th.krungsri",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Krungsri: ATM withdrawal 1,000.00 THB A/C x3344 Bal 9,540.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "krungsri-reject-balance-only",
+    "country": "TH",
+    "bankId": "th.krungsri",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "BAY",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

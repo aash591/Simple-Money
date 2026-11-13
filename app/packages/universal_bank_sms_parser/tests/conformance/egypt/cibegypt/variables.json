@@ -1,0 +1,126 @@
+[
+  {
+    "id": "cibegypt-variables-001",
+    "country": "EG",
+    "bankId": "eg.cibegypt",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CIB",
+      "body": "Your credit card ending with#9988 was charged for EGP 321.09 at MIGRATIONSHOP on 02-DEC-2027 at 11:22:33. Card available limit is EGP 9876.54. For more details, please visit metadatavalue",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.cibegypt.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EGP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "CIB Egypt",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cibegypt-variables-003",
+    "country": "EG",
+    "bankId": "eg.cibegypt",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CIB",
+      "body": "Your credit card ending with#9988 was charged for EGP 321.09 at MIGRATIONSHOP on 02-DEC-2027 at 11:22:33. Card available limit is EGP 9876.54. For more details, please visit metadatavalue",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.cibegypt.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EGP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "CIB Egypt",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cibegypt-variables-004",
+    "country": "EG",
+    "bankId": "eg.cibegypt",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CIB",
+      "body": "Your credit card ending with#9988 was charged for USD 321.09 at MIGRATIONSHOP on 02-DEC-2027 at 11:22:33. Card available limit is EGP 9876.54. For more details, please visit metadatavalue",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.cibegypt.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "CIB Egypt",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "cibegypt-variables-005",
+    "country": "EG",
+    "bankId": "eg.cibegypt",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "CIB",
+      "body": "The transaction on your credit card#9988 from MIGRATIONSHOP with USD 321.09 on 02-DEC-2027 at 11:22:33 has been refunded. Please try again. Thank you",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.cibegypt.template005",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "credit",
+        "channel": "card",
+        "bankName": "CIB Egypt",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -1,0 +1,95 @@
+[
+  {
+    "id": "standardcharteredbanknigeria-variables-001",
+    "country": "NG",
+    "bankId": "ng.standardcharteredbanknigeria",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "StanChart",
+      "body": "Credit Alert! Acct:xxxxxx9988, Amt:NGN321.09, Desc:MIGRATIONSHOP, Date:02-DEC-2027, Bal:META998877.9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.standardcharteredbanknigeria.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Chartered Bank Nigeria",
+        "countryCode": "NG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "standardcharteredbanknigeria-variables-002",
+    "country": "NG",
+    "bankId": "ng.standardcharteredbanknigeria",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "StanChart",
+      "body": "Debit Alert! Acct:xxxxxx9988, Amt:NGN321.09, Desc:MIGRATIONSHOP, Date:02-DEC-2027, Bal:META998877.9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.standardcharteredbanknigeria.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Chartered Bank Nigeria",
+        "countryCode": "NG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "standardcharteredbanknigeria-variables-004",
+    "country": "NG",
+    "bankId": "ng.standardcharteredbanknigeria",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "StanChart",
+      "body": "Credit Alert! Acct:xxxxxx9988, Amt:NGN321.09, Desc:MIGRATIONSHOP, Date:02-DEC-2027, Bal:META998877.9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ng.standardcharteredbanknigeria.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "NGN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Standard Chartered Bank Nigeria",
+        "countryCode": "NG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

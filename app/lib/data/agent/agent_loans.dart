@@ -14,6 +14,7 @@ import '../ledger_match.dart';
 import '../repositories/account_repository.dart';
 import '../repositories/debt_repository.dart';
 import '../repositories/loan_repository.dart';
+import '../repositories/sms_import_repository.dart';
 import '../repositories/transaction_repository.dart';
 import 'agent_suggestion_repository.dart';
 
@@ -93,6 +94,10 @@ class LoanPlan {
   final AgentSuggestionDraft draft;
   final Map<String, Object?> report;
 }
+
+/// A bank message waiting for review that is one of a loan's payments, and
+/// the account approving saves it into.
+typedef _WaitingSms = ({String id, int account, String title});
 
 /// Payments allowed between a statement's date and the ledger's.
 const _matchDays = 3;
@@ -478,33 +483,40 @@ class AgentLoans {
     );
 
     final added = input.addMissingToAccount;
+    // Payments the ledger lacks but a bank message waiting for review has:
+    // approving saves the message as that payment.
+    final waiting = await _waitingSms(account, accounts, [
+      for (final (i, payment) in p.payments.indexed)
+        if (p.matched[i] == null && !payment.notInLedger)
+          (i, payment.date, p.paid[i]),
+    ]);
     final rows = <Map<String, Object?>>[];
     final lines = <String>[];
     final missing = <int>[];
     for (final (i, payment) in p.payments.indexed) {
       final match = p.matched[i];
+      final sms = waiting[i];
       final date = _shown(payment.date);
       final amount = money(p.paid[i]);
-      if (match == null) missing.add(i);
+      if (match == null && sms == null) missing.add(i);
       lines.add(
         match != null
             ? '$date · $amount → ${match.title ?? 'Saved transaction'} · '
                   '${_name(accounts, match.accountId)}'
+            : sms != null
+            ? '$date · $amount → saves bank message · ${sms.title} · '
+                  '${_name(accounts, sms.account)}'
             : '$date · $amount → ${added ? 'adds to ${account.name}' : 'counted as paid'}',
       );
+      // Kept short: the AI app already has each payment's split.
       rows.add({
         'date': _iso(payment.date),
         'amount': _plain(p.paid[i], account.digits),
-        'principal': _plain(
-          p.paid[i] - p.fees[i] - p.interests[i],
-          account.digits,
-        ),
-        'interest': _plain(p.interests[i], account.digits),
-        'fee': _plain(p.fees[i], account.digits),
-        if (match != null) ...{
-          'transaction_id': match.id,
-          'transaction_title': match.title,
-        } else
+        if (match != null)
+          'transaction_id': match.id
+        else if (sms != null)
+          'sms_id': sms.id
+        else
           'status': added ? 'will_add_to_account' : 'not_in_ledger',
       });
     }
@@ -514,9 +526,6 @@ class AgentLoans {
     final next = fixed && p.left > 0
         ? loanMonth(terms.firstDue, p.snapshot ? 0 : emiCount, terms.day)
         : null;
-    final inQueue = await _inSmsReview([
-      for (final i in missing) (p.payments[i].date, p.paid[i]),
-    ]);
 
     final detail = [
       title,
@@ -539,7 +548,10 @@ class AgentLoans {
       if (p.payments.isNotEmpty)
         missing.isEmpty
             ? 'All ${p.payments.length} payments found in your accounts'
-            : '$found of ${p.payments.length} payments found in your accounts',
+            : '${found + waiting.length} of ${p.payments.length} payments found in your accounts',
+      if (waiting.isNotEmpty)
+        'Saves ${waiting.length} bank '
+            '${waiting.length == 1 ? 'message' : 'messages'} waiting for review',
       ...lines,
     ];
     final payload = <String, Object?>{
@@ -559,6 +571,11 @@ class AgentLoans {
             'fee': p.fees[i],
             'part': payment.partPayment,
             'transactionId': p.matched[i]?.id,
+            if (waiting[i] case final sms?) ...{
+              'smsId': sms.id,
+              'smsAccount': sms.account,
+            },
+            // For a message, only used if it's gone by the time of approval.
             'offLedger': p.matched[i] == null && !added,
           },
       ],
@@ -580,59 +597,141 @@ class AgentLoans {
         if (next != null) 'next_due': _iso(next),
         if (p.payments.isNotEmpty) ...{
           'payments_found_in_ledger': found,
+          if (waiting.isNotEmpty) 'payments_in_sms_review': waiting.length,
           'payments_not_found': missing.length,
           'payments': rows,
         },
-        if (inQueue.isNotEmpty) 'in_sms_review': inQueue,
-        'next': inQueue.isNotEmpty
-            ? 'Some payments are bank messages still waiting for review. '
-                  'Ask the user to save those in the app, then call '
-                  'suggest_loan again so they are matched. Otherwise, ask '
-                  'them to approve it in SimpleMoney → More → AI suggestions.'
-            : 'Nothing has changed yet. Tell the user what was found, and ask '
-                  'them to approve it in SimpleMoney → More → AI suggestions. '
-                  'Calling suggest_loan again replaces this suggestion.',
+        'next':
+            'Nothing has changed yet. Tell the user what was found, and ask '
+            'them to approve it in SimpleMoney → More → AI suggestions'
+            '${waiting.isEmpty ? '' : ', which also saves the bank messages it matched'}. '
+            'Calling suggest_loan again replaces this suggestion.',
       },
     );
   }
 
-  /// Waiting messages that look like payments the ledger doesn't have yet.
-  Future<List<Map<String, Object?>>> _inSmsReview(
-    List<(DateTime, int)> payments,
+  /// Bank messages waiting for review that look like [payments] the ledger
+  /// doesn't have yet, by payment index. One query for the whole loan; each
+  /// message is matched once, to the payment closest in date.
+  Future<Map<int, _WaitingSms>> _waitingSms(
+    Account account,
+    List<Account> accounts,
+    List<(int, DateTime, int)> payments,
   ) async {
-    final found = <Map<String, Object?>>[];
-    final used = <String>{};
-    const margin = Duration(days: _matchDays);
-    for (final (date, amount) in payments) {
-      final rows = await database
-          .customSelect(
-            '''SELECT fingerprint, received_at FROM sms_imports
-            WHERE status = 'pending' AND received_at BETWEEN ? AND ?
-              AND json_extract(candidate, '\$.direction') = 'debit'
-              AND CAST(json_extract(candidate, '\$.amountMinor') AS INTEGER) = ?
-            ORDER BY abs(received_at - ?)''',
-            variables: [
-              Variable(date.subtract(margin).millisecondsSinceEpoch),
-              Variable(date.add(margin).millisecondsSinceEpoch),
-              Variable(amount),
-              Variable(date.millisecondsSinceEpoch),
-            ],
+    // Bank messages are only ever saved to two-decimal accounts.
+    if (payments.isEmpty || account.digits != 2) return const {};
+    const margin = Duration(days: _matchDays + 1);
+    final dates = [for (final p in payments) p.$2];
+    final rows = await database
+        .customSelect(
+          '''SELECT i.fingerprint, i.received_at, i.candidate, r.account_id
+          FROM sms_imports i
+          LEFT JOIN sms_review r ON r.fingerprint = i.fingerprint
+          WHERE i.status = 'pending' AND i.received_at BETWEEN ? AND ?
+            AND json_extract(i.candidate, '\$.direction') = 'debit'
+            AND json_extract(i.candidate, '\$.currencyCode') = ?
+          ORDER BY i.received_at, i.fingerprint''',
+          variables: [
+            Variable(
+              dates
+                  .reduce((a, b) => a.isBefore(b) ? a : b)
+                  .subtract(margin)
+                  .millisecondsSinceEpoch,
+            ),
+            Variable(
+              dates
+                  .reduce((a, b) => a.isAfter(b) ? a : b)
+                  .add(margin)
+                  .millisecondsSinceEpoch,
+            ),
+            Variable(account.currency),
+          ],
+        )
+        .get();
+    final candidates = <(PendingSmsImport, int)>[];
+    for (final row in rows) {
+      final sms = PendingSmsImport(
+        id: row.read<String>('fingerprint'),
+        sender: '',
+        body: '',
+        data: Map<String, dynamic>.from(
+          jsonDecode(row.read<String>('candidate')) as Map,
+        ),
+        receivedAt: DateTime.fromMillisecondsSinceEpoch(
+          row.read<int>('received_at'),
+        ),
+      );
+      // A card repayment or cash withdrawal is a transfer, never an EMI.
+      if (sms.requiresTransfer || sms.data['amountMinor'] is! int) continue;
+      final into =
+          row.readNullable<int>('account_id') ??
+          sms.data['assignedAccountId'] as int?;
+      final saveTo = accounts
+          .where(
+            (a) =>
+                a.id == into && a.currency == account.currency && a.digits == 2,
           )
-          .get();
-      for (final row in rows) {
-        final id = row.read<String>('fingerprint');
-        if (!used.add(id)) continue;
-        found.add({
-          'sms_id': id,
-          'payment_date': _iso(date),
-          'received': _iso(
-            DateTime.fromMillisecondsSinceEpoch(row.read<int>('received_at')),
-          ),
-        });
-        break;
+          .firstOrNull;
+      candidates.add((sms, saveTo?.id ?? account.id));
+    }
+    final found = <int, _WaitingSms>{};
+    final used = <String>{};
+    for (final (index, date, amount) in payments) {
+      final day = _dayOnly(date);
+      (PendingSmsImport, int)? best;
+      var bestGap = _matchDays + 1;
+      for (final c in candidates) {
+        if (c.$1.amountMinor != amount || used.contains(c.$1.id)) continue;
+        final gap = _dayOnly(c.$1.receivedAt).difference(day).inDays.abs();
+        if (gap < bestGap || (gap == bestGap && c.$2 == account.id)) {
+          best = c;
+          bestGap = gap;
+        }
       }
+      if (best == null || bestGap > _matchDays) continue;
+      used.add(best.$1.id);
+      found[index] = (id: best.$1.id, account: best.$2, title: best.$1.title);
     }
     return found;
+  }
+
+  /// The transaction bank message [id] became, saving it first as a loan
+  /// payment into [accountId] while it still waits for review. Null when it
+  /// was dismissed or deleted since.
+  Future<int?> _savedSms(String id, int accountId, int categoryId) async {
+    final row = await database
+        .customSelect(
+          '''SELECT sender, body, received_at, candidate, status, transaction_id
+          FROM sms_imports WHERE fingerprint = ?''',
+          variables: [Variable(id)],
+        )
+        .getSingleOrNull();
+    if (row == null) return null;
+    if (row.read<String>('status') != 'pending') {
+      return row.readNullable<int>('transaction_id');
+    }
+    final sms = PendingSmsImport(
+      id: id,
+      sender: row.read<String>('sender'),
+      body: row.readNullable<String>('body') ?? '',
+      data: Map<String, dynamic>.from(
+        jsonDecode(row.read<String>('candidate')) as Map,
+      ),
+      receivedAt: DateTime.fromMillisecondsSinceEpoch(
+        row.read<int>('received_at'),
+      ),
+    );
+    final imports = SmsImportRepository(database);
+    await imports.save(
+      sms,
+      type: TransactionType.expense,
+      amountMinor: sms.amountMinor,
+      accountId: accountId,
+      categoryId: categoryId,
+      title: sms.title,
+      date: sms.receivedAt,
+    );
+    return imports.transactionOf(id);
   }
 
   /// Adds the loan and its payments. Returns what undoing needs.
@@ -654,7 +753,16 @@ class AgentLoans {
     Future<Loan> current() async =>
         (await repository.load()).firstWhere((l) => l.id == id);
     final payments = (payload['payments'] as List).cast<Map>();
+    int? category;
     for (final (i, p) in payments.indexed) {
+      var transactionId = p['transactionId'] as int?;
+      if (p['smsId'] case final String sms when transactionId == null) {
+        transactionId = await _savedSms(
+          sms,
+          p['smsAccount'] as int,
+          category ??= await repository.paymentCategory(),
+        );
+      }
       await repository.record(
         await current(),
         kind: p['part'] == true ? LoanEventKind.partPayment : LoanEventKind.emi,
@@ -667,8 +775,8 @@ class AgentLoans {
         unpaidInterestAfter: i == payments.length - 1
             ? payload['unpaidInterest'] as int
             : 0,
-        adoptTransactionId: p['transactionId'] as int?,
-        offLedger: p['offLedger'] == true,
+        adoptTransactionId: transactionId,
+        offLedger: transactionId == null && p['offLedger'] == true,
       );
     }
     return {

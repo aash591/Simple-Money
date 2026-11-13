@@ -1,0 +1,126 @@
+[
+  {
+    "id": "nationalbankofegypt-ported-001",
+    "country": "EG",
+    "bankId": "eg.nationalbankofegypt",
+    "provenance": "PennyWise NationalBankOfEgyptParser (Credit card spend, جم currency (EXPENSE, available limit)); see NOTICE.md",
+    "input": {
+      "sender": "BanK-AlAhly",
+      "body": "تم خصم 100.50 جم من بطاقة الائتمان رقم 1111 عند KASHIERFast يوم 09-10 الساعة 10:11 المتاح 9000.00 جم للمزيد اتصل ب 10000.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.nationalbankofegypt.template001",
+      "candidate": {
+        "amountMinor": 10050,
+        "currencyCode": "EGP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "National Bank of Egypt",
+        "countryCode": "EG",
+        "accountLast4": "1111",
+        "reference": null,
+        "counterparty": "KASHIERFast",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nationalbankofegypt-ported-002",
+    "country": "EG",
+    "bankId": "eg.nationalbankofegypt",
+    "provenance": "PennyWise NationalBankOfEgyptParser (Debit card ATM withdrawal, no spaces, EGP token (EXPENSE, balance)); see NOTICE.md",
+    "input": {
+      "sender": "BanK-AlAhly",
+      "body": "تم خصم 200 EGP من بطاقة الخصم المباشر رقم2222 عندNBE ATM546 يوم03/09/26 الساعة21:13 المتاح800.00EGP للمزيد اتصل ب 10000",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.nationalbankofegypt.template002",
+      "candidate": {
+        "amountMinor": 20000,
+        "currencyCode": "EGP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "National Bank of Egypt",
+        "countryCode": "EG",
+        "accountLast4": "2222",
+        "reference": null,
+        "counterparty": "NBE ATM546",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nationalbankofegypt-ported-003",
+    "country": "EG",
+    "bankId": "eg.nationalbankofegypt",
+    "provenance": "PennyWise NationalBankOfEgyptParser (Credit card spend, multi-word merchant (EXPENSE, available limit)); see NOTICE.md",
+    "input": {
+      "sender": "BanK-AlAhly",
+      "body": "تم خصم 300 جم من بطاقة الائتمان رقم 3333 عند ASWAK FATHALLA يوم 08-31 الساعة 21:20 المتاح 7000.00 جم للمزيد اتصل ب 10000.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.nationalbankofegypt.template001",
+      "candidate": {
+        "amountMinor": 30000,
+        "currencyCode": "EGP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "National Bank of Egypt",
+        "countryCode": "EG",
+        "accountLast4": "3333",
+        "reference": null,
+        "counterparty": "ASWAK FATHALLA",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nationalbankofegypt-ported-004",
+    "country": "EG",
+    "bankId": "eg.nationalbankofegypt",
+    "provenance": "PennyWise NationalBankOfEgyptParser (Instant transfer received (INCOME, not a card)); see NOTICE.md",
+    "input": {
+      "sender": "BanK-AlAhly",
+      "body": "تم إضافة تحويل لحظي لحسابكم رقم 4444 بمبلغ 400.00 جم من محمد محمد رقم مرجعي 123456789012 يوم 09-10 الساعة 20:11 للمزيد اتصل بـ 10000",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.nationalbankofegypt.template004",
+      "candidate": {
+        "amountMinor": 40000,
+        "currencyCode": "EGP",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "National Bank of Egypt",
+        "countryCode": "EG",
+        "accountLast4": "4444",
+        "reference": "123456789012",
+        "counterparty": "محمد محمد",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,33 @@
+[
+  {
+    "id": "equitybank-variables-001",
+    "country": "KE",
+    "bankId": "ke.equitybank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Equity Bank",
+      "body": "You have received 321.09 KES from MIGRATIONSHOP 9876.54********9876.54 to your Equity account 0********9988. Ref. META998877 on 9876.54 Sep 9876.54 at 11:22:33 EAT",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ke.equitybank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "KES",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Equity Bank",
+        "countryCode": "KE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

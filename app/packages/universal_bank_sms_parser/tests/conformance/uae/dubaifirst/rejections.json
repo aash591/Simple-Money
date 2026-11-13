@@ -1,0 +1,162 @@
+[
+  {
+    "id": "dubaifirst-reject-security",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "your otp is 123456. Card Transaction\nCard ending with: 1111\nAmount: AED 280\nAt: Paymob**TEST TOYS TR\nDate: 01/01/2030\nAvailable Balance: AED 10247.04",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dubaifirst-reject-promotional",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "exclusive offer: apply now. Card Transaction\nCard ending with: 1111\nAmount: AED 280\nAt: Paymob**TEST TOYS TR\nDate: 01/01/2030\nAvailable Balance: AED 10247.04",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dubaifirst-reject-failed",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "payment failed. Card Transaction\nCard ending with: 1111\nAmount: AED 280\nAt: Paymob**TEST TOYS TR\nDate: 01/01/2030\nAvailable Balance: AED 10247.04",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dubaifirst-reject-pending",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "payment pending. Card Transaction\nCard ending with: 1111\nAmount: AED 280\nAt: Paymob**TEST TOYS TR\nDate: 01/01/2030\nAvailable Balance: AED 10247.04",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dubaifirst-reject-future",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "will be debited. Card Transaction\nCard ending with: 1111\nAmount: AED 280\nAt: Paymob**TEST TOYS TR\nDate: 01/01/2030\nAvailable Balance: AED 10247.04",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dubaifirst-reject-notice",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "statement generated. Card Transaction\nCard ending with: 1111\nAmount: AED 280\nAt: Paymob**TEST TOYS TR\nDate: 01/01/2030\nAvailable Balance: AED 10247.04",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dubaifirst-reject-unknown-sender",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Card Transaction\nCard ending with: 1111\nAmount: AED 280\nAt: Paymob**TEST TOYS TR\nDate: 01/01/2030\nAvailable Balance: AED 10247.04",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dubaifirst-reject-balance-only",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

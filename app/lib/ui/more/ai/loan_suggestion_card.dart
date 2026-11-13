@@ -84,8 +84,13 @@ class _LoanSuggestionPreviewState extends State<LoanSuggestionPreview> {
     final paying = _loan.accountId;
     if (paying != null) {
       for (final p in _payments) {
-        if (p['transactionId'] == null && p['offLedger'] != true) {
-          move(paying, -(p['amount'] as int) - (p['fee'] as int));
+        if (p['transactionId'] != null) continue;
+        final total = (p['amount'] as int) + (p['fee'] as int);
+        // A bank message waiting for review is saved into its own account.
+        if (p['smsAccount'] case final int account) {
+          move(account, -total);
+        } else if (p['offLedger'] != true) {
+          move(paying, -total);
         }
       }
       if (terms.chargesMinor > 0 &&
@@ -124,6 +129,21 @@ class _LoanSuggestionPreviewState extends State<LoanSuggestionPreview> {
               amountColor: colors.expense,
               stamp: transactionStamp(date, showDate: true),
             );
+      }
+      if (p['smsAccount'] case final int account) {
+        return TransactionRow(
+          icon: Icon(
+            Icons.sms_outlined,
+            color: scheme.onSurfaceVariant,
+            size: 28,
+          ),
+          title: 'Bank message',
+          subtitle:
+              'Saves to ${widget.accountOf(account)?.name ?? 'your account'}',
+          amount: '- ${_money(total)}',
+          amountColor: colors.expense,
+          stamp: transactionStamp(date, showDate: true),
+        );
       }
       final adds = p['offLedger'] != true;
       final emiNumber = payments
@@ -198,8 +218,10 @@ class _LoanSuggestionPreviewState extends State<LoanSuggestionPreview> {
     );
     final rows = _rows(context);
     final payments = _payments;
-    final found = payments.where((p) => p['transactionId'] != null).length;
-    final unmatched = payments.where((p) => p['transactionId'] == null);
+    final unmatched = payments.where(
+      (p) => p['transactionId'] == null && p['smsId'] == null,
+    );
+    final found = payments.length - unmatched.length;
     final missing = unmatched.length;
     final updates = unmatched.any((p) => p['offLedger'] != true);
     final hidden = rows.length - _collapsed > 1 && !_expanded;

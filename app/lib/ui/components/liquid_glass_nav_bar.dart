@@ -8,6 +8,7 @@ import 'package:flutter/scheduler.dart';
 import '../../data/device_performance.dart';
 import '../theme/app_theme.dart' show AppChrome, usesAurora, usesGlass;
 import 'glass_button.dart' show GlassRim;
+import 'inner_glow.dart' show rasterCachingEnabled, rasterScaleOf;
 
 /// Aurora in dark mode, but not the true-black variant, which keeps the
 /// plain black pill.
@@ -742,8 +743,45 @@ class _CapsuleShadowPainter extends CustomPainter {
   const _CapsuleShadowPainter({required this.dark});
   final bool dark;
 
+  /// The shadow drawn once per size and theme. Impeller keeps no raster
+  /// cache, so the blur and its cut-out clip would otherwise be redone on
+  /// every frame the page scrolls under the bar.
+  static final _images = <(Size, bool, double), ui.Image>{};
+
   @override
   void paint(Canvas canvas, Size size) {
+    if (size.isEmpty) return;
+    if (!rasterCachingEnabled) return _paintShadow(canvas, size);
+    final scale = rasterScaleOf(canvas);
+    final key = (size, dark, scale);
+    var image = _images[key];
+    if (image == null) {
+      final bounds = (Offset.zero & size).inflate(48);
+      final recorder = ui.PictureRecorder();
+      final c = Canvas(recorder)
+        ..scale(scale)
+        ..translate(48, 48);
+      _paintShadow(c, size);
+      final picture = recorder.endRecording();
+      image = picture.toImageSync(
+        (bounds.width * scale).ceil(),
+        (bounds.height * scale).ceil(),
+      );
+      picture.dispose();
+      // Only the latest few sizes (rotation, a press zoom) are worth keeping.
+      if (_images.length >= 6) _images.remove(_images.keys.first)!.dispose();
+      _images[key] = image;
+    }
+    final bounds = (Offset.zero & size).inflate(48);
+    canvas.drawImageRect(
+      image,
+      Rect.fromLTWH(0, 0, bounds.width * scale, bounds.height * scale),
+      bounds,
+      Paint()..filterQuality = FilterQuality.low,
+    );
+  }
+
+  void _paintShadow(Canvas canvas, Size size) {
     final capsule = RRect.fromRectAndRadius(
       Offset.zero & size,
       Radius.circular(size.shortestSide / 2),

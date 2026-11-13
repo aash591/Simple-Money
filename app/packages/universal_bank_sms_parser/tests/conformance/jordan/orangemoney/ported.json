@@ -1,0 +1,126 @@
+[
+  {
+    "id": "orangemoney-ported-001",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "PennyWise OrangeMoneyJordanParser (Purchase from wallet); see NOTICE.md",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "تمت عملية شراء من محفظتك 07XXXXXXXX بمبلغ 10 دينار بتاريخ 16/09/2026 الساعة 10:39:21 PM من OJO Payment Channel  بالرقم المرجعي OM20260916223921000000000000 رصيد المحفظة المتاح هو 0.000دينار أردني شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.orangemoney.template001",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Orange Money",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": "OM20260916223921000000000000",
+        "counterparty": "OJO Payment Channel",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "orangemoney-ported-002",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "PennyWise OrangeMoneyJordanParser (Transfer in from a bank (Arabic)); see NOTICE.md",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "تم استقبال حوالة مالية من TEST USER NAME  من مزود الخدمة:  البنك الإسلامي الأردني إلى محفظتك بمبلغ 10  دينار بتاريخ 16/09/2026 الساعة 10:37:12 PM بالرقم المرجعي JIBA1609103712000000000  رصيد المحفظة المتاح هو 10 دينار أردني  شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.orangemoney.template002",
+      "candidate": {
+        "amountMinor": 10000,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Orange Money",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": "JIBA1609103712000000000",
+        "counterparty": "TEST USER NAME",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "orangemoney-ported-003",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "PennyWise OrangeMoneyJordanParser (Transfer in from a bank (English)); see NOTICE.md",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "A money transfer transaction from TEST USER NAME  with Service Provider: Jordan Islamic Bank has been credited to your wallet 0770000000 with the amount 150 JD on 30/05/2026 at 08:30:14 PM with reference number JIBA3005083012000000000. Available Wallet Balance: 150 JD  Thank you for using Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.orangemoney.template003",
+      "candidate": {
+        "amountMinor": 150000,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "wallet",
+        "bankName": "Orange Money",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": "JIBA3005083012000000000",
+        "counterparty": "TEST USER NAME",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "orangemoney-ported-004",
+    "country": "JO",
+    "bankId": "jo.orangemoney",
+    "provenance": "PennyWise OrangeMoneyJordanParser (Transfer out to another wallet); see NOTICE.md",
+    "input": {
+      "sender": "OrangeMoney",
+      "body": "تمت عملية التحويل المالي الى المحفظة TESTWALLET1 بمبلغ 150 دينار بتاريخ 03/06/2026 الساعة 08:28:03 PM بالرقم المرجعي OJM-PAY-20260603202803000000000000 رصيد المحفظة المتاح هو 25.500 دينار أردني شكراً لاستخدامك Orange Money",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.orangemoney.template004",
+      "candidate": {
+        "amountMinor": 150000,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Orange Money",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": "OJM-PAY-20260603202803000000000000",
+        "counterparty": "TESTWALLET1",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -1,0 +1,64 @@
+[
+  {
+    "id": "nationstrustbank-ported-001",
+    "country": "LK",
+    "bankId": "lk.nationstrustbank",
+    "provenance": "PennyWise NationsTrustBankParser (Card purchase - bill payment); see NOTICE.md",
+    "input": {
+      "sender": "NationsSMS",
+      "body": "Transaction Approved on your Card 123456******1234 for LKR 500.00 at BILL PAYMENT VIA NATIONS Available Bal LKR 12345.73  Call 0114315315 for any inquiry.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.nationstrustbank.template001",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Nations Trust Bank",
+        "countryCode": "LK",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "BILL PAYMENT VIA NATIONS",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nationstrustbank-ported-002",
+    "country": "LK",
+    "bankId": "lk.nationstrustbank",
+    "provenance": "PennyWise NationsTrustBankParser (Card purchase - ride); see NOTICE.md",
+    "input": {
+      "sender": "NationsSMS",
+      "body": "Transaction Approved on your Card 123456******5678 for LKR 771.51 at PICKME RIDE Available Bal LKR 16730.45  Call 0114315315 for any inquiry.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.nationstrustbank.template001",
+      "candidate": {
+        "amountMinor": 77151,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Nations Trust Bank",
+        "countryCode": "LK",
+        "accountLast4": "5678",
+        "reference": null,
+        "counterparty": "PICKME RIDE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

@@ -133,6 +133,9 @@ void main() {
         'reference': '99887766',
         'direction': 'debit',
         'channel': 'card',
+        'sender_type': 'bank',
+        'country': 'IN',
+        'currency': 'INR',
         'bank_name': 'Zeta',
       });
       expect(taught['suggested'], isTrue, reason: '$taught');
@@ -160,6 +163,9 @@ void main() {
       'payee': 'SWIGGY',
       'direction': 'debit',
       'channel': 'bankTransfer',
+      'sender_type': 'bank',
+      'country': 'IN',
+      'currency': 'INR',
       'bank_name': 'Zeta',
     });
     expect(taught['read_by_this_rule'], 2, reason: '$taught');
@@ -173,6 +179,9 @@ void main() {
       'payee': 'Blue Tokai Coffee',
       'direction': 'debit',
       'channel': 'card',
+      'sender_type': 'bank',
+      'country': 'IN',
+      'currency': 'INR',
     });
     expect(taught['suggested'], isTrue, reason: '$taught');
     final rule = (await AgentSuggestionRepository(db).load()).single;
@@ -186,6 +195,9 @@ void main() {
       'amount': '1250',
       'direction': 'debit',
       'channel': 'card',
+      'sender_type': 'bank',
+      'country': 'IN',
+      'currency': 'INR',
       'bank_name': 'Zeta',
     });
     expect(wrong['error'], contains('isn’t in the message'));
@@ -335,6 +347,9 @@ void main() {
       'reference': '530211112222',
       'direction': 'debit',
       'channel': 'upi',
+      'sender_type': 'bank',
+      'country': 'IN',
+      'currency': 'INR',
     });
     expect(first['read_by_this_rule'], 2, reason: '$first');
     expect(first['not_payments'], 1, reason: '$first');
@@ -351,6 +366,9 @@ void main() {
       'amount': '1,180.00',
       'direction': 'debit',
       'channel': 'upi',
+      'sender_type': 'bank',
+      'country': 'IN',
+      'currency': 'INR',
     });
     expect(repeat['suggested'], isFalse, reason: '$repeat');
 
@@ -361,6 +379,9 @@ void main() {
       'payee': 'NETFLIX COM',
       'direction': 'debit',
       'channel': 'card',
+      'sender_type': 'bank',
+      'country': 'IN',
+      'currency': 'INR',
     });
     expect(again['next'], startsWith('Done'), reason: '$again');
     final listed = await call('list_missed_sms');

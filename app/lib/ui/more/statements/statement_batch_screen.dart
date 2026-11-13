@@ -172,9 +172,9 @@ class _StatementBatchScreenState extends State<StatementBatchScreen> {
     // A new layout set up meanwhile (by the AI, approved in the app) is
     // read with the columns now saved for it.
     if (item.read case NewLayoutStatement(:final rows, :final source)) {
-      final saved = await StatementImportRepository(widget.sync.repository.db)
-          .knownMappings();
-      if (findSavedMapping(rows, saved) case final mapping?) {
+      if (await StatementImportRepository(widget.sync.repository.db)
+              .mappingFor(rows)
+          case final mapping?) {
         final statement = parseStatementTable(
           rows,
           mapping,

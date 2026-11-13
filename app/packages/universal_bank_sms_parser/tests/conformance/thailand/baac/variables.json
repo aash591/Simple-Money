@@ -1,0 +1,33 @@
+[
+  {
+    "id": "baac-variables-001",
+    "country": "TH",
+    "bankId": "th.baac",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BAAC",
+      "body": "BAAC: โอนเงินออก 321.09 บาท บช x9988 คงเหลือ 9876.54 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.baac.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "BAAC",
+        "countryCode": "TH",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

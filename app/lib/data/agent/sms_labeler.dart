@@ -8,6 +8,58 @@
 /// "any text" so the rule reads the next message of the same shape too.
 library;
 
+import '../../domain/currency_digits.dart';
+import '../sms_amounts.dart';
+import '../sms_sender_role.dart';
+
+/// Digits in any script the rule engine reads: ASCII, Arabic-Indic,
+/// Persian and Thai.
+const _digit = '[0-9٠-٩۰-۹๐-๙]';
+
+/// How [amount], copied from an SMS, writes numbers, as rule defaults: the
+/// decimal mark, the grouping, and any digits other than ASCII. 1,250.00 and
+/// 1.250,00 and ١٬٢٥٠ all read. [currency]'s decimal places settle 1.250:
+/// three decimals for a dinar, a thousand separator for a peso.
+Map<String, Object> numberStyle(String amount, String currency) {
+  final scripts = <String>[
+    'ascii',
+    if (RegExp('[٠-٩]').hasMatch(amount)) 'arabic_indic',
+    if (RegExp('[۰-۹]').hasMatch(amount)) 'persian',
+    if (RegExp('[๐-๙]').hasMatch(amount)) 'thai',
+  ];
+  // Arabic's own separators read as the Latin ones.
+  final plain = amount.replaceAll('٬', ',').replaceAll('٫', '.');
+  final dots = '.'.allMatches(plain).length;
+  final commas = ','.allMatches(plain).length;
+  String decimal;
+  if (dots > 0 && commas > 0) {
+    decimal = plain.lastIndexOf('.') > plain.lastIndexOf(',') ? '.' : ',';
+  } else if (dots + commas == 0) {
+    decimal = '.';
+  } else {
+    final mark = dots > 0 ? '.' : ',';
+    final tail = plain.substring(plain.lastIndexOf(mark) + 1);
+    final groups = dots + commas > 1;
+    // One mark before exactly three digits is grouping, unless the currency
+    // has three decimals.
+    decimal = groups || (tail.length == 3 && currencyDigits(currency) != 3)
+        ? (mark == '.' ? ',' : '.')
+        : mark;
+  }
+  final grouping =
+      RegExp('^$_digit{1,2}([,.]$_digit{2})+[,.]$_digit{3}([,.]|\$)')
+          .hasMatch(plain)
+      ? 'indian'
+      : 'western';
+  return {
+    'currency': currency,
+    'decimalMark': decimal,
+    'grouping': grouping,
+    if (scripts.length > 1) 'digits': scripts,
+    'exponents': <String, dynamic>{currency: smsRuleExponent(currency)},
+  };
+}
+
 /// One value the AI copied, and how the rule captures it.
 class _Label {
   _Label(this.field, this.value, this.start);
@@ -26,7 +78,19 @@ Map<String, Object?> buildLabeledFormat({
   String? reference,
   required String direction,
   required String channel,
+  SmsSenderRole role = SmsSenderRole.bank,
+  String? senderName,
+  String country = 'IN',
+  String currency = 'INR',
 }) {
+  if (!RegExp(r'^[A-Z]{2}$').hasMatch(country)) {
+    throw ArgumentError('country must be a two-letter code, such as IN or AE.');
+  }
+  if (!RegExp(r'^[A-Z]{3}$').hasMatch(currency)) {
+    throw ArgumentError(
+      'currency must be a three-letter code, such as INR or AED.',
+    );
+  }
   if (!const {'debit', 'credit'}.contains(direction)) {
     throw ArgumentError('direction must be debit or credit.');
   }
@@ -127,6 +191,9 @@ Map<String, Object?> buildLabeledFormat({
   }
 
   return {
+    smsSenderRoleKey: role.name,
+    'country': country,
+    'defaults': numberStyle(amount.trim(), currency),
     'direction': direction,
     'channel': channel,
     'tokens': tokens,
@@ -139,7 +206,10 @@ Map<String, Object?> buildLabeledFormat({
           'length': 4,
         },
       if (labels.any((l) => l.field == 'payee'))
-        'counterparty': {'capture': 'party'},
+        'counterparty': {'capture': 'party'}
+      // A shop's or biller's own SMS: the sender is who was paid.
+      else if (!role.holdsMoney && (senderName?.trim() ?? '').isNotEmpty)
+        'counterparty': {'value': senderName!.trim()},
       if (labels.any((l) => l.field == 'reference'))
         'reference': {'capture': 'ref'},
     },
@@ -170,7 +240,7 @@ class _Part {
 List<_Part> _parts(String gap) {
   final parts = <_Part>[];
   var at = 0;
-  for (final word in RegExp(r'\S*\d\S*').allMatches(gap)) {
+  for (final word in RegExp('\\S*$_digit\\S*').allMatches(gap)) {
     if (word.start > at) {
       parts.add(_Part(gap.substring(at, word.start), fixed: true));
     }

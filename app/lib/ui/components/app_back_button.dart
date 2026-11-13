@@ -127,7 +127,10 @@ class GlassDisc extends StatelessWidget {
     return Container(
       width: wide ? null : GlassCircleButton.size,
       height: GlassCircleButton.size,
-      decoration: BoxDecoration(borderRadius: radius),
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: SearchField.softShadow(context),
+      ),
       foregroundDecoration: !usesGlass(context)
           ? null
           : GlassRim(dark: dark, solid: false, radius: radius),

@@ -81,6 +81,16 @@
     }
   ],
   "banks": [
-    "bangkok/rules.json"
+    "baac/rules.json",
+    "bangkok/rules.json",
+    "cimbthai/rules.json",
+    "governmentsavingsbank/rules.json",
+    "kasikornbank/rules.json",
+    "krungsri/rules.json",
+    "krungthaibank/rules.json",
+    "ktc/rules.json",
+    "siamcommercialbank/rules.json",
+    "ttb/rules.json",
+    "uobthailand/rules.json"
   ]
 }

@@ -1,0 +1,312 @@
+[
+  {
+    "id": "islamicinternationalarabbank-variables-002",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "حركة شراء MIGRATIONSHOP - Alzarqa Zarqa JO المبلغ: 321.09 JOD حساب: 9876.54*9876.54 تاريخ: 02-DEC-2027 11:22:33 الرصيد: 9876.54 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template002",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-variables-003",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "حركة شراء MIGRATIONSHOP AMMAN JO المبلغ: 321.09 JOD حساب: 9876.54*9876.54 تاريخ: 02-DEC-2027 11:22:33 الرصيد: 9876.54 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template003",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-variables-004",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "حركة شراء SAMPLE CENTRALAMMAN JO المبلغ: 321.09 JOD حساب: 9876.54*9876.54 تاريخ: 02-DEC-2027 11:22:33 الرصيد: 9876.54 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template004",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "SAMPLE CENTRAL",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-variables-005",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "حركة شراء MIGRATIONSHOP 02-DEC-2027 US المبلغ: 321.09 JOD حساب: 9876.54*9876.54 تاريخ: 02-DEC-2027 11:22:33 الرصيد: 9876.54 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template005",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-variables-006",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "حركة شراء MIGRATIONSHOP 9876.54*META998877 المبلغ: 321.09 JOD حساب: 1234000009988 تاريخ: 02-DEC-2027 11:22:33 الرصيد: 9876.54 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template006",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-variables-007",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "عكس حركة شراء من GOOGLE*TEMPORARY HOLD MOUNTAIN VIEWUS المبلغ: 321.09 JOD حساب: 9876.54*9876.54 تاريخ: 02-DEC-2027 11:22:33 الرصيد: 9876.54 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template007",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "GOOGLE*TEMPORARY HOLD MOUNTAIN VIEW",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-variables-010",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "مشتريات CliQ إلى MIGRATIONSHOP المبلغ: 321.09 JOD حساب: 9876.54*9876.54 تاريخ: 02-DEC-2027 11:22:33 الرصيد: 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template010",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-variables-011",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "عكس دفعة CliQ من MIGRATIONSHOP المبلغ: 321.09 JOD حساب: 9876.54*9876.54 تاريخ: 02-DEC-2027 11:22:33 الرصيد: 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template011",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-variables-012",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "سحب صراف Panorama Mall ATM Amman JO المبلغ: 321.09 JOD حساب: 9876.54*9876.54 تاريخ: 02-DEC-2027 11:22:33 الرصيد: 9876.54 JOD مرجع: 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template012",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "ATM Withdrawal",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "islamicinternationalarabbank-variables-013",
+    "country": "JO",
+    "bankId": "jo.islamicinternationalarabbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "ARABIISLAMI",
+      "body": "إيداع صراف Jubeiha Branch ATM Amman JO المبلغ: 321.09 JOD حساب: 9876.54*9876.54 تاريخ: 02-DEC-2027 11:22:33 الرصيد: 9876.54 JOD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "jo.islamicinternationalarabbank.template013",
+      "candidate": {
+        "amountMinor": 321090,
+        "currencyCode": "JOD",
+        "direction": "credit",
+        "channel": "atm",
+        "bankName": "Islamic International Arab Bank",
+        "countryCode": "JO",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "ATM Deposit",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

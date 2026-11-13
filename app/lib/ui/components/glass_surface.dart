@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../state/appearance_controller.dart' show AppearanceScope;
 import '../theme/app_theme.dart'
@@ -35,44 +37,45 @@ class GlassBackdrop extends StatelessWidget {
     if (!usesGlass(context)) {
       return ColoredBox(color: theme.scaffoldBackgroundColor);
     }
+    final accent = theme.colorScheme.primary;
+    final black = theme.extension<AppChrome>()?.cardBorder != null;
     if (usesAurora(context)) {
-      final black = theme.extension<AppChrome>()?.cardBorder != null;
       final appearance = AppearanceScope.maybeOf(context);
       final wallpaper = appearance?.wallpaperPath;
       if (wallpaper != null && !black) {
-        return IgnorePointer(
-          child: RepaintBoundary(
-            child: _WallpaperBackdrop(
-              path: wallpaper,
-              dim: appearance!.wallpaperDim,
-              dark: dark,
-            ),
+        final dim = appearance!.wallpaperDim;
+        return _SnapshotBackdrop(
+          id: ('wallpaper', wallpaper, dim, dark),
+          builder: (ready) => _WallpaperBackdrop(
+            path: wallpaper,
+            dim: dim,
+            dark: dark,
+            onReady: ready,
           ),
         );
       }
-      return IgnorePointer(
-        child: RepaintBoundary(
-          child: CustomPaint(
+      return _SnapshotBackdrop(
+        id: ('aurora', accent, dark, black),
+        builder: (ready) {
+          ready();
+          return CustomPaint(
             size: Size.infinite,
-            painter: _AuroraPainter(
-              accent: theme.colorScheme.primary,
-              dark: dark,
-              black: black,
-            ),
-          ),
-        ),
+            painter: _AuroraPainter(accent: accent, dark: dark, black: black),
+          );
+        },
       );
     }
     // The true-black theme stays black, with dimmer ribbons.
-    final black = theme.extension<AppChrome>()?.cardBorder != null;
     final colors = dark
         ? (black
               ? const [Color(0xff000000), Color(0xff000000)]
               : const [Color(0xff131315), Color(0xff0b0b0d)])
         : const [Color(0xfff6f5f3), Color(0xffefeff3)];
-    return IgnorePointer(
-      child: RepaintBoundary(
-        child: DecoratedBox(
+    return _SnapshotBackdrop(
+      id: ('glassy', accent, dark, black),
+      builder: (ready) {
+        ready();
+        return DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -83,7 +86,7 @@ class GlassBackdrop extends StatelessWidget {
           child: CustomPaint(
             size: Size.infinite,
             painter: _WavesPainter(
-              accent: theme.colorScheme.primary,
+              accent: accent,
               dark: dark,
               // Dark needs far more: a muted ribbon on near-black at the
               // light-mode strength can't be seen, and glass with nothing
@@ -91,7 +94,132 @@ class GlassBackdrop extends StatelessWidget {
               strength: dark ? (black ? .2 : .62) : .24,
             ),
           ),
-        ),
+        );
+      },
+    );
+  }
+}
+
+/// Paints [builder]'s backdrop live once, then copies the result into an
+/// image and shows only that image.
+///
+/// Impeller keeps no raster cache, so a [RepaintBoundary] alone still
+/// redraws the full-screen glow (three screen-sized gradients, or a blurred
+/// photo) on every frame of every scroll. One image of the same pixels costs
+/// a single texture draw. Images are shared by every page showing the same
+/// backdrop at the same size, so a page pushed later draws it at once.
+///
+/// [builder] calls its argument once the backdrop has everything it needs
+/// on screen (a picture decoded), so a half-loaded one is never kept.
+class _SnapshotBackdrop extends StatefulWidget {
+  const _SnapshotBackdrop({required this.id, required this.builder});
+
+  /// What the backdrop shows, apart from its size; equal ids paint alike.
+  final Object id;
+  final Widget Function(VoidCallback ready) builder;
+
+  @override
+  State<_SnapshotBackdrop> createState() => _SnapshotBackdropState();
+}
+
+class _SnapshotBackdropState extends State<_SnapshotBackdrop> {
+  /// Recent snapshots by (id, size, pixel ratio). Pages hold their own
+  /// clones, so evicting one never pulls an image out from under a page.
+  static final _cache = <(Object, Size, double), ui.Image>{};
+  static const _cacheSize = 4;
+
+  /// Widget tests can't wait on real timers; they get the live backdrop.
+  static final _enabled = !Platform.environment.containsKey('FLUTTER_TEST');
+
+  final _boundary = GlobalKey();
+  (Object, Size, double)? _key;
+  ui.Image? _image;
+  bool _ready = false;
+  Timer? _capture;
+
+  @override
+  void didUpdateWidget(_SnapshotBackdrop old) {
+    super.didUpdateWidget(old);
+    if (old.id != widget.id) _ready = false;
+  }
+
+  @override
+  void dispose() {
+    _capture?.cancel();
+    _image?.dispose();
+    super.dispose();
+  }
+
+  void _show((Object, Size, double) key) {
+    if (_key == key) return;
+    _key = key;
+    _capture?.cancel();
+    _image?.dispose();
+    _image = _cache[key]?.clone();
+  }
+
+  /// Called during build; the capture waits for the frame regardless.
+  void _markReady() {
+    if (_ready) return;
+    _ready = true;
+    final key = _key;
+    if (key != null && _image == null) _schedule(key);
+  }
+
+  /// Snapshots once the backdrop has held still for a moment, so a size
+  /// that is still animating (the keyboard opening) is never kept.
+  void _schedule((Object, Size, double) key) {
+    _capture?.cancel();
+    _capture = Timer(const Duration(milliseconds: 250), () => _take(key));
+  }
+
+  Future<void> _take((Object, Size, double) key) async {
+    if (!mounted || _key != key || _image != null || !_ready) return;
+    final boundary = _boundary.currentContext?.findRenderObject();
+    if (boundary is! RenderRepaintBoundary || !boundary.hasSize) return;
+    final ui.Image image;
+    try {
+      image = await boundary.toImage(pixelRatio: key.$3);
+    } catch (_) {
+      return; // Keep painting it live.
+    }
+    _cache.remove(key)?.dispose();
+    _cache[key] = image;
+    while (_cache.length > _cacheSize) {
+      _cache.remove(_cache.keys.first)!.dispose();
+    }
+    if (!mounted || _key != key || _image != null) return;
+    setState(() => _image = image.clone());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ratio = MediaQuery.devicePixelRatioOf(context);
+    return IgnorePointer(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final size = constraints.biggest;
+          final live = RepaintBoundary(
+            key: _boundary,
+            child: widget.builder(_markReady),
+          );
+          if (!_enabled || !size.isFinite || size.isEmpty) return live;
+          final key = (widget.id, size, ratio);
+          final changed = _key != key;
+          _show(key);
+          final image = _image;
+          if (image != null) {
+            return RawImage(
+              image: image,
+              width: size.width,
+              height: size.height,
+              fit: BoxFit.fill,
+              filterQuality: FilterQuality.low,
+            );
+          }
+          if (changed && _ready) _schedule(key);
+          return live;
+        },
       ),
     );
   }
@@ -104,10 +232,14 @@ class _WallpaperBackdrop extends StatelessWidget {
     required this.path,
     required this.dim,
     required this.dark,
+    required this.onReady,
   });
   final String path;
   final double dim;
   final bool dark;
+
+  /// Called once the picture is on screen.
+  final VoidCallback onReady;
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +264,10 @@ class _WallpaperBackdrop extends StatelessWidget {
               allowUpscaling: false,
             ),
             fit: BoxFit.cover,
+            frameBuilder: (context, child, frame, _) {
+              if (frame != null) onReady();
+              return child;
+            },
             errorBuilder: (_, _, _) => const SizedBox.shrink(),
           ),
         ),
@@ -308,10 +444,13 @@ class GlassPage extends StatelessWidget {
     fit: StackFit.expand,
     children: [
       const GlassBackdrop(),
-      Theme(
-        data: Theme.of(context)
-            .copyWith(scaffoldBackgroundColor: Colors.transparent),
-        child: child,
+      // Frosted cards over a picture share one blur of it.
+      BackdropGroup(
+        child: Theme(
+          data: Theme.of(context)
+              .copyWith(scaffoldBackgroundColor: Colors.transparent),
+          child: child,
+        ),
       ),
     ],
   );
@@ -410,22 +549,63 @@ class GlassCardWash extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: radius,
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white.withValues(alpha: dark ? .02 : .12),
-            Colors.white.withValues(alpha: 0),
-          ],
-          stops: const [0, .4],
-        ),
-      ),
+    return CustomPaint(
+      painter: _WashPainter(radius: radius, alpha: dark ? .02 : .12),
       child: child,
     );
   }
+}
+
+/// The sheen is clear from 40% of the way down, so only that top part is
+/// drawn: blending a fully clear gradient over the rest of every card cost
+/// fill rate on each frame for nothing.
+class _WashPainter extends CustomPainter {
+  const _WashPainter({required this.radius, required this.alpha});
+  final BorderRadius radius;
+  final double alpha;
+  static const _fade = .4;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty) return;
+    final rect = Offset.zero & size;
+    final paint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.white.withValues(alpha: alpha),
+          Colors.white.withValues(alpha: 0),
+        ],
+        stops: const [0, _fade],
+      ).createShader(rect);
+    final shape = radius.toRRect(rect);
+    final cut = size.height * _fade;
+    // The top part has the card's own top corners as long as neither the
+    // top corners reach below the cut nor the bottom ones above it.
+    final fits =
+        shape.tlRadiusY <= cut &&
+        shape.trRadiusY <= cut &&
+        shape.blRadiusY <= size.height - cut &&
+        shape.brRadiusY <= size.height - cut;
+    canvas.drawRRect(
+      fits
+          ? RRect.fromLTRBAndCorners(
+              0,
+              0,
+              size.width,
+              cut,
+              topLeft: shape.tlRadius,
+              topRight: shape.trRadius,
+            )
+          : shape,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_WashPainter old) =>
+      radius != old.radius || alpha != old.alpha;
 }
 
 /// A wide, soft lift under a glass card, plus a tight contact shadow.

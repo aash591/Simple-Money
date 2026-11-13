@@ -1,0 +1,162 @@
+[
+  {
+    "id": "zemenbank-reject-security",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "your otp is 123456. Dear Customer your account 109xxxxxxxx7018 has been credited with ETB 10000 from telebirr wallet 251922222222 with reference 109TEIN260350016 on 4-Feb-2026. Your Current Balance is ETB 10823.37. Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-reject-promotional",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "exclusive offer: apply now. Dear Customer your account 109xxxxxxxx7018 has been credited with ETB 10000 from telebirr wallet 251922222222 with reference 109TEIN260350016 on 4-Feb-2026. Your Current Balance is ETB 10823.37. Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-reject-failed",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "payment failed. Dear Customer your account 109xxxxxxxx7018 has been credited with ETB 10000 from telebirr wallet 251922222222 with reference 109TEIN260350016 on 4-Feb-2026. Your Current Balance is ETB 10823.37. Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-reject-pending",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "payment pending. Dear Customer your account 109xxxxxxxx7018 has been credited with ETB 10000 from telebirr wallet 251922222222 with reference 109TEIN260350016 on 4-Feb-2026. Your Current Balance is ETB 10823.37. Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-reject-future",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "will be debited. Dear Customer your account 109xxxxxxxx7018 has been credited with ETB 10000 from telebirr wallet 251922222222 with reference 109TEIN260350016 on 4-Feb-2026. Your Current Balance is ETB 10823.37. Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-reject-notice",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "statement generated. Dear Customer your account 109xxxxxxxx7018 has been credited with ETB 10000 from telebirr wallet 251922222222 with reference 109TEIN260350016 on 4-Feb-2026. Your Current Balance is ETB 10823.37. Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-reject-unknown-sender",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Dear Customer your account 109xxxxxxxx7018 has been credited with ETB 10000 from telebirr wallet 251922222222 with reference 109TEIN260350016 on 4-Feb-2026. Your Current Balance is ETB 10823.37. Thank you for banking with Zemen Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "zemenbank-reject-balance-only",
+    "country": "ET",
+    "bankId": "et.zemenbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "Zemen Bank",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

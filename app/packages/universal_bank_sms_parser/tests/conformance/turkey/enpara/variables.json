@@ -1,0 +1,126 @@
+[
+  {
+    "id": "enpara-variables-001",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Enpara",
+      "body": "Vadesiz TL hesabınıza bağlı 9988 ile biten Encard'ınızla 02-DEC-2027 tarihinde 9876.54-MIGRATIONSHOP TR firmasında 321,09 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tr.enpara.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TRY",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Enpara",
+        "countryCode": "TR",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "enpara-variables-002",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Enpara",
+      "body": "Vadesiz TL hesabınıza bağlı 9988 ile biten Encard'ınızla 02-DEC-2027 tarihinde 9876.54-MIGRATIONSHOP TR firmasında 321,09 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tr.enpara.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TRY",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Enpara",
+        "countryCode": "TR",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "enpara-variables-004",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Enpara",
+      "body": "Vadesiz TL hesabınıza bağlı 9988 ile biten Encard'ınızla 02-DEC-2027 tarihinde 9876.54-MIGRATIONSHOP TR firmasında 321,09 TL tutarında harcama yapıldı.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tr.enpara.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TRY",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Enpara",
+        "countryCode": "TR",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "enpara-variables-006",
+    "country": "TR",
+    "bankId": "tr.enpara",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Enpara",
+      "body": "Vadesiz TL hesabınıza 02-DEC-2027 tarihinde MIGRATIONSHOP tarafından yapılan para transferi (FAST) sonucunda 321,09 TL giriş oldu. İşlem sonrası hesap bakiyesi: 9876.54,9876.54 TL",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tr.enpara.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "TRY",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Enpara",
+        "countryCode": "TR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

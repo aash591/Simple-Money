@@ -1,0 +1,162 @@
+[
+  {
+    "id": "nationstrustbank-reject-security",
+    "country": "LK",
+    "bankId": "lk.nationstrustbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NationsSMS",
+      "body": "your otp is 123456. Transaction Approved on your Card 123456******1234 for LKR 500.00 at BILL PAYMENT VIA NATIONS Available Bal LKR 12345.73  Call 0114315315 for any inquiry.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationstrustbank-reject-promotional",
+    "country": "LK",
+    "bankId": "lk.nationstrustbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NationsSMS",
+      "body": "exclusive offer: apply now. Transaction Approved on your Card 123456******1234 for LKR 500.00 at BILL PAYMENT VIA NATIONS Available Bal LKR 12345.73  Call 0114315315 for any inquiry.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationstrustbank-reject-failed",
+    "country": "LK",
+    "bankId": "lk.nationstrustbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NationsSMS",
+      "body": "payment failed. Transaction Approved on your Card 123456******1234 for LKR 500.00 at BILL PAYMENT VIA NATIONS Available Bal LKR 12345.73  Call 0114315315 for any inquiry.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationstrustbank-reject-pending",
+    "country": "LK",
+    "bankId": "lk.nationstrustbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NationsSMS",
+      "body": "payment pending. Transaction Approved on your Card 123456******1234 for LKR 500.00 at BILL PAYMENT VIA NATIONS Available Bal LKR 12345.73  Call 0114315315 for any inquiry.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationstrustbank-reject-future",
+    "country": "LK",
+    "bankId": "lk.nationstrustbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NationsSMS",
+      "body": "will be debited. Transaction Approved on your Card 123456******1234 for LKR 500.00 at BILL PAYMENT VIA NATIONS Available Bal LKR 12345.73  Call 0114315315 for any inquiry.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationstrustbank-reject-notice",
+    "country": "LK",
+    "bankId": "lk.nationstrustbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "NationsSMS",
+      "body": "statement generated. Transaction Approved on your Card 123456******1234 for LKR 500.00 at BILL PAYMENT VIA NATIONS Available Bal LKR 12345.73  Call 0114315315 for any inquiry.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationstrustbank-reject-unknown-sender",
+    "country": "LK",
+    "bankId": "lk.nationstrustbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Transaction Approved on your Card 123456******1234 for LKR 500.00 at BILL PAYMENT VIA NATIONS Available Bal LKR 12345.73  Call 0114315315 for any inquiry.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationstrustbank-reject-balance-only",
+    "country": "LK",
+    "bankId": "lk.nationstrustbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "NationsSMS",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

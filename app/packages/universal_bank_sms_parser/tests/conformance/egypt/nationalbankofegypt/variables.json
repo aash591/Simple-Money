@@ -1,0 +1,126 @@
+[
+  {
+    "id": "nationalbankofegypt-variables-001",
+    "country": "EG",
+    "bankId": "eg.nationalbankofegypt",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BanK-AlAhly",
+      "body": "تم خصم 321.09 جم من بطاقة الائتمان رقم 9988 عند MIGRATIONSHOP يوم 9876.54-9876.54 الساعة 11:22:33 المتاح 9876.54 جم للمزيد اتصل ب 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.nationalbankofegypt.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EGP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "National Bank of Egypt",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationalbankofegypt-variables-002",
+    "country": "EG",
+    "bankId": "eg.nationalbankofegypt",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BanK-AlAhly",
+      "body": "تم خصم 321.09 EGP من بطاقة الخصم المباشر رقم9988 عندNBE META998877 يوم03/9876.54/9876.54 الساعة21:9876.54 المتاح800.00EGP للمزيد اتصل ب 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.nationalbankofegypt.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EGP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "National Bank of Egypt",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "NBE ATM546",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationalbankofegypt-variables-003",
+    "country": "EG",
+    "bankId": "eg.nationalbankofegypt",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BanK-AlAhly",
+      "body": "تم خصم 321.09 جم من بطاقة الائتمان رقم 9988 عند MIGRATIONSHOP يوم 9876.54-9876.54 الساعة 11:22:33 المتاح 9876.54 جم للمزيد اتصل ب 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.nationalbankofegypt.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EGP",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "National Bank of Egypt",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "nationalbankofegypt-variables-004",
+    "country": "EG",
+    "bankId": "eg.nationalbankofegypt",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BanK-AlAhly",
+      "body": "تم إضافة تحويل لحظي لحسابكم رقم 9988 بمبلغ 321.09 جم من MIGRATIONSHOP رقم مرجعي MIG123456 يوم 9876.54-9876.54 الساعة 11:22:33 للمزيد اتصل بـ 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "eg.nationalbankofegypt.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "EGP",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "National Bank of Egypt",
+        "countryCode": "EG",
+        "accountLast4": "9988",
+        "reference": "MIG123456",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

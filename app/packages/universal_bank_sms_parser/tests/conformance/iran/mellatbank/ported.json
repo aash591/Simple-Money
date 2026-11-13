@@ -1,0 +1,157 @@
+[
+  {
+    "id": "mellatbank-ported-001",
+    "country": "IR",
+    "bankId": "ir.mellatbank",
+    "provenance": "PennyWise MellatBankParser (Mellat Bank subsidy (یارانه) deposit); see NOTICE.md",
+    "input": {
+      "sender": "Bank Mellat",
+      "body": "واریز یارانه\nبه حساب 1234567890\nمبلغ 15,000,000 ریال\n1405/08/02",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellatbank.template001",
+      "candidate": {
+        "amountMinor": 1500000000,
+        "currencyCode": "IRR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Mellat Bank",
+        "countryCode": "IR",
+        "accountLast4": "7890",
+        "reference": null,
+        "counterparty": "Subsidy Deposit",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mellatbank-ported-002",
+    "country": "IR",
+    "bankId": "ir.mellatbank",
+    "provenance": "PennyWise MellatBankParser (Mellat Bank withdrawal transaction); see NOTICE.md",
+    "input": {
+      "sender": "Bank Mellat",
+      "body": "حساب1234567890\nبرداشت1,250,000\nمانده18,750,000\n04/04/21-21:40",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellatbank.template002",
+      "candidate": {
+        "amountMinor": 125000000,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mellat Bank",
+        "countryCode": "IR",
+        "accountLast4": "7890",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mellatbank-ported-003",
+    "country": "IR",
+    "bankId": "ir.mellatbank",
+    "provenance": "PennyWise MellatBankParser (Mellat Bank withdrawal with spaced amounts); see NOTICE.md",
+    "input": {
+      "sender": "Bank Mellat",
+      "body": "حساب1234567890\nبرداشت 1,250,000\nمانده 18,750,000\n04/04/21-21:40",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellatbank.template003",
+      "candidate": {
+        "amountMinor": 125000000,
+        "currencyCode": "IRR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Mellat Bank",
+        "countryCode": "IR",
+        "accountLast4": "7890",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mellatbank-ported-004",
+    "country": "IR",
+    "bankId": "ir.mellatbank",
+    "provenance": "PennyWise MellatBankParser (Mellat Bank deposit transaction); see NOTICE.md",
+    "input": {
+      "sender": "Bank Mellat",
+      "body": "حساب1234567890\nواریز2,500,000\nمانده21,250,000\n04/07/15-08:42",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellatbank.template004",
+      "candidate": {
+        "amountMinor": 250000000,
+        "currencyCode": "IRR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Mellat Bank",
+        "countryCode": "IR",
+        "accountLast4": "7890",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "mellatbank-ported-005",
+    "country": "IR",
+    "bankId": "ir.mellatbank",
+    "provenance": "PennyWise MellatBankParser (Mellat Bank short term interest deposit transaction); see NOTICE.md",
+    "input": {
+      "sender": "Bank Mellat",
+      "body": "واریز سود کوتاه مدت\nحساب1234567890\nمبلغ45,670\n04/06/02",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ir.mellatbank.template005",
+      "candidate": {
+        "amountMinor": 4567000,
+        "currencyCode": "IRR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Mellat Bank",
+        "countryCode": "IR",
+        "accountLast4": "7890",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

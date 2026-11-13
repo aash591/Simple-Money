@@ -1,0 +1,64 @@
+[
+  {
+    "id": "nabilbank-ported-001",
+    "country": "NP",
+    "bankId": "np.nabilbank",
+    "provenance": "PennyWise NabilBankParser (Withdrawn example with reference); see NOTICE.md",
+    "input": {
+      "sender": "NABIL_ALERT",
+      "body": "Dear Customer, Your 091##04118 has been withdrawn by NPR 20,008.00 on 17/04/2026 07:58:06, Remarks: MTXN0000517374-130\nDownload App: https://rebrand.ly/nBank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.nabilbank.template001",
+      "candidate": {
+        "amountMinor": 2000800,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Nabil Bank",
+        "countryCode": "NP",
+        "accountLast4": "4118",
+        "reference": "MTXN0000517374-130",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nabilbank-ported-002",
+    "country": "NP",
+    "bankId": "np.nabilbank",
+    "provenance": "PennyWise NabilBankParser (bank sample); see NOTICE.md",
+    "input": {
+      "sender": "NABIL_ALERT",
+      "body": "Dear Customer, Your 091##04118 has been withdrawn by NPR 20,008.00 on 17/04/2026 07:58:06, Remarks: MTXN0000517374-130",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.nabilbank.template002",
+      "candidate": {
+        "amountMinor": 2000800,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Nabil Bank",
+        "countryCode": "NP",
+        "accountLast4": "4118",
+        "reference": "MTXN0000517374-130",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

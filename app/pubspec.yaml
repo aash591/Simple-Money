@@ -1,7 +1,7 @@
 name: simple_money
 description: A simple, private, offline-first money manager.
 publish_to: 'none'
-version: 0.60.12+20
+version: 0.60.21+29
 
 environment:
   sdk: ^3.13.2
@@ -51,9 +51,57 @@ flutter:
   uses-material-design: true
   assets:
     - packages/universal_bank_sms_parser/distribution/manifest.json
+    - packages/universal_bank_sms_parser/distribution/packs/bangladesh/
+    - packages/universal_bank_sms_parser/distribution/packs/czechia/
+    - packages/universal_bank_sms_parser/distribution/packs/egypt/
+    - packages/universal_bank_sms_parser/distribution/packs/elsalvador/
+    - packages/universal_bank_sms_parser/distribution/packs/ethiopia/
+    - packages/universal_bank_sms_parser/distribution/packs/france/
+    - packages/universal_bank_sms_parser/distribution/packs/germany/
     - packages/universal_bank_sms_parser/distribution/packs/india/
+    - packages/universal_bank_sms_parser/distribution/packs/iran/
+    - packages/universal_bank_sms_parser/distribution/packs/jordan/
+    - packages/universal_bank_sms_parser/distribution/packs/kenya/
+    - packages/universal_bank_sms_parser/distribution/packs/mozambique/
+    - packages/universal_bank_sms_parser/distribution/packs/nepal/
+    - packages/universal_bank_sms_parser/distribution/packs/nigeria/
+    - packages/universal_bank_sms_parser/distribution/packs/oman/
+    - packages/universal_bank_sms_parser/distribution/packs/pakistan/
+    - packages/universal_bank_sms_parser/distribution/packs/russia/
+    - packages/universal_bank_sms_parser/distribution/packs/saudiarabia/
+    - packages/universal_bank_sms_parser/distribution/packs/srilanka/
+    - packages/universal_bank_sms_parser/distribution/packs/tanzania/
+    - packages/universal_bank_sms_parser/distribution/packs/thailand/
+    - packages/universal_bank_sms_parser/distribution/packs/turkey/
+    - packages/universal_bank_sms_parser/distribution/packs/uae/
+    - packages/universal_bank_sms_parser/distribution/packs/uk/
+    - packages/universal_bank_sms_parser/distribution/packs/usa/
     # Country defaults and classifiers, compiled with the user's own SMS rules.
+    - packages/universal_bank_sms_parser/rules/bangladesh/country.json
+    - packages/universal_bank_sms_parser/rules/czechia/country.json
+    - packages/universal_bank_sms_parser/rules/egypt/country.json
+    - packages/universal_bank_sms_parser/rules/elsalvador/country.json
+    - packages/universal_bank_sms_parser/rules/ethiopia/country.json
+    - packages/universal_bank_sms_parser/rules/france/country.json
+    - packages/universal_bank_sms_parser/rules/germany/country.json
     - packages/universal_bank_sms_parser/rules/india/country.json
+    - packages/universal_bank_sms_parser/rules/iran/country.json
+    - packages/universal_bank_sms_parser/rules/jordan/country.json
+    - packages/universal_bank_sms_parser/rules/kenya/country.json
+    - packages/universal_bank_sms_parser/rules/mozambique/country.json
+    - packages/universal_bank_sms_parser/rules/nepal/country.json
+    - packages/universal_bank_sms_parser/rules/nigeria/country.json
+    - packages/universal_bank_sms_parser/rules/oman/country.json
+    - packages/universal_bank_sms_parser/rules/pakistan/country.json
+    - packages/universal_bank_sms_parser/rules/russia/country.json
+    - packages/universal_bank_sms_parser/rules/saudiarabia/country.json
+    - packages/universal_bank_sms_parser/rules/srilanka/country.json
+    - packages/universal_bank_sms_parser/rules/tanzania/country.json
+    - packages/universal_bank_sms_parser/rules/thailand/country.json
+    - packages/universal_bank_sms_parser/rules/turkey/country.json
+    - packages/universal_bank_sms_parser/rules/uae/country.json
+    - packages/universal_bank_sms_parser/rules/uk/country.json
+    - packages/universal_bank_sms_parser/rules/usa/country.json
     - assets/images/app_icon.webp
     - assets/images/budget_total_3d.webp
     - assets/data/currencies.json

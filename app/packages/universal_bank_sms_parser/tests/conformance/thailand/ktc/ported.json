@@ -1,0 +1,33 @@
+[
+  {
+    "id": "ktc-ported-002",
+    "country": "TH",
+    "bankId": "th.ktc",
+    "provenance": "PennyWise KTCCreditCardParser (KTC international spending (Thai)); see NOTICE.md",
+    "input": {
+      "sender": "KTC",
+      "body": "KTC: ยอดใช้จ่ายต่างประเทศ 120.50 USD",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.ktc.template002",
+      "candidate": {
+        "amountMinor": 12050,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "KTC",
+        "countryCode": "TH",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

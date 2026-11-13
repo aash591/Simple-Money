@@ -1,0 +1,64 @@
+[
+  {
+    "id": "banquesaudifransi-variables-001",
+    "country": "SA",
+    "bankId": "sa.banquesaudifransi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BSF",
+      "body": "عملية حوالة مالية صادرة مقبولة خصمت من حساب ****9988 إلى MIGRATIONSHOP**** بنك إس تي سي آيبان 556677/88 القيمة SAR 321.09 الرسوم SAR 9876.54 في28-9876.54-9876.54 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.banquesaudifransi.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Banque Saudi Fransi",
+        "countryCode": "SA",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "banquesaudifransi-variables-002",
+    "country": "SA",
+    "bankId": "sa.banquesaudifransi",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "BSF",
+      "body": "حوالة واردة مبلغ: 321.09 SAR لـ:SA**********R1******9876.54 من: MIGRATIONSHOP آيبان: 556677/88 GULF في: 02-DEC-2027 11:22:33",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sa.banquesaudifransi.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "SAR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Banque Saudi Fransi",
+        "countryCode": "SA",
+        "accountLast4": null,
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

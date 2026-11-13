@@ -143,8 +143,8 @@ class _Key extends StatelessWidget {
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final primary = SheetColors.of(context).primary;
-    final operator = compact && const {'AC', '%', '÷', '×', '−', '+', '='}
-        .contains(label);
+    final operator =
+        compact && const {'AC', '%', '÷', '×', '−', '+', '='}.contains(label);
     // Operators are solid accent pills with white text, like the app's main
     // action buttons.
     final opFill = primary;

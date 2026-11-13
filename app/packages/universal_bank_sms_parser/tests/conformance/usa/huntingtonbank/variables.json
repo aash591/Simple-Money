@@ -1,0 +1,219 @@
+[
+  {
+    "id": "huntingtonbank-variables-001",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Huntington Bank",
+      "body": "Huntington Heads Up. We processed a debit card withdrawal: $321.09 at MIGRATIONSHOP. Acct CK9988 has a $9876.54 bal (02-DEC-2027 11:22:33 ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "huntingtonbank-variables-002",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Huntington Bank",
+      "body": "Huntington Heads Up. We processed a debit card withdrawal: $321.09 at MIGRATIONSHOP. Acct CK9988 has a -$9876.54 bal (02-DEC-2027 11:22:33 ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "huntingtonbank-variables-003",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Huntington Bank",
+      "body": "Huntington Heads Up. We processed an ATM withdrawal: $321.09 at MIGRATIONSHOP. Acct CK9988 has a $9876.54 bal (02-DEC-2027 11:22:33 ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "huntingtonbank-variables-004",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Huntington Bank",
+      "body": "Huntington Heads Up. We processed an ACH withdrawal: $321.09 at MIGRATIONSHOP . Acct CK9988 has a $9876.54 bal (02-DEC-2027 11:22:33 ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "huntingtonbank-variables-005",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "HUNTINGTON",
+      "body": "Huntington Heads Up. We processed a debit card withdrawal: $321.09 at MIGRATIONSHOP. Acct CK9988 has a $9876.54 bal (02-DEC-2027 11:22:33 ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "huntingtonbank-variables-006",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Huntington Bank",
+      "body": "Huntington Heads Up. We processed a debit card withdrawal: $321.09 at MIGRATIONSHOP. Acct CK9988 has a $9876.54 bal (02-DEC-2027 11:22:33 ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "huntingtonbank-variables-007",
+    "country": "US",
+    "bankId": "us.huntingtonbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "HUNTINGTON",
+      "body": "Huntington Heads Up. We processed an ACH withdrawal: $321.09 at MIGRATIONSHOP. Acct CK9988 has a $9876.54 bal (02-DEC-2027 11:22:33 ET).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "us.huntingtonbank.template007",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Huntington Bank",
+        "countryCode": "US",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

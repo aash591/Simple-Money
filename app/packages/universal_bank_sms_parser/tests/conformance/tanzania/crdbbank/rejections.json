@@ -1,0 +1,162 @@
+[
+  {
+    "id": "crdbbank-reject-security",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "your otp is 123456. Muamala umefanikiwa TZS40000 AIRTEL kwenda MSHAMU MSHAMU 255686621388",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-reject-promotional",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "exclusive offer: apply now. Muamala umefanikiwa TZS40000 AIRTEL kwenda MSHAMU MSHAMU 255686621388",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-reject-failed",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "payment failed. Muamala umefanikiwa TZS40000 AIRTEL kwenda MSHAMU MSHAMU 255686621388",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-reject-pending",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "payment pending. Muamala umefanikiwa TZS40000 AIRTEL kwenda MSHAMU MSHAMU 255686621388",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-reject-future",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "will be debited. Muamala umefanikiwa TZS40000 AIRTEL kwenda MSHAMU MSHAMU 255686621388",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-reject-notice",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "statement generated. Muamala umefanikiwa TZS40000 AIRTEL kwenda MSHAMU MSHAMU 255686621388",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-reject-unknown-sender",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Muamala umefanikiwa TZS40000 AIRTEL kwenda MSHAMU MSHAMU 255686621388",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "crdbbank-reject-balance-only",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

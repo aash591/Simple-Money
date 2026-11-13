@@ -1,0 +1,64 @@
+[
+  {
+    "id": "apollo-variables-001",
+    "country": "ET",
+    "bankId": "et.apollo",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "apollo",
+      "body": "Dear John, your account 9876.54*9876.54 was credited with ETB 321.09 by MIGRATIONSHOP. Available Balance: ETB 9876.54. Receipt: [receipt link] For help, call 9876.54 (9876.54/9876.54 Toll-Free).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.apollo.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Apollo",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "apollo-variables-002",
+    "country": "ET",
+    "bankId": "et.apollo",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "apollo",
+      "body": "Dear John, your account 9876.54*9876.54 was debited with ETB 321.09. Available Balance: ETB 9876.54. Receipt: [receipt link] For help, call 9876.54 (9876.54/9876.54 Toll-Free).",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.apollo.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Apollo",
+        "countryCode": "ET",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

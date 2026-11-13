@@ -57,13 +57,13 @@ void main() {
         await scrollBy(-620);
       }
 
-      await openTab('BRANDS');
+      await openTab('Services');
       await capture('service-icons-1$suffix');
       await scrollBy(-420);
       await capture('service-icons-2$suffix');
 
-      await openTab('BANKS');
-      for (var page = 1; page <= 4; page++) {
+      await openTab('Banks');
+      for (var page = 1; page <= 12; page++) {
         await capture('bank-icons-$page$suffix');
         await scrollBy(-420);
       }

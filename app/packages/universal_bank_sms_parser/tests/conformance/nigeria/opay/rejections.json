@@ -1,0 +1,162 @@
+[
+  {
+    "id": "opay-reject-security",
+    "country": "NG",
+    "bankId": "ng.opay",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Opay",
+      "body": "your otp is 123456. Dear OPay user, N2,300.00 has been debited for Card Payment via POS on 14-May-2026 19:28.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "opay-reject-promotional",
+    "country": "NG",
+    "bankId": "ng.opay",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Opay",
+      "body": "exclusive offer: apply now. Dear OPay user, N2,300.00 has been debited for Card Payment via POS on 14-May-2026 19:28.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "opay-reject-failed",
+    "country": "NG",
+    "bankId": "ng.opay",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Opay",
+      "body": "payment failed. Dear OPay user, N2,300.00 has been debited for Card Payment via POS on 14-May-2026 19:28.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "opay-reject-pending",
+    "country": "NG",
+    "bankId": "ng.opay",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Opay",
+      "body": "payment pending. Dear OPay user, N2,300.00 has been debited for Card Payment via POS on 14-May-2026 19:28.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "opay-reject-future",
+    "country": "NG",
+    "bankId": "ng.opay",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Opay",
+      "body": "will be debited. Dear OPay user, N2,300.00 has been debited for Card Payment via POS on 14-May-2026 19:28.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "opay-reject-notice",
+    "country": "NG",
+    "bankId": "ng.opay",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Opay",
+      "body": "statement generated. Dear OPay user, N2,300.00 has been debited for Card Payment via POS on 14-May-2026 19:28.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "opay-reject-unknown-sender",
+    "country": "NG",
+    "bankId": "ng.opay",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Dear OPay user, N2,300.00 has been debited for Card Payment via POS on 14-May-2026 19:28.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "opay-reject-balance-only",
+    "country": "NG",
+    "bankId": "ng.opay",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "Opay",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

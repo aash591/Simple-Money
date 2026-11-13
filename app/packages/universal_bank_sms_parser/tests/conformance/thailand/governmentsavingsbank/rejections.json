@@ -1,0 +1,162 @@
+[
+  {
+    "id": "governmentsavingsbank-reject-security",
+    "country": "TH",
+    "bankId": "th.governmentsavingsbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "GSB",
+      "body": "your otp is 123456. GSB: เงินฝากเข้า 2,500.00 บาท บช x1122 คงเหลือ 9,300.00 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "governmentsavingsbank-reject-promotional",
+    "country": "TH",
+    "bankId": "th.governmentsavingsbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "GSB",
+      "body": "exclusive offer: apply now. GSB: เงินฝากเข้า 2,500.00 บาท บช x1122 คงเหลือ 9,300.00 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "governmentsavingsbank-reject-failed",
+    "country": "TH",
+    "bankId": "th.governmentsavingsbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "GSB",
+      "body": "payment failed. GSB: เงินฝากเข้า 2,500.00 บาท บช x1122 คงเหลือ 9,300.00 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "governmentsavingsbank-reject-pending",
+    "country": "TH",
+    "bankId": "th.governmentsavingsbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "GSB",
+      "body": "payment pending. GSB: เงินฝากเข้า 2,500.00 บาท บช x1122 คงเหลือ 9,300.00 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "governmentsavingsbank-reject-future",
+    "country": "TH",
+    "bankId": "th.governmentsavingsbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "GSB",
+      "body": "will be debited. GSB: เงินฝากเข้า 2,500.00 บาท บช x1122 คงเหลือ 9,300.00 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "governmentsavingsbank-reject-notice",
+    "country": "TH",
+    "bankId": "th.governmentsavingsbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "GSB",
+      "body": "statement generated. GSB: เงินฝากเข้า 2,500.00 บาท บช x1122 คงเหลือ 9,300.00 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "governmentsavingsbank-reject-unknown-sender",
+    "country": "TH",
+    "bankId": "th.governmentsavingsbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "GSB: เงินฝากเข้า 2,500.00 บาท บช x1122 คงเหลือ 9,300.00 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "governmentsavingsbank-reject-balance-only",
+    "country": "TH",
+    "bankId": "th.governmentsavingsbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "GSB",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

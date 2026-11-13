@@ -1,0 +1,64 @@
+[
+  {
+    "id": "bpce-ported-001",
+    "country": "FR",
+    "bankId": "fr.bpce",
+    "provenance": "PennyWise BPCEParser (Instant transfer); see NOTICE.md",
+    "input": {
+      "sender": "38015",
+      "body": "Caisse d'Epargne: nous vous confirmons la réalisation de votre virement instantané de 1000,00 EUR du 01/12/2025 à 00h00m00s vers NAME FIRST NAME",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "fr.bpce.template001",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "BPCE",
+        "countryCode": "FR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "NAME FIRST NAME",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bpce-ported-002",
+    "country": "FR",
+    "bankId": "fr.bpce",
+    "provenance": "PennyWise BPCEParser (Instant transfer to PayPal); see NOTICE.md",
+    "input": {
+      "sender": "38015",
+      "body": "Caisse d'Epargne: nous vous confirmons la réalisation de votre virement instantané de 1000,00 EUR du 03/12/2025 à 18h46m18s vers PAYPAL",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "fr.bpce.template001",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "EUR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "BPCE",
+        "countryCode": "FR",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "PAYPAL",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

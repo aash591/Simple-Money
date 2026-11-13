@@ -1,0 +1,126 @@
+[
+  {
+    "id": "laxmisunrisebank-ported-001",
+    "country": "NP",
+    "bankId": "np.laxmisunrisebank",
+    "provenance": "PennyWise LaxmiBankParser (Debit transaction - eSewa load); see NOTICE.md",
+    "input": {
+      "sender": "LAXMI_ALERT",
+      "body": "Dear Customer, Your #12344560 has been debited by NPR 720.00 on 05/09/25. Remarks:ESEWA LOAD/9763698550,127847587\n-Laxmi Sunrise",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.laxmisunrisebank.template001",
+      "candidate": {
+        "amountMinor": 72000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Laxmi Sunrise Bank",
+        "countryCode": "NP",
+        "accountLast4": "4560",
+        "reference": "05/09/25",
+        "counterparty": "ESEWA",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "laxmisunrisebank-ported-002",
+    "country": "NP",
+    "bankId": "np.laxmisunrisebank",
+    "provenance": "PennyWise LaxmiBankParser (Credit transaction - stipend); see NOTICE.md",
+    "input": {
+      "sender": "LAXMI_ALERT",
+      "body": "Dear Customer, Your #12344560 has been credited by NPR 60,892.00 on 02/09/25. Remarks:(STIPEND PMT DM/MCH-SHRAWAN82).\n-Laxmi Sunrise",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.laxmisunrisebank.template002",
+      "candidate": {
+        "amountMinor": 6089200,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Laxmi Sunrise Bank",
+        "countryCode": "NP",
+        "accountLast4": "4560",
+        "reference": "02/09/25",
+        "counterparty": "Stipend Payment",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "laxmisunrisebank-ported-003",
+    "country": "NP",
+    "bankId": "np.laxmisunrisebank",
+    "provenance": "PennyWise LaxmiBankParser (Debit transaction - ATM withdrawal); see NOTICE.md",
+    "input": {
+      "sender": "LAXMI",
+      "body": "Dear Customer, Your #98765432 has been debited by NPR 1,500.00 on 10/09/25. Remarks:ATM WITHDRAWAL/KATHMANDU\n-Laxmi Sunrise",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.laxmisunrisebank.template003",
+      "candidate": {
+        "amountMinor": 150000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Laxmi Sunrise Bank",
+        "countryCode": "NP",
+        "accountLast4": "5432",
+        "reference": "10/09/25",
+        "counterparty": "ATM WITHDRAWAL",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "laxmisunrisebank-ported-004",
+    "country": "NP",
+    "bankId": "np.laxmisunrisebank",
+    "provenance": "PennyWise LaxmiBankParser (Credit transaction - salary); see NOTICE.md",
+    "input": {
+      "sender": "LAXMI_ALERT",
+      "body": "Dear Customer, Your #1234 has been credited by NPR 5,000.00 on 15/09/25. Remarks:SALARY CREDIT\n-Laxmi Sunrise",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.laxmisunrisebank.template004",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Laxmi Sunrise Bank",
+        "countryCode": "NP",
+        "accountLast4": "1234",
+        "reference": "15/09/25",
+        "counterparty": "SALARY CREDIT\n-Laxmi Sunrise",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

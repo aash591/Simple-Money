@@ -1,0 +1,33 @@
+[
+  {
+    "id": "baac-ported-001",
+    "country": "TH",
+    "bankId": "th.baac",
+    "provenance": "PennyWise BAACBankParser (BAAC transfer out (Thai)); see NOTICE.md",
+    "input": {
+      "sender": "BAAC",
+      "body": "BAAC: โอนเงินออก 1,200.00 บาท บช x4455 คงเหลือ 5,640.00 บาท",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.baac.template001",
+      "candidate": {
+        "amountMinor": 120000,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "BAAC",
+        "countryCode": "TH",
+        "accountLast4": "4455",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

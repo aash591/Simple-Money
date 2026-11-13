@@ -1,0 +1,95 @@
+[
+  {
+    "id": "bancopromerica-ported-003",
+    "country": "SV",
+    "bankId": "sv.bancopromerica",
+    "provenance": "PennyWise BancoPromericaParser (Incoming Transfer365 credit); see NOTICE.md",
+    "input": {
+      "sender": "Promerica",
+      "body": "Ha recibido un abono Transferencia de Fondos a cuenta corriente de GIVEN NAME SURNAME por $ 80.00 a traves de Transfer365 el 15/07/2026 20:37:06",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sv.bancopromerica.template003",
+      "candidate": {
+        "amountMinor": 8000,
+        "currencyCode": "USD",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Banco Promerica",
+        "countryCode": "SV",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bancopromerica-ported-004",
+    "country": "SV",
+    "bankId": "sv.bancopromerica",
+    "provenance": "PennyWise BancoPromericaParser (Outgoing Transfer365 transfer); see NOTICE.md",
+    "input": {
+      "sender": "Promerica",
+      "body": "Su Op. Transfer365 de Transferencia de Fondos a GIVEN NAME SUR NAME por $ 26.00 ha sido aplicada exitosamente",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sv.bancopromerica.template004",
+      "candidate": {
+        "amountMinor": 2600,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Banco Promerica",
+        "countryCode": "SV",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "GIVEN NAME SUR NAME",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "bancopromerica-ported-005",
+    "country": "SV",
+    "bankId": "sv.bancopromerica",
+    "provenance": "PennyWise BancoPromericaParser (Card purchase); see NOTICE.md",
+    "input": {
+      "sender": "Promerica",
+      "body": "Promerica te informa que tu TTA *1234: ha realizado una compra por USD 2.50 en NAME OF THE STORE AND CITY. Consulta al 25135000",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "sv.bancopromerica.template005",
+      "candidate": {
+        "amountMinor": 250,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Banco Promerica",
+        "countryCode": "SV",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "NAME OF THE STORE AND CITY",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

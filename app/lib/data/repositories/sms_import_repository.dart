@@ -9,6 +9,7 @@ import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
 import '../../domain/transaction.dart';
 import '../../domain/account.dart';
 import 'account_repository.dart';
+import 'sms_corrections.dart';
 import 'category_repository.dart';
 import '../../domain/category.dart';
 import '../db/app_database.dart';
@@ -17,6 +18,14 @@ import '../sms_inbox_platform.dart';
 import 'statement_import_repository.dart';
 import 'transaction_repository.dart';
 import 'upi_sms_match.dart';
+import '../../domain/currency_digits.dart';
+import '../sms_amounts.dart';
+
+/// Where a message keeps a direction the user corrected.
+const correctedDirectionKey = 'correctedDirection';
+
+/// Where a message keeps the loan an approved correction says it pays.
+const assignedLoanKey = 'assignedLoanId';
 
 String smsBankKey(Map<String, dynamic> data) => jsonEncode([
   data['countryCode'],
@@ -40,7 +49,14 @@ class PendingSmsImport {
   String get originalSmsNote => 'Sender: $sender\n\n$body';
   int get amountMinor => data['amountMinor'] as int;
   String get currency => data['currencyCode'] as String;
-  bool get credit => data['direction'] == 'credit';
+
+  /// Money in. A correction the user approved ("credited to your loan
+  /// account" is a payment) wins over what the SMS said.
+  bool get credit =>
+      (data[correctedDirectionKey] ?? data['direction']) == 'credit';
+
+  /// The loan this message pays, from an approved correction.
+  int? get assignedLoanId => data[assignedLoanKey] as int?;
   bool get creditCard => data['isCreditCard'] == true;
   bool get isCreditCardRepayment =>
       suggestedCategory?.isCreditCardRepayment ?? false;
@@ -71,7 +87,14 @@ class PendingSmsImport {
   /// No account number, and the bank has several known ones to choose from.
   /// Without a number and with none known, the bank name is the identity.
   bool get ambiguousAccount => data['ambiguousAccount'] == true;
+
+  /// Whether the sender holds the money (a bank, card or wallet), so its
+  /// name can stand for an account. False for a shop's or biller's SMS.
+  bool get holdsMoney => dataHoldsMoney(data);
   late final String bankKey = smsBankKey(data);
+
+  /// The app's decimal places for [currency]; [amountMinor] uses them.
+  int get digits => currencyDigits(currency);
 }
 
 /// Whether two messages come from the same bank, currency and card-or-account
@@ -94,7 +117,13 @@ PendingSmsImport resolveSmsAccount(
   PendingSmsImport sms,
   List<PendingSmsImport> detected,
 ) {
-  if (sms.accountLast4 != null) return sms;
+  // A shop's or biller's SMS waits for the user, or the bank's SMS, to give
+  // its account; it is never resolved by its sender's name.
+  if (sms.accountLast4 != null ||
+      !sms.holdsMoney ||
+      sms.data.containsKey(otherAccountKey)) {
+    return sms;
+  }
   final suffixes = detected
       .where((row) => row.accountLast4 != null && sameSmsInstitution(row, sms))
       .map((row) => row.accountLast4!)
@@ -328,7 +357,8 @@ class SmsImportRepository {
       for (final row
           in await database
               .customSelect(
-                'SELECT candidate, body, sender, received_at FROM sms_imports ORDER BY received_at DESC',
+                // A sample saved by hand is a marker, not a bank message.
+                "SELECT candidate, body, sender, received_at FROM sms_imports WHERE fingerprint NOT LIKE 'sample:%' ORDER BY received_at DESC",
               )
               .get()) {
         final data = Map<String, dynamic>.from(
@@ -395,7 +425,7 @@ class SmsImportRepository {
             (a) =>
                 !a.isArchived &&
                 a.currency == sms.currency &&
-                a.digits == 2 &&
+                a.digits == currencyDigits(a.currency) &&
                 a.type == type &&
                 sms.accountLast4 != null &&
                 a.lastDigits != null &&
@@ -422,7 +452,7 @@ class SmsImportRepository {
             (a) =>
                 !a.isArchived &&
                 a.currency == sms.currency &&
-                a.digits == 2 &&
+                a.digits == currencyDigits(a.currency) &&
                 a.type == type &&
                 a.lastDigits == null &&
                 a.institution?.toLowerCase() == sms.bankName.toLowerCase(),
@@ -434,7 +464,7 @@ class SmsImportRepository {
                 !a.isArchived &&
                 a.type == type &&
                 a.currency == sms.currency &&
-                a.digits == 2 &&
+                a.digits == currencyDigits(a.currency) &&
                 a.institution?.toLowerCase() == sms.bankName.toLowerCase(),
           )
           .toList();
@@ -486,7 +516,7 @@ class SmsImportRepository {
           currency: sms.currency,
           territory: sms.data['countryCode'] as String?,
           icon: icons[sms.bankKey],
-          digits: 2,
+          digits: sms.digits,
           type: type,
           lastDigits: sms.accountLast4,
           institution: sms.bankName,
@@ -661,7 +691,164 @@ class SmsImportRepository {
     return matches;
   }
 
-  Future<void> enqueue(BankSms sms, PortableParseResult result) async {
+  /// Identifies an SMS by its text alone, spaces collapsed, for one the user
+  /// already saved by hand before any rule could read it.
+  static String sampleKey(String body) => sha256
+      .convert(utf8.encode(body.trim().replaceAll(RegExp(r'\s+'), ' ')))
+      .toString();
+
+  /// The user saved a new rule's sample message by hand: when the inbox is
+  /// read with the rule, that message joins this transaction instead of
+  /// waiting for review again.
+  Future<void> markSampleSaved({
+    required String sender,
+    required String body,
+    required int transactionId,
+  }) async {
+    final key = sampleKey(body);
+    await database.customInsert(
+      "INSERT OR REPLACE INTO sms_imports (fingerprint,sender,body,received_at,candidate,rule_id,pack_version,status,transaction_id) VALUES (?,?,NULL,?,?,'sample',0,'imported',?)",
+      variables: [
+        Variable('sample:$key'),
+        Variable(sender),
+        Variable(DateTime.now().millisecondsSinceEpoch),
+        Variable(jsonEncode({'sampleKey': key})),
+        Variable(transactionId),
+      ],
+    );
+  }
+
+  /// The transaction a message was saved as by hand, from [markSampleSaved].
+  Future<int?> _savedSample(String body) async =>
+      (await database
+              .customSelect(
+                "SELECT transaction_id FROM sms_imports WHERE fingerprint = ? AND status = 'imported'",
+                variables: [Variable('sample:${sampleKey(body)}')],
+              )
+              .getSingleOrNull())
+          ?.readNullable<int>('transaction_id');
+
+  /// How far apart a shop's SMS and the bank's SMS for one payment may be.
+  /// A refund often reaches the bank days after the shop says it was sent; a
+  /// payment the shop confirms is in the bank's SMS within the day.
+  static const _creditTwinWindow = Duration(days: 7);
+  static const _debitTwinWindow = Duration(days: 1);
+
+  /// One payment often reaches the user twice: the shop says "Rs.216
+  /// refunded" (or "payment of Rs.216 received") and the bank says "Rs.216
+  /// credited to ••1234". The bank's message names the account, so it wins;
+  /// the shop's is folded into it, lending its name and category.
+  ///
+  /// Only messages from different senders pair up, one from a sender that
+  /// holds the money (a bank, card or wallet) and one from a sender that
+  /// doesn't, with the same amount, currency and direction. Of several bank
+  /// messages that could match, the nearest in time wins. Returns the
+  /// fingerprint of the bank's message when [candidate] is the shop's and
+  /// should be dropped. When [candidate] is the bank's, a waiting shop message
+  /// is dropped here, its name and category carried over, and null returned.
+  ///
+  /// The bank may never send its SMS (a refund to a wallet or the original
+  /// card): the shop's message then stays in review for the user to pick the
+  /// account.
+  Future<String?> _reconcileTwin(
+    String id,
+    BankSms sms,
+    Map<String, dynamic> candidate,
+  ) async {
+    // A corrected message is what the user said it is, not a twin.
+    if (candidate[correctedDirectionKey] != null) return null;
+    final credit = candidate['direction'] == 'credit';
+    final holds = dataHoldsMoney(candidate);
+    final at = sms.receivedAt.millisecondsSinceEpoch;
+    final span = (credit ? _creditTwinWindow : _debitTwinWindow).inMilliseconds;
+    // A shop's message comes before the bank's, or a little after.
+    final from = holds ? at - span : at - _debitTwinWindow.inMilliseconds;
+    final to = holds ? at + _debitTwinWindow.inMilliseconds : at + span;
+    final rows = await database
+        .customSelect(
+          "SELECT fingerprint,sender,candidate,status,received_at FROM sms_imports WHERE received_at BETWEEN ? AND ? AND status IN ('pending','imported') AND fingerprint<>? ORDER BY abs(received_at-?)",
+          variables: [Variable(from), Variable(to), Variable(id), Variable(at)],
+        )
+        .get();
+    for (final row in rows) {
+      if (row.read<String>('sender') == sms.sender) continue;
+      final other = Map<String, dynamic>.from(
+        jsonDecode(row.read<String>('candidate')) as Map,
+      );
+      if (other['direction'] != candidate['direction'] ||
+          other['amountMinor'] != candidate['amountMinor'] ||
+          other['currencyCode'] != candidate['currencyCode'] ||
+          other['mergedInto'] != null ||
+          dataHoldsMoney(other) == holds) {
+        continue;
+      }
+      final fingerprint = row.read<String>('fingerprint');
+      final pending = row.read<String>('status') == 'pending';
+      if (!holds) {
+        // The bank's message came first; if it still waits for review, it
+        // takes this one's name and category.
+        if (pending && _lend(candidate, other)) {
+          await database.customStatement(
+            "UPDATE sms_imports SET candidate=? WHERE fingerprint=? AND status='pending'",
+            [jsonEncode(other), fingerprint],
+          );
+        }
+        return fingerprint;
+      }
+      // This is the bank's message; the shop's is still waiting.
+      if (!pending) continue;
+      _lend(other, candidate);
+      await database.customStatement(
+        "UPDATE sms_imports SET status='dismissed',body=NULL,candidate=json_set(candidate,'\$.mergedInto',?) WHERE fingerprint=? AND status='pending'",
+        [id, fingerprint],
+      );
+      return null;
+    }
+    return null;
+  }
+
+  /// Gives the bank's message [bank] what the shop's [shop] knows better: who
+  /// paid or was paid, and a category the bank's message lacks (a refund
+  /// reads as a plain credit at the bank). True when [bank] changed.
+  static bool _lend(Map<String, dynamic> shop, Map<String, dynamic> bank) {
+    var changed = false;
+    if (bank['counterparty'] == null && shop['counterparty'] != null) {
+      bank['counterparty'] = shop['counterparty'];
+      changed = true;
+    }
+    final category = shop['category'];
+    final own = bank['category'];
+    if (category is Map &&
+        category['isFallback'] != true &&
+        (own is! Map || own['isFallback'] == true)) {
+      bank['category'] = category;
+      changed = true;
+    }
+    return changed;
+  }
+
+  /// The one active account whose number ends in [last4], for a shop's SMS
+  /// that names the bank account money went to or came from.
+  Future<int?> _accountEndingIn(String last4, String currency) async {
+    final matches = [
+      for (final a in await AccountRepository(database).load())
+        if (!a.isArchived &&
+            a.currency == currency &&
+            a.lastDigits != null &&
+            last4.endsWith(a.lastDigits!))
+          a.id,
+    ];
+    return matches.length == 1 ? matches.single : null;
+  }
+
+  /// Queues a parsed message. [role] is who sent it ([smsSenderRole]); a
+  /// sender that holds no money of the user's never names, or makes, an
+  /// account under its own name.
+  Future<void> enqueue(
+    BankSms sms,
+    PortableParseResult result, {
+    SmsSenderRole role = SmsSenderRole.bank,
+  }) async {
     if (result.candidate == null || result.ruleId == null) return;
     final notificationKey = sha256
         .convert(utf8.encode(smsNotificationIdentity(sms)))
@@ -672,6 +859,25 @@ class SmsImportRepository {
       ...Map<String, dynamic>.from(result.toJson()['candidate'] as Map),
       ...smsMetadata(sms.body, sender: sms.sender),
     };
+    candidate['amountMinor'] = smsAmountToApp(
+      result.candidate!.amountMinor,
+      result.candidate!.currencyCode,
+    );
+    applySenderRole(candidate, role);
+    if (candidate[otherAccountKey] case final String last4) {
+      final account = await _accountEndingIn(
+        last4,
+        candidate['currencyCode'] as String,
+      );
+      if (account != null) candidate['assignedAccountId'] = account;
+    }
+    // A correction the user approved for messages of this layout.
+    if (normalizeRuleSender(sms.sender) case final sender?) {
+      final corrections = SmsCorrectionRepository(database);
+      if (await corrections.find(sender, result.ruleId!) case final c?) {
+        await corrections.apply(candidate, c);
+      }
+    }
     await recordBalance(candidate, sms.receivedAt);
     final id = sha256
         .convert(
@@ -684,6 +890,39 @@ class SmsImportRepository {
           ),
         )
         .toString();
+    if (await _savedSample(sms.body) case final transactionId?) {
+      await database.customInsert(
+        "INSERT OR IGNORE INTO sms_imports (fingerprint,sender,body,received_at,candidate,rule_id,pack_version,status,transaction_id) VALUES (?,?,NULL,?,?,?,?,'imported',?)",
+        variables: [
+          Variable(id),
+          Variable(sms.sender),
+          Variable(sms.receivedAt.millisecondsSinceEpoch),
+          Variable(jsonEncode(candidate)),
+          Variable(result.ruleId!),
+          Variable(result.packVersion),
+          Variable(transactionId),
+        ],
+      );
+      return;
+    }
+    final bankTwin = await _reconcileTwin(id, sms, candidate);
+    if (bankTwin != null) {
+      // The bank's own SMS for this credit is already here and wins: keep
+      // this one out of the review queue, but on record so a rescan doesn't
+      // bring it back.
+      await database.customInsert(
+        "INSERT OR IGNORE INTO sms_imports (fingerprint,sender,body,received_at,candidate,rule_id,pack_version,status) VALUES (?,?,NULL,?,?,?,?,'dismissed')",
+        variables: [
+          Variable(id),
+          Variable(sms.sender),
+          Variable(sms.receivedAt.millisecondsSinceEpoch),
+          Variable(jsonEncode({...candidate, 'mergedInto': bankTwin})),
+          Variable(result.ruleId!),
+          Variable(result.packVersion),
+        ],
+      );
+      return;
+    }
     await database.customInsert(
       'INSERT OR IGNORE INTO sms_imports (fingerprint,sender,body,received_at,candidate,rule_id,pack_version) VALUES (?,?,?,?,?,?,?)',
       variables: [

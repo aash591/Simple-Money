@@ -1,0 +1,33 @@
+[
+  {
+    "id": "uobthailand-ported-001",
+    "country": "TH",
+    "bankId": "th.uobthailand",
+    "provenance": "PennyWise UOBThailandParser (UOB card transaction (English)); see NOTICE.md",
+    "input": {
+      "sender": "UOB",
+      "body": "UOB: Card transaction 3,200.00 THB at AMAZON Bal 22,400.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.uobthailand.template001",
+      "candidate": {
+        "amountMinor": 320000,
+        "currencyCode": "THB",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "UOB Thailand",
+        "countryCode": "TH",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "AMAZON",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

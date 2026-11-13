@@ -1,0 +1,42 @@
+{
+  "id": "th.ktc",
+  "name": "KTC",
+  "senders": [
+    "KRUNGTHAI CARD",
+    "KTC"
+  ],
+  "formats": [
+    {
+      "id": "th.ktc.template002",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "card",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "KTC: ยอดใช้จ่ายต่างประเทศ "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 64
+        },
+        {
+          "op": "match_literal",
+          "value": " USD"
+        },
+        {
+          "op": "match_end"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        }
+      },
+      "defaults": {
+        "case": "exact"
+      }
+    }
+  ]
+}

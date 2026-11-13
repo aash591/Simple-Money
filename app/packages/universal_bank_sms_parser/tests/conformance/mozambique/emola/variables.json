@@ -1,0 +1,95 @@
+[
+  {
+    "id": "emola-variables-001",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "eMola",
+      "body": "Transaction ID 556677/88. You transfered 321.09MT to 9876.54, name: MIGRATIONSHOP at 11:22:33 on 02-DEC-2027. Fee: 9876.54.00MT. Your account balance is 9876.54.45MT. Content: . In case of doubt, please call 9876.54. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.emola.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "eMola",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emola-variables-002",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "eMola",
+      "body": "Transaction ID: 556677/88. You received 321.09MT from 9876.54, name: MIGRATIONSHOP at 11:22:33 on 02-DEC-2027. Content: campo. Your account balance is 9876.54.56MT. In case of doubt, please call 9876.54. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.emola.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "eMola",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "emola-variables-003",
+    "country": "MZ",
+    "bankId": "mz.emola",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "eMola",
+      "body": "Transaction ID: 556677/88. You withdrew 321.09MT in the Agent with code ID 9876.54, Name MIGRATIONSHOP at 11:22:33 on 02-DEC-2027. Fee: 9876.54 MT. Your account balance is 9876.54.23MT. In case of doubt, please call 9876.54. Thank you!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "mz.emola.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "MZN",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "eMola",
+        "countryCode": "MZ",
+        "accountLast4": null,
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -10,7 +10,6 @@ import 'package:simple_money/data/agent/agent_suggestion_repository.dart';
 import 'package:simple_money/data/community/community_fixes.dart';
 import 'package:simple_money/data/db/app_database.dart';
 import 'package:simple_money/data/repositories/statement_import_repository.dart';
-import 'package:simple_money/data/sms_inbox_platform.dart';
 import 'package:simple_money/data/user_sms_rules.dart';
 import 'package:simple_money/state/sms_import_store.dart';
 import 'package:simple_money/ui/more/ai/share_fix_prompt.dart';
@@ -103,31 +102,6 @@ Map<String, Object?> _pack({int version = 1}) => {
   ],
 };
 
-class _Inbox extends SmsInboxPlatform {
-  _Inbox(this.bodies);
-  final List<String> bodies;
-  @override
-  bool get supported => true;
-  @override
-  Future<bool> hasPermission() async => true;
-  @override
-  Future<List<InboxSms>> readPage({
-    required int afterId,
-    required int since,
-  }) async => [
-    for (final (i, body) in bodies.indexed)
-      if (i + 1 > afterId)
-        InboxSms(
-          i + 1,
-          BankSms(
-            sender: 'VM-ZETAPY-S',
-            body: body,
-            receivedAt: DateTime.now(),
-          ),
-        ),
-  ];
-}
-
 /// A fake server: the pack, and what phones sent.
 class _Server {
   Map<String, Object?> pack = _pack();
@@ -167,10 +141,9 @@ void main() {
   late _Server server;
   late DateTime now;
 
-  CommunitySync sync({List<String> inbox = const []}) => CommunitySync(
+  CommunitySync sync() => CommunitySync(
     db,
     client: server.client,
-    inbox: _Inbox(inbox),
     baseUrl: 'https://community.test',
     now: () => now,
   );
@@ -271,8 +244,8 @@ void main() {
     expect((await parse(_other)).candidate, isNotNull);
   });
 
-  test('shares an SMS format whose fixed text repeats in the inbox', () async {
-    final community = sync(inbox: [_sms, _other]);
+  test('shares an SMS format, never its messages', () async {
+    final community = sync();
     await community.share([
       (
         CommunityKind.smsRule,
@@ -288,24 +261,6 @@ void main() {
     expect((item as Map)['kind'], 'sms_rule');
     expect((item['payload'] as Map).containsKey('samples'), isFalse);
     expect(sent['install'], matches(RegExp(r'^[a-f0-9]{32}$')));
-    final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getStringList(CommunitySync.outboxKey), isEmpty);
-  });
-
-  test('a format with a one-off name in it stays on the phone', () async {
-    final community = sync(inbox: [_sms, _other]);
-    await community.share([
-      (
-        CommunityKind.smsRule,
-        {
-          'bankName': 'Zeta',
-          'senders': ['ZETAPY'],
-          // "Blue Tokai Coffee" is in one message only.
-          'format': _zeta(to: ' to Blue Tokai Coffee'),
-        },
-      ),
-    ]);
-    expect(server.submitted, isEmpty);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getStringList(CommunitySync.outboxKey), isEmpty);
   });
@@ -371,7 +326,7 @@ void main() {
   }
 
   testWidgets('after a fix: well done, and Share sends it', (tester) async {
-    final community = sync(inbox: [_sms, _other]);
+    final community = sync();
     await openPrompt(tester, community);
     expect(find.text('Nice, it’s fixed!'), findsOneWidget);
     expect(
@@ -392,7 +347,7 @@ void main() {
   });
 
   testWidgets('Not now shares nothing', (tester) async {
-    final community = sync(inbox: [_sms, _other]);
+    final community = sync();
     await openPrompt(tester, community);
     await tester.tap(find.text('Not now'));
     await tester.pumpAndSettle();

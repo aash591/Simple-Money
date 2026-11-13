@@ -1,3 +1,4 @@
+import 'ai_assistant_guide.dart';
 import 'loan_suggestion_card.dart';
 import 'recurring_suggestion_card.dart';
 import 'share_fix_prompt.dart';
@@ -21,9 +22,13 @@ import '../../components/app_toast.dart';
 import '../../components/card_action.dart';
 import '../../components/segmented_pill.dart';
 import '../../components/common.dart';
+import '../../components/empty_art.dart';
 import '../../components/empty_state.dart';
 import '../../components/feature_page.dart';
 import '../../components/transactions/transaction_list_row.dart';
+import '../../theme/app_theme.dart';
+import '../../components/transactions/transaction_day_header.dart';
+import '../../transactions/amount_typing.dart';
 import '../../transactions/transaction_sheet.dart';
 import '../../transactions/transaction_widgets.dart';
 
@@ -61,7 +66,10 @@ class AiSuggestionsScreen extends StatefulWidget {
   State<AiSuggestionsScreen> createState() => _AiSuggestionsScreenState();
 }
 
-class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
+class _AiSuggestionsScreenState extends State<AiSuggestionsScreen>
+    with SingleTickerProviderStateMixin {
+  late final _tabs = TabController(length: _Tab.values.length, vsync: this)
+    ..addListener(() => setState(() {}));
   late final _repository = AgentSuggestionRepository(widget.database);
 
   /// For showing the transactions a suggestion edits, and opening them.
@@ -74,7 +82,6 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
   bool _stores = false;
   List<AgentSuggestion>? _suggestions;
   bool _busy = false;
-  _Tab _tab = _Tab.pending;
   String? _error;
 
   @override
@@ -85,6 +92,7 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
 
   @override
   void dispose() {
+    _tabs.dispose();
     _transactions.dispose();
     _categories.dispose();
     _accounts.dispose();
@@ -99,6 +107,8 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
       if (suggestions.any(
         (s) =>
             s.kind == AgentSuggestionKind.transactionEdit ||
+            s.kind == AgentSuggestionKind.transactionAdd ||
+            s.kind == AgentSuggestionKind.parserRule ||
             s.kind == AgentSuggestionKind.recurringPayment ||
             s.kind == AgentSuggestionKind.newLoan,
       )) {
@@ -145,6 +155,102 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
     if (fingerprint(now) != was) widget.onLedgerChanged?.call();
   }
 
+  Future<void> _editSuggested(AgentSuggestion s, MoneyTransaction t) async {
+    final digits = _account(t.accountId)?.digits ?? 2;
+    await showSuggestedTransactionSheet(
+      context,
+      draft: TransactionDraft(
+        type: t.type,
+        amountText: AmountTyping.fromMinor(t.amountMinor, digits),
+        title: t.title,
+        categoryId: t.categoryId,
+        accountId: t.accountId,
+        date: t.date,
+        note: t.note,
+      ),
+      onSave: (draft) async {
+        final account = _account(draft.accountId);
+        final minor = parseAccountAmount(
+          draft.amountText,
+          account?.digits ?? 2,
+        );
+        if (account == null || minor == null || draft.categoryId == null) {
+          throw ArgumentError('Fill in the amount, category and account.');
+        }
+        await _repository.editTransactionAdd(
+          s.id,
+          type: draft.type,
+          amountMinor: minor,
+          accountId: account.id,
+          categoryId: draft.categoryId!,
+          title: draft.title,
+          note: draft.note,
+          date: draft.date,
+        );
+      },
+      accountStore: _accounts,
+      categoryStore: _categories,
+      transactionStore: _transactions,
+    );
+    await _load();
+  }
+
+  /// The day an "add transaction" suggestion's transaction falls on.
+  DateTime? _dayOf(AgentSuggestion s) {
+    final date = DateTime.tryParse('${s.payload['date']}');
+    return date == null ? null : DateUtils.dateOnly(date);
+  }
+
+  /// The day header for each run of "add transaction" suggestions on the same
+  /// day, keyed by the run's first suggestion — the same grouping as the
+  /// Transactions list, with the day's totals when they share a currency.
+  Map<int, Widget> _dayHeaders(List<AgentSuggestion> shown, Set<int> grouped) {
+    final headers = <int, Widget>{};
+    if (!_stores) return headers;
+    var i = 0;
+    while (i < shown.length) {
+      final first = shown[i];
+      final day = first.kind == AgentSuggestionKind.transactionAdd
+          ? _dayOf(first)
+          : null;
+      var j = i + 1;
+      if (day != null) {
+        while (j < shown.length &&
+            shown[j].kind == AgentSuggestionKind.transactionAdd &&
+            _dayOf(shown[j]) == day) {
+          j++;
+        }
+        if (j - i > 1) grouped.addAll(shown.sublist(i, j).map((s) => s.id));
+        var income = 0, expenses = 0;
+        final accounts = <Account>{};
+        for (final s in shown.sublist(i, j)) {
+          final account = _account(s.payload['accountId'] as int?);
+          final amount = s.payload['amount'];
+          if (account == null || amount is! int) continue;
+          accounts.add(account);
+          if (s.payload['type'] == 'income') {
+            income += amount;
+          } else {
+            expenses += amount;
+          }
+        }
+        final one = accounts.map((a) => a.currency).toSet().length == 1;
+        final account = one ? accounts.first : null;
+        headers[first.id] = TransactionDayHeader(
+          date: day,
+          income: account != null && income > 0
+              ? formatTransactionMoney(income, account)
+              : null,
+          expenses: account != null && expenses > 0
+              ? formatTransactionMoney(expenses, account)
+              : null,
+        );
+      }
+      i = j;
+    }
+    return headers;
+  }
+
   /// [t] with the fields in [values] (a suggestion's payload, or what it
   /// replaced) put in.
   MoneyTransaction _with(MoneyTransaction t, Map<String, Object?> values) =>
@@ -175,7 +281,12 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
 
   /// A transaction as the row the rest of the app shows. [newCategory] names
   /// a category the AI suggested that doesn't exist yet.
-  Widget _row(MoneyTransaction t, {String? newCategory}) {
+  Widget _row(
+    MoneyTransaction t, {
+    String? newCategory,
+    VoidCallback? onTap,
+    bool showDate = true,
+  }) {
     final category = newCategory == null
         ? _category(t.categoryId)
         : Category(
@@ -204,8 +315,140 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
       category: category,
       parentCategory: _category(category?.parentId),
       formattedAmount: amount,
-      showDate: true,
-      onTap: () => _openTransaction(t),
+      showDate: showDate,
+      onTap: onTap ?? () => _openTransaction(t),
+    );
+  }
+
+  /// A new SMS rule as the payment it would read, shown like an added
+  /// transaction. With no account or category in the SMS the row asks for
+  /// them; tapping it opens the transaction sheet, and saving there with them
+  /// picked records the payment. Once saved, the row is that transaction.
+  Widget _rulePreview(AgentSuggestion s, _RuleSample sample) {
+    final scheme = Theme.of(context).colorScheme;
+    final saved = _transactions.transactions
+        .where((t) => t.id == s.payload['savedTransactionId'])
+        .firstOrNull;
+    final minor =
+        ((double.tryParse(sample.amount.replaceAll(RegExp(r'[^0-9.]'), '')) ??
+                    0) *
+                100)
+            .round();
+    // The catch-all "Personal" says nothing, so it counts as no category.
+    final known = switch (sample.category?.toLowerCase()) {
+      null || 'personal' => null,
+      _ => sample.category,
+    };
+    // What the user still picks on each payment when they review it.
+    final todo = [
+      if (sample.missingAccount) 'account',
+      if (known == null) 'category',
+    ];
+    final t = MoneyTransaction(
+      id: -1,
+      type: sample.credit ? TransactionType.income : TransactionType.expense,
+      amountMinor: minor,
+      accountId: 0,
+      title: sample.payee,
+      note: sample.message,
+      date: s.createdAt,
+    );
+    final row = saved != null
+        ? _row(saved)
+        : TransactionListRow(
+            transaction: t,
+            account: null,
+            toAccount: null,
+            category: known == null
+                ? null
+                : Category(
+                    id: -1,
+                    name: known,
+                    type: sample.credit
+                        ? CategoryType.income
+                        : CategoryType.expense,
+                  ),
+            parentCategory: null,
+            formattedAmount: '${sample.credit ? '+ ' : '- '}${sample.amount}',
+            subtitle: todo.isEmpty
+                ? null
+                : '${known == null ? '' : '$known · '}Select ${todo.join(' and ')}',
+            subtitleColor: todo.isEmpty ? null : coral,
+            showDate: true,
+            onTap: () => showSuggestedTransactionSheet(
+              context,
+              draft: TransactionDraft(
+                type: t.type,
+                amountText: AmountTyping.fromMinor(minor, 2),
+                title: sample.payee,
+                categoryId: _categories.categories
+                    .where(
+                      (c) =>
+                          c.name.toLowerCase() == known?.toLowerCase() &&
+                          c.type ==
+                              (sample.credit
+                                  ? CategoryType.income
+                                  : CategoryType.expense),
+                    )
+                    .firstOrNull
+                    ?.id,
+                date: t.date,
+                note: sample.message,
+              ),
+              onSave: (draft) async {
+                final account = _account(draft.accountId);
+                final minor = parseAccountAmount(
+                  draft.amountText,
+                  account?.digits ?? 2,
+                );
+                if (account == null ||
+                    draft.categoryId == null ||
+                    minor == null) {
+                  throw ArgumentError(
+                    'Pick an account and a category to save it.',
+                  );
+                }
+                await _repository.saveRuleSample(
+                  s.id,
+                  type: draft.type,
+                  amountMinor: minor,
+                  accountId: account.id,
+                  categoryId: draft.categoryId!,
+                  title: draft.title,
+                  note: draft.note,
+                  date: draft.date,
+                );
+                widget.onLedgerChanged?.call();
+              },
+              accountStore: _accounts,
+              categoryStore: _categories,
+              transactionStore: _transactions,
+            ).then((_) => _load()),
+          );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 4, 10, 10),
+          child: Row(
+            children: [
+              Icon(Icons.rule_rounded, size: 18, color: scheme.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  s.summary,
+                  style: Theme.of(context).textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+        ),
+        MoneyCard(
+          padding: EdgeInsets.zero,
+          child: Material(type: MaterialType.transparency, child: row),
+        ),
+      ],
     );
   }
 
@@ -241,6 +484,46 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
                   .where((c) => c.id == s.payload['categoryId'])
                   .firstOrNull
             : null,
+      );
+    }
+    if (s.kind == AgentSuggestionKind.parserRule) {
+      final sample = _RuleSample.parse(s.detail);
+      if (sample == null) return null;
+      return _rulePreview(s, sample);
+    }
+    if (s.kind == AgentSuggestionKind.transactionAdd) {
+      if (!_stores) return null;
+      final p = s.payload;
+      final amount = p['amount'];
+      final accountId = p['accountId'];
+      if (amount is! int || accountId is! int || _account(accountId) == null) {
+        return null;
+      }
+      final t = MoneyTransaction(
+        id: -1,
+        type: TransactionTypeStorage.fromStorage('${p['type']}'),
+        amountMinor: amount,
+        accountId: accountId,
+        categoryId: p['categoryId'] as int?,
+        title: p['title'] as String?,
+        note: p['note'] as String?,
+        date: DateTime.tryParse('${p['date']}') ?? s.createdAt,
+      );
+      // Tapping opens the usual edit page, so a wrong detail can be fixed
+      // before approving; saving rewrites the suggestion, not the ledger.
+      final row = _row(
+        t,
+        newCategory: p['categoryName'] as String?,
+        showDate: false,
+        onTap: s.status == AgentSuggestionStatus.applied
+            ? null
+            : () => _editSuggested(s, t),
+      );
+      // The row in its card, as the Transactions list shows it (the day heads
+      // the group of suggestions). The note is left to the view sheet.
+      return MoneyCard(
+        padding: EdgeInsets.zero,
+        child: Material(type: MaterialType.transparency, child: row),
       );
     }
     if (s.kind != AgentSuggestionKind.transactionEdit || !_stores) return null;
@@ -408,39 +691,25 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
       AgentSuggestionStatus.rejected,
       AgentSuggestionStatus.undone,
     });
-    final shown = switch (_tab) {
-      _Tab.pending => pending,
-      _Tab.applied => applied,
-      _Tab.rejected => rejected,
-    };
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(18, 4, 18, 8),
-          child: SegmentedPill<_Tab>(
-            value: _tab,
-            onChanged: (tab) => setState(() => _tab = tab),
-            segments: [
-              PillSegment(
-                _Tab.pending,
-                pending.isEmpty ? 'Pending' : 'Pending ${pending.length}',
-              ),
-              const PillSegment(_Tab.applied, 'Applied'),
-              const PillSegment(_Tab.rejected, 'Rejected'),
-            ],
-          ),
-        ),
-        Expanded(
-          child: SegmentSwipe<_Tab>(
-            values: _Tab.values,
-            value: _tab,
-            onChanged: (tab) => setState(() => _tab = tab),
-            child: RefreshIndicator(
-              onRefresh: _load,
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(18, 4, 18, 40),
-                children: [
-                  if (_tab == _Tab.pending && pending.length > 1)
+    Widget page(_Tab tab) {
+      final shown = switch (tab) {
+        _Tab.pending => pending,
+        _Tab.applied => applied,
+        _Tab.rejected => rejected,
+      };
+      final grouped = <int>{};
+      final headers = _dayHeaders(shown, grouped);
+      return RefreshIndicator(
+        onRefresh: _load,
+        child: CustomScrollView(
+          // Pull to refresh works even when the list is short.
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(18, 4, 18, 0),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  if (tab == _Tab.pending && pending.length > 1)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(4, 0, 0, 4),
                       child: Row(
@@ -473,39 +742,67 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
                         ),
                       ),
                     ),
-                  if (shown.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 48),
-                      child: Text(
-                        switch (_tab) {
-                          _Tab.pending =>
-                            'Nothing waiting. Fixes from Claude or ChatGPT '
-                                'show up here, and nothing changes until you '
-                                'approve.',
-                          _Tab.applied => 'Nothing approved yet.',
-                          _Tab.rejected => 'Nothing rejected.',
-                        },
-                        textAlign: TextAlign.center,
-                        style: muted,
-                      ),
-                    ),
-                  for (final s in shown)
+                  for (final s in shown) ...[
+                    ?headers[s.id],
                     Padding(
                       padding: const EdgeInsets.only(bottom: appCardGap),
                       child: _SuggestionCard(
                         key: ValueKey(s.id),
                         suggestion: s,
                         preview: _preview(s),
+                        hideReason: grouped.contains(s.id),
+                        bare:
+                            s.kind == AgentSuggestionKind.transactionAdd ||
+                            s.kind == AgentSuggestionKind.parserRule,
                         // Rejected ones can still be applied, from their tab.
                         onApprove: _busy ? null : () => _approve(s),
-                        onReject: _busy || _tab != _Tab.pending
+                        onReject: _busy || tab != _Tab.pending
                             ? null
                             : () => _reject(s),
                         onUndo: s.canUndo && !_busy ? () => _undo(s) : null,
                       ),
                     ),
+                  ],
+                ]),
+              ),
+            ),
+            // At the end of the list, or the foot of the screen when
+            // the list is short.
+            SliverFillRemaining(
+              // Empty: a body of the viewport's height for the empty
+              // state. Otherwise the footnote hugs the bottom.
+              hasScrollBody: shown.isEmpty,
+              child: Column(
+                children: [
+                  if (shown.isEmpty)
+                    Expanded(
+                      child: switch (tab) {
+                        _Tab.pending => const EmptyState(
+                          icon: Icons.auto_awesome_outlined,
+                          art: EmptyArt.chat,
+                          title: 'Nothing waiting',
+                          message:
+                              'Fixes from Claude or ChatGPT show up here. '
+                              'Nothing changes until you approve.',
+                        ),
+                        _Tab.applied => const EmptyState(
+                          icon: Icons.check_circle_outline_rounded,
+                          art: EmptyArt.chatRead,
+                          title: 'Nothing approved yet',
+                          message: 'Suggestions you approve are listed here.',
+                        ),
+                        _Tab.rejected => const EmptyState(
+                          icon: Icons.archive_outlined,
+                          art: EmptyArt.archive,
+                          title: 'Nothing rejected',
+                          message: 'Suggestions you reject are listed here.',
+                        ),
+                      },
+                    )
+                  else
+                    const Spacer(),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+                    padding: const EdgeInsets.fromLTRB(22, 16, 22, 28),
                     child: Text(
                       'Suggestions are kept for 30 days after you decide.',
                       textAlign: TextAlign.center,
@@ -517,6 +814,28 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen> {
                 ],
               ),
             ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 4, 18, 8),
+          child: SegmentedPillTabBar(
+            controller: _tabs,
+            labels: [
+              pending.isEmpty ? 'Pending' : 'Pending ${pending.length}',
+              'Applied',
+              'Rejected',
+            ],
+          ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _tabs,
+            children: [for (final tab in _Tab.values) page(tab)],
           ),
         ),
       ],
@@ -531,6 +850,8 @@ class _SuggestionCard extends StatelessWidget {
     super.key,
     required this.suggestion,
     this.preview,
+    this.bare = false,
+    this.hideReason = false,
     this.onApprove,
     this.onReject,
     this.onUndo,
@@ -540,6 +861,14 @@ class _SuggestionCard extends StatelessWidget {
   /// For a transaction edit: the transaction before and after, shown in
   /// place of the summary and the list of changes.
   final Widget? preview;
+
+  /// Drawn without its own card, for a preview that is already a card (the
+  /// day and row as the Transactions list shows them).
+  final bool bare;
+
+  /// Several suggestions share a day, so the AI's reason is left out; the
+  /// AI is asked to give one only when an entry needs attention.
+  final bool hideReason;
   final VoidCallback? onApprove, onReject, onUndo;
 
   IconData get _icon => switch (suggestion.kind) {
@@ -562,14 +891,33 @@ class _SuggestionCard extends StatelessWidget {
     final pending = s.status == AgentSuggestionStatus.pending;
     final preview = this.preview;
     // The rows carry their own padding, so the card's sits around the rest.
-    const inset = EdgeInsets.symmetric(horizontal: 16);
-    return MoneyCard(
-      padding: const EdgeInsets.only(top: 14, bottom: 10),
-      child: Column(
+    final bare = this.bare && preview != null;
+    // Claude's or ChatGPT's mark, for a suggestion that says who made it.
+    final source = s.source;
+    final logo = source == null ? null : AiAppLogo(source, size: 18);
+    final inset = EdgeInsets.symmetric(horizontal: bare ? 6 : 16);
+    Widget wrap(Widget child) => bare
+        // A thin outline sets one suggestion apart from the next.
+        ? Container(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: scheme.outlineVariant.withValues(alpha: .6),
+              ),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: child,
+          )
+        : MoneyCard(
+            padding: const EdgeInsets.only(top: 14, bottom: 10),
+            child: child,
+          );
+    return wrap(
+      Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (preview != null) ...[
-            if (!pending)
+            if (!pending && !bare)
               Padding(
                 padding: inset,
                 child: Align(
@@ -607,16 +955,30 @@ class _SuggestionCard extends StatelessWidget {
                 child: Text(line, style: theme.textTheme.bodyMedium),
               ),
           ],
-          if (s.reason != null) ...[
+          if (s.reason != null && !hideReason) ...[
             const SizedBox(height: 6),
             Padding(
               padding: inset,
-              child: Text(
-                '“${s.reason}”',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                  fontStyle: FontStyle.italic,
-                ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (logo != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 1),
+                      child: logo,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(
+                    child: Text(
+                      '“${s.reason}”',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -635,6 +997,11 @@ class _SuggestionCard extends StatelessWidget {
             padding: inset,
             child: Row(
               children: [
+                // With no reason to sit beside, the app's mark leads the date.
+                if (logo != null && !(s.reason != null && !hideReason)) ...[
+                  logo,
+                  const SizedBox(width: 8),
+                ],
                 Expanded(
                   child: Text(
                     DateFormat('d MMM, HH:mm')
@@ -644,6 +1011,10 @@ class _SuggestionCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (bare && !pending) ...[
+                  _Status(s.status),
+                  const SizedBox(width: 10),
+                ],
                 if (pending) ...[
                   CardAction(
                     label: 'Reject',
@@ -678,6 +1049,58 @@ class _SuggestionCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// What a "New SMS rule" suggestion says it read, taken back out of its
+/// detail lines: the example ("₹216.00 credit · Meesho"), whether it reads an
+/// account, and the sample message. Null when the lines aren't in that shape.
+class _RuleSample {
+  const _RuleSample(
+    this.amount,
+    this.credit,
+    this.payee,
+    this.message,
+    this.category,
+    this.missingAccount,
+    this.missingCategory,
+  );
+  final String amount, payee, message;
+  final bool missingAccount, missingCategory;
+
+  /// What the parser filed it under, e.g. "Refunds"; null when it has no idea.
+  final String? category;
+  final bool credit;
+
+  static _RuleSample? parse(List<String> detail) {
+    String? value(String prefix) {
+      for (final line in detail) {
+        if (line.startsWith(prefix)) return line.substring(prefix.length);
+      }
+      return null;
+    }
+
+    final from = value('From: ');
+    final reads = value('Reads: ');
+    final read = value('Read all ');
+    final sample = value('Sample: ');
+    if (from == null || reads == null || read == null || sample == null) {
+      return null;
+    }
+    final at = read.indexOf(', e.g. ');
+    if (at < 0) return null;
+    final pieces = read.substring(at + 7).split(' · ');
+    final money = pieces.first.split(' ');
+    return _RuleSample(
+      money.first,
+      money.length > 1 && money.last == 'credit',
+      pieces.length > 1 ? pieces[1] : from.split(', ').first,
+      sample,
+      value('Category: '),
+      value('Missing: account') != null ||
+          !reads.split(', ').contains('account'),
+      value('Missing: category') != null,
     );
   }
 }

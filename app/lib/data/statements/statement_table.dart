@@ -280,6 +280,19 @@ String tableSignature(List<String> row) {
 const _headerScanRows = 50;
 
 /// A saved mapping whose header appears in the first rows of [rows].
+/// The header signature [findSavedMapping] matched in [rows], or null.
+String? savedMappingSignature(
+  List<List<String>> rows,
+  Map<String, Object?> saved,
+) {
+  for (var i = 0; i < rows.length && i < _headerScanRows; i++) {
+    final signature = tableSignature(rows[i]);
+    if (signature.isEmpty) continue;
+    if (TableMapping.fromJson(saved[signature], i) != null) return signature;
+  }
+  return null;
+}
+
 TableMapping? findSavedMapping(
   List<List<String>> rows,
   Map<String, Object?> saved,

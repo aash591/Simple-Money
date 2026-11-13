@@ -5,6 +5,7 @@ import 'app.dart';
 import 'data/device_performance.dart';
 import 'data/realtime_sms.dart';
 import 'data/upi_reminder.dart';
+import 'state/appearance_controller.dart';
 import 'state/onboarding.dart';
 import 'state/vibration_settings.dart';
 
@@ -19,10 +20,12 @@ Future<void> upiPaymentMain() => processBackgroundUpiPayment();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final (_, _, onboarding) = await (
+  final (_, _, onboarding, _) = await (
     VibrationSettings.instance.restore(),
     DevicePerformance.restore(),
     Onboarding.needed(),
+    // The saved style and colours, ready for the very first frame.
+    AppearanceController.preload(),
   ).wait;
   // Lets Flutter draw behind the status bar, so screens can show content (or
   // a blurred scrim) through it instead of a solid OS-painted bar.y

@@ -68,6 +68,8 @@ Future<void> showTransactionReviewSheet(
   bool editTitle = true,
   bool editDate = true,
   bool editNote = true,
+  List<String> Function(String text, TransactionType type, int? categoryId)?
+  titleSuggestions,
   Widget? notice,
   String? sourceHeading,
   IconData? sourceIcon,
@@ -92,6 +94,7 @@ Future<void> showTransactionReviewSheet(
     editTitle: editTitle,
     editDate: editDate,
     editNote: editNote,
+    titleSuggestions: titleSuggestions,
     notice: notice,
     sourceHeading: sourceHeading,
     sourceIcon: sourceIcon,
@@ -123,6 +126,7 @@ class TransactionReviewSheet extends StatefulWidget {
     this.editTitle = true,
     this.editDate = true,
     this.editNote = true,
+    this.titleSuggestions,
     this.notice,
     this.sourceHeading,
     this.sourceIcon,
@@ -142,6 +146,15 @@ class TransactionReviewSheet extends StatefulWidget {
   /// a caller with no saved transaction to link.
   final List<Loan> loans;
   final bool editAmount, editTitle, editDate, editNote;
+
+  /// Past titles that fit what is typed so far, for the type and category
+  /// being recorded.
+  final List<String> Function(
+    String text,
+    TransactionType type,
+    int? categoryId,
+  )?
+  titleSuggestions;
   final Widget? notice;
   final String? sourceHeading;
   final IconData? sourceIcon;
@@ -445,6 +458,12 @@ class _TransactionReviewSheetState extends State<TransactionReviewSheet> {
           onEditTitle: widget.editTitle && !d.transfer
               ? unless(false, editTitle)
               : null,
+          // Typed in place, under the amount, with past titles offered.
+          titleText: widget.editTitle && !d.transfer && !busy ? d.title : null,
+          onTitleChanged: (text) => d.title = text,
+          titleSuggestions: widget.titleSuggestions == null
+              ? null
+              : (text) => widget.titleSuggestions!(text, d.type, d.categoryId),
           date: formatTransactionDate(d.date),
           onEditDate: widget.editDate && !locks.date
               ? unless(false, editDate)
@@ -470,7 +489,7 @@ class _TransactionReviewSheetState extends State<TransactionReviewSheet> {
           rows: [
             if (!d.transfer) ...[
               ReviewChoiceRow(
-                label: d.type == TransactionType.income ? 'Source' : 'Category',
+                label: 'Category',
                 value: _loan?.title ?? picked?.name ?? 'Choose category',
                 icon: AppIcon(_loan?.icon ?? picked?.icon, size: 30),
                 locked: locks.category,
@@ -498,17 +517,6 @@ class _TransactionReviewSheetState extends State<TransactionReviewSheet> {
                 ),
               ),
             ],
-            if (widget.editTitle && !d.transfer) ...[
-              divider,
-              ReviewChoiceRow(
-                label: 'Title',
-                value: d.title.trim().isNotEmpty
-                    ? d.title.trim()
-                    : 'Add a title',
-                icon: Icon(Icons.edit_outlined, color: colors.primary),
-                onTap: unless(false, editTitle),
-              ),
-            ],
             if (widget.editNote) ...[
               divider,
               ReviewChoiceRow(
@@ -517,6 +525,7 @@ class _TransactionReviewSheetState extends State<TransactionReviewSheet> {
                     ? d.note!.trim()
                     : 'Add a note',
                 icon: Icon(Icons.notes_rounded, color: colors.primary),
+                topAligned: true,
                 onTap: unless(false, editNote),
               ),
             ],

@@ -1,0 +1,33 @@
+[
+  {
+    "id": "cimbthai-ported-001",
+    "country": "TH",
+    "bankId": "th.cimbthai",
+    "provenance": "PennyWise CIMBThaiParser (CIMB transfer received (English)); see NOTICE.md",
+    "input": {
+      "sender": "CIMB",
+      "body": "CIMB: Transfer received 6,000.00 THB A/C x5566 Bal 14,980.00 THB",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "th.cimbthai.template001",
+      "candidate": {
+        "amountMinor": 600000,
+        "currencyCode": "THB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "CIMB Thai",
+        "countryCode": "TH",
+        "accountLast4": "5566",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

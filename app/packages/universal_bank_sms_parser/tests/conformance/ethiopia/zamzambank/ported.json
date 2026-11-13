@@ -1,0 +1,64 @@
+[
+  {
+    "id": "zamzambank-ported-001",
+    "country": "ET",
+    "bankId": "et.zamzambank",
+    "provenance": "PennyWise ZamZamBankParser (Credit transaction with counterparty name); see NOTICE.md",
+    "input": {
+      "sender": "ZamZam Bank",
+      "body": "Dear Customer, your account ****1234 has been credited by John Doe with ETB 5,000.00 on 2025-12-02. Your current balance is ETB 5,000.00. Thank you for banking with us!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.zamzambank.template001",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "ZamZam Bank",
+        "countryCode": "ET",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "John Doe",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "zamzambank-ported-002",
+    "country": "ET",
+    "bankId": "et.zamzambank",
+    "provenance": "PennyWise ZamZamBankParser (Debit transaction with whole amount); see NOTICE.md",
+    "input": {
+      "sender": "ZamZam Bank",
+      "body": "Dear John Doe, your account ***1234 has been debited with ETB 32000 on 2026-01-14 00:00:00.0. Your current balance is ETB 2000. Thank you for banking with us!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.zamzambank.template002",
+      "candidate": {
+        "amountMinor": 3200000,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "ZamZam Bank",
+        "countryCode": "ET",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

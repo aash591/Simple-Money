@@ -51,7 +51,7 @@ Future<void> _showSingleNotification(AppDatabase db, LiveSms live) async {
   final credit = live.sms.credit;
   final amount =
       '${currencyPrefix(live.sms.currency)}'
-      '${formatAccountAmount(live.sms.amountMinor, digits: 2, currency: live.sms.currency)}';
+      '${formatAccountAmount(live.sms.amountMinor, digits: live.sms.digits, currency: live.sms.currency)}';
   final signed = '${credit ? '+' : '−'}$amount';
   final label = name.isEmpty ? (credit ? 'Money received' : 'Payment') : name;
   // Minimal on purpose: no account digits, and only the bank beside the
@@ -173,6 +173,7 @@ Future<void> processBackgroundSms() async {
       message.sender,
       userPack: await userSmsPack(db),
       communityPack: await communitySmsPack(db),
+      roles: await smsSenderRoles(db),
     );
     if (engine != null) {
       final result = await RealtimeSmsRepository(db).receive(message, engine);

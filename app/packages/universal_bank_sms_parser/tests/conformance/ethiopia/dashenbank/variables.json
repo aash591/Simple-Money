@@ -1,0 +1,95 @@
+[
+  {
+    "id": "dashenbank-variables-001",
+    "country": "ET",
+    "bankId": "et.dashenbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "Dashen Bank",
+      "body": "Dear Customer, your account 5389********988 has been debited with ETB 321.09 on 02-DEC-2027 at 11:22:33. A service fee of ETB 9876.54 and VAT of ETB 9876.54 have been applied. Your current balance is ETB 9876.54. Thank you for using Dashen Super App! 556677/88",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.dashenbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Dashen Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dashenbank-variables-002",
+    "country": "ET",
+    "bankId": "et.dashenbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "DashenBank",
+      "body": "Dear Customer, ETB 321.09 has been debited from your account 5389********988 and credited to the MIGRATIONSHOP on 02-DEC-2027 at 11:22:33. A service fee of ETB 9876.54 and VAT of ETB 9876.54 have been applied Your current balance is ETB 9876.54. Thank you for using the Dashen Super App! 556677/88",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.dashenbank.template002",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "debit",
+        "channel": "wallet",
+        "bankName": "Dashen Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": "556677/88",
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dashenbank-variables-003",
+    "country": "ET",
+    "bankId": "et.dashenbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "DashenBank",
+      "body": "Dear Customer, your account 5389********988 has been credited with ETB 321.09 from MIGRATIONSHOP on on 02-DEC-2027 at 11:22:33. Your current balance is ETB 9876.54. Thank you for using Dashen Super App!",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "et.dashenbank.template003",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "ETB",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Dashen Bank",
+        "countryCode": "ET",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

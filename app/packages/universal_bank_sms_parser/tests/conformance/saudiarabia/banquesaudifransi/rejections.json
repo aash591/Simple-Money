@@ -1,0 +1,162 @@
+[
+  {
+    "id": "banquesaudifransi-reject-security",
+    "country": "SA",
+    "bankId": "sa.banquesaudifransi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BSF",
+      "body": "your otp is 123456. عملية حوالة مالية صادرة مقبولة\nخصمت من حساب ****0136\nإلى RECIPIENT NAME****\nبنك إس تي سي\nآيبان ****8287\nالقيمة SAR 505.00\nالرسوم SAR 0.58\nفي28-07-2026 14:33:53",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "banquesaudifransi-reject-promotional",
+    "country": "SA",
+    "bankId": "sa.banquesaudifransi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BSF",
+      "body": "exclusive offer: apply now. عملية حوالة مالية صادرة مقبولة\nخصمت من حساب ****0136\nإلى RECIPIENT NAME****\nبنك إس تي سي\nآيبان ****8287\nالقيمة SAR 505.00\nالرسوم SAR 0.58\nفي28-07-2026 14:33:53",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "banquesaudifransi-reject-failed",
+    "country": "SA",
+    "bankId": "sa.banquesaudifransi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BSF",
+      "body": "payment failed. عملية حوالة مالية صادرة مقبولة\nخصمت من حساب ****0136\nإلى RECIPIENT NAME****\nبنك إس تي سي\nآيبان ****8287\nالقيمة SAR 505.00\nالرسوم SAR 0.58\nفي28-07-2026 14:33:53",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "banquesaudifransi-reject-pending",
+    "country": "SA",
+    "bankId": "sa.banquesaudifransi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BSF",
+      "body": "payment pending. عملية حوالة مالية صادرة مقبولة\nخصمت من حساب ****0136\nإلى RECIPIENT NAME****\nبنك إس تي سي\nآيبان ****8287\nالقيمة SAR 505.00\nالرسوم SAR 0.58\nفي28-07-2026 14:33:53",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "banquesaudifransi-reject-future",
+    "country": "SA",
+    "bankId": "sa.banquesaudifransi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BSF",
+      "body": "will be debited. عملية حوالة مالية صادرة مقبولة\nخصمت من حساب ****0136\nإلى RECIPIENT NAME****\nبنك إس تي سي\nآيبان ****8287\nالقيمة SAR 505.00\nالرسوم SAR 0.58\nفي28-07-2026 14:33:53",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "banquesaudifransi-reject-notice",
+    "country": "SA",
+    "bankId": "sa.banquesaudifransi",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "BSF",
+      "body": "statement generated. عملية حوالة مالية صادرة مقبولة\nخصمت من حساب ****0136\nإلى RECIPIENT NAME****\nبنك إس تي سي\nآيبان ****8287\nالقيمة SAR 505.00\nالرسوم SAR 0.58\nفي28-07-2026 14:33:53",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "banquesaudifransi-reject-unknown-sender",
+    "country": "SA",
+    "bankId": "sa.banquesaudifransi",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "عملية حوالة مالية صادرة مقبولة\nخصمت من حساب ****0136\nإلى RECIPIENT NAME****\nبنك إس تي سي\nآيبان ****8287\nالقيمة SAR 505.00\nالرسوم SAR 0.58\nفي28-07-2026 14:33:53",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "banquesaudifransi-reject-balance-only",
+    "country": "SA",
+    "bankId": "sa.banquesaudifransi",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "BSF",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

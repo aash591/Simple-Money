@@ -101,9 +101,12 @@ extension _AgentToolDefinitions on AgentTools {
       title: 'List bank SMS waiting for review',
       description:
           'Bank messages the app parsed but hasn\'t saved yet, with the full '
-          'SMS text, what the parser read from it, and the account and '
-          'category currently chosen. ready=false means it still needs an '
-          'account or category. Use suggest_sms_corrections to fix them.',
+          'SMS text, what the parser read from it, and the account (names in '
+          '"accounts") and category currently chosen. "needs" says what is '
+          'still missing. A message with a sender_type (a shop, biller…) '
+          'never names an account: pick the one the money went to or came '
+          'from, or leave it to the user. Use suggest_sms_corrections to fix '
+          'them.',
       inputSchema: AgentTools._schema({
         'ready': {
           'type': 'boolean',
@@ -167,7 +170,10 @@ extension _AgentToolDefinitions on AgentTools {
           'Proposes an account and/or category for bank messages waiting for '
           'review (ids from list_pending_sms), or dismisses ones that aren\'t '
           'transactions. A category is given by id, or by name ("Swiggy" or '
-          '"Food › Swiggy"). Changes nothing until approved.',
+          '"Food › Swiggy"). When the bank\'s wording misleads ("Rs 5,000 '
+          'credited to your loan a/c" is the user paying the loan), give '
+          'loan_id (list_loans) or direction, with same_layout to fix every '
+          'message like it, now and later. Changes nothing until approved.',
       readOnly: false,
       inputSchema: AgentTools._items(
         {
@@ -176,6 +182,27 @@ extension _AgentToolDefinitions on AgentTools {
           'category_id': {'type': 'integer'},
           'category_name': {'type': 'string'},
           'dismiss': {'type': 'boolean'},
+          'direction': {
+            'type': 'string',
+            'enum': ['debit', 'credit'],
+            'description':
+                'Where the user\'s money really went, when the SMS says the '
+                'opposite. debit: it left the user.',
+          },
+          'loan_id': {
+            'type': 'integer',
+            'description':
+                'The loan this message pays. It becomes that loan\'s next '
+                'payment, from the loan\'s paying account.',
+          },
+          'same_layout': {
+            'type': 'boolean',
+            'default': false,
+            'description':
+                'Also every waiting message of the same layout from this '
+                'sender, and the ones to come. Only with direction or '
+                'loan_id.',
+          },
           'reason': AgentTools._reasonField,
         },
         required: ['sms_id'],
@@ -189,7 +216,9 @@ extension _AgentToolDefinitions on AgentTools {
           'Proposes a new category, account, title or note for saved '
           'transactions (ids from search_transactions). Amounts and dates '
           'can\'t be changed this way. A new account must use the same '
-          'currency. Changes nothing until approved.',
+          'currency. loan_id makes one a payment to that loan (list_loans), '
+          'even one saved as income because the bank said "credited to your '
+          'loan account". Changes nothing until approved.',
       readOnly: false,
       inputSchema: AgentTools._items(
         {
@@ -199,6 +228,11 @@ extension _AgentToolDefinitions on AgentTools {
           'account_id': {'type': 'integer'},
           'title': {'type': 'string', 'maxLength': 80},
           'note': {'type': 'string'},
+          'loan_id': {
+            'type': 'integer',
+            'description':
+                'The loan this transaction pays. Leave out other fields.',
+          },
           'reason': AgentTools._reasonField,
         },
         required: ['transaction_id'],
@@ -213,7 +247,11 @@ extension _AgentToolDefinitions on AgentTools {
           'statement line, or what the user tells you). Give the account '
           '(list_accounts), the amount in that account\'s currency, and a '
           'category by id or name. The date defaults to today. Refuses one '
-          'that looks already saved. Changes nothing until approved.',
+          'that looks already saved. Changes nothing until approved. Leave '
+          'reason out unless something needs the user\'s attention (a guessed '
+          'category, an unclear date or amount): with several transactions '
+          'the app hides routine reasons, so never restate what the entry '
+          'already shows.',
       readOnly: false,
       inputSchema: AgentTools._items(
         {
@@ -233,7 +271,13 @@ extension _AgentToolDefinitions on AgentTools {
           'note': {'type': 'string'},
           'date': AgentTools._date,
           'ignore_duplicates': {'type': 'boolean', 'default': false},
-          'reason': AgentTools._reasonField,
+          'reason': {
+            'type': 'string',
+            'maxLength': 280,
+            'description':
+                'Only when this entry needs attention, in a few words. '
+                'Omit otherwise.',
+          },
         },
         required: ['amount', 'account_id'],
       ),
@@ -359,8 +403,10 @@ extension _AgentToolDefinitions on AgentTools {
       description:
           'Proposes a format that test_parser_rule showed reads every '
           'sample. Once the user approves it, the app reads the inbox again '
-          'and the messages it reads join the SMS review queue. Same input '
-          'as test_parser_rule, plus a reason.',
+          'and the messages it reads join the SMS review queue. Suggest one '
+          'only when the SMS carries an account number or a clear category '
+          '(refund, salary…). The user picks the other in SMS review; tell '
+          'them which. Same input as test_parser_rule, plus a reason.',
       readOnly: false,
       inputSchema: AgentTools._ruleSchema(reason: true),
       handler: _suggestParserRule,
@@ -371,16 +417,23 @@ extension _AgentToolDefinitions on AgentTools {
       description:
           'Teaches the app a missed SMS. Give its id from list_missed_sms and '
           'copy values exactly as they appear in it: amount (required), and '
-          'account, payee, reference when present. The app builds the rule, '
-          'tests it on the other missed messages from that sender, and '
-          'suggests it for the user to approve.',
+          'account, payee, reference when present. Only teach an SMS with an '
+          'account number or a clear category (refund, salary…). A shop\'s, '
+          'biller\'s or lender\'s SMS never gives the account: the app matches '
+          'it to the bank\'s SMS for the same money. Never guess what it '
+          'leaves out: the user picks it in SMS review, and the reply says '
+          'what that is. The app builds the rule, tests it on the other '
+          'missed messages from that sender, and suggests it for the user to '
+          'approve.',
       readOnly: false,
       inputSchema: AgentTools._schema(
         {
           'sms_id': {'type': 'string'},
           'amount': {
             'type': 'string',
-            'description': 'Exactly as in the SMS, e.g. 1,250.00',
+            'description':
+                'Exactly as in the SMS, without the currency, e.g. 1,250.00 '
+                'or 1.250,00',
           },
           'direction': {
             'type': 'string',
@@ -407,11 +460,51 @@ extension _AgentToolDefinitions on AgentTools {
             'type': 'string',
             'maxLength': 40,
             'description':
-                'The bank\'s name as the SMS signs it, e.g. Fincare SFB. '
-                'Only if asked for.',
+                'The bank\'s or shop\'s name, e.g. Fincare SFB or Meesho. For '
+                'a shop, biller or lender, always give it: it is the payee.',
+          },
+          'sender_type': {
+            'type': 'string',
+            'enum': [for (final r in SmsSenderRole.values) r.name],
+            'description':
+                'Who sent it. bank, card or wallet: the SMS reports the '
+                'user\'s own account there. merchant (shop, app), biller, '
+                'lender, government, other: it only says money moved, so it '
+                'is never an account, even when it quotes one.',
+          },
+          'stage': {
+            'type': 'string',
+            'enum': ['done', 'pending', 'failed', 'scheduled'],
+            'default': 'done',
+            'description':
+                'pending: "refund initiated", "will be credited". scheduled: '
+                '"will be debited on". failed: declined or reversed.',
+          },
+          'country': {
+            'type': 'string',
+            'pattern': '^[A-Za-z]{2}\$',
+            'description':
+                'Where the bank or shop is, as ISO 3166 code: IN, AE, US, '
+                'GB, KE… Tell from the currency, language and bank. One '
+                'person can bank in several countries.',
+          },
+          'currency': {
+            'type': 'string',
+            'pattern': '^[A-Za-z]{3}\$',
+            'description':
+                'ISO 4217 code of the amount: INR, AED, USD, EUR… ("Rs" is '
+                'INR, "Dhs" AED, "Ksh" KES).',
           },
         },
-        required: ['sms_id', 'amount', 'direction', 'channel'],
+        required: [
+          'sms_id',
+          'amount',
+          'direction',
+          'channel',
+          'sender_type',
+          'country',
+          'currency',
+        ],
       ),
       handler: _labelSms,
     ),

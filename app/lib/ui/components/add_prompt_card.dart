@@ -107,7 +107,7 @@ class AddPromptCard extends StatelessWidget {
     if (frosted) {
       card = ClipRRect(
         borderRadius: radius,
-        child: BackdropFilter(
+        child: BackdropFilter.grouped(
           filter: ui.ImageFilter.blur(
             sigmaX: 22,
             sigmaY: 22,

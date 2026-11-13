@@ -1,0 +1,64 @@
+[
+  {
+    "id": "primecommercialbank-ported-001",
+    "country": "NP",
+    "bankId": "np.primecommercialbank",
+    "provenance": "PennyWise PrimeCommercialBankParser (Debit transaction - withdrawn with phone remark); see NOTICE.md",
+    "input": {
+      "sender": "PCBLNPKA",
+      "body": "Dear Customer, NPR 1,234.50 is withdrawn from A/C XXX#1234 on 01/01/2026 05:55. Rmk: 9812345678. Good Baln: NPR 321.45",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.primecommercialbank.template001",
+      "candidate": {
+        "amountMinor": 123450,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "atm",
+        "bankName": "Prime Commercial Bank",
+        "countryCode": "NP",
+        "accountLast4": "1234",
+        "reference": "01/01/2026 05:55",
+        "counterparty": "9812345678",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "primecommercialbank-ported-002",
+    "country": "NP",
+    "bankId": "np.primecommercialbank",
+    "provenance": "PennyWise PrimeCommercialBankParser (Credit transaction - deposited with text remark); see NOTICE.md",
+    "input": {
+      "sender": "PRIME_ALERT",
+      "body": "Dear Customer, NPR 9,876.00 is deposited in A/C XXX#5678 on 01/01/2026 05:55. Rmk: CASHDEP. Good Baln: NPR 54321.123.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.primecommercialbank.template002",
+      "candidate": {
+        "amountMinor": 987600,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Prime Commercial Bank",
+        "countryCode": "NP",
+        "accountLast4": "5678",
+        "reference": "01/01/2026 05:55",
+        "counterparty": "CASHDEP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

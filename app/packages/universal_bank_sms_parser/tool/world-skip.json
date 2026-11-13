@@ -1,0 +1,157 @@
+[
+ [
+  "ae.dubaifirst",
+  2,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "ae.dubaifirst",
+  3,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "ae.dubaifirst",
+  5,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "ae.dubaifirst",
+  7,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "ae.firstabudhabibank",
+  15,
+  "at location ['classification'] is 'failed' instead of 'completed'"
+ ],
+ [
+  "ae.livbank",
+  2,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "ae.livbank",
+  4,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "ae.livbank",
+  7,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "et.dashenbank",
+  4,
+  "at location ['candidate']['counterparty'] is 'telebirr account number 251922222222' instea"
+ ],
+ [
+  "et.telebirr",
+  5,
+  "at location ['candidate']['counterparty'] is '519680 - City Government of Adis Ababa Drive"
+ ],
+ [
+  "et.telebirr",
+  7,
+  "at location ['candidate']['counterparty'] is 'Monthly 240Min + 24GB Data purchase made for"
+ ],
+ [
+  "gb.chaseuk",
+  2,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "ir.blubank",
+  1,
+  "at location ['classification'] is 'unknown' instead of 'completed'"
+ ],
+ [
+  "ir.blubank",
+  2,
+  "at location ['classification'] is 'unknown' instead of 'completed'"
+ ],
+ [
+  "ir.blubank",
+  3,
+  "at location ['classification'] is 'unknown' instead of 'completed'"
+ ],
+ [
+  "lk.nationalsavingsbank",
+  2,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "lk.nationalsavingsbank",
+  3,
+  "at location ['candidate']['counterparty'] is '61.Internet-Mobile Withdrawal' instead of 'I"
+ ],
+ [
+  "ng.standardcharteredbanknigeria",
+  3,
+  "at location ['ruleId'] is 'ng.standardcharteredbanknigeria.template002' instead of 'ng.sta"
+ ],
+ [
+  "ng.zenithbank",
+  3,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "np.everestbank",
+  3,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "pk.faysalbank",
+  5,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "sa.alrajhibank",
+  11,
+  "at location ['classification'] is 'pending' instead of 'completed'"
+ ],
+ [
+  "sa.alrajhibank",
+  26,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "th.ktc",
+  1,
+  "at location ['classification'] is 'pending' instead of 'completed'"
+ ],
+ [
+  "tr.enpara",
+  3,
+  "at location ['ruleId'] is 'tr.enpara.template001' instead of 'tr.enpara.template003'"
+ ],
+ [
+  "tz.crdbbank",
+  1,
+  "at location ['classification'] is 'unknown' instead of 'completed'"
+ ],
+ [
+  "tz.crdbbank",
+  2,
+  "at location ['classification'] is 'unknown' instead of 'completed'"
+ ],
+ [
+  "tz.crdbbank",
+  12,
+  "at location ['classification'] is 'unknown' instead of 'completed'"
+ ],
+ [
+  "us.adelfi",
+  1,
+  "overlaps another layout of the same bank"
+ ],
+ [
+  "us.altanafederalcreditunion",
+  1,
+  "at location ['classification'] is 'pending' instead of 'completed'"
+ ],
+ [
+  "us.altanafederalcreditunion",
+  2,
+  "at location ['classification'] is 'pending' instead of 'completed'"
+ ]
+]

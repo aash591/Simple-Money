@@ -1,0 +1,126 @@
+[
+  {
+    "id": "sampathbank-ported-001",
+    "country": "LK",
+    "bankId": "lk.sampathbank",
+    "provenance": "PennyWise SampathBankParser (Account credit (LKR)); see NOTICE.md",
+    "input": {
+      "sender": "SAMPATHTXN",
+      "body": "LKR 5,000.00 credited to AC **8758 for PICKME - 37419306\n22/05/2026 23:36:52\nTo Inq Call 0112303050\nGet protected -Do not Share OTP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.sampathbank.template001",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "LKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Sampath Bank",
+        "countryCode": "LK",
+        "accountLast4": "8758",
+        "reference": "37419306",
+        "counterparty": "PICKME",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "sampathbank-ported-002",
+    "country": "LK",
+    "bankId": "lk.sampathbank",
+    "provenance": "PennyWise SampathBankParser (Account debit (LKR)); see NOTICE.md",
+    "input": {
+      "sender": "SAMPATHTXN",
+      "body": "LKR 4,025.00 debited from AC **8758 for WPY_TAOA_041772_WLT@0347310\n18/05/2026 06:56:52\nTo Inq Call 0112303050\nGet protected -Do not Share OTP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.sampathbank.template002",
+      "candidate": {
+        "amountMinor": 402500,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Sampath Bank",
+        "countryCode": "LK",
+        "accountLast4": "8758",
+        "reference": null,
+        "counterparty": "WPY_TAOA_041772_WLT@0347310",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "sampathbank-ported-003",
+    "country": "LK",
+    "bankId": "lk.sampathbank",
+    "provenance": "PennyWise SampathBankParser (International credit (GBP)); see NOTICE.md",
+    "input": {
+      "sender": "SAMPATHTXN",
+      "body": "GBP 1,000.00 credited to AC **5012 for Remittance ID : [IR26GBP36623] : REALIZE\n14/05/2026 13:55:02\nTo Inq Call 0112303050\nGet protected -Do not Share OTP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.sampathbank.template003",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "GBP",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Sampath Bank",
+        "countryCode": "LK",
+        "accountLast4": "5012",
+        "reference": "IR26GBP36623",
+        "counterparty": "REALIZE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "sampathbank-ported-004",
+    "country": "LK",
+    "bankId": "lk.sampathbank",
+    "provenance": "PennyWise SampathBankParser (Credit card payment (LKR)); see NOTICE.md",
+    "input": {
+      "sender": "SAMPCCTXN",
+      "body": "Cr Crd no..**0282 Auth Pmt LKR 2,100.00 at SPICE ASIA - DELIVERY Avl Bal LKR 250,000.00 Enq Call 0112300604\n- Sampath Bank 23-MAY",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.sampathbank.template004",
+      "candidate": {
+        "amountMinor": 210000,
+        "currencyCode": "LKR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Sampath Bank",
+        "countryCode": "LK",
+        "accountLast4": "0282",
+        "reference": null,
+        "counterparty": "SPICE ASIA - DELIVERY",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

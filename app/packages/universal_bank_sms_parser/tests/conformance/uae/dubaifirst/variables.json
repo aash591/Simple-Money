@@ -1,0 +1,95 @@
+[
+  {
+    "id": "dubaifirst-variables-001",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "Card Transaction Card ending with: 9988 Amount: AED 321.09 At: MIGRATIONSHOP Date: 02-DEC-2027 Available Balance: AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.dubaifirst.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Dubai First",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dubaifirst-variables-004",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "Card Transaction Card ending with: 9876.54 Amount: USD 321.09 At: MIGRATIONSHOP Date: 02-DEC-2027 Available Balance: AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.dubaifirst.template004",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "USD",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Dubai First",
+        "countryCode": "AE",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "dubaifirst-variables-006",
+    "country": "AE",
+    "bankId": "ae.dubaifirst",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "DubaiFirst",
+      "body": "Card ending with: 9988 Amount: AED 321.09 At: MIGRATIONSHOP Date: 02-DEC-2027 Available Balance: AED 9876.54",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "ae.dubaifirst.template006",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "AED",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "Dubai First",
+        "countryCode": "AE",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

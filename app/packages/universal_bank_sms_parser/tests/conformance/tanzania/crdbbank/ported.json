@@ -1,0 +1,312 @@
+[
+  {
+    "id": "crdbbank-ported-003",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "PennyWise CrdbBankParser (Mobile money send (Swahili)); see NOTICE.md",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "Muamala umefanikiwa TZS40000 AIRTEL kwenda MSHAMU MSHAMU 255686621388",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template003",
+      "candidate": {
+        "amountMinor": 4000000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "MSHAMU MSHAMU",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "crdbbank-ported-004",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "PennyWise CrdbBankParser (Bill payment / utility (Swahili)); see NOTICE.md",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "Malipo yamekamilika TOTAL TZS 2000",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template004",
+      "candidate": {
+        "amountMinor": 200000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "TOTAL",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "crdbbank-ported-005",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "PennyWise CrdbBankParser (Incoming transfer with both umepokea and kwenda (INCOME)); see NOTICE.md",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "Umepokea TZS 75000.00 kutoka JOHN DOE kwenda akaunti yako Balance is TZS 200000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template005",
+      "candidate": {
+        "amountMinor": 7500000,
+        "currencyCode": "TZS",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "crdbbank-ported-006",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "PennyWise CrdbBankParser (Outgoing send mentioning recipient received (EXPENSE)); see NOTICE.md",
+    "input": {
+      "sender": "CRDB BANK",
+      "body": "Umetuma TZS 30000.00 kwenda JANE DOE. JANE DOE has received the funds. Bal:TZS 50000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template006",
+      "candidate": {
+        "amountMinor": 3000000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "crdbbank-ported-007",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "PennyWise CrdbBankParser (LUKU electricity token (TOTAL anchored)); see NOTICE.md",
+    "input": {
+      "sender": "CRDB",
+      "body": "Malipo yamekamilika.19ec9775f682395e 9007261660708258420 TOKEN 6642 0488 4500 7039 0706 12.2KWH Cost 1229.51 VAT 18% 221.31 EWURA 1% 12.30 REA 3% 36.88 Debt Collected 1500.00 TOTAL TZS 3000.00 2026-06-15 07:08",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template007",
+      "candidate": {
+        "amountMinor": 300000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": null,
+        "counterparty": "LUKU",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "crdbbank-ported-008",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "PennyWise CrdbBankParser (SimBanking interbank transfer); see NOTICE.md",
+    "input": {
+      "sender": "CRDB",
+      "body": "KUMB:19ec6ebe82c12bc7 Muamala umefanikiwa TZS35000 SELCOM BANK kwenda JANE DOE 06XXXXXXXX Risiti:003-19ec6ebe82c12bc7 2026-06-14 19:16:49  CRDB SIMBANKING APP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template008",
+      "candidate": {
+        "amountMinor": 3500000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "003-19ec6ebe82c12bc7",
+        "counterparty": "JANE DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "crdbbank-ported-009",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "PennyWise CrdbBankParser (Account-to-account transfer (Umetuma)); see NOTICE.md",
+    "input": {
+      "sender": "CRDB",
+      "body": "Umetuma TZS 39,600.0 kutoka AC:01522***6100 kwenda JOHN DOE AC: 11375680 REF: 19ec69444b7bba7c 2026-06-14 17:41:9. Kwa msaada piga 0755197700",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template009",
+      "candidate": {
+        "amountMinor": 3960000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "19ec69444b7bba7c",
+        "counterparty": "JOHN DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "crdbbank-ported-010",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "PennyWise CrdbBankParser (Merchant payment via SimBanking (Lipa)); see NOTICE.md",
+    "input": {
+      "sender": "CRDB",
+      "body": "KUMB:19ec660b8a1c1bde Muamala umefanikiwa TZS30000 VODACOM kwenda LIPA MERCHANT NAME 51469658 Risiti:003-19ec660b8a1c1bde 2026-06-14 16:44:48  CRDB SIMBANKING APP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template010",
+      "candidate": {
+        "amountMinor": 3000000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "003-19ec660b8a1c1bde",
+        "counterparty": "MERCHANT NAME",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "crdbbank-ported-011",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "PennyWise CrdbBankParser (Inbound deposit / credit); see NOTICE.md",
+    "input": {
+      "sender": "CRDB",
+      "body": "Dear Customer, you have received TZS850,000.00 in your account number: 0152********100 2026-06-13T19:18 REF:FT2616465ZC2 . For queries call 0755197700.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template011",
+      "candidate": {
+        "amountMinor": 85000000,
+        "currencyCode": "TZS",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "FT2616465ZC2",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "crdbbank-ported-013",
+    "country": "TZ",
+    "bankId": "tz.crdbbank",
+    "provenance": "PennyWise CrdbBankParser (SimBanking transfer, KUMB-only reference (no Risiti)); see NOTICE.md",
+    "input": {
+      "sender": "CRDB",
+      "body": "KUMB:19ec7af09b2d4ce1 Muamala umefanikiwa TZS12000 AIRTEL kwenda JOHN DOE 07XXXXXXXX 2026-06-15 09:10:21  CRDB SIMBANKING APP",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "tz.crdbbank.template013",
+      "candidate": {
+        "amountMinor": 1200000,
+        "currencyCode": "TZS",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "CRDB Bank",
+        "countryCode": "TZ",
+        "accountLast4": null,
+        "reference": "19ec7af09b2d4ce1",
+        "counterparty": "JOHN DOE",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

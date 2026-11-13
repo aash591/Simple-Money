@@ -1,0 +1,64 @@
+[
+  {
+    "id": "nepalbanklimited-ported-001",
+    "country": "NP",
+    "bankId": "np.nepalbanklimited",
+    "provenance": "PennyWise NepalBankParser (Credit - income); see NOTICE.md",
+    "input": {
+      "sender": "NBL_Alert",
+      "body": "Dear CUSTOMER_NAME,##001 credited NPR 5,000.00 15/06/2026 12:53:44,5345345/1233123",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.nepalbanklimited.template001",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "NPR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "Nepal Bank Limited",
+        "countryCode": "NP",
+        "accountLast4": "001",
+        "reference": "5345345/1233123",
+        "counterparty": null,
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  },
+  {
+    "id": "nepalbanklimited-ported-002",
+    "country": "NP",
+    "bankId": "np.nepalbanklimited",
+    "provenance": "PennyWise NepalBankParser (Debit - expense); see NOTICE.md",
+    "input": {
+      "sender": "NBL_Alert",
+      "body": "Dear CUSTOMER_NAME,##001 debited NPR 5,000.00 04/04/2026 12:12:12,42343244@4234234 43432@VISA",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "np.nepalbanklimited.template002",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "NPR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "bankName": "Nepal Bank Limited",
+        "countryCode": "NP",
+        "accountLast4": "001",
+        "reference": "42343244@4234234",
+        "counterparty": "VISA Transaction",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": true
+  }
+]

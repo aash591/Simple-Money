@@ -1,0 +1,162 @@
+[
+  {
+    "id": "gtbank-reject-security",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "GTBank",
+      "body": "your otp is 123456. Acct:******4321\nAmt:NGN15,000.00 DR\nDesc:OUTWARD TRANSFER TO OPAY - JANE DOE\nBal:NGN20,000.00\nDate:2026-08-23 9:36AM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "gtbank-reject-promotional",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "GTBank",
+      "body": "exclusive offer: apply now. Acct:******4321\nAmt:NGN15,000.00 DR\nDesc:OUTWARD TRANSFER TO OPAY - JANE DOE\nBal:NGN20,000.00\nDate:2026-08-23 9:36AM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "gtbank-reject-failed",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "GTBank",
+      "body": "payment failed. Acct:******4321\nAmt:NGN15,000.00 DR\nDesc:OUTWARD TRANSFER TO OPAY - JANE DOE\nBal:NGN20,000.00\nDate:2026-08-23 9:36AM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "gtbank-reject-pending",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "GTBank",
+      "body": "payment pending. Acct:******4321\nAmt:NGN15,000.00 DR\nDesc:OUTWARD TRANSFER TO OPAY - JANE DOE\nBal:NGN20,000.00\nDate:2026-08-23 9:36AM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "gtbank-reject-future",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "GTBank",
+      "body": "will be debited. Acct:******4321\nAmt:NGN15,000.00 DR\nDesc:OUTWARD TRANSFER TO OPAY - JANE DOE\nBal:NGN20,000.00\nDate:2026-08-23 9:36AM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "gtbank-reject-notice",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "GTBank",
+      "body": "statement generated. Acct:******4321\nAmt:NGN15,000.00 DR\nDesc:OUTWARD TRANSFER TO OPAY - JANE DOE\nBal:NGN20,000.00\nDate:2026-08-23 9:36AM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "gtbank-reject-unknown-sender",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Acct:******4321\nAmt:NGN15,000.00 DR\nDesc:OUTWARD TRANSFER TO OPAY - JANE DOE\nBal:NGN20,000.00\nDate:2026-08-23 9:36AM",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "gtbank-reject-balance-only",
+    "country": "NG",
+    "bankId": "ng.gtbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "GTBank",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

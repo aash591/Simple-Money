@@ -9,13 +9,15 @@ Account? smsAccount(
   SmsImportStore store,
   List<Account> accounts,
 ) {
-  final id = sms.data['assignedAccountId'] ?? store.accountLinks[sms.bankKey];
+  final id =
+      sms.data['assignedAccountId'] ??
+      (sms.holdsMoney ? store.accountLinks[sms.bankKey] : null);
   return accounts
       .where(
         (a) =>
             a.id == id &&
             a.currency == sms.currency &&
-            a.digits == 2 &&
+            a.digits == sms.digits &&
             a.archivedAt == null,
       )
       .firstOrNull;

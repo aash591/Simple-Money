@@ -1,0 +1,162 @@
+[
+  {
+    "id": "lumbinibikashbank-reject-security",
+    "country": "NP",
+    "bankId": "np.lumbinibikashbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "LBBL_SMART",
+      "body": "your otp is 123456. Dear Customer, NPR 1,199.00 has been withdrawn from your A/C 050######4545 on 28/04/2026 16:40. Remarks: 9841XXXXXXX Load eSewa;8234454",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "lumbinibikashbank-reject-promotional",
+    "country": "NP",
+    "bankId": "np.lumbinibikashbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "LBBL_SMART",
+      "body": "exclusive offer: apply now. Dear Customer, NPR 1,199.00 has been withdrawn from your A/C 050######4545 on 28/04/2026 16:40. Remarks: 9841XXXXXXX Load eSewa;8234454",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "lumbinibikashbank-reject-failed",
+    "country": "NP",
+    "bankId": "np.lumbinibikashbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "LBBL_SMART",
+      "body": "payment failed. Dear Customer, NPR 1,199.00 has been withdrawn from your A/C 050######4545 on 28/04/2026 16:40. Remarks: 9841XXXXXXX Load eSewa;8234454",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "lumbinibikashbank-reject-pending",
+    "country": "NP",
+    "bankId": "np.lumbinibikashbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "LBBL_SMART",
+      "body": "payment pending. Dear Customer, NPR 1,199.00 has been withdrawn from your A/C 050######4545 on 28/04/2026 16:40. Remarks: 9841XXXXXXX Load eSewa;8234454",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "lumbinibikashbank-reject-future",
+    "country": "NP",
+    "bankId": "np.lumbinibikashbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "LBBL_SMART",
+      "body": "will be debited. Dear Customer, NPR 1,199.00 has been withdrawn from your A/C 050######4545 on 28/04/2026 16:40. Remarks: 9841XXXXXXX Load eSewa;8234454",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "lumbinibikashbank-reject-notice",
+    "country": "NP",
+    "bankId": "np.lumbinibikashbank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "LBBL_SMART",
+      "body": "statement generated. Dear Customer, NPR 1,199.00 has been withdrawn from your A/C 050######4545 on 28/04/2026 16:40. Remarks: 9841XXXXXXX Load eSewa;8234454",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "lumbinibikashbank-reject-unknown-sender",
+    "country": "NP",
+    "bankId": "np.lumbinibikashbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Dear Customer, NPR 1,199.00 has been withdrawn from your A/C 050######4545 on 28/04/2026 16:40. Remarks: 9841XXXXXXX Load eSewa;8234454",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "lumbinibikashbank-reject-balance-only",
+    "country": "NP",
+    "bankId": "np.lumbinibikashbank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "LBBL_SMART",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

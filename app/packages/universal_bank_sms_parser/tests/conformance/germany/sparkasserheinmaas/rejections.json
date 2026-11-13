@@ -1,0 +1,162 @@
+[
+  {
+    "id": "sparkasserheinmaas-reject-security",
+    "country": "DE",
+    "bankId": "de.sparkasserheinmaas",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Sparkasse",
+      "body": "your otp is 123456. Kartenwecker:\n1 neuer Kartenumsatz auf dem Konto *1832:\nKAUFLAND: -70,85 EUR\nNeuer Saldo: 991,84 EUR\nIhre Sparkasse",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sparkasserheinmaas-reject-promotional",
+    "country": "DE",
+    "bankId": "de.sparkasserheinmaas",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Sparkasse",
+      "body": "exclusive offer: apply now. Kartenwecker:\n1 neuer Kartenumsatz auf dem Konto *1832:\nKAUFLAND: -70,85 EUR\nNeuer Saldo: 991,84 EUR\nIhre Sparkasse",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sparkasserheinmaas-reject-failed",
+    "country": "DE",
+    "bankId": "de.sparkasserheinmaas",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Sparkasse",
+      "body": "payment failed. Kartenwecker:\n1 neuer Kartenumsatz auf dem Konto *1832:\nKAUFLAND: -70,85 EUR\nNeuer Saldo: 991,84 EUR\nIhre Sparkasse",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sparkasserheinmaas-reject-pending",
+    "country": "DE",
+    "bankId": "de.sparkasserheinmaas",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Sparkasse",
+      "body": "payment pending. Kartenwecker:\n1 neuer Kartenumsatz auf dem Konto *1832:\nKAUFLAND: -70,85 EUR\nNeuer Saldo: 991,84 EUR\nIhre Sparkasse",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sparkasserheinmaas-reject-future",
+    "country": "DE",
+    "bankId": "de.sparkasserheinmaas",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Sparkasse",
+      "body": "will be debited. Kartenwecker:\n1 neuer Kartenumsatz auf dem Konto *1832:\nKAUFLAND: -70,85 EUR\nNeuer Saldo: 991,84 EUR\nIhre Sparkasse",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sparkasserheinmaas-reject-notice",
+    "country": "DE",
+    "bankId": "de.sparkasserheinmaas",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "Sparkasse",
+      "body": "statement generated. Kartenwecker:\n1 neuer Kartenumsatz auf dem Konto *1832:\nKAUFLAND: -70,85 EUR\nNeuer Saldo: 991,84 EUR\nIhre Sparkasse",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sparkasserheinmaas-reject-unknown-sender",
+    "country": "DE",
+    "bankId": "de.sparkasserheinmaas",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Kartenwecker:\n1 neuer Kartenumsatz auf dem Konto *1832:\nKAUFLAND: -70,85 EUR\nNeuer Saldo: 991,84 EUR\nIhre Sparkasse",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "sparkasserheinmaas-reject-balance-only",
+    "country": "DE",
+    "bankId": "de.sparkasserheinmaas",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "Sparkasse",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]

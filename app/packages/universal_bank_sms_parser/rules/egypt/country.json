@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "0.3",
+  "minEngineVersion": "0.3.0",
+  "packVersion": 1,
+  "country": "EG",
+  "defaults": {
+    "currency": "EGP",
+    "case": "ascii_insensitive",
+    "digits": [
+      "ascii"
+    ],
+    "decimalMark": ".",
+    "grouping": "western",
+    "exponents": {
+      "EGP": 2,
+      "USD": 2,
+      "JOD": 3
+    }
+  },
+  "classifiers": [
+    {
+      "classification": "security",
+      "when": {
+        "any": [
+          "your otp",
+          "Your OTP",
+          "otp is",
+          "verification code",
+          "one-time password",
+          "رمز التحقق",
+          "كلمة المرور لمرة واحدة"
+        ]
+      }
+    },
+    {
+      "classification": "promotional",
+      "when": {
+        "any": [
+          "apply now",
+          "exclusive offer",
+          "Exclusive offer",
+          "pre-approved",
+          "cashback offer"
+        ]
+      }
+    },
+    {
+      "classification": "failed",
+      "when": {
+        "any": [
+          "failed",
+          "declined",
+          "unsuccessful"
+        ]
+      }
+    },
+    {
+      "classification": "pending",
+      "when": {
+        "any": [
+          "pending"
+        ]
+      }
+    },
+    {
+      "classification": "future",
+      "when": {
+        "any": [
+          "will be debited",
+          "Will be debited",
+          "will be credited",
+          "to be debited",
+          "payment due"
+        ]
+      }
+    },
+    {
+      "classification": "notice",
+      "when": {
+        "any": [
+          "statement generated",
+          "minimum amount due"
+        ]
+      }
+    }
+  ],
+  "banks": [
+    "arabbank/rules.json",
+    "cibegypt/rules.json",
+    "nationalbankofegypt/rules.json"
+  ]
+}

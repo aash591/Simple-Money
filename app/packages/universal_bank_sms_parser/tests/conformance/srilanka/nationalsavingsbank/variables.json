@@ -1,0 +1,33 @@
+[
+  {
+    "id": "nationalsavingsbank-variables-001",
+    "country": "LK",
+    "bankId": "lk.nationalsavingsbank",
+    "provenance": "Generated variable-field regression; not an upstream SMS",
+    "input": {
+      "sender": "NSB",
+      "body": "Dear MR MASKED NAME,LKR 321.09 Credited to your A/c XXXXXXXX9988 on DD/MM/YYYY at HH:mm.AvlBal LKR 9876.54.Transaction MIGRATIONSHOP.Thank you for banking with us.Call Centre 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "lk.nationalsavingsbank.template001",
+      "candidate": {
+        "amountMinor": 32109,
+        "currencyCode": "LKR",
+        "direction": "credit",
+        "channel": "bankTransfer",
+        "bankName": "National Savings Bank",
+        "countryCode": "LK",
+        "accountLast4": "9988",
+        "reference": null,
+        "counterparty": "MIGRATIONSHOP",
+        "occurredAt": "2026-10-07T00:00:00.000Z"
+      }
+    },
+    "compareLegacy": false
+  }
+]

@@ -62,6 +62,9 @@ class SmsPreviewContent extends StatelessWidget {
     this.helper,
     this.message,
     this.error,
+    this.title,
+    this.onTitleChanged,
+    this.titleSuggestions,
   });
   final PendingSmsImport sms;
   final bool transfer;
@@ -81,6 +84,13 @@ class SmsPreviewContent extends StatelessWidget {
   final List<Widget> rows;
   final String? error;
 
+  /// The title as edited so far (the message's own name until changed). With
+  /// [onTitleChanged] it is typed in place under the amount; past titles that
+  /// fit are offered through [titleSuggestions].
+  final String? title;
+  final ValueChanged<String>? onTitleChanged;
+  final List<String> Function(String text)? titleSuggestions;
+
   @override
   Widget build(BuildContext context) => TransactionReviewContent<bool>(
     badge: sms.isCreditCardRepayment
@@ -93,9 +103,14 @@ class SmsPreviewContent extends StatelessWidget {
     amount: formatAccountMoney(
       sms.amountMinor,
       currency: sms.currency,
-      digits: 2,
+      digits: sms.digits,
     ),
-    title: sms.title,
+    title: (title ?? sms.title).trim().isEmpty ? sms.title : title ?? sms.title,
+    titleText: onTitleChanged != null && !transfer
+        ? (title ?? sms.title)
+        : null,
+    onTitleChanged: onTitleChanged,
+    titleSuggestions: titleSuggestions,
     date: formatTransactionDate(sms.receivedAt),
     kinds: [
       ReviewKind(

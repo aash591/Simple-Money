@@ -1,0 +1,162 @@
+[
+  {
+    "id": "firstabudhabibank-reject-security",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "your otp is 123456. Credit Card Purchase\nDebit\nAccount XXXX0002\nCard XXXX1234\nAED 8.00\nTR              DUBAI           ARE\n23/09/25 16:17\nAvailable Balance AED 4530.16",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "security",
+      "decision": "ignored",
+      "reason": "security",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-reject-promotional",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "exclusive offer: apply now. Credit Card Purchase\nDebit\nAccount XXXX0002\nCard XXXX1234\nAED 8.00\nTR              DUBAI           ARE\n23/09/25 16:17\nAvailable Balance AED 4530.16",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "promotional",
+      "decision": "ignored",
+      "reason": "promotional",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-reject-failed",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "payment failed. Credit Card Purchase\nDebit\nAccount XXXX0002\nCard XXXX1234\nAED 8.00\nTR              DUBAI           ARE\n23/09/25 16:17\nAvailable Balance AED 4530.16",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "failed",
+      "decision": "ignored",
+      "reason": "failed",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-reject-pending",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "payment pending. Credit Card Purchase\nDebit\nAccount XXXX0002\nCard XXXX1234\nAED 8.00\nTR              DUBAI           ARE\n23/09/25 16:17\nAvailable Balance AED 4530.16",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "pending",
+      "decision": "ignored",
+      "reason": "pending",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-reject-future",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "will be debited. Credit Card Purchase\nDebit\nAccount XXXX0002\nCard XXXX1234\nAED 8.00\nTR              DUBAI           ARE\n23/09/25 16:17\nAvailable Balance AED 4530.16",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "future",
+      "decision": "ignored",
+      "reason": "future",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-reject-notice",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated adversarial prefix, not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "statement generated. Credit Card Purchase\nDebit\nAccount XXXX0002\nCard XXXX1234\nAED 8.00\nTR              DUBAI           ARE\n23/09/25 16:17\nAvailable Balance AED 4530.16",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-reject-unknown-sender",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "UNREGISTEREDX",
+      "body": "Credit Card Purchase\nDebit\nAccount XXXX0002\nCard XXXX1234\nAED 8.00\nTR              DUBAI           ARE\n23/09/25 16:17\nAvailable Balance AED 4530.16",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "unregisteredSender",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "firstabudhabibank-reject-balance-only",
+    "country": "AE",
+    "bankId": "ae.firstabudhabibank",
+    "provenance": "Generated rejection regression, not an upstream SMS",
+    "input": {
+      "sender": "FAB",
+      "body": "Available balance 9876.54.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "unknown",
+      "decision": "ignored",
+      "reason": "noMatchingFormat",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
+  }
+]
