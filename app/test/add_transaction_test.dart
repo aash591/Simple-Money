@@ -182,7 +182,7 @@ void main() {
         (c) => c.name == 'Food & Beverage',
       );
       expect(created.parentId, parent.id);
-      expect(find.text('Pay from'), findsOneWidget);
+      expect(find.text('Paid from'), findsOneWidget);
       expect(inSheet(find.text('Lunch break')), findsOneWidget);
       await tapChoice(tester, 'Cash');
       expect(inSheet(find.text('Cash')), findsOneWidget);
@@ -325,7 +325,7 @@ void main() {
       expect(inSheet(find.byIcon(Icons.check_circle_rounded)), findsNothing);
 
       // Pay from: as tall as its content (one account), so shorter.
-      expect(find.text('Pay from'), findsOneWidget);
+      expect(find.text('Paid from'), findsOneWidget);
       expect(
         tester.getTopLeft(find.byType(TransactionSheet)).dy,
         greaterThan(categoryTop),
@@ -612,7 +612,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // The source comes first, so the keypad already knows the currency.
-      expect(find.text('Transfer from'), findsOneWidget);
+      expect(find.text('Transferred from'), findsOneWidget);
       await tester.tap(find.widgetWithText(ListTile, 'Cash').hitTestable());
       await tester.pumpAndSettle();
 
@@ -630,7 +630,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Cash is the source, so it is not among the destinations at all.
-      expect(find.text('Transfer to'), findsOneWidget);
+      expect(find.text('Transferred to'), findsOneWidget);
       expect(find.widgetWithText(ListTile, 'Cash').hitTestable(), findsNothing);
       await tester.tap(find.widgetWithText(ListTile, 'Bank').hitTestable());
       await tester.pumpAndSettle();

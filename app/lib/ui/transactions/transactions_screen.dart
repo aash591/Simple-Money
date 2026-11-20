@@ -209,6 +209,7 @@ class TransactionsScreenState extends State<TransactionsScreen>
 
   TransactionCurrency _accountCurrency(Account account) =>
       (account.currency, account.digits);
+
   /// The ledger's transactions as last shown, by id, to tell which rows
   /// are new and which were deleted when it reloads (see [RowTransition]).
   Map<int, MoneyTransaction>? _lastShown;
@@ -274,6 +275,7 @@ class TransactionsScreenState extends State<TransactionsScreen>
         return byDate != 0 ? byDate : b.id.compareTo(a.id);
       });
   }
+
   Future<void> _refresh() async {
     if (widget.preview case final preview?) return preview.onRefresh();
     await widget.onSync?.call();

@@ -141,10 +141,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(SmsNotificationPicker), findsNothing);
     expect(find.text('Category'), findsNothing);
-    expect(find.text('Transfer to'), findsOneWidget);
+    expect(find.text('Transferred to'), findsOneWidget);
     // Nothing to save until the other account is chosen.
     expect(find.text('Save'), findsOneWidget);
-    await tester.tap(find.text('Transfer to'));
+    await tester.tap(find.text('Transferred to'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Savings').last);
     await settle(tester);

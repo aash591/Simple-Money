@@ -50,8 +50,7 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
 
   int? get _cashMinor =>
       parseAccountAmount(_cash.text.replaceAll(',', ''), _digits);
-  bool get _valid =>
-      _name.text.trim().isNotEmpty && (_cashMinor ?? -1) >= 0;
+  bool get _valid => _name.text.trim().isNotEmpty && (_cashMinor ?? -1) >= 0;
   bool get _dirty =>
       _name.text.trim().isNotEmpty ||
       _cash.text.trim().isNotEmpty ||
@@ -76,9 +75,8 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
 
   Future<void> _pickIcon() async {
     FocusScope.of(context).unfocus();
-    final icon = await Navigator.of(context).push(
-      FeatureRoute<String>(SelectIconScreen(selectedKey: _icon)),
-    );
+    final icon = await Navigator.of(context)
+        .push(FeatureRoute<String>(SelectIconScreen(selectedKey: _icon)));
     if (icon != null && mounted) {
       setState(() {
         _icon = icon;
@@ -111,7 +109,7 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
     final discard = await showConfirmationAlert(
       context,
       title: 'Discard changes?',
-      message: 'Your unsaved broker details will be lost.',
+      message: 'Your unsaved account details will be lost.',
       cancelLabel: 'Keep editing',
       confirmLabel: 'Discard',
     );
@@ -140,7 +138,8 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
         openingBalance: _cashMinor!,
         broker: true,
       );
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('Could not save account: $e\n$stack');
       if (!mounted) return;
       setState(() {
         _saving = false;
@@ -166,7 +165,7 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
         if (!didPop) _discard();
       },
       child: FeaturePage(
-        title: 'Add broker',
+        title: 'Add account',
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -188,7 +187,9 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
                                 color: Colors.transparent,
                                 child: InkWell(
                                   customBorder: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(34 * .4),
+                                    borderRadius: BorderRadius.circular(
+                                      34 * .4,
+                                    ),
                                   ),
                                   onTap: _saving ? null : _pickIcon,
                                   child: AppIcon(_icon, size: 34),
@@ -205,7 +206,7 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
                                   textInputAction: TextInputAction.next,
                                   onChanged: _onName,
                                   decoration: const InputDecoration(
-                                    labelText: 'Broker or platform',
+                                    labelText: 'Name',
                                     hintText: 'e.g. Zerodha or Robinhood',
                                     filled: false,
                                     contentPadding: EdgeInsets.zero,
@@ -358,7 +359,7 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
               padding: const EdgeInsets.fromLTRB(18, 12, 18, 16),
               secondaryLabel: 'Cancel',
               onSecondary: _saving ? null : () => Navigator.maybePop(context),
-              primaryLabel: _saving ? 'Saving…' : 'Add broker',
+              primaryLabel: _saving ? 'Saving…' : 'Add account',
               onPrimary: _valid && !_saving ? _save : null,
             ),
           ],

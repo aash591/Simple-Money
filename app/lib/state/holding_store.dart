@@ -3,8 +3,19 @@ import 'package:flutter/widgets.dart';
 import '../data/prices/price_service.dart';
 import '../data/repositories/holding_repository.dart';
 import '../domain/account.dart';
+import '../domain/currency_digits.dart';
 import '../domain/holding.dart';
 import 'account_store.dart';
+
+/// Converts [minor] between currencies by today's rates; null without a rate.
+typedef RateConverter =
+    int? Function(
+      int minor, {
+      required String from,
+      required int fromDigits,
+      required String to,
+      required int toDigits,
+    });
 
 class HoldingStoreScope extends InheritedNotifier<HoldingStore> {
   const HoldingStoreScope({
@@ -58,17 +69,83 @@ class HoldingStore extends ChangeNotifier {
         dividendsMinor: 0,
       );
 
+  /// Turns an amount in one currency into another using today's rates, or
+  /// null when there is no rate. Set by the app; without it only holdings in
+  /// their account's own currency can be valued.
+  RateConverter? converter;
+
+  /// The currencies (other than their account's) holdings are priced in, so
+  /// the rate table knows which rates to keep.
+  Set<String> get foreignCurrencies => {
+    for (final h in holdings)
+      if (h.currency != null &&
+          h.currency != accountStore.byId(h.accountId)?.currency)
+        h.currency!,
+  };
+
+  /// Tells listeners the rates moved, so converted figures are redrawn.
+  void ratesChanged() => notifyListeners();
+
+  /// A holding's worth in its own price currency, or null while it has no
+  /// price.
+  int? valueInOwnCurrency(Holding h, Account broker) {
+    final price = h.lastPriceE4;
+    if (price == null) return null;
+    final code = h.currencyIn(broker.currency);
+    final digits = code == broker.currency
+        ? broker.digits
+        : currencyDigits(code);
+    return positionFor(h).valueMinor(price, digits);
+  }
+
+  /// A holding's worth in its account's currency. Null while it has no price,
+  /// or no rate for its currency.
+  int? valueMinor(Holding h, Account broker) {
+    final own = valueInOwnCurrency(h, broker);
+    if (own == null) return null;
+    final code = h.currencyIn(broker.currency);
+    if (code == broker.currency) return own;
+    return converter?.call(
+      own,
+      from: code,
+      fromDigits: currencyDigits(code),
+      to: broker.currency,
+      toDigits: broker.digits,
+    );
+  }
+
   /// What a broker's holdings are worth, at their last prices. Holdings with
-  /// no price yet count at what they cost, so a missing price never makes
-  /// money seem to disappear.
+  /// no price yet (or no rate) count at what they cost, so a missing price
+  /// never makes money seem to disappear.
   int holdingsValueMinor(Account broker) {
     var total = 0;
     for (final h in holdingsOf(broker.id)) {
-      final position = positionFor(h);
-      total += position.valueMinor(h.lastPriceE4, broker.digits) ??
-          position.costMinor;
+      total += valueMinor(h, broker) ?? positionFor(h).costMinor;
     }
     return total;
+  }
+
+  /// What a broker holds in each other currency, in that currency, with what
+  /// it comes to in the account's. The converted figure is null with no rate.
+  Map<String, ({int own, int? converted})> foreignTotals(Account broker) {
+    final totals = <String, ({int own, int? converted})>{};
+    for (final h in holdingsOf(broker.id)) {
+      final code = h.currencyIn(broker.currency);
+      if (code == broker.currency) continue;
+      final own = valueInOwnCurrency(h, broker);
+      if (own == null) continue;
+      final converted = valueMinor(h, broker);
+      final before = totals[code];
+      totals[code] = (
+        own: (before?.own ?? 0) + own,
+        converted: before == null
+            ? converted
+            : (before.converted == null || converted == null)
+            ? null
+            : before.converted! + converted,
+      );
+    }
+    return totals;
   }
 
   int holdingsCostMinor(Account broker) => holdingsOf(broker.id).fold(
@@ -117,6 +194,8 @@ class HoldingStore extends ChangeNotifier {
     required String name,
     String? symbol,
     String? exchange,
+    String? priceSource,
+    String? currency,
   }) async {
     final id = await repository.saveHolding(
       existing: existing,
@@ -125,6 +204,8 @@ class HoldingStore extends ChangeNotifier {
       name: name,
       symbol: symbol,
       exchange: exchange,
+      priceSource: priceSource,
+      currency: currency,
     );
     await _reload();
     return id;
@@ -139,7 +220,7 @@ class HoldingStore extends ChangeNotifier {
     final targets = [
       for (final h in holdings)
         if (accountStore.byId(h.accountId) case final broker?)
-          (holding: h, currency: broker.currency),
+          (holding: h, currency: h.currencyIn(broker.currency)),
     ];
     if (targets.isEmpty) return null;
     if (!force && !await service.due()) return null;
@@ -192,8 +273,16 @@ class HoldingStore extends ChangeNotifier {
       payAccountId: payAccountId,
       note: note,
     );
-    // A trade at a price is also the latest price known for the day.
-    if (type != TradeType.dividend && priceE4 > 0) {
+    // A trade at a price is the latest price known for the day, unless the
+    // market's own close is kept for this holding: what someone paid is not
+    // what it last closed at.
+    final marketPriced =
+        (holding.symbol?.trim().isNotEmpty ?? false) &&
+        (holding.effectivePriceSource == PriceSourceId.yahoo ||
+            holding.effectivePriceSource == PriceSourceId.amfi);
+    if (type != TradeType.dividend &&
+        priceE4 > 0 &&
+        !(marketPriced && holding.lastPriceE4 != null)) {
       await repository.setPrice(holding.id, priceE4, date);
     }
     await _reload();

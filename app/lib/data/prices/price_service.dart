@@ -28,15 +28,23 @@ class PriceRefreshResult {
 /// ever sent, never a name, amount, unit count or account. Prices are daily
 /// closes, so the app asks at most once a day unless told to.
 class PriceService {
-  PriceService(this.client, {DateTime Function()? now})
-    : now = now ?? DateTime.now;
+  PriceService(
+    this.client, {
+    DateTime Function()? now,
+    List<PriceSource>? sources,
+  }) : now = now ?? DateTime.now,
+       _sources = {
+         for (final s in sources ?? defaultSources()) s.id: s,
+       };
   final http.Client client;
   final DateTime Function() now;
+  final Map<String, PriceSource> _sources;
 
   static const _doneKey = 'prices_refreshed_on';
-  static const _parallel = 4;
 
-  String? _amfiBody;
+  /// Every place prices come from, in the order search results appear.
+  /// `manual` has no entry: a holding priced by hand is never fetched.
+  static List<PriceSource> defaultSources() => [AmfiSource(), YahooSource()];
 
   static String _day(DateTime t) => '${t.year}-${t.month}-${t.day}';
 
@@ -50,12 +58,6 @@ class PriceService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_doneKey, _day(now()));
   }
-
-  /// Funds with an AMFI scheme code use AMFI; everything else, Yahoo.
-  static bool usesAmfi(Holding h) =>
-      h.kind == HoldingKind.fund &&
-      h.symbol != null &&
-      RegExp(r'^\d+$').hasMatch(h.symbol!);
 
   /// Fetches closes for [targets], each paired with its broker's currency.
   Future<PriceRefreshResult> fetch(
@@ -74,33 +76,21 @@ class PriceService {
       }
     }
 
-    final withSymbol = [
-      for (final t in targets)
-        if (t.holding.symbol?.trim().isNotEmpty ?? false) t,
-    ];
-    final amfi = [for (final t in withSymbol) if (usesAmfi(t.holding)) t];
-    if (amfi.isNotEmpty) {
-      final body = await AmfiNav.download(client);
-      final quotes = body == null
-          ? const <String, PriceQuote>{}
-          : AmfiNav.quotesFor(body, {for (final t in amfi) t.holding.symbol!});
-      for (final t in amfi) {
-        take(t.holding.id, quotes[t.holding.symbol], t.currency);
-      }
+    // Each holding goes to the source it names (or, for one that names none,
+    // the one inferred). A source this version doesn't have, or a holding
+    // priced by hand, is skipped: nothing to fetch isn't a failure.
+    final bySource = <PriceSource, List<({Holding holding, String currency})>>{};
+    for (final t in targets) {
+      if (t.holding.symbol?.trim().isEmpty ?? true) continue;
+      final source = _sources[t.holding.effectivePriceSource];
+      if (source != null) (bySource[source] ??= []).add(t);
     }
-
-    final yahoo = [for (final t in withSymbol) if (!usesAmfi(t.holding)) t];
-    for (var i = 0; i < yahoo.length; i += _parallel) {
-      final batch = yahoo.skip(i).take(_parallel).toList();
-      final quotes = await Future.wait([
-        for (final t in batch)
-          YahooQuotes.quote(
-            client,
-            YahooQuotes.yahooSymbol(t.holding.symbol!, t.holding.exchange),
-          ),
+    for (final MapEntry(key: source, value: group) in bySource.entries) {
+      final quotes = await source.quotes(client, [
+        for (final t in group) t.holding,
       ]);
-      for (var n = 0; n < batch.length; n++) {
-        take(batch[n].holding.id, quotes[n], batch[n].currency);
+      for (final t in group) {
+        take(t.holding.id, quotes[t.holding.id], t.currency);
       }
     }
     return PriceRefreshResult(
@@ -110,22 +100,42 @@ class PriceService {
     );
   }
 
-  /// Search for the add-holding sheet. Funds come from AMFI when
-  /// [indianFunds] is set (the broker's currency is INR), everything else
-  /// from Yahoo.
-  Future<List<SymbolHit>> search(String query, {required bool indianFunds}) async {
+  /// The latest close for something not saved yet, so the add-holding flow can
+  /// show what it would be priced at. Null when it has no ticker, no source
+  /// knows it, or the lookup failed.
+  Future<PriceQuote?> quoteFor({
+    required HoldingKind kind,
+    String? symbol,
+    String? exchange,
+    String? priceSource,
+  }) async {
+    final code = symbol?.trim() ?? '';
+    if (code.isEmpty) return null;
+    final holding = Holding(
+      id: 0,
+      accountId: 0,
+      kind: kind,
+      name: '',
+      symbol: code,
+      exchange: exchange,
+      priceSource: priceSource,
+    );
+    final source = _sources[holding.effectivePriceSource];
+    if (source == null) return null;
+    return (await source.quotes(client, [holding]))[0];
+  }
+
+  /// Search for the add-holding flow, across every source. [currency] is
+  /// the broker's, which decides what each source offers.
+  Future<List<SymbolHit>> search(
+    String query, {
+    required String currency,
+  }) async {
     final text = query.trim();
     if (text.length < 2) return const [];
-    final yahoo = await YahooQuotes.search(client, text);
-    if (!indianFunds) return yahoo;
-    _amfiBody ??= await AmfiNav.download(client);
-    final funds = _amfiBody == null
-        ? const <SymbolHit>[]
-        : AmfiNav.search(_amfiBody!, text);
     return [
-      ...funds,
-      for (final h in yahoo)
-        if (h.kind != HoldingKind.fund) h,
+      for (final source in _sources.values)
+        ...await source.search(client, text, currency: currency),
     ];
   }
 }

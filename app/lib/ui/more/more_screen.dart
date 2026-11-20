@@ -157,13 +157,14 @@ class MoreScreen extends StatelessWidget {
                       MenuRow(
                         icon: Icons.show_chart_rounded,
                         title: 'Portfolio',
-                        subtitle: 'Stocks and mutual funds, by broker',
+                        subtitle: 'Stocks and mutual funds, by account',
                         onTap: () => Navigator.of(context).push(
                           FeatureRoute<void>(
                             PortfolioScreen(
                               accounts: store,
                               holdings: holdings,
                               transactions: transactionStore,
+                              categories: categoryStore,
                             ),
                           ),
                         ),

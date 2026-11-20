@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/rates/exchange_rates.dart';
+import '../domain/convert_minor.dart';
 import '../domain/currency.dart';
 import '../domain/currency_scope.dart';
 import 'account_store.dart';
@@ -31,8 +32,35 @@ class MainCurrencyController extends ChangeNotifier
   DateTime? _lastAttempt;
   StreamSubscription<List<ConnectivityResult>>? _connectivity;
 
+  /// Currencies that need rates though no account is in them, such as a
+  /// holding priced in dollars at a rupee broker.
+  Set<String> Function() extraCurrencies = () => const {};
+
   bool get multipleCurrencies =>
-      accounts.accounts.map((a) => a.currency).toSet().length >= 2;
+      {
+        ...accounts.accounts.map((a) => a.currency),
+        ...extraCurrencies(),
+      }.length >=
+      2;
+
+  /// [amount] in one currency as another, by the table's rates. Null when
+  /// either has no rate.
+  int? convertBetween(
+    int amount, {
+    required String from,
+    required int fromDigits,
+    required String to,
+    required int toDigits,
+  }) {
+    double? perMain(String c) => c == code ? 1 : table?.rates[c];
+    return crossConvertMinor(
+      amount,
+      fromDigits: fromDigits,
+      toDigits: toDigits,
+      perMainFrom: perMain(from),
+      perMainTo: perMain(to),
+    );
+  }
   SingleCurrency get single => SingleCurrency(code, digits);
   CombinedCurrency get combined => CombinedCurrency(
     code,

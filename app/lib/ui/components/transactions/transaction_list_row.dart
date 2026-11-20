@@ -27,7 +27,12 @@ class TransactionListRow extends StatelessWidget {
     this.subtitleColor,
     this.selected,
     this.onSelected,
+    this.icon,
   });
+
+  /// Replaces the row's usual icon (a transfer's swap arrows, say) where the
+  /// list knows better, e.g. a deposit's own arrow.
+  final Widget? icon;
 
   /// Replaces the usual subtitle, for a prompt such as "Select an account".
   final String? subtitle;
@@ -69,12 +74,14 @@ class TransactionListRow extends StatelessWidget {
               account?.name ??
               '';
     return TransactionRow(
-      icon: isTransfer
-          ? Icon(Icons.swap_horiz_rounded, color: scheme.primary, size: 28)
-          : BadgedAppIcon(
-              transactionIcon(transaction, category),
-              badgeKey: transaction.badgeIcon,
-            ),
+      icon:
+          icon ??
+          (isTransfer
+              ? Icon(Icons.swap_horiz_rounded, color: scheme.primary, size: 28)
+              : BadgedAppIcon(
+                  transactionIcon(transaction, category),
+                  badgeKey: transaction.badgeIcon,
+                )),
       title: title,
       subtitle: this.subtitle ?? subtitle,
       subtitleColor: subtitleColor,

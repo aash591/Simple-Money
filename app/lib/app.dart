@@ -146,6 +146,20 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // Holdings priced in other currencies are valued by the same daily rates
+    // as everything else, and ask for them to be kept.
+    _holdings.converter = _mainCurrency.convertBetween;
+    _mainCurrency.extraCurrencies = () => _holdings.foreignCurrencies;
+    var asked = <String>{};
+    _holdings.addListener(() {
+      // Only when a new currency turns up, so a rate refresh (which redraws
+      // holdings) can never ask for another.
+      final now = _holdings.foreignCurrencies;
+      if (now.difference(asked).isEmpty) return;
+      asked = now;
+      _mainCurrency.refresh();
+    });
+    _mainCurrency.addListener(_holdings.ratesChanged);
     const MethodChannel('simple_money/sms_changes')
         .setMethodCallHandler((call) async {
           if (call.method == 'changed' && mounted) _reloadLedger();

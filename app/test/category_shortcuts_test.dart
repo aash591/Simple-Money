@@ -173,7 +173,7 @@ void main() {
       );
       await tester.tap(find.text('SBI'));
       await settle(tester);
-      expect(find.text('Transfer to'), findsOneWidget);
+      expect(find.text('Transferred to'), findsOneWidget);
       expect(find.textContaining('₹500'), findsWidgets);
     });
 
@@ -343,9 +343,9 @@ void main() {
       await toCategories(tester);
       await choose(tester, 'Transfer');
       expect(find.byType(TransferSheet), findsOneWidget);
-      expect(find.text('Transfer from'), findsOneWidget);
+      expect(find.text('Transferred from'), findsOneWidget);
       await choose(tester, 'SBI');
-      expect(find.text('Transfer to'), findsOneWidget);
+      expect(find.text('Transferred to'), findsOneWidget);
     });
 
     testWidgets('backing out of Transfer returns to the categories', (
@@ -450,7 +450,7 @@ void main() {
       // The sheet's own Record as switch says Transfer too, underneath.
       await tester.tap(find.widgetWithText(ListTile, 'Transfer'));
       await settle(tester);
-      expect(find.text('Transfer to'), findsOneWidget);
+      expect(find.text('Transferred to'), findsOneWidget);
       expect(find.text('Between your accounts'), findsOneWidget);
     });
 
@@ -459,7 +459,7 @@ void main() {
       await openPicker(tester);
       await tester.tap(find.text('Credit card repayment'));
       await settle(tester);
-      expect(find.text('Transfer to'), findsOneWidget);
+      expect(find.text('Transferred to'), findsOneWidget);
       expect(find.text('HDFC Card'), findsOneWidget);
     });
 

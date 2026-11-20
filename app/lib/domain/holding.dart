@@ -6,14 +6,64 @@ import 'dart:math' as math;
 const unitScale = 1000000;
 const priceScale = 10000;
 
+/// What a holding is. The database stores the [name] as free text (no CHECK),
+/// and a newer version of the app may store a kind this one has never heard
+/// of: [parse] reads those as [other] instead of throwing, and the row keeps
+/// its original text (see [Holding.kindId]) so an older phone never rewrites
+/// or loses it. To add an asset type, add an entry here, give it a price
+/// source (see [PriceSourceId]) and, if people may pick it, list it in
+/// [selectable].
 enum HoldingKind {
   stock('Stock'),
   etf('ETF'),
-  fund('Mutual fund');
+  fund('Mutual fund'),
+
+  /// Any kind this version doesn't know. Never offered when adding.
+  other('Other');
 
   const HoldingKind(this.label);
   final String label;
+
+  /// The kinds a person can choose from when adding a holding.
+  static const selectable = [stock, etf, fund];
+
+  static HoldingKind parse(String? id) =>
+      values.where((k) => k.name == id).firstOrNull ?? other;
 }
+
+/// Where a holding's price comes from, stored on the holding as free text.
+/// A source this version doesn't know is left alone: such a holding is never
+/// fetched, and never counted as a failure.
+abstract final class PriceSourceId {
+  /// Yahoo Finance's public chart data: stocks and ETFs worldwide.
+  static const yahoo = 'yahoo';
+
+  /// India's AMFI NAV file: mutual funds, by scheme code.
+  static const amfi = 'amfi';
+
+  /// The person types the price in; nothing is ever fetched.
+  static const manual = 'manual';
+
+  /// The source for a holding that doesn't name one (every holding saved
+  /// before sources were stored, and any made by an older phone): a fund with
+  /// an all-digit scheme code is AMFI's, anything else Yahoo's. Null for a
+  /// kind this version doesn't know, which is left unfetched.
+  static String? infer(HoldingKind kind, String? symbol) {
+    if (kind == HoldingKind.other) return null;
+    final code = symbol?.trim() ?? '';
+    return kind == HoldingKind.fund && RegExp(r'^\d+$').hasMatch(code)
+        ? amfi
+        : yahoo;
+  }
+}
+
+/// Whether a name reads like a fund that trades on an exchange. Some markets
+/// (India's, for one) list their ETFs to Yahoo as ordinary equities, so the
+/// name is all that tells them apart.
+bool looksLikeEtf(String name) => RegExp(
+  r'\b(etf|bees|index|tracker|trust|ishares|vanguard|spdr|amundi|lyxor|xtrackers|invesco|nifty|sensex|gold|silver)\b',
+  caseSensitive: false,
+).hasMatch(name);
 
 enum TradeType {
   buy('Buy'),
@@ -36,10 +86,37 @@ class Holding {
     this.lastPriceE4,
     this.priceDate,
     this.archivedAt,
-  });
+    String? kindId,
+    this.priceSource,
+    this.meta,
+    this.currency,
+  }) : _kindId = kindId;
   final int id, accountId;
   final HoldingKind kind;
   final String name;
+
+  /// The kind exactly as stored, which for a kind this version doesn't know
+  /// is more than [kind] (then [HoldingKind.other]) can say.
+  final String? _kindId;
+  String get kindId => _kindId ?? kind.name;
+
+  /// A [PriceSourceId], or null for a holding that never named one.
+  final String? priceSource;
+
+  /// Extra details a kind needs (JSON text), room for what later asset types
+  /// carry. Kept as stored: this version neither reads nor rewrites it.
+  final String? meta;
+
+  /// The currency its price is quoted in, or null for the account's own
+  /// (every holding saved before this existed).
+  final String? currency;
+
+  /// The currency of this holding's price, given its account's.
+  String currencyIn(String accountCurrency) => currency ?? accountCurrency;
+
+  /// The source to fetch from: the stored one, else inferred.
+  String? get effectivePriceSource =>
+      priceSource ?? PriceSourceId.infer(kind, symbol);
 
   /// Ticker, or the AMFI scheme code for an Indian mutual fund.
   final String? symbol, exchange;
@@ -173,9 +250,7 @@ HoldingPosition positionOf(
         cost += trade.amountMinor + trade.feesMinor;
       case TradeType.sell:
         final sold = math.min(trade.unitsE6, units);
-        final removed = units == 0
-            ? 0
-            : ((cost * sold) / units).round();
+        final removed = units == 0 ? 0 : ((cost * sold) / units).round();
         realized += trade.amountMinor - trade.feesMinor - removed;
         units -= sold;
         cost -= removed;

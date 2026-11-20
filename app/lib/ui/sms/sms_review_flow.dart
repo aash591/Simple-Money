@@ -161,9 +161,9 @@ class _SmsReviewFlowState extends State<SmsReviewFlow> {
     final id = await showSmsAccountPicker(
       context,
       heading: destination
-          ? 'Transfer to'
+          ? 'Transferred to'
           : transfer
-          ? 'Transfer from'
+          ? 'Transferred from'
           : widget.sms.credit
           ? 'Received in'
           : 'Paid from',
@@ -354,7 +354,7 @@ class _SmsReviewFlowState extends State<SmsReviewFlow> {
           ],
           SmsPreviewChoice(
             label: transfer
-                ? 'Transfer from'
+                ? 'Transferred from'
                 : sms.credit
                 ? 'Received in'
                 : 'Paid from',
@@ -371,7 +371,7 @@ class _SmsReviewFlowState extends State<SmsReviewFlow> {
           if (transfer) ...[
             Divider(height: 1, indent: 64, color: colors.divider),
             SmsPreviewChoice(
-              label: 'Transfer to',
+              label: 'Transferred to',
               value:
                   account(toAccountId)?.name ??
                   'Choose ${sms.currency} account',

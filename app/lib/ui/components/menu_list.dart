@@ -109,9 +109,14 @@ class MenuRow extends StatelessWidget {
     this.highlight = false,
     this.tint,
     this.proBadge = false,
+    this.leading,
   });
   final IconData icon;
   final String title;
+
+  /// Shown in place of the [icon] tile, e.g. a bank or broker's logo. It is
+  /// given the tile's square to fill.
+  final Widget? leading;
 
   /// A small PRO tag on the icon: this row is a Pro feature.
   final bool proBadge;
@@ -138,7 +143,12 @@ class MenuRow extends StatelessWidget {
           ),
           child: Row(
             children: [
-              proBadge
+              leading != null
+                  ? SizedBox.square(
+                      dimension: _tileSize,
+                      child: Center(child: leading),
+                    )
+                  : proBadge
                   ? Stack(
                       clipBehavior: Clip.none,
                       children: [

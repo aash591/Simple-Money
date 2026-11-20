@@ -18,7 +18,12 @@ class HoldingRepository {
             (r) => Holding(
               id: r.read<int>('id'),
               accountId: r.read<int>('account_id'),
-              kind: HoldingKind.values.byName(r.read<String>('kind')),
+              // A kind from a newer app reads as `other`, never an error.
+              kind: HoldingKind.parse(r.read<String>('kind')),
+              kindId: r.read<String>('kind'),
+              priceSource: r.readNullable<String>('price_source'),
+              meta: r.readNullable<String>('meta'),
+              currency: r.readNullable<String>('currency'),
               name: r.read<String>('name'),
               symbol: r.readNullable<String>('symbol'),
               exchange: r.readNullable<String>('exchange'),
@@ -62,6 +67,11 @@ class HoldingRepository {
     required String name,
     String? symbol,
     String? exchange,
+    String? priceSource,
+
+    /// The price's currency when it isn't the account's; null keeps the
+    /// account's (or, editing, what is stored).
+    String? currency,
   }) async {
     final clean = name.trim();
     if (clean.isEmpty || clean.length > 60) {
@@ -72,13 +82,26 @@ class HoldingRepository {
         ? null
         : exchange!.trim();
     if (existing != null) {
+      // What this version can't read stays exactly as stored: a kind it
+      // doesn't know is only rewritten when the person picks another, and the
+      // price source only moves when the holding's kind or symbol does.
+      final sameKind = kind == existing.kind;
+      final sameTicker = cleanSymbol == existing.symbol;
       await database.customUpdate(
-        'UPDATE holdings SET kind = ?, name = ?, symbol = ?, exchange = ? WHERE id = ?',
+        '''UPDATE holdings SET kind = ?, name = ?, symbol = ?, exchange = ?,
+             price_source = ?, currency = ? WHERE id = ?''',
         variables: [
-          Variable(kind.name),
+          Variable(sameKind ? existing.kindId : kind.name),
           Variable(clean),
           Variable(cleanSymbol),
           Variable(cleanExchange),
+          Variable(
+            priceSource ??
+                (sameKind && sameTicker
+                    ? existing.priceSource
+                    : PriceSourceId.infer(kind, cleanSymbol)),
+          ),
+          Variable(currency ?? existing.currency),
           Variable(existing.id),
         ],
       );
@@ -91,17 +114,33 @@ class HoldingRepository {
         )
         .getSingleOrNull();
     if (broker == null || broker.read<int>('broker') == 0) {
-      throw ArgumentError('Holdings can only be added under a broker.');
+      throw ArgumentError('Holdings can only be added under an investment account.');
+    }
+    // The same ticker in the same account is one holding: a second add (a
+    // double tap, a sync from another phone) reuses it instead of doubling it.
+    if (cleanSymbol != null) {
+      final same = await database
+          .customSelect(
+            '''SELECT id FROM holdings WHERE account_id = ? AND archived_at IS NULL
+               AND lower(symbol) = lower(?) LIMIT 1''',
+            variables: [Variable(accountId), Variable(cleanSymbol)],
+          )
+          .getSingleOrNull();
+      if (same != null) return same.read<int>('id');
     }
     return database.customInsert(
-      '''INSERT INTO holdings (id, account_id, kind, name, symbol, exchange)
-         VALUES (${newRowId('holdings')}, ?, ?, ?, ?, ?)''',
+      '''INSERT INTO holdings
+           (id, account_id, kind, name, symbol, exchange, price_source,
+            currency)
+         VALUES (${newRowId('holdings')}, ?, ?, ?, ?, ?, ?, ?)''',
       variables: [
         Variable(accountId),
         Variable(kind.name),
         Variable(clean),
         Variable(cleanSymbol),
         Variable(cleanExchange),
+        Variable(priceSource ?? PriceSourceId.infer(kind, cleanSymbol)),
+        Variable(currency),
       ],
     );
   }
@@ -163,7 +202,7 @@ class HoldingRepository {
         : broker;
     if (payer.currency != broker.currency || payer.digits != broker.digits) {
       throw ArgumentError(
-        'Pay from an account in ${broker.currency}, the broker’s currency.',
+        'Pay from an account in ${broker.currency}, the account’s currency.',
       );
     }
     final trade = HoldingTrade(

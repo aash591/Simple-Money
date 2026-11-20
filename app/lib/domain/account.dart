@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:intl/intl.dart';
 
+import 'account_place.dart';
+
 /// How the "Adjust balance" quick-action changes an account's balance.
 /// Not logged as a transaction — it corrects the balance directly, the way
 /// an opening balance does, rather than recording a categorized entry.
@@ -38,10 +40,15 @@ class Account {
   });
   final int id;
 
-  /// A broker or investing platform: its balance is cash waiting to be
-  /// invested, and the stocks and funds held there sit under it. It is only
-  /// offered in transfers (deposits and withdrawals), never for spending.
+  /// An investment account (a broker or investing platform, so far): its
+  /// balance is cash waiting to be invested, and the stocks and funds held
+  /// there sit under it. It is only offered in transfers (deposits and
+  /// withdrawals), never for spending.
   final bool isBroker;
+
+  /// Which kind of investment account this is, or null for a bank, card or
+  /// cash account. See [AccountPlace] for how more kinds get added.
+  AccountPlace? get place => isBroker ? AccountPlace.broker : null;
 
   /// A debit card is paid from this account, or this account is one: the
   /// card icon is shown beside the account's kind.

@@ -25,14 +25,74 @@ Future<void> showTransferSheet(
   required AccountStore accountStore,
   required TransactionStore transactionStore,
   int? initialFromAccountId,
+  int? depositToAccountId,
+  bool withdrawal = false,
 }) => showAdaptiveSheet<void>(
   context,
   builder: (context) => TransferSheet(
     accountStore: accountStore,
     transactionStore: transactionStore,
     initialFromAccountId: initialFromAccountId,
+    depositToAccountId: depositToAccountId,
+    withdrawal: withdrawal,
   ),
 );
+
+/// The words a flow uses for itself, so a deposit reads as a deposit and not
+/// as a transfer to somewhere.
+class _Wording {
+  const _Wording({
+    required this.title,
+    required this.amountQuestion,
+    required this.dateQuestion,
+    required this.confirmHeading,
+    required this.caption,
+    required this.saveLabel,
+    required this.saved,
+    required this.saveError,
+  });
+  final String title,
+      amountQuestion,
+      dateQuestion,
+      confirmHeading,
+      caption,
+      saveLabel,
+      saved,
+      saveError;
+
+  static const transfer = _Wording(
+    title: 'Mark transfer',
+    amountQuestion: 'How much did you transfer?',
+    dateQuestion: 'When did you transfer it?',
+    confirmHeading: 'Confirm transfer',
+    caption: 'Transfer',
+    saveLabel: 'Save transfer',
+    saved: 'Transfer saved',
+    saveError: 'Could not save this transfer. Please try again.',
+  );
+
+  static const withdraw = _Wording(
+    title: 'Withdraw',
+    amountQuestion: 'How much did you withdraw?',
+    dateQuestion: 'When did you withdraw it?',
+    confirmHeading: 'Confirm withdrawal',
+    caption: 'Withdraw',
+    saveLabel: 'Save withdrawal',
+    saved: 'Withdrawal saved',
+    saveError: 'Could not save this withdrawal. Please try again.',
+  );
+
+  static const deposit = _Wording(
+    title: 'Deposit',
+    amountQuestion: 'How much did you deposit?',
+    dateQuestion: 'When did you deposit it?',
+    confirmHeading: 'Confirm deposit',
+    caption: 'Deposit',
+    saveLabel: 'Save deposit',
+    saved: 'Deposit saved',
+    saveError: 'Could not save this deposit. Please try again.',
+  );
+}
 
 /// What an account holds right now, in its own currency — the figure that
 /// decides which side of a transfer it belongs on.
@@ -72,10 +132,21 @@ class TransferSheet extends StatefulWidget {
     this.requiredCurrency,
     this.initialAmountText,
     this.cardRepayment = false,
+    this.depositToAccountId,
+    this.withdrawal = false,
   });
   final AccountStore accountStore;
   final TransactionStore transactionStore;
   final int? initialFromAccountId;
+
+  /// Taking money out of [initialFromAccountId] (a broker, say): the flow
+  /// asks where it goes, how much and when, and reads "Withdraw" throughout.
+  final bool withdrawal;
+
+  /// Paying money into this account (a broker, say): the flow asks where it
+  /// comes from, how much and when, never where it goes, and reads
+  /// "Deposit" throughout.
+  final int? depositToAccountId;
   final String? requiredCurrency;
   final TransferDraft? initialDraft;
   final Future<void> Function(TransferDraft)? onSaveDraft;
@@ -112,7 +183,14 @@ class _TransferSheetState extends State<TransferSheet> {
   bool _reviewing = false;
 
   late int? _fromId = widget.initialFromAccountId;
-  int? _toId;
+  late int? _toId = widget.depositToAccountId;
+
+  bool get _isDeposit => widget.depositToAccountId != null;
+  _Wording get _words => _isDeposit
+      ? _Wording.deposit
+      : widget.withdrawal
+      ? _Wording.withdraw
+      : _Wording.transfer;
   late String _amountText = widget.initialAmountText ?? '';
 
   /// Only meaningful while [_receivedEdited]; otherwise the figure shown is
@@ -178,7 +256,7 @@ class _TransferSheetState extends State<TransferSheet> {
   /// What [step] doesn't need to ask.
   bool _skips(TransferStep step) => switch (step) {
     TransferStep.amount => widget.initialAmountText != null && _amountValid,
-    TransferStep.to => _cardChosen,
+    TransferStep.to => _cardChosen || _isDeposit,
     TransferStep.received => !_crossCurrency,
     _ => false,
   };
@@ -295,7 +373,8 @@ class _TransferSheetState extends State<TransferSheet> {
       case TransferStep.from:
         widget.onLeave == null ? _finish() : widget.onLeave!();
       case TransferStep.amount when widget.initialFromAccountId != null:
-        _finish();
+        // Started from an account: this is its first step.
+        widget.onLeave == null ? _finish() : widget.onLeave!();
       case TransferStep.confirm:
         if (widget.initialDraft != null) {
           _finish();
@@ -411,13 +490,13 @@ class _TransferSheetState extends State<TransferSheet> {
         );
       }
       if (!mounted) return;
-      showAppToast(context, 'Transfer saved');
+      showAppToast(context, _words.saved);
       _finish();
     } catch (_) {
       if (mounted) {
         setState(() {
           _saving = false;
-          _error = 'Could not save this transfer. Please try again.';
+          _error = _words.saveError;
         });
       }
     }
@@ -425,8 +504,11 @@ class _TransferSheetState extends State<TransferSheet> {
 
   @override
   Widget build(BuildContext context) => PopScope(
+    // Embedded in another flow, back always goes through [_back], so its
+    // first step returns to the page before instead of closing the sheet.
     canPop:
         !_saving &&
+        widget.onLeave == null &&
         (_step == TransferStep.from ||
             (widget.initialDraft != null && _step == TransferStep.confirm)),
     onPopInvokedWithResult: (didPop, _) {
@@ -443,6 +525,7 @@ class _TransferSheetState extends State<TransferSheet> {
   Widget _summary({bool includeTo = false, bool withAmount = true}) =>
       _TransferSummary(
         amount: withAmount && _amountValid ? _amountLabel : null,
+        caption: _words.caption,
         from: _from,
         to: includeTo ? _to : null,
       );
@@ -462,13 +545,20 @@ class _TransferSheetState extends State<TransferSheet> {
     ];
   }
 
-  String get _flowTitle =>
-      widget.cardRepayment ? 'Credit card repayment' : 'Transfer money';
+  String get _flowTitle => _isDeposit || widget.withdrawal
+      ? _words.title
+      : widget.cardRepayment
+      ? 'Credit card repayment'
+      : 'Mark transfer';
 
   Widget _buildPage() => switch (_step) {
     TransferStep.from => ChoicePickerPage<int>(
       header: SheetHeader.flow(_flowTitle, onBack: _back),
-      heading: widget.cardRepayment ? 'Pay from' : 'Transfer from',
+      heading: _isDeposit
+          ? 'Deposited from'
+          : widget.cardRepayment
+          ? 'Paid from'
+          : 'Transferred from',
       items: _accountItems(
         excludeId: _toId,
         cards: widget.cardRepayment ? false : null,
@@ -481,6 +571,8 @@ class _TransferSheetState extends State<TransferSheet> {
           (await addAccountAndSelect(context, widget.accountStore))?.id,
     ),
     TransferStep.amount => _TransferAmountPage(
+      title: _words.title,
+      question: _words.amountQuestion,
       summary: _summary(withAmount: false),
       amountText: _amountText,
       digits: _digits,
@@ -495,7 +587,11 @@ class _TransferSheetState extends State<TransferSheet> {
     ),
     TransferStep.to => ChoicePickerPage<int>(
       header: SheetHeader.flow(_flowTitle, onBack: _back),
-      heading: widget.cardRepayment ? 'Which card?' : 'Transfer to',
+      heading: widget.cardRepayment
+          ? 'Which card?'
+          : widget.withdrawal
+          ? 'Withdrawn to'
+          : 'Transferred to',
       summary: _summary(),
       items: _accountItems(
         excludeId: _fromId,
@@ -509,6 +605,7 @@ class _TransferSheetState extends State<TransferSheet> {
           (await addAccountAndSelect(context, widget.accountStore))?.id,
     ),
     TransferStep.received => _ReceivedPage(
+      title: _words.title,
       summary: _summary(includeTo: true),
       amountText: _receivedDisplayText,
       digits: _toDigits,
@@ -526,9 +623,9 @@ class _TransferSheetState extends State<TransferSheet> {
       onContinue: _receivedValid ? _advance : null,
     ),
     TransferStep.date => DateStepPage(
-      header: 'Transfer money',
+      header: _words.title,
       summary: _summary(includeTo: true),
-      question: 'When did you transfer it?',
+      question: _words.dateQuestion,
       date: _date,
       onPick: _pickDate,
       onBack: _back,
@@ -536,6 +633,7 @@ class _TransferSheetState extends State<TransferSheet> {
       onContinue: _advance,
     ),
     TransferStep.confirm => _TransferConfirmPage(
+      words: _words,
       amount: _amountLabel,
       received: _crossCurrency || _receivedEdited ? _receivedLabel : null,
       charge: _chargeMinor == null
@@ -557,7 +655,8 @@ class _TransferSheetState extends State<TransferSheet> {
       onSave: _save,
       onEditAmount: () => _goTo(TransferStep.amount),
       onEditFrom: () => _goTo(TransferStep.from),
-      onEditTo: () => _goTo(TransferStep.to),
+      // A deposit always goes to the account it was started from.
+      onEditTo: _isDeposit ? null : () => _goTo(TransferStep.to),
       onEditReceived: _crossCurrency || _receivedEdited
           ? () => _goTo(TransferStep.received)
           : null,
@@ -593,8 +692,14 @@ class _TransferSheetState extends State<TransferSheet> {
 /// Previously answered steps, in the same visual language as Confirm: the
 /// amount as a hero once it is known, then a row per account chosen.
 class _TransferSummary extends StatelessWidget {
-  const _TransferSummary({this.amount, this.from, this.to});
+  const _TransferSummary({
+    this.amount,
+    this.caption = 'Transfer',
+    this.from,
+    this.to,
+  });
   final String? amount;
+  final String caption;
   final Account? from, to;
 
   @override
@@ -606,7 +711,7 @@ class _TransferSummary extends StatelessWidget {
         if (amount != null) ...[
           AmountHero(
             amount: amount!,
-            caption: 'Transfer',
+            caption: caption,
             color: Color.lerp(colors.primary, colors.muted, 0.4)!,
           ),
           const SizedBox(height: 16),
@@ -649,6 +754,8 @@ class _TransferSummary extends StatelessWidget {
 /// carrying the transfer's own question and accent.
 class _TransferAmountPage extends StatelessWidget {
   const _TransferAmountPage({
+    required this.title,
+    required this.question,
     required this.summary,
     required this.amountText,
     required this.digits,
@@ -662,6 +769,7 @@ class _TransferAmountPage extends StatelessWidget {
     required this.onContinue,
   });
   final Widget summary;
+  final String title, question;
   final String amountText, currency;
   final int digits;
   final ValueChanged<String> onDigit;
@@ -671,13 +779,13 @@ class _TransferAmountPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SheetPage(
     startAtBottom: true,
-    header: SheetHeader.flow('Transfer money', onBack: onBack),
+    header: SheetHeader.flow(title, onBack: onBack),
     body: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         summary,
         const SizedBox(height: 20),
-        const SheetStepHeading('How much are you transferring?'),
+        SheetStepHeading(question),
         const SizedBox(height: 20),
         AmountDisplayCard(
           amount: AmountTyping.display(
@@ -712,6 +820,7 @@ class _TransferAmountPage extends StatelessWidget {
 /// landed. The difference between the two is the charge.
 class _ReceivedPage extends StatelessWidget {
   const _ReceivedPage({
+    required this.title,
     required this.summary,
     required this.amountText,
     required this.digits,
@@ -727,6 +836,7 @@ class _ReceivedPage extends StatelessWidget {
     required this.onContinue,
   });
   final Widget summary;
+  final String title;
   final String amountText, currency;
   final String? rateLine;
   final int digits;
@@ -739,7 +849,7 @@ class _ReceivedPage extends StatelessWidget {
     final colors = SheetColors.of(context);
     return SheetPage(
       startAtBottom: true,
-      header: SheetHeader.flow('Transfer money', onBack: onBack),
+      header: SheetHeader.flow(title, onBack: onBack),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -794,6 +904,7 @@ class _ReceivedPage extends StatelessWidget {
 /// and every other part tappable to jump back to its own step.
 class _TransferConfirmPage extends StatelessWidget {
   const _TransferConfirmPage({
+    required this.words,
     required this.amount,
     required this.received,
     required this.charge,
@@ -814,6 +925,7 @@ class _TransferConfirmPage extends StatelessWidget {
     required this.onEditDate,
     required this.onNoteChanged,
   });
+  final _Wording words;
   final String amount;
 
   /// Null when the whole amount arrives, which is most transfers.
@@ -822,8 +934,10 @@ class _TransferConfirmPage extends StatelessWidget {
   final DateTime date;
   final bool saving, canSave;
   final VoidCallback onBack, onCancel, onSave;
-  final VoidCallback onEditAmount, onEditFrom, onEditTo, onEditDate;
-  final VoidCallback? onEditReceived;
+  final VoidCallback onEditAmount, onEditFrom, onEditDate;
+
+  /// Null where the destination is fixed (a deposit): the row isn't tappable.
+  final VoidCallback? onEditTo, onEditReceived;
   final ValueChanged<String> onNoteChanged;
 
   @override
@@ -832,11 +946,11 @@ class _TransferConfirmPage extends StatelessWidget {
     VoidCallback? edit(VoidCallback? onEdit) =>
         saving || onEdit == null ? null : onEdit;
     return SheetPage(
-      header: SheetHeader.flow('Transfer money', onBack: onBack),
+      header: SheetHeader.flow(words.title, onBack: onBack),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SheetStepHeading('Confirm transfer'),
+          SheetStepHeading(words.confirmHeading),
           const SizedBox(height: 12),
           InkWell(
             onTap: edit(onEditAmount),
@@ -847,7 +961,7 @@ class _TransferConfirmPage extends StatelessWidget {
                 // The pair reads as a pair: one figure cannot stand for a
                 // transfer whose two sides moved different amounts.
                 amount: received == null ? amount : '$amount  →  $received',
-                caption: 'Transfer',
+                caption: words.caption,
                 color: colors.primary,
               ),
             ),
@@ -929,7 +1043,7 @@ class _TransferConfirmPage extends StatelessWidget {
       actions: ActionButtonBar(
         secondaryLabel: 'Cancel',
         onSecondary: saving ? null : onCancel,
-        primaryLabel: saving ? 'Saving…' : 'Save transfer',
+        primaryLabel: saving ? 'Saving…' : words.saveLabel,
         onPrimary: saving || !canSave ? null : onSave,
         primaryColor: colors.primary,
       ),

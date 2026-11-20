@@ -21,10 +21,35 @@ class SymbolHit {
     required this.symbol,
     required this.kind,
     this.exchange,
+    this.priceSource,
   });
   final String name, symbol;
   final String? exchange;
   final HoldingKind kind;
+
+  /// The [PriceSourceId] that found it, saved on the holding.
+  final String? priceSource;
+}
+
+/// One place prices come from. To add one (crypto, gold, forex…): implement
+/// this, give it an id in [PriceSourceId] and list it in
+/// [PriceService.defaultSources]. Holdings name their source, so nothing
+/// else needs to change.
+abstract class PriceSource {
+  String get id;
+
+  /// Closes for [holdings], by holding id. A holding left out got no price.
+  Future<Map<int, PriceQuote>> quotes(
+    http.Client client,
+    List<Holding> holdings,
+  );
+
+  /// Matches for the add-holding search. [currency] is the broker's.
+  Future<List<SymbolHit>> search(
+    http.Client client,
+    String query, {
+    required String currency,
+  }) async => const [];
 }
 
 int? _toE4(num? value) {
@@ -39,8 +64,18 @@ class AmfiNav {
   static final url = Uri.https('www.amfiindia.com', '/spages/NAVAll.txt');
 
   static const _months = {
-    'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
-    'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
+    'jan': 1,
+    'feb': 2,
+    'mar': 3,
+    'apr': 4,
+    'may': 5,
+    'jun': 6,
+    'jul': 7,
+    'aug': 8,
+    'sep': 9,
+    'oct': 10,
+    'nov': 11,
+    'dec': 12,
   };
 
   /// "18-Nov-2026" -> the date, or null.
@@ -105,6 +140,7 @@ class AmfiNav {
             symbol: parsed.code,
             kind: HoldingKind.fund,
             exchange: 'AMFI',
+            priceSource: PriceSourceId.amfi,
           ),
         );
       }
@@ -134,11 +170,31 @@ class YahooQuotes {
 
   /// Where each exchange's tickers carry a suffix on Yahoo.
   static const _suffix = {
-    'NSE': '.NS', 'BSE': '.BO', 'LSE': '.L', 'TSX': '.TO', 'TSXV': '.V',
-    'ASX': '.AX', 'HKEX': '.HK', 'SGX': '.SI', 'XETRA': '.DE', 'FRA': '.F',
-    'EPA': '.PA', 'AMS': '.AS', 'BIT': '.MI', 'BME': '.MC', 'SIX': '.SW',
-    'TSE': '.T', 'KRX': '.KS', 'NZX': '.NZ', 'JSE': '.JO', 'B3': '.SA',
-    'TADAWUL': '.SR', 'DFM': '.AE', 'IDX': '.JK', 'BKK': '.BK', 'SET': '.BK',
+    'NSE': '.NS',
+    'BSE': '.BO',
+    'LSE': '.L',
+    'TSX': '.TO',
+    'TSXV': '.V',
+    'ASX': '.AX',
+    'HKEX': '.HK',
+    'SGX': '.SI',
+    'XETRA': '.DE',
+    'FRA': '.F',
+    'EPA': '.PA',
+    'AMS': '.AS',
+    'BIT': '.MI',
+    'BME': '.MC',
+    'SIX': '.SW',
+    'TSE': '.T',
+    'KRX': '.KS',
+    'NZX': '.NZ',
+    'JSE': '.JO',
+    'B3': '.SA',
+    'TADAWUL': '.SR',
+    'DFM': '.AE',
+    'IDX': '.JK',
+    'BKK': '.BK',
+    'SET': '.BK',
   };
 
   /// The Yahoo ticker for [symbol] on [exchange]. A ticker that already has
@@ -174,10 +230,17 @@ class YahooQuotes {
         }
       }
       if (price == null || date == null) return null;
-      // London quotes in pence.
-      if (currency == 'GBp' || currency == 'GBX') {
+      // London quotes in pence, Johannesburg in cents, Tel Aviv in agorot.
+      const subunits = {
+        'GBp': 'GBP',
+        'GBX': 'GBP',
+        'ZAc': 'ZAR',
+        'ZAC': 'ZAR',
+        'ILA': 'ILS',
+      };
+      if (subunits[currency] case final whole?) {
         price = price / 100;
-        currency = 'GBP';
+        currency = whole;
       }
       final e4 = _toE4(price);
       return e4 == null
@@ -197,7 +260,10 @@ class YahooQuotes {
     return DateTime(local.year, local.month, local.day);
   }
 
-  static Future<PriceQuote?> quote(http.Client client, String yahooSymbol) async {
+  static Future<PriceQuote?> quote(
+    http.Client client,
+    String yahooSymbol,
+  ) async {
     try {
       final response = await client
           .get(
@@ -226,6 +292,7 @@ class YahooQuotes {
               symbol: q['symbol'] as String,
               kind: _kind(q['quoteType'])!,
               exchange: q['exchDisp'] as String?,
+              priceSource: PriceSourceId.yahoo,
             ),
       ];
     } catch (_) {
@@ -249,7 +316,7 @@ class YahooQuotes {
           .get(
             Uri.https('query1.finance.yahoo.com', '/v1/finance/search', {
               'q': query,
-              'quotesCount': '12',
+              'quotesCount': '25',
               'newsCount': '0',
             }),
             headers: _headers,
@@ -259,5 +326,87 @@ class YahooQuotes {
     } catch (_) {
       return const [];
     }
+  }
+}
+
+/// [AmfiNav] as a [PriceSource]: funds by scheme code, downloaded once per
+/// refresh. Search only offers Indian funds to a broker that holds rupees.
+class AmfiSource extends PriceSource {
+  @override
+  String get id => PriceSourceId.amfi;
+
+  String? _body;
+
+  @override
+  Future<Map<int, PriceQuote>> quotes(
+    http.Client client,
+    List<Holding> holdings,
+  ) async {
+    final body = await AmfiNav.download(client);
+    if (body == null) return const {};
+    final byCode = AmfiNav.quotesFor(body, {
+      for (final h in holdings) h.symbol!.trim(),
+    });
+    return {
+      for (final h in holdings)
+        if (byCode[h.symbol!.trim()] case final quote?) h.id: quote,
+    };
+  }
+
+  @override
+  Future<List<SymbolHit>> search(
+    http.Client client,
+    String query, {
+    required String currency,
+  }) async {
+    if (currency != 'INR') return const [];
+    _body ??= await AmfiNav.download(client);
+    return _body == null ? const [] : AmfiNav.search(_body!, query);
+  }
+}
+
+/// [YahooQuotes] as a [PriceSource]: stocks and ETFs on any exchange.
+class YahooSource extends PriceSource {
+  static const _parallel = 4;
+
+  @override
+  String get id => PriceSourceId.yahoo;
+
+  @override
+  Future<Map<int, PriceQuote>> quotes(
+    http.Client client,
+    List<Holding> holdings,
+  ) async {
+    final found = <int, PriceQuote>{};
+    for (var i = 0; i < holdings.length; i += _parallel) {
+      final batch = holdings.skip(i).take(_parallel).toList();
+      final quotes = await Future.wait([
+        for (final h in batch)
+          YahooQuotes.quote(
+            client,
+            YahooQuotes.yahooSymbol(h.symbol!, h.exchange),
+          ),
+      ]);
+      for (var n = 0; n < batch.length; n++) {
+        if (quotes[n] case final quote?) found[batch[n].id] = quote;
+      }
+    }
+    return found;
+  }
+
+  @override
+  Future<List<SymbolHit>> search(
+    http.Client client,
+    String query, {
+    required String currency,
+  }) async {
+    final hits = await YahooQuotes.search(client, query);
+    // A rupee broker's funds come from AMFI, which knows them better.
+    return currency == 'INR'
+        ? [
+            for (final h in hits)
+              if (h.kind != HoldingKind.fund) h,
+          ]
+        : hits;
   }
 }

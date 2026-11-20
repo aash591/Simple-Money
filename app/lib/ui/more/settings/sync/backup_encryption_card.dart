@@ -31,8 +31,9 @@ class BackupEncryptionCard extends StatelessWidget {
           : peer
           ? BackupPinPurpose.join
           : BackupPinPurpose.enable,
-      onSubmit: (pin) =>
-          value && peer ? sync.joinEncryption(pin) : sync.setEncryption(value, pin),
+      onSubmit: (pin) => value && peer
+          ? sync.joinEncryption(pin)
+          : sync.setEncryption(value, pin),
     );
     Future<void> join() => showBackupPinFlow(
       context,

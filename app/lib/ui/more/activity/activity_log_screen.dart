@@ -110,10 +110,7 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
   Future<void> _loadOlder() async {
     final changes = _changes;
     if (changes == null || changes.isEmpty) return;
-    final older = await _history.load(
-      limit: _page,
-      olderThan: changes.last.id,
-    );
+    final older = await _history.load(limit: _page, olderThan: changes.last.id);
     if (!mounted) return;
     setState(() {
       _changes = [...changes, ...older];
@@ -400,130 +397,129 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
     );
   }
 
-  Future<void> _details(RecordChange change, MoneyTransaction t) =>
-      showAdaptiveSheet<void>(
-        context,
-        builder: (context) {
-          final scheme = Theme.of(context).colorScheme;
-          final text = Theme.of(context).textTheme;
-          final edits = [
-            for (final MapEntry(:key, :value) in _fields.entries)
-              if (change.changedColumns.contains(key))
-                (
-                  value[0].toUpperCase() + value.substring(1),
-                  _describe(key, change.before?[key], change.before),
-                  _describe(key, change.after?[key], change.after),
-                ),
-          ];
-          final who = change.device ?? 'This phone';
-          final when = DateFormat('d MMM yyyy, h:mm a').format(change.at);
-          return SheetPage(
-            header: SheetHeader('${_verb(change.action)} transaction'),
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
-                  child: Text(
-                    '$who · $when',
-                    style: text.bodySmall?.copyWith(height: 1.4),
-                  ),
-                ),
-                SheetCard(
-                  child: TransactionListRow(
-                    transaction: t,
-                    account: _account(t.accountId),
-                    toAccount: _account(t.toAccountId),
-                    category: _category(t.categoryId),
-                    parentCategory: _category(
-                      _category(t.categoryId)?.parentId,
-                    ),
-                    formattedAmount: _amount(t),
-                    showDate: true,
-                    onTap: () {},
-                  ),
-                ),
-                if (edits.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  SheetCard(
-                    child: Column(
-                      children: [
-                        for (final (i, (field, was, now)) in edits.indexed) ...[
-                          if (i > 0) const Divider(height: 1),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: 96,
-                                  child: Text(
-                                    field,
-                                    style: text.bodyMedium?.copyWith(
-                                      color: scheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text.rich(
-                                    TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: was,
-                                          style: TextStyle(
-                                            color: scheme.onSurfaceVariant,
-                                            decoration:
-                                                TextDecoration.lineThrough,
-                                          ),
-                                        ),
-                                        const TextSpan(text: '  →  '),
-                                        TextSpan(
-                                          text: now,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    style: text.bodyMedium,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 16),
-                if (change.undone)
-                  Text(
-                    'Already undone.',
-                    textAlign: TextAlign.center,
-                    style: text.bodyMedium?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  )
-                else
-                  FilledButton.tonalIcon(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      _undo(change);
-                    },
-                    icon: const Icon(Icons.undo_rounded),
-                    label: Text(switch (change.action) {
-                      ChangeAction.added => 'Undo · delete it',
-                      ChangeAction.edited => 'Undo this edit',
-                      ChangeAction.deleted => 'Undo · bring it back',
-                    }),
-                  ),
-                const SizedBox(height: 8),
-              ],
+  Future<void> _details(
+    RecordChange change,
+    MoneyTransaction t,
+  ) => showAdaptiveSheet<void>(
+    context,
+    builder: (context) {
+      final scheme = Theme.of(context).colorScheme;
+      final text = Theme.of(context).textTheme;
+      final edits = [
+        for (final MapEntry(:key, :value) in _fields.entries)
+          if (change.changedColumns.contains(key))
+            (
+              value[0].toUpperCase() + value.substring(1),
+              _describe(key, change.before?[key], change.before),
+              _describe(key, change.after?[key], change.after),
             ),
-          );
-        },
+      ];
+      final who = change.device ?? 'This phone';
+      final when = DateFormat('d MMM yyyy, h:mm a').format(change.at);
+      return SheetPage(
+        header: SheetHeader('${_verb(change.action)} transaction'),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
+              child: Text(
+                '$who · $when',
+                style: text.bodySmall?.copyWith(height: 1.4),
+              ),
+            ),
+            SheetCard(
+              child: TransactionListRow(
+                transaction: t,
+                account: _account(t.accountId),
+                toAccount: _account(t.toAccountId),
+                category: _category(t.categoryId),
+                parentCategory: _category(_category(t.categoryId)?.parentId),
+                formattedAmount: _amount(t),
+                showDate: true,
+                onTap: () {},
+              ),
+            ),
+            if (edits.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              SheetCard(
+                child: Column(
+                  children: [
+                    for (final (i, (field, was, now)) in edits.indexed) ...[
+                      if (i > 0) const Divider(height: 1),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 96,
+                              child: Text(
+                                field,
+                                style: text.bodyMedium?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: was,
+                                      style: TextStyle(
+                                        color: scheme.onSurfaceVariant,
+                                        decoration: TextDecoration.lineThrough,
+                                      ),
+                                    ),
+                                    const TextSpan(text: '  →  '),
+                                    TextSpan(
+                                      text: now,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                style: text.bodyMedium,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
+            if (change.undone)
+              Text(
+                'Already undone.',
+                textAlign: TextAlign.center,
+                style: text.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              )
+            else
+              FilledButton.tonalIcon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _undo(change);
+                },
+                icon: const Icon(Icons.undo_rounded),
+                label: Text(switch (change.action) {
+                  ChangeAction.added => 'Undo · delete it',
+                  ChangeAction.edited => 'Undo this edit',
+                  ChangeAction.deleted => 'Undo · bring it back',
+                }),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
       );
+    },
+  );
 
   /// A field's value as the details sheet shows it.
   String _describe(String field, Object? value, Map<String, Object?>? row) {
@@ -540,8 +536,8 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
         _account(row?['to_account_id']),
       ),
       'category_id' => _category(value)?.name ?? 'A deleted category',
-      'account_id' || 'to_account_id' =>
-        _account(value)?.name ?? 'A deleted account',
+      'account_id' ||
+      'to_account_id' => _account(value)?.name ?? 'A deleted account',
       'date' when value is int => DateFormat(
         'd MMM yyyy, h:mm a',
       ).format(DateTime.fromMillisecondsSinceEpoch(value)),

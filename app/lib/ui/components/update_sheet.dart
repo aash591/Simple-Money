@@ -83,7 +83,11 @@ class _UpdateSheet extends StatelessWidget {
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, height: 1.45, color: colors.muted),
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.45,
+                  color: colors.muted,
+                ),
               ),
               if (stage == AppUpdateStage.downloading) ...[
                 const SizedBox(height: 18),

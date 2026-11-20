@@ -54,8 +54,12 @@ class FeaturePage extends StatelessWidget {
     this.floatingActionButton,
     this.header,
     this.showHeader = true,
+    this.titleIcon,
   });
   final String title;
+
+  /// A small mark shown before the title (see [SecondaryHeader.titleIcon]).
+  final Widget? titleIcon;
   final Widget? header;
   final bool showHeader;
   final Widget child;
@@ -82,6 +86,7 @@ class FeaturePage extends StatelessWidget {
                     header ??
                         SecondaryHeader(
                           title: title,
+                          titleIcon: titleIcon,
                           leading: Navigator.of(context).canPop()
                               ? const AppBackButton()
                               : null,

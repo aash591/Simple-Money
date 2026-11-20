@@ -270,33 +270,37 @@ class _CategoryGroup extends StatelessWidget {
                                 entering?.call(transactions[index].id) ?? false,
                             leaving: leaving.contains(transactions[index].id),
                             child: TransactionListRow(
-                            transaction: transactions[index],
-                            account: accountById(transactions[index].accountId),
-                            toAccount: accountById(
-                              transactions[index].toAccountId,
+                              transaction: transactions[index],
+                              account: accountById(
+                                transactions[index].accountId,
+                              ),
+                              toAccount: accountById(
+                                transactions[index].toAccountId,
+                              ),
+                              category: categoryById(
+                                transactions[index].categoryId,
+                              ),
+                              parentCategory: categoryById(
+                                categoryById(transactions[index].categoryId)
+                                    ?.parentId,
+                              ),
+                              formattedAmount: formatAmount(
+                                transactions[index],
+                              ),
+                              onTap: () => onOpen(transactions[index]),
+                              selected: selection?.contains(
+                                transactions[index].id,
+                              ),
+                              onSelected: selection == null
+                                  ? null
+                                  : (_) => onToggle?.call(transactions[index]),
+                              onLongPress: onToggle == null
+                                  ? null
+                                  : () => onToggle!(transactions[index]),
+                              // A category group spans the whole period, so the
+                              // day is what places a row, not the hour.
+                              showDate: true,
                             ),
-                            category: categoryById(
-                              transactions[index].categoryId,
-                            ),
-                            parentCategory: categoryById(
-                              categoryById(transactions[index].categoryId)
-                                  ?.parentId,
-                            ),
-                            formattedAmount: formatAmount(transactions[index]),
-                            onTap: () => onOpen(transactions[index]),
-                            selected: selection?.contains(
-                              transactions[index].id,
-                            ),
-                            onSelected: selection == null
-                                ? null
-                                : (_) => onToggle?.call(transactions[index]),
-                            onLongPress: onToggle == null
-                                ? null
-                                : () => onToggle!(transactions[index]),
-                            // A category group spans the whole period, so the
-                            // day is what places a row, not the hour.
-                            showDate: true,
-                          ),
                           ),
                           if (index < transactions.length - 1)
                             const Divider(height: 1),
@@ -391,21 +395,21 @@ class _TransactionGroup extends StatelessWidget {
           entering: entering?.call(transaction.id) ?? false,
           leaving: leaving.contains(transaction.id),
           child: TransactionListRow(
-          transaction: transaction,
-          account: accountById(transaction.accountId),
-          toAccount: accountById(transaction.toAccountId),
-          category: categoryById(transaction.categoryId),
-          parentCategory: categoryById(
-            categoryById(transaction.categoryId)?.parentId,
+            transaction: transaction,
+            account: accountById(transaction.accountId),
+            toAccount: accountById(transaction.toAccountId),
+            category: categoryById(transaction.categoryId),
+            parentCategory: categoryById(
+              categoryById(transaction.categoryId)?.parentId,
+            ),
+            formattedAmount: formatAmount(transaction),
+            onTap: () => onOpen(transaction),
+            selected: selection?.contains(transaction.id),
+            onSelected: selection == null
+                ? null
+                : (_) => onToggle?.call(transaction),
+            onLongPress: onToggle == null ? null : () => onToggle!(transaction),
           ),
-          formattedAmount: formatAmount(transaction),
-          onTap: () => onOpen(transaction),
-          selected: selection?.contains(transaction.id),
-          onSelected: selection == null
-              ? null
-              : (_) => onToggle?.call(transaction),
-          onLongPress: onToggle == null ? null : () => onToggle!(transaction),
-        ),
         ),
     ],
   );

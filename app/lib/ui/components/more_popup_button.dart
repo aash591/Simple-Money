@@ -37,12 +37,17 @@ class MorePopupButton<T> extends StatefulWidget {
     required this.onSelected,
     this.tooltip = 'More options',
     this.icon,
+    this.fitContent = false,
   });
 
   final List<MorePopupItem<T>> items;
   final ValueChanged<T> onSelected;
   final String tooltip;
   final Widget? icon;
+
+  /// Sizes the menu to its widest row instead of the usual fixed width, so a
+  /// menu with one short action has no empty space beside it.
+  final bool fitContent;
 
   @override
   State<MorePopupButton<T>> createState() => _MorePopupButtonState<T>();
@@ -93,6 +98,7 @@ class _MorePopupButtonState<T> extends State<MorePopupButton<T>>
                   anchor: anchor,
                   animation: _animation,
                   items: widget.items,
+                  fitContent: widget.fitContent,
                   onSelected: (value) => _close(value),
                 ),
               ],
@@ -189,12 +195,14 @@ class _MorePopupOverlay<T> extends StatefulWidget {
     required this.animation,
     required this.items,
     required this.onSelected,
+    this.fitContent = false,
   });
 
   final Rect anchor;
   final Animation<double> animation;
   final List<MorePopupItem<T>> items;
   final ValueChanged<T> onSelected;
+  final bool fitContent;
 
   @override
   State<_MorePopupOverlay<T>> createState() => _MorePopupOverlayState<T>();
@@ -241,6 +249,30 @@ class _MorePopupOverlayState<T> extends State<_MorePopupOverlay<T>> {
     if (nearest != null) VibrationSettings.selectionClick();
   }
 
+  /// The width the widest row needs: its label (and icon), plus the rows'
+  /// own side padding.
+  double _contentWidth(ThemeData theme, MediaQueryData media) {
+    var widest = 0.0;
+    for (final item in widget.items) {
+      final label = TextPainter(
+        text: TextSpan(
+          text: item.label,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+        textScaler: media.textScaler,
+        maxLines: 1,
+      )..layout();
+      // The icon is 20 wide with a 12 gap, when the row has one.
+      widest = math.max(widest, label.width + (item.icon != null ? 32 : 0));
+      label.dispose();
+    }
+    // 16 each side, and a pixel of slack so the label never ellipsizes.
+    return (widest + 32 + 1).ceilToDouble();
+  }
+
   void selectHighlighted() {
     final index = _highlighted;
     if (index != null) widget.onSelected(widget.items[index].value);
@@ -270,10 +302,13 @@ class _MorePopupOverlayState<T> extends State<_MorePopupOverlay<T>> {
     final spaceAbove = anchor.top - safeTop - _anchorGap;
     final opensBelow =
         estimatedHeight <= spaceBelow || spaceBelow >= spaceAbove;
-    final menuWidth = math.min(
+    final widestAllowed = math.min(
       _preferredWidth,
       media.size.width - (_horizontalMargin * 2),
     );
+    final menuWidth = widget.fitContent
+        ? math.min(_contentWidth(theme, media), widestAllowed)
+        : widestAllowed;
     final left = (anchor.right - menuWidth).clamp(
       _horizontalMargin,
       media.size.width - menuWidth - _horizontalMargin,

@@ -1064,7 +1064,7 @@ class _TransactionSheetState extends State<TransactionSheet> {
     ),
     TransactionStep.account => ChoicePickerPage<int>(
       header: SheetHeader.flow(_flowTitle, onBack: _back),
-      heading: _isIncome ? 'Deposit to' : 'Pay from',
+      heading: _isIncome ? 'Deposited to' : 'Paid from',
       summary: _summary(category: _category),
       items: accountChoiceItems(
         widget.accountStore,

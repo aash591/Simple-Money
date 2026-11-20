@@ -34,7 +34,7 @@ class AppDatabase extends GeneratedDatabase {
   /// solely so the profile-seed behavior can be verified in tests.
   final bool _seedProfileData;
   @override
-  int get schemaVersion => 52;
+  int get schemaVersion => 54;
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => const [];
   @override
@@ -42,6 +42,22 @@ class AppDatabase extends GeneratedDatabase {
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (_) async {
+      // A database that already has its tables but reads as version 0 (the
+      // version marker was lost) is not new: building it again would fail and
+      // lock the person out. It is kept as it is, brought up to date with the
+      // additive steps, and given its version.
+      if (await _tableExists('accounts')) {
+        if (await _tableExists('holdings') &&
+            !await _hasColumn('holdings', 'currency')) {
+          await customStatement(
+            'ALTER TABLE holdings ADD COLUMN currency TEXT',
+          );
+        }
+        for (final table in ['accounts', 'holdings', 'holding_trades']) {
+          if (await _tableExists(table)) await createSyncTriggers(this, table);
+        }
+        return;
+      }
       await customStatement('''
       CREATE TABLE accounts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -220,6 +236,16 @@ class AppDatabase extends GeneratedDatabase {
       // v51 -> v52: brokers (an account flag) and the holdings under them.
       // Before the sync schema below, which gives every table its triggers.
       if (from < 52) await _addPortfolio();
+      // v52 -> v53: holdings lose their kind CHECK and gain a price source
+      // and room for details (see _holdingsTable).
+      if (from < 53) await _rebuildHoldingsV53();
+      // v54: a holding may be priced in a currency other than its account's.
+      // Null means "the account's own", so every existing row reads as before.
+      if (from < 54 &&
+          await _tableExists('holdings') &&
+          !await _hasColumn('holdings', 'currency')) {
+        await customStatement('ALTER TABLE holdings ADD COLUMN currency TEXT');
+      }
       // v5 -> v6: monthly budgets (see data/repositories/budget_repository
       // .dart), created straight in the v7 shape below.
       // v6 -> v7: a budget covers a set of categories rather than one, so
@@ -364,8 +390,10 @@ class AppDatabase extends GeneratedDatabase {
       if (from >= 8 && from < 47) {
         await seedSyncOutbox(this, tables: ['sms_corrections']);
       }
-      // v52: accounts gained `broker`, and the holding tables are new.
-      if (from >= 8 && from < 52) {
+      // v52: accounts gained `broker`, and the holding tables are new. v53
+      // rebuilt `holdings`, which dropped its triggers: made again here.
+      // v54 added `holdings.currency`, so its triggers are made again too.
+      if (from >= 8 && from < 54) {
         for (final table in ['accounts', 'holdings', 'holding_trades']) {
           final exists = await customSelect(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
@@ -776,6 +804,13 @@ class AppDatabase extends GeneratedDatabase {
         'PRAGMA table_info($table)',
       ).get()).any((row) => row.read<String>('name') == column);
 
+  Future<bool> _tableExists(String table) async =>
+      await customSelect(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+        variables: [Variable(table)],
+      ).getSingleOrNull() !=
+      null;
+
   Future<void> _addPortfolio() async {
     // Databases from before accounts existed get the column with the table.
     final hasAccounts = (await customSelect(
@@ -792,15 +827,7 @@ class AppDatabase extends GeneratedDatabase {
   /// A broker's holdings and every buy, sell and dividend. Units and prices
   /// are whole numbers (see domain/holding.dart), never floating point.
   Future<void> _createHoldings() async {
-    await customStatement('''CREATE TABLE IF NOT EXISTS holdings (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      account_id INTEGER NOT NULL,
-      kind TEXT NOT NULL CHECK(kind IN ('stock', 'etf', 'fund')),
-      name TEXT NOT NULL CHECK(length(trim(name)) BETWEEN 1 AND 60),
-      symbol TEXT, exchange TEXT,
-      last_price_e4 INTEGER, price_date TEXT,
-      archived_at INTEGER
-    )''');
+    await customStatement(_holdingsTable('holdings', ifNotExists: true));
     await customStatement('''CREATE TABLE IF NOT EXISTS holding_trades (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       holding_id INTEGER NOT NULL,
@@ -817,6 +844,49 @@ class AppDatabase extends GeneratedDatabase {
       'CREATE INDEX IF NOT EXISTS holding_trades_holding '
       'ON holding_trades(holding_id, date)',
     );
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS holdings_account ON holdings(account_id)',
+    );
+  }
+
+  /// The holdings table as of v53. `kind` and `price_source` are free text
+  /// with no CHECK, so a new asset type or price source never needs a
+  /// migration (a CHECK can only be changed by rebuilding the table), and an
+  /// older app reading a newer app's value never fails. `meta` is JSON room
+  /// for what later asset types carry.
+  static String _holdingsTable(String name, {bool ifNotExists = false}) =>
+      '''CREATE TABLE ${ifNotExists ? 'IF NOT EXISTS ' : ''}$name (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      account_id INTEGER NOT NULL,
+      kind TEXT NOT NULL,
+      name TEXT NOT NULL CHECK(length(trim(name)) BETWEEN 1 AND 60),
+      symbol TEXT, exchange TEXT,
+      last_price_e4 INTEGER, price_date TEXT,
+      archived_at INTEGER,
+      price_source TEXT,
+      meta TEXT,
+      currency TEXT
+    )''';
+
+  /// v52 -> v53: rebuilds `holdings` in the v53 shape, keeping every row as
+  /// it is. Nothing is dropped until the copy is in place, and the whole
+  /// upgrade runs in one transaction, so a failure leaves the v52 table.
+  /// Does nothing for a table that already has the new columns. Dropping the
+  /// table drops its sync triggers; the caller makes them again.
+  Future<void> _rebuildHoldingsV53() async {
+    final exists = await customSelect(
+      "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'holdings'",
+    ).getSingleOrNull();
+    if (exists == null || await _hasColumn('holdings', 'price_source')) return;
+    await customStatement('DROP TABLE IF EXISTS holdings_v53');
+    await customStatement(_holdingsTable('holdings_v53'));
+    await customStatement('''INSERT INTO holdings_v53
+        (id, account_id, kind, name, symbol, exchange, last_price_e4,
+         price_date, archived_at)
+      SELECT id, account_id, kind, name, symbol, exchange, last_price_e4,
+        price_date, archived_at FROM holdings''');
+    await customStatement('DROP TABLE holdings');
+    await customStatement('ALTER TABLE holdings_v53 RENAME TO holdings');
     await customStatement(
       'CREATE INDEX IF NOT EXISTS holdings_account ON holdings(account_id)',
     );

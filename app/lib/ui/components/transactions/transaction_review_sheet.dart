@@ -318,7 +318,7 @@ class _TransactionReviewSheetState extends State<TransactionReviewSheet> {
   }
 
   String _accountLabel(bool destination) => d.transfer
-      ? (destination ? 'Transfer to' : 'Transfer from')
+      ? (destination ? 'Transferred to' : 'Transferred from')
       : d.type == TransactionType.income
       ? 'Received in'
       : 'Paid from';

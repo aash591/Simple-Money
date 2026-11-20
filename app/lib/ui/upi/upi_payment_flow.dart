@@ -1582,9 +1582,9 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
       context,
       title: 'Pay with UPI',
       heading: destination
-          ? 'Transfer to'
+          ? 'Transferred to'
           : _isTransfer
-          ? 'Transfer from'
+          ? 'Transferred from'
           : 'Paid from',
       selected: destination ? _toAccountId : _accountId,
       items: [
@@ -1668,7 +1668,7 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
             Divider(height: 1, indent: 64, color: colors.divider),
           ],
           ReviewChoiceRow(
-            label: _isTransfer ? 'Transfer from' : 'Paid from',
+            label: _isTransfer ? 'Transferred from' : 'Paid from',
             value: _account?.name ?? 'Choose INR account',
             icon: AppIcon(_account?.icon ?? 'bank_transfer', size: 30),
             onTap: _busy ? null : () => _smsPickAccount(),
@@ -1676,7 +1676,7 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
           if (_isTransfer) ...[
             Divider(height: 1, indent: 64, color: colors.divider),
             ReviewChoiceRow(
-              label: 'Transfer to',
+              label: 'Transferred to',
               value: _destination?.name ?? 'Choose INR account',
               icon: AppIcon(_destination?.icon ?? 'bank_transfer', size: 30),
               onTap: _busy ? null : () => _smsPickAccount(destination: true),

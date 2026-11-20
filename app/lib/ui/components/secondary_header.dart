@@ -13,7 +13,12 @@ class SecondaryHeader extends StatelessWidget {
     this.titleStyle,
     this.centered = false,
     this.actions = const [],
+    this.titleIcon,
   });
+
+  /// A small mark before the title, e.g. a bank or broker's logo. Only for
+  /// the usual left-aligned title.
+  final Widget? titleIcon;
 
   // Keeps secondary page titles and actions comfortably separated from content.
   static const double height = 56;
@@ -107,6 +112,10 @@ class SecondaryHeader extends StatelessWidget {
                 if (leading != null)
                   SizedBox(width: 48, height: 48, child: leading),
                 SizedBox(width: leading == null ? 12 : 8),
+                if (titleIcon != null) ...[
+                  titleIcon!,
+                  const SizedBox(width: 10),
+                ],
                 Expanded(
                   child: Semantics(
                     header: true,

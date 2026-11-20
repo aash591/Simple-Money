@@ -227,9 +227,9 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
     final id = await showSmsAccountPicker(
       context,
       heading: other
-          ? (sms.credit ? 'Transfer from' : 'Transfer to')
+          ? (sms.credit ? 'Transferred from' : 'Transferred to')
           : transfer
-          ? (sms.credit ? 'Transfer to' : 'Transfer from')
+          ? (sms.credit ? 'Transferred to' : 'Transferred from')
           : sms.credit
           ? 'Received in'
           : 'Paid from',
@@ -441,7 +441,7 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
           ],
           SmsPreviewChoice(
             label: transfer
-                ? (sms.credit ? 'Transfer to' : 'Transfer from')
+                ? (sms.credit ? 'Transferred to' : 'Transferred from')
                 : sms.credit
                 ? 'Received in'
                 : 'Paid from',
@@ -457,7 +457,7 @@ class _SmsNotificationPreviewState extends State<SmsNotificationPreview> {
           if (transfer) ...[
             Divider(height: 1, indent: 64, color: colors.divider),
             SmsPreviewChoice(
-              label: sms.credit ? 'Transfer from' : 'Transfer to',
+              label: sms.credit ? 'Transferred from' : 'Transferred to',
               value: other?.name ?? 'Choose ${sms.currency} account',
               icon: AppIcon(other?.icon ?? 'bank_transfer', size: 30),
               onTap: busy ? null : () => pickAccount(other: true),
