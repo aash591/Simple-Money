@@ -8,3 +8,7 @@ node tool/webdoc_dev.cjs 3000
 # (PowerShell has no &&, use ; instead)
 git add -A; git commit -m "Sync local working tree to match this PC"; git push --force origin HEAD
 
+# Pull from GitHub, replacing the current disk branch with the GitHub version
+# (discards local commits and uncommitted changes on this branch)
+git fetch origin; git reset --hard "@{u}"
+
