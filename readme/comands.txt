@@ -4,63 +4,7 @@ flutter run --dart-define-from-file=../secrets/.env
 
 node tool/webdoc_dev.cjs 3000
 
-# ===== GIT / GITHUB =====
+# Push current disk files to GitHub, replacing the current branch there
+# (PowerShell has no &&, use ; instead)
+git add -A; git commit -m "Sync local working tree to match this PC"; git push --force origin HEAD
 
-# Check status and history
-git status                          # what changed
-git diff                            # unstaged changes
-git diff --staged                   # staged changes
-git log --oneline -10               # last 10 commits
-git remote -v                       # show the GitHub remote URL
-
-# Commit
-git add .                           # stage everything
-git add lib/somefile.dart           # stage one file
-git commit -m "Short message describing the change"
-git commit -am "Message"            # stage tracked files and commit in one step
-
-# Push
-git push                            # push the current branch
-git push -u origin master           # first push of a branch, sets upstream
-git push origin --delete old-branch # delete a remote branch
-
-# Pull and fetch
-git fetch                           # download changes, don't merge
-git pull                            # fetch and merge into the current branch
-git pull --rebase                   # fetch and rebase instead of merge
-
-# Branches
-git branch                          # list local branches
-git branch -a                       # list local and remote branches
-git switch -c feature-name          # create and switch to a new branch
-git switch master                   # switch to an existing branch
-git merge feature-name              # merge a branch into the current one
-git branch -d feature-name          # delete a merged local branch
-
-# Undo and fix mistakes
-git restore file.dart               # discard unstaged changes in a file
-git restore --staged file.dart      # unstage a file (keep the edits)
-git reset --soft HEAD~1             # undo last commit, keep changes staged
-git commit --amend -m "New msg"     # fix last commit message (only before pushing)
-git stash                           # set aside uncommitted changes
-git stash pop                       # bring them back
-
-# Tags and cleanup
-git tag v1.0.1                      # create a tag
-git push origin v1.0.1              # push a tag
-git clean -n                        # preview untracked files to delete
-
-# GitHub CLI (gh) - pull requests and repo tasks
-gh auth login                       # sign in once
-gh pr create --fill                 # open a PR from the current branch
-gh pr list                          # list open PRs
-gh pr checkout 12                   # check out PR #12 locally
-gh pr merge 12 --squash             # merge a PR
-gh repo view --web                  # open the repo in a browser
-
-# Daily flow
-git pull
-# ...make changes...
-git add .
-git commit -m "Describe the change"
-git push
