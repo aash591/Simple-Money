@@ -40,5 +40,46 @@
       }
     },
     "compareLegacy": true
+  },
+  {
+    "id": "ippb-reported-001",
+    "country": "IN",
+    "bankId": "in.ippb",
+    "provenance": "Community-reported SMS (Help > Report SMS), Nov 2026; numbers masked by the bank",
+    "input": {
+      "sender": "IPBMSG",
+      "body": "You have received a payment of Rs. 2500.00 in a/c X7671 on 09/11/2026 14:59 from aneesh k v thru IPPB. Info: UPI/CREDIT/631358122157.-IPPB",
+      "receivedAt": "2026-11-15T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.ippb.template002",
+      "candidate": {
+        "amountMinor": 250000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "upi",
+        "occurredAt": "2026-11-15T00:00:00.000Z",
+        "bankName": "India Post Payments Bank",
+        "countryCode": "IN",
+        "accountLast4": "7671",
+        "reference": "631358122157",
+        "counterparty": "aneesh k v",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    }
   }
 ]

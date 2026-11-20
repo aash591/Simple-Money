@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'fake_drive_listing.dart';
 import 'package:simple_money/ui/components/glass_button.dart';
 import 'package:simple_money/data/backup/drive_client.dart';
 import 'package:simple_money/data/backup/sync_engine.dart';
@@ -16,6 +18,7 @@ import 'package:simple_money/data/db/app_database.dart';
 import 'package:simple_money/data/repositories/account_repository.dart';
 import 'package:simple_money/data/repositories/budget_repository.dart';
 import 'package:simple_money/data/repositories/transaction_repository.dart';
+import 'package:simple_money/domain/transaction.dart';
 import 'package:simple_money/state/sync_controller.dart';
 import 'package:simple_money/ui/more/settings/sync/sync_screen.dart';
 import 'package:simple_money/ui/welcome/backup_welcome_screen.dart';
@@ -23,37 +26,98 @@ import 'package:simple_money/ui/welcome/backup_welcome_screen.dart';
 Map<String, dynamic> decode(SyncBatch batch) =>
     jsonDecode(utf8.decode(gzip.decode(batch.payload))) as Map<String, dynamic>;
 
+/// [table]'s rows in an uploaded device file.
+List<Map<String, dynamic>> rowsIn(SyncBatch batch, String table) => [
+  for (final row in (decode(batch)['tables'] as Map)[table] as List)
+    Map<String, dynamic>.from(row as Map),
+];
+
+/// [table]'s rows across every file in [files].
+List<Map<String, dynamic>> rowsAcross(Iterable<SyncBatch> files, String table) => [
+  for (final file in files)
+    if ((decode(file)['tables'] as Map).containsKey(table)) ...rowsIn(file, table),
+];
+
+/// A batch of the chain an older version of the app uploaded.
+SyncBatch legacyBatch(
+  String mirror,
+  int sequence,
+  List<Map<String, Object?>> changes,
+) => SyncBatch(
+  fileId: 'legacy-$mirror-$sequence',
+  mirrorId: mirror,
+  sequence: sequence,
+  revision: sequence,
+  checksum: '',
+  payload: Uint8List.fromList(
+    gzip.encode(
+      utf8.encode(
+        jsonEncode({
+          'format': 'simple-money-mirror',
+          'formatVersion': 1,
+          'schemaVersion': 48,
+          'mirrorId': mirror,
+          'sequence': sequence,
+          'createdAt': '2026-10-01T00:00:00.000Z',
+          'changes': changes,
+        }),
+      ),
+    ),
+  ),
+);
+
 class FakeDrive implements MirrorTransport {
   final files = <String, SyncBatch>{};
   final modified = <String, DateTime>{};
-  int allocated = 0;
+
+  /// Files of an older version's chain, rather than a device's file.
+  final legacy = <String>{};
+  int allocated = 0, _clock = 0;
+
+  /// Every upload, in order.
+  final uploads = <SyncBatch>[];
+
+  /// The file holding [section] of [mirror]'s data (of the only phone, when
+  /// null).
+  SyncBatch fileOf(String section, {String? mirror}) => files.values
+      .singleWhere(
+        (f) => f.section == section && (mirror == null || f.mirrorId == mirror),
+      );
+
+  /// The phones with files here.
+  Set<String> get mirrors => {for (final f in files.values) f.mirrorId};
+
+
+  void addLegacy(SyncBatch batch) {
+    files[batch.fileId] = batch;
+    legacy.add(batch.fileId);
+    modified[batch.fileId] = DateTime(2026).add(Duration(minutes: ++_clock));
+  }
+
   bool loseResponse = false;
   Future<void> Function(SyncBatch)? duringUpload;
   @override
   Future<String> newFileId() async => 'file-${++allocated}';
   @override
-  Future<List<MirrorFile>> listFiles() async => [
-    for (final batch in files.values)
-      MirrorFile(
-        id: batch.fileId,
-        mirrorId: batch.mirrorId,
-        sequence: batch.sequence,
-        modified: modified[batch.fileId]!,
-      ),
-  ];
+  Future<List<MirrorFile>> listFiles({DateTime? modifiedAfter}) async =>
+      fakeListing(
+        files,
+        (id) => modified[id]!,
+        legacy: legacy,
+        modifiedAfter: modifiedAfter,
+      );
   @override
   Future<Uint8List> download(String fileId) async => files[fileId]!.payload;
   @override
   Future<void> deleteFile(String fileId) async => files.remove(fileId);
   @override
   Future<void> upload(SyncBatch batch) async {
-    final existing = files[batch.fileId];
-    if (existing != null) expect(batch.payload, existing.payload);
+    if (batch.replace && !files.containsKey(batch.fileId)) {
+      throw const DriveFileMissing();
+    }
+    uploads.add(batch);
     files[batch.fileId] = batch;
-    modified.putIfAbsent(
-      batch.fileId,
-      () => DateTime(2026).add(Duration(minutes: modified.length)),
-    );
+    modified[batch.fileId] = DateTime(2026).add(Duration(minutes: ++_clock));
     await duringUpload?.call(batch);
     if (loseResponse) {
       loseResponse = false;
@@ -66,7 +130,7 @@ class FakeDrive implements MirrorTransport {
 }
 
 class PreviewSyncController extends SyncController {
-  PreviewSyncController(super.repository);
+  PreviewSyncController(super.repository, {super.engine});
   @override
   bool get supported => true;
 }
@@ -111,7 +175,7 @@ void main() {
 
   Future<bool> connect() =>
       repository.connect('test@example.com', 'google-user-1');
-  Future<void> addAccount([String name = 'Cash']) =>
+  Future<int> addAccount([String name = 'Cash']) =>
       AccountRepository(db)
           .save(name: name, currency: 'INR', digits: 2, openingBalance: 100000);
 
@@ -119,7 +183,7 @@ void main() {
     await repository.bindInstallation('original-device');
     await connect();
     await engine.run();
-    final originalMirror = drive.files.values.single.mirrorId;
+    final originalMirror = drive.mirrors.single;
     await repository.bindInstallation('original-device');
     expect((await repository.status()).enabled, isTrue);
     await repository.bindInstallation('replacement-device');
@@ -129,23 +193,24 @@ void main() {
     expect(status.pending, greaterThan(0));
     await connect();
     await engine.run();
-    expect(drive.files.values.last.mirrorId, isNot(originalMirror));
-    expect(drive.files.values.last.sequence, 1);
+    expect(drive.mirrors, hasLength(2));
+    expect(drive.mirrors, contains(await repository.mirrorId()));
+    expect(await repository.mirrorId(), isNot(originalMirror));
   });
 
   test('A reinstall restores the newest backup with data, then mirrors it anew', () async {
-    await addAccount();
-    await addAccount('Bank');
+    final from = await addAccount();
+    final to = await addAccount('Bank');
     await TransactionRepository(db).addTransfer(
       amountMinor: 1200,
-      fromAccountId: 1,
-      toAccountId: 2,
+      fromAccountId: from,
+      toAccountId: to,
       date: DateTime(2026, 9, 11),
     );
     await connect();
     expect(await engine.run(), isTrue);
     await db.customStatement(
-      "UPDATE accounts SET name = 'Wallet' WHERE id = 1",
+      "UPDATE accounts SET name = 'Wallet' WHERE id = $from",
     );
     expect(await engine.run(), isTrue);
     final originalMirror = await repository.mirrorId();
@@ -196,9 +261,21 @@ void main() {
     expect(status.enabled, isTrue);
     expect(status.pending, greaterThan(0));
     expect(await freshEngine.run(), isTrue);
-    final restoredMirror = drive.files.values.last;
-    expect(restoredMirror.mirrorId, isNot(originalMirror));
-    expect(restoredMirror.sequence, 1);
+    // The fresh install's own files now hold the restored data.
+    expect(drive.mirrors, hasLength(2));
+    final freshMirror = await freshRepository.mirrorId();
+    expect(freshMirror, isNot(originalMirror));
+    expect(
+      rowsIn(drive.fileOf('accounts', mirror: freshMirror), 'accounts'),
+      hasLength(2),
+    );
+    expect(
+      rowsAcross(
+        drive.files.values.where((f) => f.mirrorId == freshMirror),
+        'transactions',
+      ),
+      hasLength(1),
+    );
     // The newer categories-only mirror from before the restore is skipped.
     expect((await freshEngine.findBackup())!.mirrorId, originalMirror);
   });
@@ -227,15 +304,10 @@ void main() {
       expect(await AccountRepository(db).load(), hasLength(2));
       await connect();
       await engine.run();
-      final first = drive.files.values.single;
-      expect(first.mirrorId, isNot(oldMirror));
-      expect(first.sequence, 1);
-      expect(
-        (decode(first)['changes'] as List).where(
-          (change) => change['table'] == 'accounts',
-        ),
-        hasLength(2),
-      );
+      final file = drive.fileOf('accounts');
+      expect(file.mirrorId, oldMirror);
+      expect(file.replace, isFalse); // made again, not replaced
+      expect(rowsIn(file, 'accounts'), hasLength(2));
     },
   );
 
@@ -245,27 +317,36 @@ void main() {
     expect(await repository.hasLedgerData(), isTrue);
   });
 
-  test('A mirror is rebuilt only from its unbroken chain', () async {
+  test("An older version's chain is read only up to its first gap", () async {
+    Map<String, Object?> account(int id, String name) => {
+      'table': 'accounts',
+      'key': [id],
+      'hlc': hlcAt(DateTime(2026, 10, id)),
+      'row': {
+        'id': id,
+        'name': name,
+        'currency': 'INR',
+        'digits': 2,
+        'balance_minor': 1000 * id,
+        'sort_order': id,
+      },
+    };
+    drive.addLegacy(legacyBatch('old', 1, [account(1, 'Cash')]));
+    drive.addLegacy(legacyBatch('old', 2, [account(2, 'Bank')]));
+    drive.addLegacy(legacyBatch('old', 4, [account(4, 'After a gap')]));
     await connect();
-    await engine.run();
-    await addAccount();
-    await engine.run();
-    await addAccount('Bank');
-    await engine.run();
-    final other = AppDatabase(NativeDatabase.memory(), false);
-    addTearDown(other.close);
-    final otherRepository = SyncRepository(other);
-    await otherRepository.connect('test@example.com', 'google-user-1');
-    final otherEngine = SyncEngine(
-      otherRepository,
-      openTransport: (_) async => drive,
+    final backup = (await engine.findBackup())!;
+    expect(backup.mirrorId, 'old');
+    expect(backup.count('accounts'), 2);
+    // Merged like any other phone's data.
+    expect(await engine.pull(), 2);
+    expect(
+      (await AccountRepository(db).load()).map((a) => a.name),
+      unorderedEquals(['Cash', 'Bank']),
     );
-    drive.files.remove(drive.files.values.last.fileId);
-    expect((await otherEngine.findBackup())!.count('accounts'), 1);
-    drive.files.remove(
-      drive.files.values.firstWhere((batch) => batch.sequence == 1).fileId,
-    );
-    expect(await otherEngine.findBackup(), isNull);
+    expect((await AccountRepository(db).load()).first.balanceMinor, 1000);
+    drive.files.remove('legacy-old-1');
+    expect(await engine.findBackup(), isNull);
   });
 
   test(
@@ -296,7 +377,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      final controller = PreviewSyncController(repository);
+      final controller = PreviewSyncController(repository, engine: engine);
       addTearDown(controller.dispose);
       await controller.refresh();
       await tester.pumpWidget(
@@ -374,34 +455,112 @@ void main() {
   test(
     'Initial mirror includes existing rows; edits coalesce and deletes remain',
     () async {
-      await addAccount();
+      final cash = await addAccount();
       await connect();
       expect(await engine.run(), isTrue);
-      final first = decode(drive.files.values.single);
-      expect(first['sequence'], 1);
-      expect(first['previousSequence'], 0);
-      expect(
-        (first['changes'] as List).any((r) => r['table'] == 'accounts'),
-        isTrue,
-      );
-      expect(
-        (first['changes'] as List).any((r) => r['table'] == 'categories'),
-        isTrue,
-      );
+      final file = drive.fileOf('accounts');
+      final count = drive.files.length;
+      expect(rowsIn(file, 'accounts'), hasLength(1));
+      expect(rowsIn(drive.fileOf('categories'), 'categories'), isNotEmpty);
       await db.customStatement("UPDATE accounts SET name = 'Wallet'");
       await db.customStatement("UPDATE accounts SET name = 'Pocket'");
       expect((await repository.status()).pending, 1);
       expect(await engine.run(), isTrue);
-      final edit = decode(drive.files.values.last)['changes'] as List;
-      expect(edit.single['row']['name'], 'Pocket');
-      await AccountRepository(db).delete(1);
+      // Only the accounts file, replaced.
+      expect(drive.files, hasLength(count));
+      expect(drive.uploads.last.section, 'accounts');
+      final edited = drive.fileOf('accounts');
+      expect(edited.fileId, file.fileId);
+      expect(edited.sequence, greaterThan(file.sequence));
+      expect(rowsIn(edited, 'accounts').single['name'], 'Pocket');
+      await AccountRepository(db).delete(cash);
       expect(await engine.run(), isTrue);
-      final deletion = decode(drive.files.values.last)['changes'] as List;
-      expect(deletion.single['key'], [1]);
-      expect(deletion.single['row'], isNull);
+      final deleted = drive.fileOf('accounts');
+      expect(rowsIn(deleted, 'accounts'), isEmpty);
+      // The deletion's version stays, so the other phones delete it too.
+      expect(
+        ((decode(deleted)['versions'] as Map)['accounts'] as Map).keys,
+        contains(jsonEncode([cash])),
+      );
       expect((await repository.status()).pending, 0);
     },
   );
+
+  test('Only the sections that changed are uploaded', () async {
+    final cash = await addAccount();
+    final transactions = TransactionRepository(db);
+    final old = await transactions.addExpenseOrIncome(
+      type: TransactionType.expense,
+      amountMinor: 500,
+      accountId: cash,
+      categoryId: 1,
+      title: 'Old',
+      date: DateTime(2025, 1, 5),
+    );
+    // Made in January 2025: it belongs to that month's file for good.
+    await db.customStatement(
+      'UPDATE transactions SET created_at = ? WHERE id = ?',
+      [DateTime.utc(2025, 1, 5).millisecondsSinceEpoch, old],
+    );
+    await connect();
+    expect(await engine.run(), isTrue);
+    expect(drive.fileOf('transactions/2025-01'), isNotNull);
+
+    // Editing an old record replaces only its month.
+    drive.uploads.clear();
+    await db.customStatement(
+      "UPDATE transactions SET title = 'Old, edited' WHERE id = ?",
+      [old],
+    );
+    expect(await engine.run(), isTrue);
+    expect(drive.uploads.map((u) => u.section), ['transactions/2025-01']);
+
+    // A new expense: today's file, and the account its balance moved.
+    drive.uploads.clear();
+    await transactions.addExpenseOrIncome(
+      type: TransactionType.expense,
+      amountMinor: 700,
+      accountId: cash,
+      categoryId: 1,
+      title: 'Lunch',
+      date: DateTime.now(),
+    );
+    expect(await engine.run(), isTrue);
+    final today = DateTime.now().toUtc().toIso8601String().substring(0, 10);
+    expect(
+      drive.uploads.map((u) => u.section).toSet(),
+      {'accounts', 'transactions/$today'},
+    );
+
+    // Deleting it: the deletion goes in this month's deletions file.
+    drive.uploads.clear();
+    await transactions.delete(old);
+    expect(await engine.run(), isTrue);
+    expect(
+      drive.uploads.map((u) => u.section),
+      contains('transactions/deleted/${today.substring(0, 7)}'),
+    );
+  });
+
+  test("Yesterday's day file is folded into its month and deleted", () async {
+    await addAccount();
+    await connect();
+    expect(await engine.run(), isTrue);
+    // As if yesterday's records had their own file.
+    drive.files['old-day'] = SyncBatch(
+      fileId: 'old-day',
+      mirrorId: await repository.mirrorId(),
+      sequence: 1,
+      payload: Uint8List(0),
+      checksum: '',
+      section: 'transactions/2020-01-01',
+    );
+    await repository.fileUploaded('transactions/2020-01-01', 'old-day', 1);
+    await db.customStatement("UPDATE accounts SET name = 'Wallet'");
+    expect(await engine.run(), isTrue);
+    expect(drive.files.containsKey('old-day'), isFalse);
+    expect(await repository.sectionFile('transactions/2020-01-01'), isNull);
+  });
 
   test('Rollback leaves no queued change and no revision advance', () async {
     await connect();
@@ -433,39 +592,40 @@ void main() {
       }
     };
     expect(await engine.run(), isTrue);
-    expect(drive.files, hasLength(2));
-    final last = decode(drive.files.values.last);
-    expect(last['sequence'], 2);
-    expect((last['changes'] as List).single['row']['name'], 'New name');
+    final last = drive.fileOf('accounts');
+    expect(last.sequence, greaterThan(1));
+    expect(rowsIn(last, 'accounts').single['name'], 'New name');
     expect((await repository.status()).pending, 0);
   });
 
-  test('Lost upload response retries the same file and bytes without losing newer edits', () async {
+  test('A lost response never makes a second file', () async {
+    await addAccount();
     await connect();
     drive.loseResponse = true;
     expect(await engine.run(), isFalse);
-    final batch = await repository.pendingBatch();
-    expect(batch, isNotNull);
+    expect((await repository.status()).pending, greaterThan(0));
     expect((await repository.status()).lastSynced, isNull);
-    await addAccount();
+    await addAccount('Bank');
     expect(await engine.run(force: true), isTrue);
-    expect(drive.files, hasLength(2));
-    expect(drive.allocated, 2);
-    expect(await repository.pendingBatch(), isNull);
+    // One file per section, each made with the ID saved before it was.
+    final sections = {for (final f in drive.files.values) f.section};
+    expect(drive.files, hasLength(sections.length));
+    expect(drive.allocated, drive.files.length);
+    expect(rowsIn(drive.files.values.firstWhere((f) => f.section == 'accounts'), 'accounts'), hasLength(2));
     expect((await repository.status()).pending, 0);
   });
 
   test(
     'Composite keys and a transfer reconstruct the exact latest database',
     () async {
-      await addAccount();
-      await addAccount('Bank');
+      final from = await addAccount();
+      final to = await addAccount('Bank');
       await connect();
       await engine.run();
       await TransactionRepository(db).addTransfer(
         amountMinor: 1200,
-        fromAccountId: 1,
-        toAccountId: 2,
+        fromAccountId: from,
+        toAccountId: to,
         date: DateTime(2026, 9, 11),
       );
       await db.transaction(() async {
@@ -479,40 +639,32 @@ void main() {
         );
       });
       await engine.run();
-      final transferBatch = decode(drive.files.values.last)['changes'] as List;
-      expect(
-        transferBatch.where((r) => r['table'] == 'accounts'),
-        hasLength(2),
-      );
-      expect(
-        transferBatch.where((r) => r['table'] == 'transactions'),
-        hasLength(1),
-      );
       await db.customStatement(
         'UPDATE budget_amounts SET start_month = 202610',
       );
       await db.customStatement('DELETE FROM budget_categories');
       await engine.run();
-      final mirror = <String, Map<String, Object?>>{};
-      for (final batch in drive.files.values) {
-        for (final change in decode(batch)['changes'] as List) {
-          final table = mirror.putIfAbsent(change['table'] as String, () => {});
-          final key = jsonEncode(change['key']);
-          if (change['row'] == null) {
-            table.remove(key);
-          } else {
-            table[key] = change['row'];
-          }
-        }
-      }
       for (final entry in syncTables.entries) {
         final rows = await db.customSelect('SELECT * FROM ${entry.key}').get();
-        final expected = {
-          for (final row in rows)
-            jsonEncode(entry.value.map((k) => row.data[k]).toList()): row.data,
-        };
-        expect(mirror[entry.key] ?? {}, expected, reason: entry.key);
+        String key(Map<String, Object?> row) =>
+            jsonEncode(entry.value.map((k) => row[k]).toList());
+        expect(
+          {
+            for (final row in rowsAcross(drive.files.values, entry.key))
+              key(row): row,
+          },
+          {
+            for (final row in rows)
+              key(row.data): jsonDecode(jsonEncode(row.data)),
+          },
+          reason: entry.key,
+        );
       }
+      expect(
+        rowsIn(drive.fileOf('budget_amounts'), 'budget_amounts')
+            .single['start_month'],
+        202610,
+      );
     },
   );
 
@@ -522,11 +674,11 @@ void main() {
       await connect();
       expect(await repository.acquire('worker-a'), isTrue);
       expect(await repository.acquire('worker-b', force: true), isFalse);
-      final batch = (await repository.freeze('worker-a', 'file-1'))!;
+      final plan = (await repository.uploadPlan())!;
       await db.customStatement('UPDATE sync_state SET lease_until = 0');
       expect(await repository.acquire('worker-b'), isTrue);
-      await repository.acknowledge('worker-a', batch);
-      expect(await repository.pendingBatch(), isNotNull);
+      // A runner that lost the lease can't mark anything as sent.
+      await repository.acknowledge('worker-a', plan);
       expect((await repository.status()).pending, greaterThan(0));
       await repository.release('worker-a');
       expect((await repository.status()).busy, isTrue);
@@ -537,50 +689,50 @@ void main() {
     await addAccount();
     await connect();
     await engine.run();
-    final firstMirror = drive.files.values.single.mirrorId;
+    final firstMirror = drive.mirrors.single;
     await repository.disconnect();
     await db.customStatement("UPDATE accounts SET name = 'Changed offline'");
+    final before = drive.uploads.length;
     expect(await engine.run(), isTrue);
-    expect(drive.files, hasLength(1));
+    expect(drive.uploads, hasLength(before));
     await connect();
     await engine.run();
-    expect(drive.files.values.last.mirrorId, firstMirror);
+    expect(drive.mirrors, {firstMirror});
+    expect(
+      rowsIn(drive.fileOf('accounts'), 'accounts').single['name'],
+      'Changed offline',
+    );
     await repository.disconnect();
     await repository.connect('second@example.com', 'google-user-2');
     await engine.run();
-    final last = drive.files.values.last;
-    expect(last.mirrorId, isNot(firstMirror));
+    final second = await repository.mirrorId();
+    expect(second, isNot(firstMirror));
+    final last = drive.fileOf('accounts', mirror: second);
     expect(last.sequence, 1);
-    expect((decode(last)['changes'] as List).length, greaterThan(1));
+    expect(last.replace, isFalse);
+    expect(rowsIn(last, 'accounts'), hasLength(1));
   });
 
-  test(
-    'Pending immutable upload survives closing and reopening the database',
-    () async {
-      final directory = await Directory.systemTemp.createTemp('money_sync_');
-      final file = File('${directory.path}/ledger.sqlite');
-      var diskDb = AppDatabase(NativeDatabase(file), false);
-      try {
-        var diskRepository = SyncRepository(diskDb);
-        await diskRepository.connect('test@example.com', 'user');
-        await diskRepository.acquire('owner');
-        final original = (await diskRepository.freeze(
-          'owner',
-          'persistent-id',
-        ))!;
-        await diskDb.close();
-        diskDb = AppDatabase(NativeDatabase(file), false);
-        diskRepository = SyncRepository(diskDb);
-        final reopened = (await diskRepository.pendingBatch())!;
-        expect(reopened.payload, original.payload);
-        expect(reopened.fileId, 'persistent-id');
-        expect((await diskRepository.status()).pending, greaterThan(0));
-      } finally {
-        await diskDb.close();
-        await directory.delete(recursive: true);
-      }
-    },
-  );
+  test('A reserved file ID survives closing and reopening the database', () async {
+    final directory = await Directory.systemTemp.createTemp('money_sync_');
+    final file = File('${directory.path}/ledger.sqlite');
+    var diskDb = AppDatabase(NativeDatabase(file), false);
+    try {
+      var diskRepository = SyncRepository(diskDb);
+      await diskRepository.connect('test@example.com', 'user');
+      await diskRepository.reserveFile('accounts', 'persistent-id');
+      await diskDb.close();
+      diskDb = AppDatabase(NativeDatabase(file), false);
+      diskRepository = SyncRepository(diskDb);
+      final reopened = (await diskRepository.sectionFile('accounts'))!;
+      expect(reopened.id, 'persistent-id');
+      expect(reopened.created, isFalse);
+      expect((await diskRepository.status()).pending, greaterThan(0));
+    } finally {
+      await diskDb.close();
+      await directory.delete(recursive: true);
+    }
+  });
 
   test('v7 upgrade queues existing data without changing the ledger', () async {
     final directory = await Directory.systemTemp.createTemp(
@@ -600,7 +752,17 @@ void main() {
           await diskDb.customStatement('DROP TRIGGER sync_${table}_$operation');
         }
       }
-      for (final table in ['sync_batch', 'sync_outbox', 'sync_state']) {
+      for (final operation in ['insert', 'update', 'delete']) {
+        await diskDb.customStatement(
+          'DROP TRIGGER history_transactions_$operation',
+        );
+      }
+      for (final table in [
+        'sync_batch',
+        'sync_outbox',
+        'sync_state',
+        'record_history',
+      ]) {
         await diskDb.customStatement('DROP TABLE $table');
       }
       await diskDb.customStatement('ALTER TABLE budgets DROP COLUMN icon');
@@ -665,16 +827,23 @@ void main() {
     }
   });
 
-  test('Drive duplicate response is accepted only after checking the remote checksum', () async {
-    await connect();
-    await repository.acquire('owner');
-    final batch = (await repository.freeze('owner', 'known-id'))!;
+  test('A create that already happened is replaced, and checked', () async {
+    final payload = Uint8List.fromList(gzip.encode(utf8.encode('{}')));
+    final batch = SyncBatch(
+      fileId: 'known-id',
+      mirrorId: 'mirror',
+      sequence: 1,
+      payload: payload,
+      checksum: md5.convert(payload).toString(),
+      section: 'accounts',
+    );
     var gets = 0;
     final client = DriveClient(
       'test-token',
       client: MockClient((request) async {
         expect(request.headers['Authorization'], 'Bearer test-token');
         if (request.method == 'POST') return http.Response('{}', 409);
+        expect(request.method, 'PATCH');
         gets++;
         return http.Response(
           jsonEncode({

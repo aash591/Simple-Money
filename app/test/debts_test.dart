@@ -23,11 +23,12 @@ import 'package:simple_money/ui/transactions/transaction_widgets.dart';
 void main() {
   late AppDatabase db;
   late DebtRepository debts;
+  late int cash;
 
   setUp(() async {
     db = AppDatabase(NativeDatabase.memory(), false);
     debts = DebtRepository(db);
-    await AccountRepository(db)
+    cash = await AccountRepository(db)
         .save(name: 'Cash', currency: 'INR', digits: 2, openingBalance: 100000);
   });
   tearDown(() => db.close());
@@ -43,7 +44,7 @@ void main() {
         newPersonName: 'Rahul',
         kind: DebtKind.lend,
         amountMinor: 20000,
-        accountId: 1,
+        accountId: cash,
         date: now,
       );
       expect(await cashBalance(), 80000);
@@ -71,7 +72,7 @@ void main() {
         personId: personId,
         kind: DebtKind.collect,
         amountMinor: 20000,
-        accountId: 1,
+        accountId: cash,
         date: now,
       );
       expect(await cashBalance(), 100000);
@@ -100,7 +101,7 @@ void main() {
         newPersonName: 'Rahul',
         kind: DebtKind.lend,
         amountMinor: 20000,
-        accountId: 1,
+        accountId: cash,
         date: DateTime.now(),
       );
       final transaction = (await TransactionRepository(db).load()).single;
@@ -114,7 +115,7 @@ void main() {
         newPersonName: 'Rahul',
         kind: DebtKind.lend,
         amountMinor: 20000,
-        accountId: 1,
+        accountId: cash,
         date: DateTime.now(),
       );
       await debts.addEntry(
@@ -139,14 +140,14 @@ void main() {
         newPersonName: 'Rahul',
         kind: DebtKind.borrow,
         amountMinor: 30000,
-        accountId: 1,
+        accountId: cash,
         date: DateTime.now(),
       );
       await debts.addEntry(
         personId: personId,
         kind: DebtKind.repay,
         amountMinor: 10000,
-        accountId: 1,
+        accountId: cash,
         date: DateTime.now(),
       );
       expect(await cashBalance(), 120000);
@@ -161,10 +162,10 @@ void main() {
         newPersonName: 'Rahul',
         kind: DebtKind.lend,
         amountMinor: 20000,
-        accountId: 1,
+        accountId: cash,
         date: DateTime.now(),
       );
-      await AccountRepository(db).delete(1);
+      await AccountRepository(db).delete(cash);
       final rahul = (await debts.load()).single;
       expect(rahul.entries.single.accountId, isNull);
       expect(rahul.entries.single.transactionId, isNull);
@@ -176,14 +177,14 @@ void main() {
         newPersonName: 'Rahul',
         kind: DebtKind.lend,
         amountMinor: 20000,
-        accountId: 1,
+        accountId: cash,
         date: DateTime(2026, 9, 1),
       );
       final entry = (await debts.load()).single.entries.single;
       await debts.updateEntry(
         id: entry.id,
         amountMinor: 30000,
-        accountId: 1,
+        accountId: cash,
         note: 'Trip',
         date: DateTime(2026, 9, 2),
         dueDate: DateTime(2026, 10, 5),
@@ -203,7 +204,7 @@ void main() {
         newPersonName: 'Rahul',
         kind: DebtKind.lend,
         amountMinor: 20000,
-        accountId: 1,
+        accountId: cash,
         date: DateTime(2026, 9, 1),
       );
       final entry = (await debts.load()).single.entries.single;
@@ -223,7 +224,7 @@ void main() {
       await debts.updateEntry(
         id: entry.id,
         amountMinor: 20000,
-        accountId: 1,
+        accountId: cash,
         date: entry.date,
       );
       expect(await cashBalance(), 80000);
@@ -242,7 +243,7 @@ void main() {
         newPersonName: 'Rahul',
         kind: DebtKind.lend,
         amountMinor: 20000,
-        accountId: 1,
+        accountId: cash,
         date: DateTime.now(),
       );
       await debts.updatePerson(
@@ -268,7 +269,7 @@ void main() {
         newPersonName: 'Rahul',
         kind: DebtKind.lend,
         amountMinor: 100,
-        accountId: 1,
+        accountId: cash,
         date: DateTime.now(),
       );
       expect(result.addedCategory, isTrue);
@@ -465,7 +466,7 @@ void main() {
         newPersonName: 'Rahul',
         kind: DebtKind.lend,
         amountMinor: 20000,
-        accountId: 1,
+        accountId: cash,
         date: DateTime(2026, 9, 1),
       );
       await accounts.load();

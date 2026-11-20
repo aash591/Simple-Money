@@ -138,10 +138,10 @@ class AdaptiveSheetRoute<T> extends PopupRoute<T> {
   }
 
   @override
-  Duration get transitionDuration => ModalTransition.duration;
+  Duration get transitionDuration => SheetTransition.duration;
 
   @override
-  Duration get reverseTransitionDuration => ModalTransition.reverseDuration;
+  Duration get reverseTransitionDuration => SheetTransition.reverseDuration;
 
   /// The sheet route [context] was built in, if it is one.
   static AdaptiveSheetRoute<Object?>? of(BuildContext context) {
@@ -279,8 +279,9 @@ class _SheetFrameState extends State<_SheetFrame>
       ),
     );
 
-    final moving = ModalTransition(
+    final moving = SheetTransition(
       animation: widget.animation,
+      below: keyboard + bottomInset + inset,
       child: AnimatedBuilder(
         animation: _drag,
         builder: (context, child) =>
@@ -371,7 +372,7 @@ class SheetHeader extends StatelessWidget {
   /// [SheetStepHeading] leads the content below it.
   const SheetHeader.flow(this.title, {super.key, this.onBack, this.trailing})
     : titleStyle = null,
-      centered = false,
+      centered = true,
       _flow = true;
 
   final String title;
@@ -379,16 +380,15 @@ class SheetHeader extends StatelessWidget {
   final Widget? trailing;
   final TextStyle? titleStyle;
 
-  /// A small, centred title. By default a sheet's first page (no back arrow
-  /// or action) is centred, so every sheet opens with the same title.
+  /// Whether the title is centred. Defaults to true for every sheet header.
   final bool? centered;
   final bool _flow;
 
   @override
   Widget build(BuildContext context) => SecondaryHeader(
     title: title,
-    // The main title is left-aligned; a flow step's dimmed title is centred.
-    centered: centered ?? false,
+    // Every sheet title is centred, with any back button floating at the side.
+    centered: centered ?? true,
     titleStyle:
         titleStyle ??
         (_flow

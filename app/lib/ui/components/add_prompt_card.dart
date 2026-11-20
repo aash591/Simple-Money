@@ -1,10 +1,9 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 
 import '../../state/appearance_controller.dart' show AppearanceScope;
 import '../theme/app_theme.dart' show AppChrome, usesAurora, usesGlass;
 import 'dashed_outline.dart';
+import 'glass_blur.dart';
 import 'glass_surface.dart' show glassCardFill;
 
 /// One button on an [AddPromptCard].
@@ -50,7 +49,7 @@ class AddPromptCard extends StatelessWidget {
       decoration: BoxDecoration(
         // On glass: the same see-through fill as the cards around it.
         color: glass ? null : scheme.primary.withValues(alpha: .03),
-        gradient: glass ? glassCardFill(context) : null,
+        gradient: glass ? glassCardFill(context, deeper: true) : null,
         borderRadius: radius,
       ),
       child: Column(
@@ -107,12 +106,10 @@ class AddPromptCard extends StatelessWidget {
     if (frosted) {
       card = ClipRRect(
         borderRadius: radius,
-        child: BackdropFilter.grouped(
-          filter: ui.ImageFilter.blur(
-            sigmaX: 22,
-            sigmaY: 22,
-            tileMode: TileMode.mirror,
-          ),
+        child: Frosted(
+          sigma: FrostImages.cardSigma,
+          tileMode: TileMode.mirror,
+          onPage: true,
           child: card,
         ),
       );

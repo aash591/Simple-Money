@@ -102,6 +102,19 @@ class UpiRepository {
         );
       });
 
+  /// The bank SMS for [payment], once it has arrived: the payment went
+  /// through, and the account (and category, if the SMS already saved an
+  /// expense) it reports. Null while there's none.
+  Future<UpiPaymentSms?> bankSms(PendingUpiPayment payment) async {
+    final amount = upiAmountMinor(
+      payment.amountText.isEmpty
+          ? payment.recipient.amount
+          : payment.amountText,
+    );
+    if (amount == null || payment.isTransfer) return null;
+    return upiPaymentSms(database, amountMinor: amount, date: payment.date);
+  }
+
   Future<void> delete(String id) => database.customStatement(
     'DELETE FROM pending_upi_payments WHERE id = ?',
     [id],
@@ -157,22 +170,52 @@ class UpiRepository {
           payment.accountId == payment.toAccountId) {
         throw StateError('Choose two different existing INR accounts.');
       }
-      await TransactionRepository(database).addTransfer(
-        amountMinor: upiAmountMinor(payment.amountText)!,
+      final amountMinor = upiAmountMinor(payment.amountText)!;
+      final ledger = TransactionRepository(database);
+      final note = [
+        'UPI • ${payment.recipient.address} • Payment confirmed by you',
+        if (payment.recipient.name != payment.recipient.address)
+          payment.recipient.name,
+        if (payment.place != null) 'Near ${payment.place}',
+        if (payment.title?.trim().isNotEmpty == true) payment.title!.trim(),
+        if (payment.note?.trim().isNotEmpty == true) payment.note!.trim(),
+      ].join('\n');
+      // The payment and its bank SMS are one: the expense the SMS saved
+      // becomes this transfer rather than a second entry being added.
+      final saved = await smsExpenseForUpiPayment(
+        database,
+        accountId: payment.accountId!,
+        amountMinor: amountMinor,
+        date: payment.date,
+      );
+      if (saved != null) {
+        await ledger.convertToTransfer(
+          id: saved.id,
+          fromAccountId: payment.accountId!,
+          toAccountId: payment.toAccountId!,
+        );
+        await database.customStatement(
+          'UPDATE transactions SET note = ? WHERE id = ?',
+          [saved.note == null ? note : '$note\n\n${saved.note}', saved.id],
+        );
+        await delete(id);
+        return true;
+      }
+      final transactionId = await ledger.addTransfer(
+        amountMinor: amountMinor,
         fromAccountId: payment.accountId!,
         toAccountId: payment.toAccountId!,
         date: payment.date,
-        note: [
-          'UPI • ${payment.recipient.address} • Payment confirmed by you',
-          if (payment.recipient.name != payment.recipient.address)
-            payment.recipient.name,
-          if (payment.place != null) 'Near ${payment.place}',
-          if (payment.title?.trim().isNotEmpty == true) payment.title!.trim(),
-          if (payment.note?.trim().isNotEmpty == true) payment.note!.trim(),
-        ].join('\n'),
+        note: note,
       );
       await delete(id);
-      return false;
+      return joinPendingSmsToUpiExpense(
+        database,
+        transactionId: transactionId,
+        accountId: payment.accountId!,
+        amountMinor: amountMinor,
+        date: payment.date,
+      );
     }
     final category = await database
         .customSelect(

@@ -114,8 +114,8 @@ class CategoryRepository {
     if (existing == null) {
       await database.customInsert(
         '''INSERT INTO categories
-        (name, type, icon, parent_id, sort_order)
-        VALUES (?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM categories))''',
+        (id, name, type, icon, parent_id, sort_order)
+        VALUES (${newRowId('categories')}, ?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM categories))''',
         variables: [
           Variable(cleanName),
           Variable(type.storageValue),

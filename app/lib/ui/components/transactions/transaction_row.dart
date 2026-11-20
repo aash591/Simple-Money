@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../theme/app_typography.dart';
 
+/// The checkbox and icon, with their padding: where a tap selects the row.
+const _selectZone = 4.0 + 40 + 40 + 8;
+
 /// One money movement in a list: icon, title, subtitle, amount and when.
 ///
 /// Knows nothing about where the movement came from, so saved transactions,
@@ -17,6 +20,7 @@ class TransactionRow extends StatelessWidget {
     required this.amountColor,
     required this.stamp,
     this.onTap,
+    this.onLongPress,
     this.subtitleColor,
     this.selected,
     this.onSelected,
@@ -28,6 +32,7 @@ class TransactionRow extends StatelessWidget {
   final String title, subtitle, amount, stamp;
   final Color amountColor;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   /// For a subtitle that needs action, such as a missing account.
   final Color? subtitleColor;
@@ -131,10 +136,26 @@ class TransactionRow extends StatelessWidget {
         },
       ),
     );
+    // While picking, a tap on the checkbox or icon selects the row and a tap
+    // anywhere else does [onTap] (open it); the ripple is the whole row's
+    // either way, so where the tap landed decides which one runs.
+    final picking = selected != null && onSelected != null;
+    var inSelectZone = false;
     return Opacity(
       opacity: dimmed ? .55 : 1,
       child: InkWell(
-        onTap: dimmed ? null : onTap,
+        onTapDown: (details) =>
+            inSelectZone = picking && details.localPosition.dx < _selectZone,
+        onTap: dimmed
+            ? null
+            : () {
+                if (inSelectZone) {
+                  onSelected!(!selected!);
+                } else {
+                  onTap?.call();
+                }
+              },
+        onLongPress: dimmed ? null : onLongPress,
         child: Semantics(
           button: onTap != null && !dimmed,
           label: '$title, $subtitle, $amount, $stamp',

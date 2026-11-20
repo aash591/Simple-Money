@@ -538,8 +538,8 @@ class _DebtSheetState extends State<DebtSheet> {
   String get _flowTitle => switch (_chosenKind) {
     DebtKind.lend => 'Lend money',
     DebtKind.borrow => 'Borrow money',
-    DebtKind.collect => 'Got paid',
-    DebtKind.repay => 'Pay back',
+    DebtKind.collect => 'Record payment received',
+    DebtKind.repay => 'Record payback',
     null => 'Add a debt',
   };
 

@@ -38,11 +38,13 @@ dependencies:
   in_app_purchase_android: ^0.5.5
   cryptography: ^2.9.0
   flutter_secure_storage: ^11.2.0
+  in_app_update: ^5.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  fake_async: ^1.3.3
   flutter_launcher_icons: ^0.14.4
   integration_test:
     sdk: flutter
@@ -108,7 +110,43 @@ flutter:
     - assets/data/UNICODE-LICENSE.txt
     - assets/flags/
     - assets/icon_packs/3d/
-    - assets/icon_packs/brands/
+    - assets/icon_packs/logos/brands/
+    - assets/icon_packs/logos/banks/algeria/
+    - assets/icon_packs/logos/banks/australia/
+    - assets/icon_packs/logos/banks/bangladesh/
+    - assets/icon_packs/logos/banks/brazil/
+    - assets/icon_packs/logos/banks/canada/
+    - assets/icon_packs/logos/banks/egypt/
+    - assets/icon_packs/logos/banks/el_salvador/
+    - assets/icon_packs/logos/banks/ethiopia/
+    - assets/icon_packs/logos/banks/france/
+    - assets/icon_packs/logos/banks/gabon/
+    - assets/icon_packs/logos/banks/germany/
+    - assets/icon_packs/logos/banks/india/
+    - assets/icon_packs/logos/banks/indonesia/
+    - assets/icon_packs/logos/banks/iran/
+    - assets/icon_packs/logos/banks/israel/
+    - assets/icon_packs/logos/banks/kenya/
+    - assets/icon_packs/logos/banks/mauritius/
+    - assets/icon_packs/logos/banks/morocco/
+    - assets/icon_packs/logos/banks/mozambique/
+    - assets/icon_packs/logos/banks/nepal/
+    - assets/icon_packs/logos/banks/nigeria/
+    - assets/icon_packs/logos/banks/pakistan/
+    - assets/icon_packs/logos/banks/russia/
+    - assets/icon_packs/logos/banks/saudi_arabia/
+    - assets/icon_packs/logos/banks/singapore/
+    - assets/icon_packs/logos/banks/south_africa/
+    - assets/icon_packs/logos/banks/spain/
+    - assets/icon_packs/logos/banks/sri_lanka/
+    - assets/icon_packs/logos/banks/switzerland/
+    - assets/icon_packs/logos/banks/tanzania/
+    - assets/icon_packs/logos/banks/thailand/
+    - assets/icon_packs/logos/banks/togo/
+    - assets/icon_packs/logos/banks/turkey/
+    - assets/icon_packs/logos/banks/united_arab_emirates/
+    - assets/icon_packs/logos/banks/united_kingdom/
+    - assets/icon_packs/logos/banks/united_states/
   shaders:
     - shaders/liquid_glass.frag
 

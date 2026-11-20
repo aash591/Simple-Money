@@ -21,6 +21,7 @@ import '../components/common.dart';
 import '../components/menu_list.dart';
 import '../components/feature_page.dart';
 import '../components/status_bar_blur_scope.dart';
+import 'activity/activity_log_screen.dart';
 import 'debts/debts_screen.dart';
 import 'about/about_screen.dart';
 import '../../data/agent/ai_session.dart';
@@ -29,7 +30,9 @@ import 'ai/ai_suggestions_screen.dart';
 import 'help/help_screen.dart';
 import 'pro/pro_screen.dart';
 import 'settings/settings_screen.dart';
+import '../../state/holding_store.dart';
 import 'accounts/accounts_screen.dart';
+import 'portfolio/portfolio_screens.dart';
 import 'categories/categories_screen.dart';
 import 'settings/sync/sync_screen.dart';
 import 'statements/statement_file.dart';
@@ -150,6 +153,21 @@ class MoreScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (HoldingStoreScope.maybeOf(context) case final holdings?)
+                      MenuRow(
+                        icon: Icons.show_chart_rounded,
+                        title: 'Portfolio',
+                        subtitle: 'Stocks and mutual funds, by broker',
+                        onTap: () => Navigator.of(context).push(
+                          FeatureRoute<void>(
+                            PortfolioScreen(
+                              accounts: store,
+                              holdings: holdings,
+                              transactions: transactionStore,
+                            ),
+                          ),
+                        ),
+                      ),
                     MenuRow(
                       icon: Icons.category_rounded,
                       title: 'Categories',
@@ -199,7 +217,7 @@ class MoreScreen extends StatelessWidget {
                   children: [
                     if (syncController != null)
                       MenuRow(
-                        icon: Icons.upload_file_rounded,
+                        icon: Icons.file_download_rounded,
                         title: 'Import statement',
                         subtitle: 'UPI app PDF, or any CSV or Excel export',
                         onTap: () => Navigator.of(context).push(
@@ -239,6 +257,23 @@ class MoreScreen extends StatelessWidget {
                       ),
                     ),
                     MenuRow(
+                      icon: Icons.history_rounded,
+                      title: 'History',
+                      subtitle: 'Every added, edited and deleted transaction',
+                      onTap: () => Navigator.of(context).push(
+                        FeatureRoute<void>(
+                          ActivityLogScreen(
+                            database: transactionStore.repository.database,
+                            accounts: store,
+                            categories: categoryStore,
+                            transactions: transactionStore,
+                            sync: syncController,
+                            onLedgerChanged: onLedgerChanged,
+                          ),
+                        ),
+                      ),
+                    ),
+                    MenuRow(
                       icon: Icons.help_rounded,
                       title: 'Help',
                       subtitle: 'FAQ, reports and community',
@@ -262,6 +297,7 @@ class MoreScreen extends StatelessWidget {
                       listenable: ProController.instance,
                       builder: (context, _) => MenuRow(
                         icon: Icons.workspace_premium_rounded,
+                        tint: const Color(0xfff2a900),
                         highlight: true,
                         title: 'SimpleMoney Pro',
                         subtitle: ProController.instance.isPro

@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS agent_suggestions (
   kind TEXT NOT NULL
     CHECK(kind IN ('new_category', 'sms_correction', 'transaction_edit',
       'parser_rule', 'statement_layout', 'new_loan', 'debt_entry',
-      'transaction_add', 'recurring_payment')),
+      'transaction_add', 'recurring_payment', 'account')),
   target TEXT NOT NULL,
   payload TEXT NOT NULL,
   before TEXT,
@@ -138,6 +138,34 @@ CREATE TABLE IF NOT EXISTS user_sms_rules (
   created_at INTEGER NOT NULL
 )
 ''';
+
+// What messages of one layout from one sender really are, when the bank's
+// wording misleads (see data/repositories/sms_corrections.dart). Learned
+// from the user, so synced since v47.
+const _createSmsCorrectionsTable = '''
+CREATE TABLE IF NOT EXISTS sms_corrections (
+  sender TEXT NOT NULL, rule_id TEXT NOT NULL, direction TEXT,
+  loan_id INTEGER, category_id INTEGER, created_at INTEGER NOT NULL,
+  PRIMARY KEY(sender, rule_id)
+)
+''';
+
+// What the user taught the app about bank and UPI statements (see
+// data/repositories/statement_import_repository.dart): spreadsheet layouts by
+// header signature, which app account each statement account goes to, and
+// who the statements say the user is. Synced since v47; before that they were
+// device-only SharedPreferences, moved here on first use.
+const _createStatementTables = [
+  '''CREATE TABLE IF NOT EXISTS statement_layouts (
+  signature TEXT PRIMARY KEY, mapping TEXT NOT NULL CHECK(json_valid(mapping))
+)''',
+  '''CREATE TABLE IF NOT EXISTS statement_account_links (
+  statement_key TEXT PRIMARY KEY, account_id INTEGER NOT NULL
+)''',
+  '''CREATE TABLE IF NOT EXISTS statement_owner (
+  id INTEGER PRIMARY KEY CHECK(id = 1), data TEXT NOT NULL CHECK(json_valid(data))
+)''',
+];
 
 // Shared fixes from other users (see data/community/community_fixes.dart):
 // SMS formats and statement layouts, as last downloaded. Device-local,

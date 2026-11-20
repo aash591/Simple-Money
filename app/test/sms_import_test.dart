@@ -79,6 +79,8 @@ void main() {
   late PortableSmsEngine engine;
   late FakeInbox inbox;
   late SmsImportStore store;
+  late int bank;
+  late int savings;
   Future<void> tapAndReload(WidgetTester tester, Finder finder) async {
     await tester.runAsync(() async {
       final reloaded = Completer<void>();
@@ -144,16 +146,16 @@ void main() {
       engineLoader: () async => engine,
       autoImport: false,
     );
-    await AccountRepository(db)
+    bank = await AccountRepository(db)
         .save(name: 'Bank', currency: 'INR', digits: 2, openingBalance: 100000);
-    await AccountRepository(db)
+    savings = await AccountRepository(db)
         .save(name: 'Savings', currency: 'INR', digits: 2, openingBalance: 0);
   });
   test('bank mappings persist and separate account suffixes', () async {
     await enqueue();
     final row = (await repo.pending()).single;
-    await store.linkAccount(row, 1);
-    expect((await SmsImportRepository(db).accountLinks())[row.bankKey], 1);
+    await store.linkAccount(row, bank);
+    expect((await SmsImportRepository(db).accountLinks())[row.bankKey], bank);
     final other = PendingSmsImport(
       id: 'other',
       sender: row.sender,
@@ -225,7 +227,7 @@ void main() {
       row,
       type: TransactionType.expense,
       amountMinor: row.amountMinor,
-      accountId: 1,
+      accountId: bank,
       categoryId: category.id,
       date: row.receivedAt,
     );
@@ -252,7 +254,7 @@ void main() {
         row,
         type: TransactionType.expense,
         amountMinor: row.amountMinor,
-        accountId: 1,
+        accountId: bank,
         categoryId: category.id,
         date: row.receivedAt,
       );
@@ -311,7 +313,7 @@ void main() {
           pending,
           type: TransactionType.income,
           amountMinor: pending.amountMinor,
-          accountId: 1,
+          accountId: bank,
           date: message.receivedAt,
         ),
         throwsStateError,
@@ -322,7 +324,7 @@ void main() {
         pending,
         type: TransactionType.transfer,
         amountMinor: pending.amountMinor,
-        accountId: 1,
+        accountId: bank,
         toAccountId: cardId,
         date: message.receivedAt,
       );
@@ -333,7 +335,7 @@ void main() {
       expect(await repo.pending(), isEmpty);
       final balances = await AccountRepository(db).load();
       expect(balances.singleWhere((a) => a.id == cardId).balanceMinor, -35545);
-      expect(balances.singleWhere((a) => a.id == 1).balanceMinor, -64455);
+      expect(balances.singleWhere((a) => a.id == bank).balanceMinor, -64455);
     },
   );
   test(
@@ -432,7 +434,7 @@ void main() {
       await enqueue();
       await store.reload();
       final sms = store.pending.single;
-      await repo.linkAccount(sms, 1);
+      await repo.linkAccount(sms, bank);
       await store.reload();
       expect(store.readyCount, 1);
       final revision = store.reviewRevision;
@@ -456,7 +458,7 @@ void main() {
       expect(reopened.pendingCount, 1);
       expect(reopened.readyCount, 1);
       await db.customStatement(
-        "UPDATE accounts SET name='Renamed bank' WHERE id=1",
+        "UPDATE accounts SET name='Renamed bank' WHERE id=$bank",
       );
       await store.reload();
       expect(store.reviewRevision, greaterThan(revision));
@@ -464,7 +466,7 @@ void main() {
         await store.review.count(const SmsReviewFilter(search: 'Renamed bank')),
         1,
       );
-      await db.customStatement('UPDATE accounts SET archived_at=1 WHERE id=1');
+      await db.customStatement('UPDATE accounts SET archived_at=1 WHERE id=$bank');
       await store.reload();
       expect(store.readyCount, 0);
     },
@@ -584,7 +586,7 @@ void main() {
         row,
         type: TransactionType.expense,
         amountMinor: row.amountMinor,
-        accountId: 1,
+        accountId: bank,
         categoryId: category.id,
         date: row.receivedAt,
       );
@@ -627,8 +629,8 @@ void main() {
     await enqueue();
     await store.reload();
     final sms = store.pending.single;
-    await store.linkAccount(sms, 2);
-    expect(store.accountLinks[sms.bankKey], 2);
+    await store.linkAccount(sms, savings);
+    expect(store.accountLinks[sms.bankKey], savings);
     final groceries = (await CategoryRepository(
       db,
     ).load()).firstWhere((c) => c.name == 'Groceries');
@@ -638,7 +640,7 @@ void main() {
     await store.reload();
     expect(store.pending, isEmpty);
     final saved = (await TransactionRepository(db).load()).single;
-    expect(saved.accountId, 2);
+    expect(saved.accountId, savings);
     expect(saved.categoryId, groceries.id);
   });
   testWidgets('with SMS off and nothing to review, Home shows no card', (
@@ -875,7 +877,7 @@ void main() {
         pending,
         type: TransactionType.expense,
         amountMinor: 50000,
-        accountId: 1,
+        accountId: bank,
         categoryId: category.id,
         title: 'Reviewed title',
         date: pending.receivedAt,
@@ -927,8 +929,8 @@ void main() {
       item,
       type: TransactionType.transfer,
       amountMinor: item.amountMinor,
-      accountId: 1,
-      toAccountId: 2,
+      accountId: bank,
+      toAccountId: savings,
       date: item.receivedAt,
     );
     expect(await repo.pending(), isEmpty);
@@ -1287,7 +1289,7 @@ void main() {
       await tester.runAsync(() async {
         await enqueue();
         row = (await repo.pending()).single;
-        await store.linkAccount(row, 1);
+        await store.linkAccount(row, bank);
         await LoanRepository(db).add(
           LoanTerms(
             lender: loanName,
@@ -1306,7 +1308,7 @@ void main() {
             currency: 'INR',
             digits: 2,
           ),
-          1,
+          bank,
         );
         all = await stores();
         loans = LoanStore(
@@ -1408,7 +1410,7 @@ void main() {
     await repo.enqueue(message, engine.parse(message));
     final row = (await repo.pending()).single;
     expect(row.isAtmWithdrawal, isTrue);
-    await tester.runAsync(() => store.linkAccount(row, 1));
+    await tester.runAsync(() => store.linkAccount(row, bank));
     final (a, c, t) = await stores();
     addTearDown(a.dispose);
     addTearDown(c.dispose);
@@ -1442,7 +1444,7 @@ void main() {
         row,
         type: TransactionType.expense,
         amountMinor: 50000,
-        accountId: 1,
+        accountId: bank,
         date: message.receivedAt,
       ),
       throwsStateError,
@@ -1452,8 +1454,8 @@ void main() {
         row,
         type: TransactionType.transfer,
         amountMinor: 50000,
-        accountId: 1,
-        toAccountId: 2,
+        accountId: bank,
+        toAccountId: savings,
         date: message.receivedAt,
       ),
       throwsStateError,
@@ -1462,7 +1464,7 @@ void main() {
       row,
       type: TransactionType.transfer,
       amountMinor: 50000,
-      accountId: 1,
+      accountId: bank,
       toAccountId: cashId,
       date: message.receivedAt,
     );
@@ -1470,7 +1472,7 @@ void main() {
     expect(saved.type, TransactionType.transfer);
     expect(saved.toAccountId, cashId);
     final accounts = await AccountRepository(db).load();
-    expect(accounts.singleWhere((a) => a.id == 1).balanceMinor, 50000);
+    expect(accounts.singleWhere((a) => a.id == bank).balanceMinor, 50000);
     expect(accounts.singleWhere((a) => a.id == cashId).balanceMinor, 50000);
     expect(
       smsCashAccount(row, [
@@ -1571,7 +1573,7 @@ void main() {
           final saved = (await tester.runAsync(TransactionRepository(db).load))!
               .single;
           expect(saved.title, isNotEmpty);
-          expect(saved.accountId, 1);
+          expect(saved.accountId, bank);
           expect(saved.categoryId, isNotNull);
         }
         expect(tester.takeException(), isNull);

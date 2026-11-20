@@ -29,32 +29,40 @@ const _darkGridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
 // Only real logo assets are offered in the picker. Legacy text-wordmark
 // keys still render for saved data, but are intentionally not selectable.
 final _serviceKeys = brandIcons
-    .where((brand) => !brand.isBank && !brand.isPayment)
+    .where((brand) => !brand.isBank && !brand.isPayment && !brand.isBroker)
     .map((brand) => brandIconKey(brand.key))
     .toList();
 
 final _paymentKeys = brandIcons
-    .where((brand) => brand.isPayment)
+    .where((brand) => brand.isPayment && !brand.isBroker)
     .map((brand) => brandIconKey(brand.key))
     .toList();
 
-const _bankCountryOrder = [
-  'India',
-  'Indonesia',
-  'United States',
-  'United Kingdom',
-  'Germany',
-  'Spain',
-  'Switzerland',
-  'Brazil',
-];
+// Brokers and investing platforms from every country, A-Z by name. They are
+// kept out of the Banks tab, so a bank list isn't mixed with trading apps.
+final _brokerKeys =
+    (brandIcons.where((brand) => brand.isBroker).toList()..sort(
+          (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()),
+        ))
+        .map((brand) => brandIconKey(brand.key))
+        .toList();
+
+// Every country in the catalog, A-Z, so newly added banks show up
+// without editing a list.
+final _bankCountries =
+    (brandIcons
+        .where((b) => b.bankCountry != null && !b.isBroker)
+        .map((b) => b.bankCountry!)
+        .toSet()
+        .toList()
+      ..sort());
 
 final _bankSections = [
-  for (final country in _bankCountryOrder)
+  for (final country in _bankCountries)
     (
-      title: 'Banks - $country',
+      title: country,
       keys: brandIcons
-          .where((brand) => brand.bankCountry == country)
+          .where((brand) => brand.bankCountry == country && !brand.isBroker)
           .map((brand) => brandIconKey(brand.key))
           .toList(),
     ),
@@ -109,7 +117,8 @@ class _SelectIconScreenState extends State<SelectIconScreen>
   static int _tabFor(String? key) {
     final brand = resolveBrandIcon(key);
     if (brand == null) return 0;
-    return brand.isBank ? 2 : 1;
+    // Brokers sit with the services, not the banks.
+    return brand.isBank && !brand.isBroker ? 2 : 1;
   }
 
   @override
@@ -121,35 +130,7 @@ class _SelectIconScreenState extends State<SelectIconScreen>
   }
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    if (theme.brightness != Brightness.dark) return _buildPage(context);
-    return Theme(
-      data: theme.copyWith(
-        scaffoldBackgroundColor: const Color(0xff101315),
-        colorScheme: theme.colorScheme.copyWith(
-          primary: const Color(0xff0095ff),
-          onSurface: const Color(0xfff5f5f5),
-          onSurfaceVariant: const Color(0xffc5cfd8),
-        ),
-        tabBarTheme: const TabBarThemeData(
-          labelColor: Color(0xff0095ff),
-          unselectedLabelColor: Color(0xffadb4bf),
-          dividerColor: Color(0xff303437),
-          indicatorColor: Color(0xff0095ff),
-          indicatorSize: TabBarIndicatorSize.label,
-          labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-          unselectedLabelStyle: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-      child: Builder(builder: _buildPage),
-    );
-  }
-
-  Widget _buildPage(BuildContext context) => PopScope(
+  Widget build(BuildContext context) => PopScope(
     canPop: !_searching,
     onPopInvokedWithResult: (didPop, result) {
       if (!didPop) _cancelSearch();
@@ -216,6 +197,7 @@ class _SelectIconScreenState extends State<SelectIconScreen>
                               title: 'Payments, cards & shopping',
                               keys: _paymentKeys,
                             ),
+                            (title: 'Brokers', keys: _brokerKeys),
                           ],
                           selectedKey: widget.selectedKey,
                           query: _search.text.trim().toLowerCase(),

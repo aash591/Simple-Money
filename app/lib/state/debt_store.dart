@@ -59,14 +59,24 @@ class DebtStore extends ChangeNotifier {
   PersonDebts? personById(int id) =>
       _people.where((debts) => debts.person.id == id).firstOrNull;
 
+  /// Only the first load shows as loading; reloads keep the list on screen
+  /// (see TransactionStore.load).
+  bool _loaded = false;
+
   Future<void> load() async {
-    loading = true;
-    loadError = null;
-    _notify();
+    if (!_loaded) {
+      loading = true;
+      loadError = null;
+      _notify();
+    }
     try {
       await _reload();
+      _loaded = true;
+      loadError = null;
     } catch (_) {
-      loadError = 'Your debts could not be loaded. Please try again.';
+      if (!_loaded) {
+        loadError = 'Your debts could not be loaded. Please try again.';
+      }
     }
     loading = false;
     _notify();

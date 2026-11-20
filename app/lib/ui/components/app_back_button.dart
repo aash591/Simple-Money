@@ -1,7 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
+import 'glass_blur.dart';
 import 'glass_button.dart';
 import '../theme/app_theme.dart' show usesGlass;
 import 'more_popup_button.dart';
@@ -136,12 +135,9 @@ class GlassDisc extends StatelessWidget {
           : GlassRim(dark: dark, solid: false, radius: radius),
       child: ClipRRect(
         borderRadius: radius,
-        child: BackdropFilter.grouped(
-          enabled: usesGlass(context),
-          filter: ImageFilter.blur(
-            sigmaX: SearchField.blurSigma,
-            sigmaY: SearchField.blurSigma,
-          ),
+        child: Frosted(
+          enabled: usesGlass(context) && GlassBlur.of(context),
+          sigma: SearchField.blurSigma,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 120),
             decoration: BoxDecoration(

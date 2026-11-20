@@ -127,8 +127,7 @@ internal fun refreshQuickActionWidgets(context: Context) {
 
 /**
  * Long-press app icon shortcuts. Published at runtime rather than from a
- * static shortcuts.xml, which would hardcode the package and miss the
- * .profile build's suffixed application id.
+ * static shortcuts.xml, which would hardcode the package name.
  */
 object QuickShortcuts {
     /** Intent extra marking a launch from an app-icon shortcut; see QuickEntryActivity. */

@@ -1,8 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../../data/device_performance.dart';
+import 'cached_shadow.dart';
+import 'glass_blur.dart';
 import 'glass_surface.dart' show glassCardFill;
 import 'inner_glow.dart';
 import '../../state/appearance_controller.dart' show AppearanceScope;
@@ -33,6 +33,10 @@ class FrostedModalSurface extends StatelessWidget {
   /// have, so the surface lifts off the page behind it.
   final List<BoxShadow>? shadows;
 
+  /// How much black lies under dark glass, from 0 to 1. A little, so the
+  /// sheet reads a touch darker while keeping its sheen (56-74% dulled it).
+  static const darkUnderlay = 0.25;
+
   static List<BoxShadow> _defaultShadows(bool dark) => [
     BoxShadow(
       color: Colors.black.withValues(alpha: dark ? .5 : .24),
@@ -49,7 +53,13 @@ class FrostedModalSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = Material(type: MaterialType.transparency, child: child);
+    // A menu opened from a page's header is not on the page backdrop itself.
+    final content = GlassBlur(
+      enabled: true,
+      child: PageFrostHost.none(
+        child: Material(type: MaterialType.transparency, child: child),
+      ),
+    );
     final reveal = PopupReveal.maybeOf(context);
     if (reveal == null) return _surface(context, 1, content);
     return AnimatedBuilder(
@@ -65,10 +75,12 @@ class FrostedModalSurface extends StatelessWidget {
         _defaultShadows(Theme.of(context).brightness == Brightness.dark);
     final surface = _paint(context, visibility, content);
     if (shadows.isEmpty) return surface;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: borderRadius,
-        boxShadow: [
+    // From cached images, as the cards' are: two wide blurs under a sheet
+    // were redrawn on every frame of it sliding in.
+    return CustomPaint(
+      painter: BoxShadowPainter(
+        radius: borderRadius,
+        shadows: [
           for (final shadow in shadows)
             shadow.copyWith(
               color: shadow.color.withValues(
@@ -99,6 +111,53 @@ class FrostedModalSurface extends StatelessWidget {
     final dark = Theme.of(context).brightness == Brightness.dark;
     // The native blur behind Quick Entry still needs a see-through tint.
     final solid = DevicePerformance.lowEnd && !NativeModalBlur.enabled;
+    if (solid && usesAurora(context)) {
+      return ValueListenableBuilder<Object?>(
+        valueListenable: ShownBackdrop.image,
+        builder: (context, shown, _) => shown == null
+            ? _painted(context, visibility, content, solid: true, dark: dark)
+            : _onBackdrop(context, visibility, content, dark: dark),
+      );
+    }
+    return _painted(context, visibility, content, solid: solid, dark: dark);
+  }
+
+  /// Low-end Aurora: no blur, but not a flat colour either. Like a Home
+  /// card, the surface is the page's own backdrop (the glow, or the picture
+  /// already frosted) under the card's glass, drawn from the image the page
+  /// keeps and pinned to the screen as the surface moves.
+  Widget _onBackdrop(
+    BuildContext context,
+    double visibility,
+    Widget content, {
+    required bool dark,
+  }) {
+    final fill = glassCardFill(context) as LinearGradient;
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: CustomPaint(
+        foregroundPainter: _GlassRim(borderRadius, dark, visibility),
+        child: Stack(
+          fit: StackFit.passthrough,
+          children: [
+            Positioned.fill(child: ShownBackdropFill(opacity: visibility)),
+            DecoratedBox(
+              decoration: BoxDecoration(gradient: fill.scale(visibility)),
+              child: Opacity(opacity: visibility, child: content),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _painted(
+    BuildContext context,
+    double visibility,
+    Widget content, {
+    required bool solid,
+    required bool dark,
+  }) {
     // The frost is made from the theme itself: the page's own base colour
     // with a wash of the accent, so a menu, alert or sheet reads as part of
     // the same glass as the cards. Over a chosen picture it lets more of the
@@ -114,42 +173,44 @@ class FrostedModalSurface extends StatelessWidget {
             scheme.primary.withValues(alpha: .06),
             Colors.white,
           ).withValues(alpha: solid ? .96 : (picture ? .58 : .7));
+    final Color base;
+    if (solid) {
+      base = (dark ? tint : SheetColors.lightSheetBase(context)).withValues(
+        alpha: (dark ? tint.a : .96) * visibility,
+      );
+    } else if (!dark) {
+      base = SheetColors.lightSheetBase(context)
+          .withValues(alpha: (picture ? .72 : .84) * visibility);
+    } else {
+      // Dark glass is the frost and the glass fill alone: a flat dark layer
+      // under it (tried at 56-74% black) dulled the sheen and the lit edge
+      // that make it read as glass. [darkUnderlay] dials one in.
+      base = Colors.black.withValues(alpha: darkUnderlay * visibility);
+    }
     Widget surface = CustomPaint(
       foregroundPainter: _GlassRim(borderRadius, dark, visibility),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          // No tint of its own: the blur and the cards' own glass fill. Only
-          // phones that can't blur get a near-opaque colour instead.
-          color: solid
-              ? (dark ? tint : SheetColors.lightSheetBase(context)).withValues(
-                  alpha: (dark ? tint.a : .96) * visibility,
-                )
-              : (dark
-                    // A dark underlay cancels the whitish haze that the glass
-                    // fill and a sheet stacked behind this one add up to.
-                    ? Colors.black.withValues(alpha: .5 * visibility)
-                    : SheetColors.lightSheetBase(
-                        context,
-                      ).withValues(alpha: (picture ? .72 : .84) * visibility)),
-          gradient: solid || !dark
-              ? null
-              : (glassCardFill(context) as LinearGradient).scale(
-                  .55 * visibility,
-                ),
+      child: ColoredBox(
+        color: base,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: solid || !dark
+                ? null
+                : (glassCardFill(context) as LinearGradient).scale(
+                    .55 * visibility,
+                  ),
+          ),
+          // Fully opaque, this paints its child directly with no extra layer.
+          child: Opacity(opacity: visibility, child: content),
         ),
-        // Fully opaque, this paints its child directly with no extra layer.
-        child: Opacity(opacity: visibility, child: content),
       ),
     );
     // Over the launcher (Quick Entry, SMS popup) Flutter has nothing behind
     // the sheet to blur; Android's own blur does it, so skip a costly no-op.
     if (!solid && !NativeModalBlur.enabled) {
       // Ramping the blur up with the tint keeps it from snapping on.
-      final sigma = blurSigma * visibility;
-      surface = BackdropFilter(
-        enabled: sigma > .5,
-        filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+      surface = ScreenFrost(
+        sigma: blurSigma,
+        visibility: visibility,
         child: surface,
       );
     }

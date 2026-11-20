@@ -69,6 +69,13 @@ class LoanValue extends StatelessWidget {
   );
 }
 
+/// A field for typing into a loan form: an outlined, card-filled box with
+/// its [label] always above it, as [SheetTextField] draws one, so it reads
+/// as somewhere to type rather than another line of text.
+///
+/// [placeholder] shows inside the empty box (what leaving it blank means),
+/// [prefix] before what is typed (the currency), and [hint] a short note
+/// under the box.
 class LoanField extends StatelessWidget {
   const LoanField(
     this.controller,
@@ -76,34 +83,73 @@ class LoanField extends StatelessWidget {
     super.key,
     this.numeric = true,
     this.hint,
+    this.placeholder,
+    this.prefix,
     this.onChanged,
   });
   final TextEditingController controller;
   final String label;
   final bool numeric;
   final String? hint;
+  final String? placeholder;
+  final String? prefix;
   final VoidCallback? onChanged;
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 16),
-    child: TextField(
-      controller: controller,
-      keyboardType: numeric
-          ? const TextInputType.numberWithOptions(decimal: true)
-          : TextInputType.text,
-      textCapitalization: numeric
-          ? TextCapitalization.none
-          : TextCapitalization.words,
-      maxLength: numeric ? 16 : 40,
-      onChanged: (_) => onChanged?.call(),
-      decoration: InputDecoration(
-        labelText: label,
-        helperText: hint,
-        counterText: '',
-        helperMaxLines: 3,
+  Widget build(BuildContext context) {
+    final colors = SheetColors.of(context);
+    OutlineInputBorder border(Color color, [double width = 1]) =>
+        OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: color, width: width),
+        );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextField(
+        controller: controller,
+        keyboardType: numeric
+            ? const TextInputType.numberWithOptions(decimal: true)
+            : TextInputType.text,
+        textCapitalization: numeric
+            ? TextCapitalization.none
+            : TextCapitalization.words,
+        textInputAction: TextInputAction.done,
+        maxLength: numeric ? 16 : 40,
+        onChanged: (_) => onChanged?.call(),
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: colors.text,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          hintText: placeholder,
+          hintStyle: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w400,
+            color: colors.muted,
+          ),
+          prefixText: prefix == null ? null : '$prefix ',
+          prefixStyle: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: colors.muted,
+          ),
+          helperText: hint,
+          helperMaxLines: 3,
+          helperStyle: TextStyle(fontSize: 12.5, color: colors.muted),
+          counterText: '',
+          isDense: true,
+          contentPadding: const EdgeInsets.fromLTRB(14, 16, 14, 14),
+          filled: true,
+          fillColor: colors.card,
+          border: border(colors.outline),
+          enabledBorder: border(colors.outline),
+          focusedBorder: border(colors.primary, 1.5),
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class LoanFormActions extends StatelessWidget {

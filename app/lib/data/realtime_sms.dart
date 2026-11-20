@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
@@ -13,8 +14,13 @@ import 'repositories/account_repository.dart';
 import 'repositories/category_repository.dart';
 import 'repositories/realtime_sms_repository.dart';
 import 'repositories/sms_import_repository.dart';
+import 'repositories/upi_sms_match.dart';
 
 const smsNotificationChannel = MethodChannel('simple_money/sms_notifications');
+
+/// The UPI scan's own notifications: its "Did you pay?" reminder and what
+/// became of the payment.
+const _upiNotifications = MethodChannel('simple_money/upi_notifications');
 
 Future<void> showSmsNotification(AppDatabase db, LiveSms live) async {
   await _showSingleNotification(db, live);
@@ -47,7 +53,26 @@ Future<void> _showSingleNotification(AppDatabase db, LiveSms live) async {
   final categoryName = other != null
       ? 'Transferred'
       : category?.name ?? 'Uncategorised';
-  final name = smsDisplayName(party);
+  // The UPI scan this message reports, still waiting to be saved: the
+  // notification speaks of that payment, and its "Did you pay?" goes.
+  final upi = other == null && confirmation == null
+      ? await pendingUpiForSms(db, live.sms)
+      : null;
+  if (upi != null) {
+    try {
+      await _upiNotifications.invokeMethod<void>('cancel', upi.id);
+    } catch (_) {}
+  }
+  final upiName = upi == null
+      ? ''
+      : smsDisplayName(
+          upi.recipient.hasMeaningfulName
+              ? upi.recipient.name
+              : upi.recipient.isLegacyPhone
+              ? null
+              : upi.recipient.address,
+        );
+  final name = upiName.isNotEmpty ? upiName : smsDisplayName(party);
   final credit = live.sms.credit;
   final amount =
       '${currencyPrefix(live.sms.currency)}'
@@ -62,9 +87,13 @@ Future<void> _showSingleNotification(AppDatabase db, LiveSms live) async {
             : 'Sent $amount to ${other.name}')
       : credit
       ? 'Received $amount${name.isEmpty ? '' : ' from $name'}'
+      : upi != null
+      ? 'Paid $amount${name.isEmpty ? '' : ' to $name'} with UPI'
       : 'Spent $amount${name.isEmpty ? '' : ' at $name'}';
   final question = other != null
       ? 'Transfer'
+      : upi != null
+      ? 'Bank confirmed your UPI scan · Tap a category to finish'
       : credit
       ? 'Where is this from?'
       : 'What was this for?';
@@ -105,6 +134,43 @@ Future<void> _showSingleNotification(AppDatabase db, LiveSms live) async {
     'newAccount': newAccount,
     'receivedAt': live.sms.receivedAt.millisecondsSinceEpoch,
   });
+}
+
+/// When [message] was the bank's SMS for a UPI payment already saved in the
+/// scan flow, it joined that expense without a notification of its own. Say
+/// so, rather than nothing: the bank confirmed the payment.
+Future<void> _showUpiConfirmed(AppDatabase db, BankSms message) async {
+  final id = sha256
+      .convert(
+        utf8.encode(
+          jsonEncode([
+            message.sender,
+            message.body,
+            message.receivedAt.millisecondsSinceEpoch,
+          ]),
+        ),
+      )
+      .toString();
+  final joined = await upiExpenseJoinedBy(db, id);
+  if (joined == null) return;
+  final payee = smsDisplayName(joined.payee);
+  final amount =
+      '₹${formatAccountAmount(joined.amountMinor, digits: 2, currency: 'INR')}';
+  try {
+    await _upiNotifications.invokeMethod<void>('show', {
+      'id': 'sms-$id',
+      'done': true,
+      'keep': true,
+      'title': 'Bank confirmed your UPI payment',
+      'text': [
+        payee.isEmpty ? amount : '$amount to $payee',
+        if (joined.category case final category?) 'Saved as $category',
+        'Matched, so it’s recorded once',
+      ].join(' · '),
+    });
+  } catch (_) {
+    // Only a notification: the payment is already recorded.
+  }
 }
 
 /// A counterparty cleaned for a notification: no UPI plumbing, no shouting,
@@ -177,7 +243,11 @@ Future<void> processBackgroundSms() async {
     );
     if (engine != null) {
       final result = await RealtimeSmsRepository(db).receive(message, engine);
-      if (result != null) await showSmsNotification(db, result);
+      if (result != null) {
+        await showSmsNotification(db, result);
+      } else {
+        await _showUpiConfirmed(db, message);
+      }
     }
     success = true;
   } finally {

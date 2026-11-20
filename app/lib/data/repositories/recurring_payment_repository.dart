@@ -101,17 +101,18 @@ class RecurringPaymentRepository {
     ];
   }
 
-  Future<int> add(RecurringPaymentDraft draft) =>
-      database.transaction(() async {
-        draft.validate();
-        final (currency, digits) = await _accountCurrency(draft.accountId);
-        return database.customInsert(
-          '''INSERT INTO recurring_payments (name, icon, amount_minor, currency,
+  Future<int> add(
+    RecurringPaymentDraft draft,
+  ) => database.transaction(() async {
+    draft.validate();
+    final (currency, digits) = await _accountCurrency(draft.accountId);
+    return database.customInsert(
+      '''INSERT INTO recurring_payments (id, name, icon, amount_minor, currency,
         digits, cycle, next_due, day, account_id, category_id, remind, incoming)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-          variables: _values(draft, currency, digits),
-        );
-      });
+        VALUES (${newRowId('recurring_payments')}, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+      variables: _values(draft, currency, digits),
+    );
+  });
 
   Future<void> update(int id, RecurringPaymentDraft draft) =>
       database.transaction(() async {
@@ -162,7 +163,7 @@ class RecurringPaymentRepository {
               : TransactionType.expense,
           amountMinor: current.amountMinor,
           accountId: payFrom,
-          categoryId: await _category(current.categoryId, current.incoming),
+          categoryId: await categoryFor(current.categoryId, current.incoming),
           title: current.name,
           date: date,
         );
@@ -255,7 +256,7 @@ class RecurringPaymentRepository {
   /// Its own category while that still exists, else the default for its
   /// direction (Recurring payments for money out, Rental Income for money in),
   /// recreated if it was deleted.
-  Future<int> _category(int? id, bool incoming) async {
+  Future<int> categoryFor(int? id, bool incoming) async {
     if (id != null) {
       final row = await database
           .customSelect(
@@ -276,7 +277,7 @@ class RecurringPaymentRepository {
         .getSingleOrNull();
     return row?.read<int>('id') ??
         await database.customInsert(
-          'INSERT INTO categories (name, type, icon, sort_order) VALUES (?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM categories))',
+          'INSERT INTO categories (id, name, type, icon, sort_order) VALUES (${newRowId('categories')}, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM categories))',
           variables: [Variable(name), Variable(type), Variable(icon)],
         );
   }

@@ -20,10 +20,13 @@ class TransactionListRow extends StatelessWidget {
     required this.parentCategory,
     required this.formattedAmount,
     required this.onTap,
+    this.onLongPress,
     this.showDate = false,
     this.amountColor,
     this.subtitle,
     this.subtitleColor,
+    this.selected,
+    this.onSelected,
   });
 
   /// Replaces the usual subtitle, for a prompt such as "Select an account".
@@ -36,7 +39,12 @@ class TransactionListRow extends StatelessWidget {
   final Category? parentCategory;
   final String formattedAmount;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   final Color? amountColor;
+
+  /// Shows a checkbox in front when non-null, as in the statement import.
+  final bool? selected;
+  final ValueChanged<bool>? onSelected;
 
   /// Stamps the row with its date rather than its time of day, for a group
   /// that spans days and so can't date its rows from its header.
@@ -70,6 +78,8 @@ class TransactionListRow extends StatelessWidget {
       title: title,
       subtitle: this.subtitle ?? subtitle,
       subtitleColor: subtitleColor,
+      selected: selected,
+      onSelected: onSelected,
       amount: formattedAmount,
       amountColor:
           amountColor ??
@@ -83,6 +93,7 @@ class TransactionListRow extends StatelessWidget {
               : Colors.red),
       stamp: transactionStamp(transaction.date, showDate: showDate),
       onTap: onTap,
+      onLongPress: onLongPress,
     );
   }
 }

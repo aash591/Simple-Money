@@ -44,9 +44,9 @@ abstract final class MonetizationConfig {
   static const aiNeedsPro = bool.fromEnvironment('AI_NEEDS_PRO');
 
   /// Treats a debug build as if Pro were bought, so every Pro feature can be
-  /// tried without buying. Off unless DEBUG_PRO=true is given, and ignored
-  /// in release builds.
-  static const debugPro = bool.fromEnvironment('DEBUG_PRO');
+  /// tried without buying. On unless DEBUG_PRO=false is given, and ignored
+  /// in profile and release builds.
+  static const debugPro = bool.fromEnvironment('DEBUG_PRO', defaultValue: true);
 
   static const freeUses = int.fromEnvironment('AD_FREE_USES', defaultValue: 0);
   static const minGap = Duration(

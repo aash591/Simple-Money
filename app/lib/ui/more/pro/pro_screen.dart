@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../components/app_back_button.dart';
@@ -9,10 +11,12 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/monetization_config.dart';
+import '../../../data/play_store.dart';
 import '../../../state/ad_gate.dart';
 import '../../../state/pro_controller.dart';
 import '../../components/action_buttons.dart';
 import '../../components/app_toast.dart';
+import 'pro_thanks.dart';
 
 class ProScreen extends StatefulWidget {
   const ProScreen({super.key});
@@ -21,17 +25,59 @@ class ProScreen extends StatefulWidget {
   State<ProScreen> createState() => _ProScreenState();
 }
 
-class _ProScreenState extends State<ProScreen> {
+class _ProScreenState extends State<ProScreen>
+    with SingleTickerProviderStateMixin {
   final _pro = ProController.instance;
+
+  /// One burst of confetti: on opening as a supporter, the moment a
+  /// purchase goes through, and whenever the badge is tapped.
+  late final _confetti = AnimationController(
+    vsync: this,
+    duration: ConfettiBurst.burstDuration,
+  );
+  late bool _wasPro = _pro.isPro;
   var _selected = ProPlanKind.yearly;
   bool _restoring = false;
   late final _privacyOptions = AdGate.instance.privacyOptionsRequired();
+
+  /// The opening burst for someone who already has Pro; cancelled if they
+  /// leave first.
+  Timer? _celebrateSoon;
 
   @override
   void initState() {
     super.initState();
     if (_pro.plans.isEmpty) _pro.loadPlans();
+    _pro.addListener(_onProChanged);
+    if (_wasPro) {
+      // After the page has slid in, so the burst isn't lost in the
+      // transition.
+      _celebrateSoon = Timer(const Duration(milliseconds: 350), _celebrate);
+    }
   }
+
+  @override
+  void dispose() {
+    _celebrateSoon?.cancel();
+    _pro.removeListener(_onProChanged);
+    _confetti.dispose();
+    super.dispose();
+  }
+
+  void _onProChanged() {
+    if (_pro.isPro && !_wasPro) {
+      HapticFeedback.mediumImpact();
+      _celebrate();
+    }
+    _wasPro = _pro.isPro;
+  }
+
+  void _celebrate() {
+    if (!mounted) return;
+    _confetti.forward(from: 0);
+  }
+
+  Future<void> _review() => openPlayStorePage();
 
   ProPlan? _plan(ProPlanKind kind) =>
       _pro.plans.where((p) => p.kind == kind).firstOrNull;
@@ -109,6 +155,8 @@ class _ProScreenState extends State<ProScreen> {
                   child: _Hero(
                     compact: heroHeight < 240,
                     owned: _pro.isPro,
+                    lifetime: _pro.ownsLifetime,
+                    onBadgeTap: _celebrate,
                     topInset: insets.top,
                     onBack: () => Navigator.maybePop(context),
                   ),
@@ -141,6 +189,12 @@ class _ProScreenState extends State<ProScreen> {
                     ),
                   ),
                 ),
+                Positioned.fill(
+                  child: ConfettiBurst(
+                    controller: _confetti,
+                    originY: insets.top + heroHeight,
+                  ),
+                ),
               ],
             );
           },
@@ -152,53 +206,39 @@ class _ProScreenState extends State<ProScreen> {
   /// What Pro gives: a short name and one plain line each, in its own
   /// colour.
   static const _perks = [
-    _Perk(
+    ThanksPerk(
       Icons.auto_awesome_rounded,
       Color(0xff7c4dff),
       'AI assistant',
       'Ask Claude or ChatGPT about your money',
     ),
-    _Perk(
+    ThanksPerk(
       Icons.pie_chart_rounded,
       Color(0xff0f9d7a),
       'Unlimited budgets',
       'Add as many as you like',
     ),
-    _Perk(
+    ThanksPerk(
       Icons.palette_rounded,
       Color(0xffe0457b),
       'Every look',
       'All styles and colors, your own shade and picture',
     ),
-    _Perk(
+    ThanksPerk(
       Icons.web_asset_off_rounded,
       Color(0xffe8830c),
       'No ads',
-      'Never see an ad',
-    ),
-    _Perk(
-      Icons.favorite_rounded,
-      Color(0xff2f80ed),
-      'Support development',
-      'Helps keep SimpleMoney updated',
+      'Never see an ad, anywhere',
     ),
   ];
 
-  List<Widget> _owned(BuildContext context) {
-    final text = Theme.of(context).textTheme;
-    return [
-      Text(
-        _pro.ownsLifetime
-            ? 'You’re a lifetime supporter'
-            : 'You’re a supporter',
-        style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-      ),
-      const SizedBox(height: 4),
-      Text('Everything below is yours. Thank you!', style: text.bodyMedium),
-      const SizedBox(height: 18),
-      for (final perk in _perks) perk.owned(),
-    ];
-  }
+  List<Widget> _owned(BuildContext context) => [
+    ProThanksBody(
+      lifetime: _pro.ownsLifetime,
+      perks: _perks,
+      onReview: _review,
+    ),
+  ];
 
   /// The plans in the order they're offered: monthly, yearly, lifetime.
   List<ProPlan> get _ordered => [
@@ -386,12 +426,14 @@ class _Hero extends StatelessWidget {
   const _Hero({
     required this.compact,
     required this.owned,
+    required this.lifetime,
     required this.topInset,
     required this.onBack,
+    required this.onBadgeTap,
   });
-  final bool owned, compact;
+  final bool owned, lifetime, compact;
   final double topInset;
-  final VoidCallback onBack;
+  final VoidCallback onBack, onBadgeTap;
 
   @override
   Widget build(BuildContext context) {
@@ -422,6 +464,7 @@ class _Hero extends StatelessWidget {
         children: [
           Positioned(top: -60, right: -40, child: glow(240, Colors.white)),
           Positioned(bottom: -30, left: -70, child: glow(220, violet)),
+          if (owned) const Positioned.fill(child: SparkleField()),
           Padding(
             padding: EdgeInsets.only(top: topInset),
             child: Column(
@@ -438,25 +481,34 @@ class _Hero extends StatelessWidget {
                     child: AppBackButton(onPressed: onBack),
                   ),
                 ),
-                Container(
-                  width: compact ? 56 : 76,
-                  height: compact ? 56 : 76,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: .18),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: .45),
-                      width: 1.5,
+                if (owned)
+                  // The halo adds height; pull it up so the title stays put.
+                  Transform.translate(
+                    offset: const Offset(0, -6),
+                    child: SupporterBadge(
+                      size: compact ? 50 : 64,
+                      lifetime: lifetime,
+                      onTap: onBadgeTap,
+                    ),
+                  )
+                else
+                  Container(
+                    width: compact ? 56 : 76,
+                    height: compact ? 56 : 76,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: .18),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: .45),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.workspace_premium_rounded,
+                      size: compact ? 30 : 40,
+                      color: Colors.white,
                     ),
                   ),
-                  child: Icon(
-                    owned
-                        ? Icons.verified_rounded
-                        : Icons.workspace_premium_rounded,
-                    size: compact ? 30 : 40,
-                    color: Colors.white,
-                  ),
-                ),
                 SizedBox(height: compact ? 10 : 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -520,7 +572,6 @@ class _Hero extends StatelessWidget {
   }
 }
 
-/// A perk: a tinted rounded square, a bold line and a quiet one.
 /// Free and Pro side by side. Every row is ticked or filled in for Free,
 /// so it reads as complete on its own; the Pro column is lit in the accent,
 /// so it reads as the nicer one.
@@ -654,94 +705,6 @@ class _Compare extends StatelessWidget {
             ),
           ),
       ],
-    );
-  }
-}
-
-class _Perk extends StatelessWidget {
-  const _Perk(
-    this.icon,
-    this.color,
-    this.title,
-    this.subtitle, {
-    this.unlocked = false,
-  });
-  final IconData icon;
-
-  /// The perk's own colour: its icon tile and its title.
-  final Color color;
-  final String title, subtitle;
-
-  /// Owned already: a tick at the end.
-  final bool unlocked;
-
-  _Perk owned() => _Perk(icon, color, title, subtitle, unlocked: true);
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    // The same hue, set to read on the page: deeper on white, lighter on
-    // black.
-    final titleColor = dark
-        ? Color.lerp(color, Colors.white, .35)!
-        : Color.lerp(color, Colors.black, .25)!;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 11),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color.lerp(color, Colors.white, .18)!,
-                  Color.lerp(color, Colors.black, .12)!,
-                ],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: color.withValues(alpha: .30),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Icon(icon, color: Colors.white, size: 23),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: text.titleMedium?.copyWith(
-                    color: titleColor,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 1),
-                Text(
-                  subtitle,
-                  style: text.bodyMedium?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (unlocked) ...[
-            const SizedBox(width: 8),
-            const Icon(Icons.check_circle_rounded, color: Colors.green),
-          ],
-        ],
-      ),
     );
   }
 }

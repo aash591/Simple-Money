@@ -32,7 +32,11 @@ class SecondaryHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    if (centered && (leading != null || actions.isNotEmpty)) {
+    // Three or more buttons would run under a title centred on the bar, so
+    // then the title takes the room between them instead.
+    if (centered &&
+        (leading != null || actions.isNotEmpty) &&
+        actions.length <= 2) {
       // Title truly centred on the sheet: the buttons float at the sides
       // instead of pushing the title off-centre.
       return IconTheme(
@@ -90,7 +94,7 @@ class SecondaryHeader extends StatelessWidget {
       data: IconThemeData(size: 22, color: scheme.onSurface),
       child: SizedBox(
         // A centred sheet title sits tighter under the drag handle.
-        height: centered ? 40 : height,
+        height: centered && leading == null && actions.isEmpty ? 40 : height,
         child: Padding(
           padding: EdgeInsets.only(
             left: leading == null ? 4 : _roundInset,

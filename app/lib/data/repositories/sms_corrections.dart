@@ -36,7 +36,8 @@ class SmsCorrectionRepository {
   SmsCorrectionRepository(this.database);
   final AppDatabase database;
 
-  /// Made on first use: these rows are local, like the SMS queue itself.
+  /// The schema makes it since v47, when corrections started syncing; kept
+  /// for databases a test builds by hand.
   Future<void> _table() => database.customStatement(
     'CREATE TABLE IF NOT EXISTS sms_corrections ('
     'sender TEXT NOT NULL, rule_id TEXT NOT NULL, direction TEXT, '

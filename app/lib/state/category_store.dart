@@ -20,14 +20,31 @@ class CategoryStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Only the first load shows as loading. Reloads (returning to the app,
+  /// changes from another phone) keep the current list on screen and swap
+  /// in the new one at once, so lists don't flicker; a reload that finishes
+  /// after a newer one is dropped, and one that fails keeps the list shown.
+  bool _loaded = false;
+  int _generation = 0;
+
   Future<void> load() async {
-    loading = true;
-    loadError = null;
-    notifyListeners();
+    final generation = ++_generation;
+    if (!_loaded) {
+      loading = true;
+      loadError = null;
+      notifyListeners();
+    }
     try {
-      _categories = await repository.load();
+      final categories = await repository.load();
+      if (generation != _generation) return;
+      _categories = categories;
+      _loaded = true;
+      loadError = null;
     } catch (_) {
-      loadError = 'Your categories could not be loaded. Please try again.';
+      if (generation != _generation) return;
+      if (!_loaded) {
+        loadError = 'Your categories could not be loaded. Please try again.';
+      }
     }
     loading = false;
     notifyListeners();

@@ -10,6 +10,8 @@ import '../../domain/loan.dart';
 import '../../domain/recurring_payment.dart';
 import '../backup/sync_schema.dart';
 
+export '../backup/sync_schema.dart' show newRowId;
+
 part 'database_schema.dart';
 part 'profile_sample_data.dart';
 part 'profile_sample_entries.dart';
@@ -32,7 +34,7 @@ class AppDatabase extends GeneratedDatabase {
   /// solely so the profile-seed behavior can be verified in tests.
   final bool _seedProfileData;
   @override
-  int get schemaVersion => 44;
+  int get schemaVersion => 52;
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => const [];
   @override
@@ -59,7 +61,9 @@ class AppDatabase extends GeneratedDatabase {
         available_limit_minor INTEGER,
         balance_reported_at INTEGER,
         credit_limit_reported_at INTEGER,
-        available_limit_reported_at INTEGER
+        available_limit_reported_at INTEGER,
+        debit_card INTEGER NOT NULL DEFAULT 0,
+        broker INTEGER NOT NULL DEFAULT 0
       )
     ''');
       await customStatement(_createCategoriesTable);
@@ -70,6 +74,7 @@ class AppDatabase extends GeneratedDatabase {
       await _createBudgets();
       await _createDebts();
       await _createLoans();
+      await _createHoldings();
       await customStatement(_createRecurringPaymentsTable);
       await customStatement(_createRecurringPaymentHistoryTable);
       await customStatement(_createExchangeRatesTable);
@@ -77,11 +82,34 @@ class AppDatabase extends GeneratedDatabase {
       await customStatement(_createUserSmsRulesTable);
       await customStatement(_createSmsCategoryMemoryTable);
       await customStatement(_createCommunityFixesTable);
+      await customStatement(_createSmsCorrectionsTable);
+      for (final table in _createStatementTables) {
+        await customStatement(table);
+      }
       await seedDefaultCategories();
       if (_seedProfileData) await _seedProfileSampleData();
       await createSyncSchema(this);
     },
     onUpgrade: (_, from, to) async {
+      // v46 -> v47: the sync clock and device ID slot. First, because every
+      // trigger rebuilt below reads them. Databases older than v8 get them
+      // with the whole sync schema.
+      if (from >= 8 && from < 47) await upgradeSyncSchemaToV47(this);
+      if (from >= 8 && from < 48) await upgradeSyncSchemaToV48(this);
+      if (from >= 8 && from < 49) await upgradeSyncSchemaToV49(this);
+      if (from >= 8 && from < 50) await upgradeSyncSchemaToV50(this);
+      if (from >= 8 && from < 51) await upgradeSyncSchemaToV51(this);
+      // Also v47: SMS corrections and statement formats are synced, so their
+      // tables must exist before any step below gives synced tables their
+      // triggers. Corrections used to be made on first use; statement
+      // formats were SharedPreferences, moved over by
+      // StatementImportRepository the first time it runs.
+      if (from < 47) {
+        await customStatement(_createSmsCorrectionsTable);
+        for (final table in _createStatementTables) {
+          await customStatement(table);
+        }
+      }
       // v40 -> v41: recurring payments became recurring payments, which can also
       // be money coming in. Before every other step, which use the new names.
       if (from >= 15 && from < 41) await _recurringPayments(from);
@@ -189,6 +217,9 @@ class AppDatabase extends GeneratedDatabase {
           'ALTER TABLE accounts ADD COLUMN archived_at INTEGER',
         );
       }
+      // v51 -> v52: brokers (an account flag) and the holdings under them.
+      // Before the sync schema below, which gives every table its triggers.
+      if (from < 52) await _addPortfolio();
       // v5 -> v6: monthly budgets (see data/repositories/budget_repository
       // .dart), created straight in the v7 shape below.
       // v6 -> v7: a budget covers a set of categories rather than one, so
@@ -252,7 +283,7 @@ class AppDatabase extends GeneratedDatabase {
         await customStatement(_createAgentSuggestionsTable);
         await customStatement(_createUserSmsRulesTable);
       }
-      if (from >= 34 && from < 42) {
+      if (from >= 34 && from < 45) {
         // New suggestion kinds: SQLite can't change a CHECK, so the table
         // is rebuilt with its rows.
         await customStatement(
@@ -292,6 +323,18 @@ class AppDatabase extends GeneratedDatabase {
           );
         }
       }
+      if (from < 46 &&
+          (await customSelect(
+            'PRAGMA table_info(accounts)',
+          ).get()).isNotEmpty) {
+        if (!await _hasColumn('accounts', 'debit_card')) {
+          await customStatement(
+            'ALTER TABLE accounts ADD COLUMN debit_card INTEGER NOT NULL DEFAULT 0',
+          );
+        }
+        // The change triggers copy the columns the table has now.
+        if (from >= 8) await createSyncTriggers(this, 'accounts');
+      }
       // Databases older than v8 got every trigger from createSyncSchema.
       if (from >= 8 && from < 44) {
         const learned = ['sms_category_memory', 'user_sms_rules'];
@@ -301,6 +344,35 @@ class AppDatabase extends GeneratedDatabase {
         // Through the triggers' table, so the next upload carries what the
         // app has already learned.
         await seedSyncOutbox(this, tables: learned);
+      }
+      // v47's triggers stamp each change with the clock and skip changes
+      // applied from other devices. Rebuilt for every table, which also gives
+      // databases that came from before v8 the columns added since then
+      // (their triggers were made before e.g. accounts.debit_card existed).
+      // v48's triggers can't fail under an upsert (see createSyncTriggers).
+      if (from < 48) {
+        for (final table in syncTables.keys) {
+          final exists = await customSelect(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+            variables: [Variable(table)],
+          ).getSingleOrNull();
+          if (exists != null) await createSyncTriggers(this, table);
+        }
+      }
+      // Corrections made before they were synced go up with the next batch.
+      // Older databases got them with the whole initial copy.
+      if (from >= 8 && from < 47) {
+        await seedSyncOutbox(this, tables: ['sms_corrections']);
+      }
+      // v52: accounts gained `broker`, and the holding tables are new.
+      if (from >= 8 && from < 52) {
+        for (final table in ['accounts', 'holdings', 'holding_trades']) {
+          final exists = await customSelect(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+            variables: [Variable(table)],
+          ).getSingleOrNull();
+          if (exists != null) await createSyncTriggers(this, table);
+        }
       }
     },
     beforeOpen: (_) async {
@@ -704,6 +776,52 @@ class AppDatabase extends GeneratedDatabase {
         'PRAGMA table_info($table)',
       ).get()).any((row) => row.read<String>('name') == column);
 
+  Future<void> _addPortfolio() async {
+    // Databases from before accounts existed get the column with the table.
+    final hasAccounts = (await customSelect(
+      'PRAGMA table_info(accounts)',
+    ).get()).isNotEmpty;
+    if (hasAccounts && !await _hasColumn('accounts', 'broker')) {
+      await customStatement(
+        'ALTER TABLE accounts ADD COLUMN broker INTEGER NOT NULL DEFAULT 0',
+      );
+    }
+    await _createHoldings();
+  }
+
+  /// A broker's holdings and every buy, sell and dividend. Units and prices
+  /// are whole numbers (see domain/holding.dart), never floating point.
+  Future<void> _createHoldings() async {
+    await customStatement('''CREATE TABLE IF NOT EXISTS holdings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      account_id INTEGER NOT NULL,
+      kind TEXT NOT NULL CHECK(kind IN ('stock', 'etf', 'fund')),
+      name TEXT NOT NULL CHECK(length(trim(name)) BETWEEN 1 AND 60),
+      symbol TEXT, exchange TEXT,
+      last_price_e4 INTEGER, price_date TEXT,
+      archived_at INTEGER
+    )''');
+    await customStatement('''CREATE TABLE IF NOT EXISTS holding_trades (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      holding_id INTEGER NOT NULL,
+      type TEXT NOT NULL CHECK(type IN ('buy', 'sell', 'dividend')),
+      date INTEGER NOT NULL,
+      units_e6 INTEGER NOT NULL,
+      price_e4 INTEGER NOT NULL,
+      amount_minor INTEGER NOT NULL,
+      fees_minor INTEGER NOT NULL DEFAULT 0,
+      pay_account_id INTEGER,
+      note TEXT
+    )''');
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS holding_trades_holding '
+      'ON holding_trades(holding_id, date)',
+    );
+    await customStatement(
+      'CREATE INDEX IF NOT EXISTS holdings_account ON holdings(account_id)',
+    );
+  }
+
   Future<void> _createDebts() async {
     await customStatement(_createDebtPeopleTable);
     await customStatement(_createDebtEntriesTable);
@@ -752,12 +870,17 @@ class AppDatabase extends GeneratedDatabase {
   /// Fresh installs (see `onCreate` above) and "Delete data on this phone" —
   /// an upgrading install's `categories` table starts empty, same as before
   /// this feature existed.
+  ///
+  /// IDs are fixed (1, 2, …) rather than [newRowId]s: every installation's
+  /// "Food & Beverage" is then the same record, so two phones that started
+  /// fresh don't end up with every default category twice once they sync.
   Future<void> seedDefaultCategories() async {
     var order = 0;
     Future<int> insert(String name, String type, String icon, int? parentId) =>
         customInsert(
-          'INSERT INTO categories (name, type, icon, parent_id, sort_order) VALUES (?, ?, ?, ?, ?)',
+          'INSERT INTO categories (id, name, type, icon, parent_id, sort_order) VALUES (?, ?, ?, ?, ?, ?)',
           variables: [
+            Variable(order + 1),
             Variable(name),
             Variable(type),
             Variable(icon),

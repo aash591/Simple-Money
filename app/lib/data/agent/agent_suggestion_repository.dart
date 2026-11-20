@@ -23,7 +23,9 @@ import '../repositories/sms_import_repository.dart';
 import '../repositories/statement_import_repository.dart';
 import '../repositories/transaction_repository.dart';
 import '../user_sms_rules.dart';
+import 'agent_accounts.dart';
 import 'agent_loans.dart';
+import 'agent_sms_saver.dart';
 import 'statement_samples.dart';
 
 /// What an AI app asked to change. Nothing here touches the ledger until the
@@ -38,7 +40,8 @@ enum AgentSuggestionKind {
   newLoan('new_loan'),
   debtEntry('debt_entry'),
   transactionAdd('transaction_add'),
-  recurringPayment('recurring_payment');
+  recurringPayment('recurring_payment'),
+  account('account');
 
   const AgentSuggestionKind(this.storageValue);
   final String storageValue;
@@ -109,7 +112,11 @@ class AgentSuggestion {
           kind == AgentSuggestionKind.newLoan ||
           kind == AgentSuggestionKind.debtEntry ||
           kind == AgentSuggestionKind.transactionAdd ||
-          kind == AgentSuggestionKind.recurringPayment);
+          kind == AgentSuggestionKind.recurringPayment ||
+          (kind == AgentSuggestionKind.account &&
+              (AgentAccountAction.fromToolName(payload['action'] as String?)
+                      ?.canUndo ??
+                  false)));
 }
 
 class AgentSuggestionDraft {
@@ -696,6 +703,9 @@ class AgentSuggestionRepository {
     String? categoryName,
     String? icon,
     bool remind = true,
+    List<int> transactionIds = const [],
+    List<String> waitingSms = const [],
+    List<LoanSms> unreadSms = const [],
     String? reason,
   }) async {
     final cleanName = name.trim();
@@ -737,6 +747,124 @@ class AgentSuggestionRepository {
         'Check list_recurring_payments before suggesting another.',
       );
     }
+    // Bank messages of its past payments: saved on approval, so none is left
+    // waiting in SMS review or unread. Each keeps what the card shows.
+    final messages = <Map<String, Object?>>[];
+    for (final id in waitingSms.toSet()) {
+      final row = await database
+          .customSelect(
+            '''SELECT i.status, i.transaction_id, i.received_at, i.candidate,
+                r.account_id
+            FROM sms_imports i
+            LEFT JOIN sms_review r ON r.fingerprint = i.fingerprint
+            WHERE i.fingerprint = ?''',
+            variables: [Variable(id)],
+          )
+          .getSingleOrNull();
+      if (row == null) {
+        throw ArgumentError('No bank message has sms_id “$id”.');
+      }
+      if (row.read<String>('status') != 'pending') {
+        final saved = row.readNullable<int>('transaction_id');
+        throw ArgumentError(
+          saved != null
+              ? 'Bank message “$id” is already saved as transaction $saved: '
+                    'give it in transaction_ids instead.'
+              : 'Bank message “$id” was dismissed in SMS review.',
+        );
+      }
+      final data = Map<String, dynamic>.from(
+        jsonDecode(row.read<String>('candidate')) as Map,
+      );
+      final credit = data['direction'] == 'credit';
+      if (credit != incoming || data['currencyCode'] != account.currency) {
+        throw ArgumentError(
+          'Bank message “$id” isn’t ${incoming ? 'money in' : 'money out'} '
+          'in ${account.currency}.',
+        );
+      }
+      // Into the account it's linked to, when that one fits; else this one.
+      final linked =
+          row.readNullable<int>('account_id') ??
+          data['assignedAccountId'] as int?;
+      final into = accounts
+          .where(
+            (a) =>
+                a.id == linked &&
+                !a.isArchived &&
+                a.currency == account.currency &&
+                a.digits == account.digits,
+          )
+          .firstOrNull;
+      messages.add({
+        'kind': 'review',
+        'id': id,
+        'date': DateTime.fromMillisecondsSinceEpoch(
+          row.read<int>('received_at'),
+        ).toIso8601String(),
+        'amount': data['amountMinor'] as int,
+        'accountId': (into ?? account).id,
+      });
+    }
+    final rupees = RegExp(
+      r'(?:rs\.?|inr|₹)\s*([\d,]+(?:\.\d{1,2})?)',
+      caseSensitive: false,
+    );
+    for (final sms in {for (final s in unreadSms) s.id: s}.values) {
+      if (account.currency != 'INR' || account.digits != 2) {
+        throw ArgumentError(
+          'Unparsed bank messages are only saved to rupee accounts.',
+        );
+      }
+      final read = switch (rupees.firstMatch(sms.body)?.group(1)) {
+        final text? => parseAccountAmount(text.replaceAll(',', ''), 2),
+        null => null,
+      };
+      messages.add({
+        'kind': 'unparsed',
+        ...unreadSmsPayload(sms),
+        'date': sms.receivedAt.toIso8601String(),
+        // What the message says it was, else this payment's usual amount.
+        'amount': read != null && read > 0 ? read : minor,
+        'accountId': account.id,
+      });
+    }
+    // Past payments become its history. Each must be one of this kind and
+    // currency, and not already part of a loan, debt or recurring payment.
+    final history = transactionIds.toSet().toList();
+    if (history.isNotEmpty) {
+      final rows = await database
+          .customSelect(
+            '''SELECT t.id, t.type, a.currency, a.digits,
+              (NOT EXISTS (SELECT 1 FROM loan_events l WHERE l.transaction_id = t.id)
+                AND NOT EXISTS (SELECT 1 FROM debt_entries d WHERE d.transaction_id = t.id)
+                AND NOT EXISTS (SELECT 1 FROM recurring_payment_history p
+                  WHERE p.transaction_id = t.id)) AS free
+            FROM transactions t JOIN accounts a ON a.id = t.account_id
+            WHERE t.id IN (${List.filled(history.length, '?').join(',')})''',
+            variables: [for (final id in history) Variable(id)],
+          )
+          .get();
+      final byId = {for (final r in rows) r.read<int>('id'): r};
+      for (final id in history) {
+        final row = byId[id];
+        if (row == null) throw ArgumentError('No transaction has id $id.');
+        if (row.read<String>('type') != (incoming ? 'income' : 'expense') ||
+            row.read<String>('currency') != account.currency ||
+            row.read<int>('digits') != account.digits) {
+          throw ArgumentError(
+            'Transaction $id isn’t ${incoming ? 'money in' : 'an expense'} '
+            'in ${account.currency}.',
+          );
+        }
+        if (row.read<int>('free') != 1) {
+          throw ArgumentError(
+            'Transaction $id already belongs to a loan, debt or recurring '
+            'payment.',
+          );
+        }
+      }
+    }
     final suggested = suggestRecurring(cleanName, incoming: incoming);
     final categories = await CategoryRepository(database).load();
     final type = incoming ? CategoryType.income : CategoryType.expense;
@@ -772,6 +900,8 @@ class AgentSuggestionRepository {
         'nextDue': day.toIso8601String(),
         'incoming': incoming,
         'remind': remind,
+        if (history.isNotEmpty) 'history': history,
+        if (messages.isNotEmpty) 'smsHistory': messages,
         ...?choice?.payload,
       },
       summary:
@@ -782,6 +912,13 @@ class AgentSuggestionRepository {
         '${incoming ? 'Paid into' : 'Paid from'} ${account.name}',
         if (choice != null) 'Category: ${choice.label}',
         if (remind) 'Reminds two days before and on the day',
+        if (history.isNotEmpty)
+          'Links ${history.length} past '
+              '${history.length == 1 ? 'payment' : 'payments'} as its history',
+        if (messages.isNotEmpty)
+          'Saves ${messages.length} bank '
+              '${messages.length == 1 ? 'message' : 'messages'} as past '
+              'payments, so none is left in SMS review or unread',
       ],
       reason: _reason(reason),
     );
@@ -812,7 +949,58 @@ class AgentSuggestionRepository {
         incoming: incoming,
       ),
     );
-    return {'recurringPaymentId': id};
+    // Its bank messages first: each becomes a transaction under its category
+    // and joins the history below. One dismissed since is left out.
+    final recurring = RecurringPaymentRepository(database);
+    final saver = AgentSmsSaver(database);
+    final fromSms = <int>[];
+    int? filed;
+    for (final sms
+        in (payload['smsHistory'] as List? ?? const []).cast<Map>()) {
+      filed ??= await recurring.categoryFor(category?.id, incoming);
+      final type = incoming ? TransactionType.income : TransactionType.expense;
+      final saved = sms['kind'] == 'unparsed'
+          ? await saver.saveUnread(
+              sms,
+              accountId: sms['accountId'] as int,
+              amountMinor: sms['amount'] as int,
+              categoryId: filed,
+              title: payload['name'] as String,
+              currency: 'INR',
+              type: type,
+              ruleId: 'recurring',
+            )
+          : await saver.saveWaiting(
+              sms['id'] as String,
+              accountId: sms['accountId'] as int,
+              categoryId: filed,
+              type: type,
+              title: payload['name'] as String,
+            );
+      if (saved != null) fromSms.add(saved);
+    }
+    // Its past payments, as marking each paid would have recorded them. One
+    // claimed by something else since the suggestion was made is left out.
+    for (final transactionId in [
+      ...(payload['history'] as List? ?? const []),
+      ...fromSms,
+    ]) {
+      await database.customStatement(
+        '''INSERT INTO recurring_payment_history
+          (transaction_id, recurring_payment_id)
+        SELECT ?, ? WHERE EXISTS (SELECT 1 FROM transactions WHERE id = ?)
+          AND NOT EXISTS (SELECT 1 FROM recurring_payment_history
+            WHERE transaction_id = ?)
+          AND NOT EXISTS (SELECT 1 FROM loan_events WHERE transaction_id = ?)
+          AND NOT EXISTS (SELECT 1 FROM debt_entries WHERE transaction_id = ?)''',
+        [
+          transactionId, id, // the row
+          transactionId, // still exists
+          transactionId, transactionId, transactionId, // and nothing owns it
+        ],
+      );
+    }
+    return {'recurringPaymentId': id, 'savedSms': fromSms};
   }
 
   // ── Storing and reading. ──
@@ -1006,6 +1194,11 @@ class AgentSuggestionRepository {
               id,
               await _applyRecurringPayment(suggestion.payload),
             );
+          case AgentSuggestionKind.account:
+            await _keepForUndo(id, {
+              'action': suggestion.payload['action'],
+              ...await AgentAccounts(database).apply(suggestion.payload),
+            });
         }
         await _decide(id, AgentSuggestionStatus.applied);
       });
@@ -1222,7 +1415,7 @@ class AgentSuggestionRepository {
       await database.transaction(() async {
         final row = await database
             .customSelect(
-              "SELECT kind, target, before FROM agent_suggestions WHERE id = ? AND status = 'applied' AND kind IN ('transaction_edit', 'parser_rule', 'statement_layout', 'new_loan', 'debt_entry', 'transaction_add', 'recurring_payment')",
+              "SELECT kind, target, before FROM agent_suggestions WHERE id = ? AND status = 'applied' AND kind IN ('transaction_edit', 'parser_rule', 'statement_layout', 'new_loan', 'debt_entry', 'transaction_add', 'recurring_payment', 'account')",
               variables: [Variable(id)],
             )
             .getSingleOrNull();
@@ -1236,7 +1429,10 @@ class AgentSuggestionRepository {
             'This is a loan payment now. Remove it from the loan’s screen.',
           );
         }
-        if (row.read<String>('kind') == 'new_loan') {
+        if (row.read<String>('kind') == 'account') {
+          await AgentAccounts(database)
+              .undo(before['action'] as String, before);
+        } else if (row.read<String>('kind') == 'new_loan') {
           await _loans.undoLoan(before);
         } else if (row.read<String>('kind') == 'debt_entry') {
           await _loans.undoDebtEntry(before);

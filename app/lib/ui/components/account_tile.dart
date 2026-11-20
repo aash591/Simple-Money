@@ -13,6 +13,9 @@ IconData accountTypeIcon(AccountType type) => switch (type) {
   AccountType.cash => Icons.account_balance_wallet_outlined,
 };
 
+/// Shown beside [accountTypeIcon] for an account a debit card is used on.
+const debitCardIcon = Icons.contactless_outlined;
+
 /// The line under an account's name: the digits that tell two accounts of a
 /// bank apart, otherwise what kind of account it is.
 String accountDetailLine(Account account) => account.lastDigits == null
@@ -138,13 +141,23 @@ class AccountTile extends StatelessWidget {
                                   size: 22,
                                   color: scheme.onSurfaceVariant,
                                 )
-                              else
+                              else ...[
+                                if (account.hasDebitCard) ...[
+                                  Icon(
+                                    debitCardIcon,
+                                    size: 20,
+                                    color: scheme.onSurfaceVariant,
+                                    semanticLabel: 'Debit card',
+                                  ),
+                                  const SizedBox(width: 6),
+                                ],
                                 Icon(
                                   accountTypeIcon(account.type),
                                   size: 20,
                                   color: scheme.onSurfaceVariant,
                                   semanticLabel: account.type.label,
                                 ),
+                              ],
                             ],
                           ),
                           const SizedBox(height: 2),

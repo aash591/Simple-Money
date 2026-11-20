@@ -25,13 +25,16 @@ import 'package:simple_money/ui/more/recurring/recurring_payment_detail_screen.d
 import 'package:simple_money/ui/more/recurring/recurring_payments_screen.dart';
 import 'package:simple_money/ui/theme/app_theme.dart';
 
+/// The account the test (or its setUp) created first.
+late int account;
+
 RecurringPaymentDraft draft({
   String name = 'Netflix',
   String? icon,
   int amount = 64900,
   BillingCycle cycle = BillingCycle.monthly,
   DateTime? nextDue,
-  int accountId = 1,
+  int? accountId,
   int? categoryId,
   bool incoming = false,
 }) => RecurringPaymentDraft(
@@ -40,7 +43,7 @@ RecurringPaymentDraft draft({
   amountMinor: amount,
   cycle: cycle,
   nextDue: nextDue ?? DateTime(2026, 1, 31),
-  accountId: accountId,
+  accountId: accountId ?? account,
   categoryId: categoryId,
   remind: false,
   incoming: incoming,
@@ -175,7 +178,7 @@ void main() {
     setUp(() async {
       db = AppDatabase(NativeDatabase.memory(), false);
       repository = RecurringPaymentRepository(db);
-      await AccountRepository(
+      account = await AccountRepository(
         db,
       ).save(name: 'Cash', currency: 'INR', digits: 2, openingBalance: 1000000);
     });
@@ -310,7 +313,7 @@ void main() {
       final directory = await Directory.systemTemp.createTemp('subs_');
       final file = File('${directory.path}/ledger.sqlite');
       final old = AppDatabase(NativeDatabase(file), false);
-      await AccountRepository(
+      account = await AccountRepository(
         old,
       ).save(name: 'Cash', currency: 'INR', digits: 2, openingBalance: 500000);
       final oldRepository = RecurringPaymentRepository(old);
@@ -382,7 +385,7 @@ void main() {
       await repository.add(draft(categoryId: food.id));
       await CategoryRepository(db).delete(food.id);
       expect((await current()).categoryId, isNull);
-      await AccountRepository(db).delete(1);
+      await AccountRepository(db).delete(account);
       final s = await current();
       expect(s.accountId, isNull);
       expect(
@@ -428,7 +431,7 @@ void main() {
       expect(paid.accountId, bank.id);
       expect(paid.date, DateTime(2026, 1, 20));
       // Its own account stays the default for next time.
-      expect((await current()).accountId, 1);
+      expect((await current()).accountId, account);
     });
 
     test('Changes are queued for sync', () async {
@@ -445,7 +448,7 @@ void main() {
       final directory = await Directory.systemTemp.createTemp('subs_');
       final file = File('${directory.path}/ledger.sqlite');
       final old = AppDatabase(NativeDatabase(file), false);
-      await AccountRepository(
+      account = await AccountRepository(
         old,
       ).save(name: 'Cash', currency: 'INR', digits: 2, openingBalance: 500000);
       final repository = RecurringPaymentRepository(old);
@@ -503,7 +506,7 @@ void main() {
       final directory = await Directory.systemTemp.createTemp('subs_');
       final file = File('${directory.path}/ledger.sqlite');
       final old = AppDatabase(NativeDatabase(file), false);
-      await AccountRepository(
+      account = await AccountRepository(
         old,
       ).save(name: 'Existing', currency: 'INR', digits: 2, openingBalance: 500);
       // Dropping the table drops its sync triggers too, as on a v14 install.
@@ -534,7 +537,7 @@ void main() {
     late AppDatabase db;
     setUp(() async {
       db = AppDatabase(NativeDatabase.memory(), false);
-      await AccountRepository(
+      account = await AccountRepository(
         db,
       ).save(name: 'Cash', currency: 'INR', digits: 2, openingBalance: 1000000);
     });
@@ -701,7 +704,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Add recurring payment'));
       await tester.pumpAndSettle();
-      expect(find.text('How much does it cost?'), findsOneWidget);
+      expect(find.text('How much?'), findsOneWidget);
       for (final digit in '649'.split('')) {
         await tester.tap(
           find.descendant(

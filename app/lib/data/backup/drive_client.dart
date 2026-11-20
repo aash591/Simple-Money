@@ -14,32 +14,92 @@ class DriveSyncException implements Exception {
   String toString() => message;
 }
 
-/// One uploaded batch, as described by its Drive metadata.
+/// The format tags of a section file (see sync_sections.dart), of the single
+/// file a phone of the previous version keeps, and of the batches older
+/// versions uploaded. The last two are only read.
+const sectionFileFormat = 'simple-money-section-v3';
+const deviceFileFormat = 'simple-money-device-v2';
+const legacyBatchFormat = 'simple-money-mirror-v1';
+
+/// A SimpleMoney file in the app folder, as described by its Drive metadata:
+/// one section of a phone's data ([section]), the single file of a phone on
+/// the previous version ([isDeviceFile]), or one batch of an older version's
+/// chain (neither).
 class MirrorFile {
   const MirrorFile({
     required this.id,
     required this.mirrorId,
     required this.sequence,
     required this.modified,
+    this.isDeviceFile = false,
+    this.section,
+    this.rows,
+    this.newest,
+    this.encryption,
+    this.encryptionAt,
   });
   final String id, mirrorId;
+
+  /// Which upload of its phone it holds; it only grows, so a file whose
+  /// number is higher than the one last merged has changed.
   final int sequence;
   final DateTime modified;
+  final bool isDeviceFile;
+
+  /// The section a section file holds, e.g. `transactions/2026-11`.
+  final String? section;
+
+  /// How many records a section file holds, for offering a restore without
+  /// downloading it.
+  final int? rows;
+
+  /// The newest record version a section file holds (SyncBatch.newest).
+  final int? newest;
+
+  /// The uploading phone's encryption setting and when it was chosen
+  /// (SyncBatch.encryption); null for files of older versions.
+  final String? encryption;
+  final int? encryptionAt;
+}
+
+/// A section file this phone made was deleted from Drive (e.g. by "Delete
+/// data from Google Drive" on another phone): it is made again.
+class DriveFileMissing implements Exception {
+  const DriveFileMissing();
 }
 
 abstract interface class MirrorTransport {
   Future<String> newFileId();
+
+  /// Creates [SyncBatch.fileId], or replaces its content when
+  /// [SyncBatch.replace], and checks the stored bytes.
   Future<void> upload(SyncBatch batch);
-  Future<List<MirrorFile>> listFiles();
+
+  /// The SimpleMoney files in the app folder; with [modifiedAfter], only
+  /// those changed since (Drive's own clock, not the phones').
+  Future<List<MirrorFile>> listFiles({DateTime? modifiedAfter});
   Future<Uint8List> download(String fileId);
   Future<void> deleteFile(String fileId);
   void close();
 }
 
-/// File IDs are allocated before upload and persisted with the exact bytes.
-/// Retrying a successful request whose response was lost returns 409; verify
-/// the existing file checksum before acknowledging the batch locally.
-class DriveClient implements MirrorTransport {
+/// Drive's change log for the app folder. Unlike a search ([MirrorTransport.listFiles]),
+/// it shows a file the moment it's uploaded, so a phone sees another
+/// phone's change right away.
+abstract interface class ChangeFeed {
+  /// Where the log stands now; changes after this are reported later.
+  Future<String> startToken();
+
+  /// The SimpleMoney files changed since [token] (deleted ones left out),
+  /// and the token to ask with next time.
+  Future<(List<MirrorFile>, String)> changesSince(String token);
+}
+
+/// File IDs are allocated and saved before a file is created. Retrying a
+/// create whose response was lost returns 409: the file exists, so its
+/// content is replaced instead. Every upload is checked against Drive's MD5
+/// before it counts.
+class DriveClient implements MirrorTransport, ChangeFeed {
   DriveClient(this.token, {http.Client? client})
     : _client = client ?? http.Client();
   final String token;
@@ -74,53 +134,12 @@ class DriveClient implements MirrorTransport {
 
   @override
   Future<void> upload(SyncBatch batch) async {
-    final boundary = 'simplemoney_${batch.fileId}';
-    final encrypted = backupBatchEncryption(batch.payload) != null;
-    final mime = encrypted ? 'application/octet-stream' : 'application/gzip';
-    final suffix = encrypted ? 'json.enc' : 'json.gz';
-    final metadata = jsonEncode({
-      'id': batch.fileId,
-      'name':
-          'simple-money-${batch.mirrorId}-${batch.sequence.toString().padLeft(12, '0')}.$suffix',
-      'parents': ['appDataFolder'],
-      'mimeType': mime,
-      'appProperties': {
-        'format': 'simple-money-mirror-v1',
-        'mirrorId': batch.mirrorId,
-        'sequence': '${batch.sequence}',
-      },
-    });
-    final body = <int>[
-      ...utf8.encode(
-        '--$boundary\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n$metadata\r\n'
-        '--$boundary\r\nContent-Type: $mime\r\n\r\n',
-      ),
-      ...batch.payload,
-      ...utf8.encode('\r\n--$boundary--\r\n'),
-    ];
-    var response = await _client
-        .post(
-          Uri.https('www.googleapis.com', '/upload/drive/v3/files', {
-            'uploadType': 'multipart',
-            'fields': 'id,md5Checksum,size',
-          }),
-          headers: {
-            ..._headers,
-            'Content-Type': 'multipart/related; boundary=$boundary',
-          },
-          body: body,
-        )
-        .timeout(const Duration(seconds: 45));
-    if (response.statusCode == 409) {
-      response = await _client
-          .get(
-            Uri.https('www.googleapis.com', '/drive/v3/files/${batch.fileId}', {
-              'fields': 'id,md5Checksum,size',
-            }),
-            headers: _headers,
-          )
-          .timeout(const Duration(seconds: 30));
+    var response = await _send(batch, replace: batch.replace);
+    if (!batch.replace && response.statusCode == 409) {
+      // Made by an earlier try whose response was lost.
+      response = await _send(batch, replace: true);
     }
+    if (response.statusCode == 404) throw const DriveFileMissing();
     final stored = _json(response);
     if (stored['id'] != batch.fileId ||
         stored['md5Checksum'] != batch.checksum ||
@@ -131,19 +150,80 @@ class DriveClient implements MirrorTransport {
     }
   }
 
+  Future<http.Response> _send(SyncBatch batch, {required bool replace}) async {
+    final boundary = 'simplemoney_${batch.fileId}';
+    final encrypted = backupBatchEncryption(batch.payload) != null;
+    final mime = encrypted ? 'application/octet-stream' : 'application/gzip';
+    final properties = {
+      'format': sectionFileFormat,
+      'mirrorId': batch.mirrorId,
+      'sequence': '${batch.sequence}',
+      'section': batch.section,
+      'rows': '${batch.rows}',
+      'newest': '${batch.newest}',
+      'enc': batch.encryption,
+      'encAt': '${batch.encryptionAt}',
+    };
+    final metadata = jsonEncode(
+      replace
+          ? {'mimeType': mime, 'appProperties': properties}
+          : {
+              'id': batch.fileId,
+              'name':
+                  'simple-money-${batch.mirrorId}-'
+                  '${batch.section.replaceAll('/', '-')}'
+                  '.${encrypted ? 'json.enc' : 'json.gz'}',
+              'parents': ['appDataFolder'],
+              'mimeType': mime,
+              'appProperties': properties,
+            },
+    );
+    final body = <int>[
+      ...utf8.encode(
+        '--$boundary\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n$metadata\r\n'
+        '--$boundary\r\nContent-Type: $mime\r\n\r\n',
+      ),
+      ...batch.payload,
+      ...utf8.encode('\r\n--$boundary--\r\n'),
+    ];
+    final request =
+        http.Request(
+            replace ? 'PATCH' : 'POST',
+            Uri.https(
+              'www.googleapis.com',
+              replace
+                  ? '/upload/drive/v3/files/${batch.fileId}'
+                  : '/upload/drive/v3/files',
+              {'uploadType': 'multipart', 'fields': 'id,md5Checksum,size'},
+            ),
+          )
+          ..headers.addAll({
+            ..._headers,
+            'Content-Type': 'multipart/related; boundary=$boundary',
+          })
+          ..bodyBytes = body;
+    return http.Response.fromStream(
+      await _client.send(request).timeout(const Duration(seconds: 90)),
+    ).timeout(const Duration(seconds: 90));
+  }
+
   @override
-  Future<List<MirrorFile>> listFiles() async {
+  Future<List<MirrorFile>> listFiles({DateTime? modifiedAfter}) async {
     final files = <MirrorFile>[];
     String? pageToken;
+    final formats = [sectionFileFormat, deviceFileFormat, legacyBatchFormat]
+        .map((f) => "appProperties has { key='format' and value='$f' }")
+        .join(' or ');
+    final since = modifiedAfter == null
+        ? ''
+        : " and modifiedTime > '${modifiedAfter.toUtc().toIso8601String()}'";
     do {
       final data = _json(
         await _client
             .get(
               Uri.https('www.googleapis.com', '/drive/v3/files', {
                 'spaces': 'appDataFolder',
-                'q':
-                    "appProperties has { key='format' and "
-                    "value='simple-money-mirror-v1' } and trashed = false",
+                'q': '($formats) and trashed = false$since',
                 'fields': 'nextPageToken,files(id,modifiedTime,appProperties)',
                 'pageSize': '1000',
                 'pageToken': ?pageToken,
@@ -153,24 +233,91 @@ class DriveClient implements MirrorTransport {
             .timeout(const Duration(seconds: 30)),
       );
       for (final file in data['files'] as List? ?? const []) {
-        final properties = file['appProperties'] as Map? ?? const {};
-        final mirrorId = properties['mirrorId'];
-        final sequence = int.tryParse('${properties['sequence']}');
-        final modified = DateTime.tryParse('${file['modifiedTime']}');
-        if (mirrorId is String && sequence != null && modified != null) {
-          files.add(
-            MirrorFile(
-              id: file['id'] as String,
-              mirrorId: mirrorId,
-              sequence: sequence,
-              modified: modified,
-            ),
-          );
-        }
+        if (_fileOf(file) case final parsed?) files.add(parsed);
       }
       pageToken = data['nextPageToken'] as String?;
     } while (pageToken != null);
     return files;
+  }
+
+  /// A SimpleMoney file from Drive's metadata, or null for anything else.
+  static MirrorFile? _fileOf(Object? file) {
+    if (file is! Map || file['trashed'] == true) return null;
+    final properties = file['appProperties'] as Map? ?? const {};
+    final format = properties['format'];
+    if (format != sectionFileFormat &&
+        format != deviceFileFormat &&
+        format != legacyBatchFormat) {
+      return null;
+    }
+    final mirrorId = properties['mirrorId'];
+    final sequence = int.tryParse('${properties['sequence']}');
+    final modified = DateTime.tryParse('${file['modifiedTime']}');
+    if (mirrorId is! String || sequence == null || modified == null) {
+      return null;
+    }
+    return MirrorFile(
+      id: file['id'] as String,
+      mirrorId: mirrorId,
+      sequence: sequence,
+      modified: modified,
+      isDeviceFile: format == deviceFileFormat,
+      section: format == sectionFileFormat
+          ? properties['section'] as String?
+          : null,
+      rows: int.tryParse('${properties['rows']}'),
+      newest: int.tryParse('${properties['newest']}'),
+      encryption: properties['enc'] as String?,
+      encryptionAt: int.tryParse('${properties['encAt']}'),
+    );
+  }
+
+  @override
+  Future<String> startToken() async =>
+      _json(
+            await _client
+                .get(
+                  Uri.https(
+                    'www.googleapis.com',
+                    '/drive/v3/changes/startPageToken',
+                  ),
+                  headers: _headers,
+                )
+                .timeout(const Duration(seconds: 30)),
+          )['startPageToken']
+          as String;
+
+  @override
+  Future<(List<MirrorFile>, String)> changesSince(String token) async {
+    final files = <MirrorFile>[];
+    var pageToken = token;
+    while (true) {
+      final data = _json(
+        await _client
+            .get(
+              Uri.https('www.googleapis.com', '/drive/v3/changes', {
+                'pageToken': pageToken,
+                'spaces': 'appDataFolder',
+                'pageSize': '1000',
+                'fields':
+                    'nextPageToken,newStartPageToken,'
+                    'changes(removed,file(id,modifiedTime,trashed,appProperties))',
+              }),
+              headers: _headers,
+            )
+            .timeout(const Duration(seconds: 30)),
+      );
+      for (final change in data['changes'] as List? ?? const []) {
+        if (change is! Map || change['removed'] == true) continue;
+        if (_fileOf(change['file']) case final parsed?) files.add(parsed);
+      }
+      if (data['newStartPageToken'] case final String next) {
+        return (files, next);
+      }
+      final next = data['nextPageToken'];
+      if (next is! String) return (files, pageToken);
+      pageToken = next;
+    }
   }
 
   @override

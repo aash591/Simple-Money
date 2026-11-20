@@ -14,8 +14,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.Telephony
-import io.flutter.embedding.android.FlutterActivityLaunchConfigs.BackgroundMode
-import io.flutter.embedding.android.RenderMode
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.work.*
@@ -233,18 +231,7 @@ object RealtimeSmsNotifications {
     }
 }
 
-class SmsNotificationActivity : MainActivity() {
-    private var modalBlur: ModalBackgroundBlur? = null
-    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-        super.configureFlutterEngine(flutterEngine)
-        modalBlur = ModalBackgroundBlur(this, flutterEngine)
-    }
-    override fun onDestroy() {
-        modalBlur?.dispose()
-        super.onDestroy()
-    }
-    override fun getBackgroundMode() = BackgroundMode.transparent
-    // See QuickEntryActivity: a transparent SurfaceView, not a TextureView.
-    override fun getRenderMode() = RenderMode.surface
+/** The SMS preview over whatever app or home screen was showing, blurred. */
+class SmsNotificationActivity : TranslucentSheetActivity() {
     override fun getInitialRoute() = "/sms/${intent.getStringExtra("sms_id")}/${intent.getStringExtra("sms_field")}"
 }

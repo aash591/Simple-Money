@@ -1,0 +1,84 @@
+[
+  {
+    "id": "esaf-reported-001",
+    "country": "IN",
+    "bankId": "in.esaf",
+    "provenance": "Community-reported SMS (Help > Report SMS), Nov 2026; numbers masked by the bank",
+    "input": {
+      "sender": "ESAFSF",
+      "body": "Your ESAF Bank A/c XXXX94 is credited with Rs.1000.00 on 14/11/2026. Ref No:668415039439. For disputes, call 18001033723",
+      "receivedAt": "2026-11-15T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.esaf.template001",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "occurredAt": "2026-11-15T00:00:00.000Z",
+        "bankName": "ESAF Small Finance Bank",
+        "countryCode": "IN",
+        "accountLast4": "94",
+        "reference": "668415039439",
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "esaf-reported-002",
+    "country": "IN",
+    "bankId": "in.esaf",
+    "provenance": "Community-reported SMS (Help > Report SMS), Nov 2026; numbers masked by the bank",
+    "input": {
+      "sender": "ESAFSF",
+      "body": "Your ESAF Bank A/c XXX94 debited for Rs.120.00 on 2026-11-07 22:31:18 and credited to a/c no.XXX25. UPI Ref No:132546453960. Call 18001033723 if any dispute.",
+      "receivedAt": "2026-11-15T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.esaf.template002",
+      "candidate": {
+        "amountMinor": 12000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-11-15T00:00:00.000Z",
+        "bankName": "ESAF Small Finance Bank",
+        "countryCode": "IN",
+        "accountLast4": "94",
+        "reference": "132546453960",
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    }
+  }
+]

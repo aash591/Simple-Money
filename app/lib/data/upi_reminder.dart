@@ -118,7 +118,11 @@ Future<void> processBackgroundUpiPayment() async {
     if (payment == null) {
       await _channel.invokeMethod<void>('cancel', id);
     } else if (data['remind'] == true) {
-      await showUpiReminder(db, payment);
+      // The bank's SMS already answered "Did you pay?": its notification
+      // speaks for this payment, and the app opens it ready to save.
+      if (await repository.bankSms(payment) == null) {
+        await showUpiReminder(db, payment);
+      }
     } else if (data['discard'] == true) {
       await repository.delete(id);
       await _channel.invokeMethod<void>('cancel', id);

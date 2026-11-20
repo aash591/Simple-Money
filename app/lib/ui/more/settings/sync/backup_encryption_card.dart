@@ -13,6 +13,8 @@ class BackupEncryptionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = sync.status?.encryption != null;
+    // The other phones chose encryption this phone has no PIN for yet.
+    final peer = sync.status?.peerEncryption != null;
     final busy =
         sync.connecting ||
         sync.restoring ||
@@ -24,13 +26,48 @@ class BackupEncryptionCard extends StatelessWidget {
     final locked = busy || sync.status?.enabled != true;
     void toggle(bool value) => showBackupPinFlow(
       context,
-      purpose: value ? BackupPinPurpose.enable : BackupPinPurpose.disable,
-      onSubmit: (pin) => sync.setEncryption(value, pin),
+      purpose: !value
+          ? BackupPinPurpose.disable
+          : peer
+          ? BackupPinPurpose.join
+          : BackupPinPurpose.enable,
+      onSubmit: (pin) =>
+          value && peer ? sync.joinEncryption(pin) : sync.setEncryption(value, pin),
+    );
+    Future<void> join() => showBackupPinFlow(
+      context,
+      purpose: BackupPinPurpose.join,
+      onSubmit: sync.joinEncryption,
     );
     return MoneyCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (peer) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.key_rounded, size: 20, color: scheme.error),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Your other phone locks synced data with a PIN. Enter it '
+                    'to get its changes here again. This phone\'s changes '
+                    'still go up meanwhile.',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
+              ],
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: busy ? null : join,
+                child: const Text('Enter PIN'),
+              ),
+            ),
+            const Divider(height: 20),
+          ],
           InkWell(
             borderRadius: BorderRadius.circular(16),
             onTap: locked ? null : () => toggle(!enabled),

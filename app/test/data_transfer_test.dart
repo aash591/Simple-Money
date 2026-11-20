@@ -25,7 +25,7 @@ void main() {
   });
   tearDown(() => db.close());
 
-  Future<void> addAccount(String name) =>
+  Future<int> addAccount(String name) =>
       AccountRepository(db)
           .save(name: name, currency: 'INR', digits: 2, openingBalance: 100000);
 
@@ -71,12 +71,12 @@ void main() {
   );
 
   test('An export imports into another phone exactly', () async {
-    await addAccount('Cash');
-    await addAccount('Bank');
+    final from = await addAccount('Cash');
+    final to = await addAccount('Bank');
     await TransactionRepository(db).addTransfer(
       amountMinor: 1200,
-      fromAccountId: 1,
-      toAccountId: 2,
+      fromAccountId: from,
+      toAccountId: to,
       date: DateTime(2026, 9, 11),
     );
     final file = await exportLedger(db);
@@ -128,12 +128,12 @@ void main() {
   });
 
   test('Transactions CSV has readable amounts and safe cells', () async {
-    await addAccount('Cash, pocket');
-    await addAccount('=Bank');
+    final from = await addAccount('Cash, pocket');
+    final to = await addAccount('=Bank');
     await TransactionRepository(db).addTransfer(
       amountMinor: 1205,
-      fromAccountId: 1,
-      toAccountId: 2,
+      fromAccountId: from,
+      toAccountId: to,
       date: DateTime(2026, 9, 11, 8, 30),
     );
     final lines = utf8

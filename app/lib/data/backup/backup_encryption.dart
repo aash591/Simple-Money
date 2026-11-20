@@ -3,7 +3,20 @@ import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:cryptography/cryptography.dart';
+
+/// A short name for an encryption setting, the same on every phone that
+/// uses it: `off`, or the start of a hash of its public parameters. Section
+/// files carry it, so phones can tell from a listing which setting another
+/// phone chose.
+String encryptionFingerprint(BackupEncryption? configuration) =>
+    configuration == null
+    ? 'off'
+    : crypto.sha256
+          .convert(utf8.encode(configuration.encoded))
+          .toString()
+          .substring(0, 16);
 
 class BackupEncryptionException implements Exception {
   const BackupEncryptionException(this.message);

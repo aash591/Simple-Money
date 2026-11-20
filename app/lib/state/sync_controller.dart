@@ -12,11 +12,17 @@ import '../data/backup/backup_encryption.dart';
 import '../data/backup/sync_background.dart';
 import '../data/backup/sync_engine.dart';
 import '../data/backup/sync_repository.dart';
+import '../data/backup/sync_notifications.dart';
 import '../data/backup/sync_restore.dart';
 
 class SyncController extends ChangeNotifier with WidgetsBindingObserver {
   SyncController(this.repository, {SyncEngine? engine})
-    : engine = engine ?? SyncEngine(repository);
+    : engine =
+          engine ??
+          SyncEngine(
+            repository,
+            progress: Platform.isAndroid ? SyncNotifications() : null,
+          );
   final SyncRepository repository;
   final SyncEngine engine;
   final _background = SyncBackground();
@@ -42,8 +48,36 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
   VoidCallback? onRestored;
   bool get uploading => _running != null;
   bool get supported => Platform.isAndroid;
-  bool _disposed = false, _ticking = false, _uploadsHeld = false;
+  bool _disposed = false, _uploadsHeld = false;
+
+  /// The check running now, if any.
+  Future<void>? _check;
+
+  /// A forced check (Sync now, pulling a list down, back to the app) was
+  /// asked for and hasn't started yet: the next check to start is forced.
+  bool _forcePending = false;
   Timer? _timer;
+
+  /// How often other phones' changes are checked for while the app is open.
+  /// An idle check is one small request; see [SyncEngine.pull].
+  ///
+  /// Once a minute: people rarely use two phones at the same moment, and
+  /// opening the app, Sync now and pulling a list down all check at once.
+  /// It also keeps the Drive API well within its per-project request quota.
+  static const pullEvery = Duration(minutes: 1);
+
+  /// The same after leaving the app, while Android still keeps it running
+  /// (usually a few minutes). Once Android stops it, the WorkManager job
+  /// checks instead, at most every 15 minutes (Android's limit).
+  static const backgroundPullEvery = Duration(minutes: 1);
+  DateTime? _lastPull;
+
+  /// How often this phone looks for its own edits waiting to go up (one
+  /// small local query). An upload only replaces the few small files whose
+  /// records changed, so each edit goes up right away.
+  static const checkEvery = Duration(seconds: 1);
+  bool _foreground = true;
+  int? _seenProgress;
   StreamSubscription<List<ConnectivityResult>>? _connectivity;
   Future<void>? _running;
 
@@ -54,8 +88,16 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
         await repository.bindInstallation(
           await DriveAuthorization().installationId(),
         );
+        // How other phones' activity logs will name this one.
+        unawaited(
+          DriveAuthorization()
+              .deviceName()
+              .then(repository.setDeviceName)
+              .catchError((Object _) {}),
+        );
       }
       await refresh();
+      _seenProgress = await repository.peerProgress();
       if (!supported || _disposed) return;
       _connectivity = Connectivity().onConnectivityChanged.listen((networks) {
         if (networks.any((network) => network != ConnectivityResult.none)) {
@@ -65,7 +107,7 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
       if (status?.enabled == true) await _background.enable();
       if (_disposed) return;
       _timer = Timer.periodic(
-        const Duration(seconds: 3),
+        checkEvery,
         (_) => unawaited(_tick()),
       );
       await _tick();
@@ -87,9 +129,12 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
     _notify();
   }
 
+  /// Uploads this phone's waiting edits, then merges the other phones'
+  /// changes. A regular check while one is running is skipped; a [force]d
+  /// one waits for it and then runs, so Sync now and pulling a list down
+  /// always fetch what is on Drive by then.
   Future<void> _tick({bool force = false}) async {
     if (_disposed ||
-        _ticking ||
         connecting ||
         restoring ||
         managingData ||
@@ -98,28 +143,91 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
         !supported) {
       return;
     }
-    _ticking = true;
+    if (force) _forcePending = true;
+    while (true) {
+      final running = _check;
+      if (running == null) break;
+      if (!force) return;
+      await running;
+      if (!_forcePending) {
+        // A check that started since took this request: wait for it.
+        final taken = _check;
+        if (taken != null) await taken;
+        return;
+      }
+    }
+    final check = _runCheck(force: _forcePending);
+    _forcePending = false;
+    _check = check;
+    try {
+      await check;
+    } finally {
+      if (identical(_check, check)) _check = null;
+    }
+  }
+
+  Future<void> _runCheck({required bool force}) async {
     try {
       await refresh();
-      if (status?.enabled != true || status!.pending == 0) return;
-      await _background.enqueue();
-      if (_disposed) return;
-      _running = engine.run(force: force).then((success) {
-        if (success) actionError = null;
-      });
-      _notify();
-      await _running;
-      await refresh();
+      if (status?.enabled != true) return;
+      if (status!.pending > 0) {
+        await _background.enqueue();
+        if (_disposed) return;
+        _running = engine.run(force: force).then((success) {
+          if (success) actionError = null;
+        });
+        _notify();
+        await _running;
+        await refresh();
+      }
+      await _pull(force: force);
     } catch (_) {
       actionError = 'Sync will retry. Your changes are saved on this device.';
       _notify();
     } finally {
       final wasUploading = _running != null;
       _running = null;
-      _ticking = false;
       if (wasUploading) _notify();
     }
   }
+
+  /// Merges other phones' changes every [pullEvery] while the app is open,
+  /// every [backgroundPullEvery] after leaving it while Android keeps it
+  /// running, and at once when [force]d (opening the app, Sync now, pulling
+  /// a list down). Once Android stops the app, WorkManager's periodic run
+  /// does it instead.
+  Future<void> _pull({bool force = false}) async {
+    final last = _lastPull;
+    if (_disposed || status?.enabled != true) return;
+    final every = _foreground ? pullEvery : backgroundPullEvery;
+    if (!force && last != null && DateTime.now().difference(last) < every) {
+      return;
+    }
+    _lastPull = DateTime.now();
+    try {
+      // A forced check (Sync now, back to the app) lists every file.
+      final changed = await engine.pull(full: force);
+      // Also catches what the background job merged while the app was away.
+      final progress = await repository.peerProgress();
+      final seen = _seenProgress;
+      _seenProgress = progress;
+      if (_disposed) return;
+      if (changed > 0 || (seen != null && seen != progress)) {
+        onRestored?.call();
+        _notify(); // e.g. an open activity log
+      }
+    } on DriveSyncException catch (error) {
+      // Only a version mismatch needs the user; the rest retries next time.
+      if (error.message.startsWith('Update')) {
+        actionError = error.message;
+        _notify();
+      }
+    } catch (_) {}
+  }
+
+  /// After an undo in the activity log: the reverted record syncs to the
+  /// other phones like any edit made here.
+  void changedLocally() => unawaited(_tick(force: true));
 
   Future<bool> hasLocalData() => repository.hasLedgerData();
 
@@ -306,6 +414,26 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  /// Enters the PIN the account's other phones use ([SyncStatus.peerEncryption]),
+  /// so their files can be read again; then syncs at once.
+  Future<void> joinEncryption(String pin) async {
+    if (changingEncryption || connecting || restoring || managingData) {
+      throw StateError('Finish the current sync action first.');
+    }
+    changingEncryption = true;
+    _notify();
+    try {
+      await _running;
+      await engine.joinEncryption(pin);
+      actionError = null;
+      await refresh();
+    } finally {
+      changingEncryption = false;
+      _notify();
+      unawaited(_tick(force: true));
+    }
+  }
+
   /// Keeps this device's data and resumes uploading it.
   Future<void> skipRestore() async {
     // A locked backup cannot be skipped into an unencrypted upload by mistake.
@@ -356,6 +484,8 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
       managingData = false;
       try {
         await refresh();
+        // Deleting this phone's data or importing a file turns sync off.
+        if (status?.enabled != true) await _background.disable();
       } catch (_) {
         // The next tick refreshes the status.
       }
@@ -490,8 +620,17 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) unawaited(_tick(force: true));
+    _foreground = state == AppLifecycleState.resumed;
+    final notifications = engine.progress is SyncNotifications
+        ? engine.progress as SyncNotifications
+        : null;
+    if (state == AppLifecycleState.resumed) {
+      notifications?.cameBack();
+      unawaited(_tick(force: true));
+    }
     if (state == AppLifecycleState.paused && status?.enabled == true) {
+      // Shows an upload still running, or edits not up yet, until they are.
+      notifications?.leftApp(waiting: status?.pending ?? 0);
       unawaited(_background.enqueue().catchError((Object _) {}));
     }
   }

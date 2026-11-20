@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart' show usesGlass;
 import 'empty_art.dart';
 
 /// The one "nothing here yet" page for list screens (Accounts, Categories,
@@ -38,6 +39,7 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final artwork = art ?? emptyArtFor(icon);
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(18, 24, 18, 100),
@@ -98,13 +100,19 @@ class EmptyState extends StatelessWidget {
                         ),
                       ),
                     ),
-                    GlassLens(
-                      size: _lens,
-                      child: EmptyArtwork(
-                        art ?? emptyArtFor(icon),
-                        size: _lens * .54,
+                    if (usesGlass(context))
+                      // The glass art floats on its own shadow, no lens.
+                      SizedBox.square(
+                        dimension: _lens,
+                        child: Center(
+                          child: EmptyArtwork(artwork, size: _lens * .9),
+                        ),
+                      )
+                    else
+                      GlassLens(
+                        size: _lens,
+                        child: EmptyArtwork(artwork, size: _lens * .54),
                       ),
-                    ),
                   ],
                 ),
                 if (actionLabel != null && onAction != null) ...[
@@ -150,10 +158,13 @@ class NoResultsState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const GlassLens(
-            size: 96,
-            child: EmptyArtwork(EmptyArt.search, size: 52),
-          ),
+          if (usesGlass(context))
+            const EmptyArtwork(EmptyArt.search, size: 88)
+          else
+            const GlassLens(
+              size: 96,
+              child: EmptyArtwork(EmptyArt.search, size: 52),
+            ),
           const SizedBox(height: 22),
           Text(
             message,

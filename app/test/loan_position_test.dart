@@ -180,10 +180,11 @@ void main() {
   group('Payment ledger', () {
     late AppDatabase db;
     late LoanRepository repo;
+    late int cash;
     setUp(() async {
       db = AppDatabase(NativeDatabase.memory(), false);
       repo = LoanRepository(db);
-      await AccountRepository(db).save(
+      cash = await AccountRepository(db).save(
         name: 'Cash',
         currency: 'INR',
         digits: 2,
@@ -200,13 +201,13 @@ void main() {
           snapshot: DateTime(2026, 2, 10),
           accrual: LoanAccrual.monthly,
         ),
-        1,
+        cash,
       );
       await repo.record(
         await current(),
         kind: LoanEventKind.emi,
         date: DateTime(2026, 3, 10),
-        accountId: 1,
+        accountId: cash,
         amount: 800000,
         interestCharged: 200000,
       );
@@ -227,12 +228,12 @@ void main() {
     test(
       'Gold-loan interest-only payment leaves principal unchanged',
       () async {
-        await repo.add(contract(accrual: LoanAccrual.monthly), 1);
+        await repo.add(contract(accrual: LoanAccrual.monthly), cash);
         await repo.record(
           await current(),
           kind: LoanEventKind.emi,
           date: DateTime(2026, 2, 10),
-          accountId: 1,
+          accountId: cash,
           amount: 100000,
           interestCharged: 100000,
         );
@@ -246,13 +247,13 @@ void main() {
       () async {
         await repo.add(
           contract(interest: null, accrual: LoanAccrual.monthly),
-          1,
+          cash,
         );
         await repo.record(
           await current(),
           kind: LoanEventKind.emi,
           date: DateTime(2026, 2, 10),
-          accountId: 1,
+          accountId: cash,
           amount: 500000,
           interestCharged: 125000,
           unpaidInterestAfter: 0,
@@ -263,13 +264,13 @@ void main() {
       },
     );
     test('Dates and overallocations fail atomically', () async {
-      await repo.add(contract(snapshot: DateTime(2026, 2, 10)), 1);
+      await repo.add(contract(snapshot: DateTime(2026, 2, 10)), cash);
       await expectLater(
         repo.record(
           await current(),
           kind: LoanEventKind.emi,
           date: DateTime(2026, 1, 10),
-          accountId: 1,
+          accountId: cash,
           amount: 50000,
           interestCharged: 0,
         ),
@@ -280,7 +281,7 @@ void main() {
           await current(),
           kind: LoanEventKind.emi,
           date: DateTime(2026, 2, 10),
-          accountId: 1,
+          accountId: cash,
           amount: 50000,
           interestCharged: 60000,
         ),
@@ -290,7 +291,7 @@ void main() {
       expect(await TransactionRepository(db).load(), isEmpty);
     });
     test('Disbursal transaction uses disbursement date', () async {
-      await repo.add(contract(), 1, receivedIn: 1);
+      await repo.add(contract(), cash, receivedIn: cash);
       expect(
         (await TransactionRepository(db).load()).single.date,
         DateTime(2026, 1, 10),
@@ -300,12 +301,12 @@ void main() {
       'Ordinary EMI automatically allocates interest at payment date',
       () async {
         final emi = loanEmi(10000000, 12, 12);
-        await repo.add(contract(accrual: LoanAccrual.monthly, emi: emi), 1);
+        await repo.add(contract(accrual: LoanAccrual.monthly, emi: emi), cash);
         await repo.record(
           await current(),
           kind: LoanEventKind.emi,
           date: DateTime(2026, 2, 10),
-          accountId: 1,
+          accountId: cash,
           amount: emi,
         );
         final l = await current();

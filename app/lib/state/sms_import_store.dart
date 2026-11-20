@@ -581,6 +581,10 @@ class SmsImportStore extends ChangeNotifier {
 
   /// Whether a finished scan adds accounts and saves ready transactions.
   final bool autoImport;
+
+  /// When false, a scan still adds accounts but leaves the transactions it
+  /// found waiting, for the caller to [saveReady] or [dismissPending].
+  bool saveFound = true;
   final Future<PortableSmsEngine> Function() engineLoader;
   Future<PortableSmsEngine>? _engine;
   final bool _usesBundledEngine;
@@ -717,7 +721,9 @@ class SmsImportStore extends ChangeNotifier {
     }
   }
 
-  Future<void> enable() async {
+  /// Turns on bank-SMS detection. With [importHistory] false the inbox is not
+  /// read back: only messages arriving from now on are used.
+  Future<void> enable({bool importHistory = true}) async {
     if (busy || !supported || _disposed) return;
     busy = true;
     error = null;
@@ -739,7 +745,13 @@ class SmsImportStore extends ChangeNotifier {
       busy = false;
       _notify();
     }
-    if (allowed && !_disposed) await scan();
+    if (allowed && !_disposed) {
+      if (importHistory) {
+        await scan();
+      } else {
+        await repository.checkpoint(DateTime.now().millisecondsSinceEpoch);
+      }
+    }
   }
 
   Future<void> disable() async {
@@ -909,9 +921,15 @@ class SmsImportStore extends ChangeNotifier {
     }
     final added = (await accounts.load()).length - before.length;
     await reload();
-    final saved = await _saveReady(repository.database);
+    final saved = saveFound ? await _saveReady(repository.database) : 0;
     await reload();
     return SmsScanSummary(accountsAdded: added, saved: saved);
+  }
+
+  /// Sets aside everything the scan found, so only new messages are saved.
+  Future<void> dismissPending() async {
+    await repository.dismissAllPending();
+    await reload();
   }
 
   Future<int> saveReady() async {

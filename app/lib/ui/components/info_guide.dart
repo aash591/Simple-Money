@@ -61,8 +61,9 @@ class GuideTip {
 
   /// Something to paste into an AI app: shown under [title], and copied when
   /// the tip is tapped.
-  const GuideTip.prompt(this.icon, this.title, String this.prompt)
-    : text = null,
+  const GuideTip.prompt(this.title, String this.prompt)
+    : icon = Icons.face_rounded,
+      text = null,
       path = const [];
   final IconData icon;
   final String title;
@@ -193,7 +194,8 @@ class InfoGuideScreen extends StatelessWidget {
               child: Column(
                 children: [
                   for (final (i, tip) in section.tips.indexed) ...[
-                    if (i > 0) const Divider(height: 1, indent: 52),
+                    if (i > 0)
+                      Divider(height: 1, indent: tip.prompt == null ? 52 : 0),
                     _Tip(tip),
                   ],
                 ],
@@ -300,8 +302,10 @@ class _Tip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurfaceVariant;
-    final prompt = tip.prompt;
-    final row = Padding(
+    if (tip.prompt case final prompt?) {
+      return _PromptTip(tip.title, prompt);
+    }
+    return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,24 +328,6 @@ class _Tip extends StatelessWidget {
                     ),
                   ),
                 ],
-                if (prompt != null) ...[
-                  const SizedBox(height: 6),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.onSurface.withValues(alpha: .05),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      prompt,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: muted,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
                 if (tip.path.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   GuidePath(tip.path),
@@ -349,21 +335,24 @@ class _Tip extends StatelessWidget {
               ],
             ),
           ),
-          if (prompt != null) ...[
-            const SizedBox(width: 8),
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Icon(
-                Icons.copy_rounded,
-                size: 18,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-          ],
         ],
       ),
     );
-    if (prompt == null) return row;
+  }
+}
+
+/// Something to paste into an AI app, shown like a message about to be sent:
+/// a small person avatar and the title, then the text at full width. Tapping
+/// copies it.
+class _PromptTip extends StatelessWidget {
+  const _PromptTip(this.title, this.prompt);
+  final String title;
+  final String prompt;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
     return Semantics(
       button: true,
       hint: 'Copies the prompt',
@@ -375,7 +364,49 @@ class _Tip extends StatelessWidget {
             showAppToast(context, 'Prompt copied', icon: Icons.copy_rounded);
           }
         },
-        child: row,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: primary.withValues(alpha: .12),
+                    ),
+                    child: Icon(Icons.face_rounded, size: 18, color: primary),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(title, style: theme.textTheme.titleSmall),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(Icons.copy_rounded, size: 18, color: primary),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.onSurface.withValues(alpha: .05),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  prompt,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

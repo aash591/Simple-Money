@@ -3,7 +3,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../components/common.dart';
 import '../../components/feature_page.dart';
+import '../../../state/app_update.dart';
 import '../../components/menu_list.dart';
+import '../../components/update_sheet.dart';
 import 'legal_screen.dart';
 import 'privacy_policy_screen.dart';
 
@@ -82,6 +84,34 @@ class _AboutScreenState extends State<AboutScreen> {
             ),
           ),
           const SizedBox(height: 22),
+          ListenableBuilder(
+            listenable: AppUpdate.instance,
+            builder: (context, _) {
+              final stage = AppUpdate.instance.stage;
+              if (stage == AppUpdateStage.none) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 22),
+                child: MenuGroup(
+                  children: [
+                    MenuRow(
+                      icon: Icons.system_update_rounded,
+                      title: stage == AppUpdateStage.ready
+                          ? 'Update ready'
+                          : stage == AppUpdateStage.downloading
+                          ? 'Downloading update'
+                          : 'Update available',
+                      subtitle: stage == AppUpdateStage.ready
+                          ? 'Restart to install'
+                          : stage == AppUpdateStage.downloading
+                          ? 'Keeps going in the background'
+                          : 'A newer version is on Google Play',
+                      onTap: () => showUpdateSheet(context),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
           MenuGroup(
             children: [
               MenuRow(

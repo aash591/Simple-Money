@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../components/common.dart';
+import '../theme/app_theme.dart' show usesGlass;
+import '../components/empty_art.dart' show EmptyArtwork, menuArtFor;
 
 /// The fixed space at the top of a setup page that its picture sits in, so
 /// the picture is the same size and in the same place on every page.
@@ -25,6 +27,14 @@ class RoundIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
+    // Icons with glass artwork float on their own shadow, with no circle.
+    final art = usesGlass(context) ? menuArtFor(icon) : null;
+    if (art != null) {
+      return SizedBox(
+        height: HeroSlot.height,
+        child: Center(child: EmptyArtwork(art, size: 120)),
+      );
+    }
     return ExcludeSemantics(
       child: Container(
         width: 112,

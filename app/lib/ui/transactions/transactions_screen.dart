@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import '../components/transactions/transaction_day_group.dart';
@@ -25,10 +26,15 @@ import 'currency_summary_carousel.dart';
 import '../components/animated_amount.dart';
 import '../components/app_icon.dart';
 import '../components/info_guide.dart';
+import '../components/app_toast.dart';
+import '../components/choice_list_sheet.dart';
 import '../components/common.dart';
+import '../components/confirmation_alert.dart';
+import '../components/transactions/review_pickers.dart';
 import '../components/tab_header.dart';
 
 import '../components/more_popup_button.dart';
+import '../components/row_transition.dart';
 import '../components/search_field.dart';
 import '../components/private_amount.dart';
 import '../components/sheet_scroll_indicator.dart';
@@ -59,6 +65,11 @@ enum _MenuAction {
   adjust,
   transfer,
   attention,
+  select,
+  selectAll,
+  deleteSelected,
+  categorizeSelected,
+  moveSelected,
 }
 
 /// How a period's transactions are laid out: as the days they happened on,
@@ -106,7 +117,12 @@ class TransactionsScreen extends StatefulWidget {
     this.initialPeriod,
     this.parentHandlesBack = false,
     this.preview,
+    this.onSync,
   });
+
+  /// Pulling the list down runs this first (Sync now), so it shows what
+  /// the other phones changed too.
+  final Future<void> Function()? onSync;
   final AccountStore accountStore;
   final CategoryStore categoryStore;
   final TransactionStore transactionStore;
@@ -165,6 +181,14 @@ class TransactionsScreenState extends State<TransactionsScreen>
   /// Kept across periods so paging doesn't collapse a category being read.
   final _expandedGroups = <int>{};
   bool _isSearch = false;
+
+  /// The ids ticked in select mode; null when the list is not being selected.
+  Set<int>? _selection;
+
+  void _toggleSelected(MoneyTransaction transaction) => setState(() {
+    final picked = _selection ??= {};
+    if (!picked.remove(transaction.id)) picked.add(transaction.id);
+  });
   bool _needsAttentionOnly = false;
   bool _readyToSaveOnly = true;
   String _query = '';
@@ -185,10 +209,76 @@ class TransactionsScreenState extends State<TransactionsScreen>
 
   TransactionCurrency _accountCurrency(Account account) =>
       (account.currency, account.digits);
-  List<MoneyTransaction> get _transactions =>
-      widget.preview?.transactions ?? widget.transactionStore.transactions;
-  Future<void> _refresh() =>
-      widget.preview?.onRefresh() ?? widget.transactionStore.load();
+  /// The ledger's transactions as last shown, by id, to tell which rows
+  /// are new and which were deleted when it reloads (see [RowTransition]).
+  Map<int, MoneyTransaction>? _lastShown;
+
+  /// When each new transaction arrived: built soon after, its row unfolds.
+  final _arrived = <int, DateTime>{};
+
+  /// Deleted transactions, still drawn while their rows fold away.
+  final _leaving = <int, MoneyTransaction>{};
+  List<MoneyTransaction>? _withLeaving;
+
+  bool _isNew(int id) {
+    final at = _arrived[id];
+    return at != null &&
+        DateTime.now().difference(at) < const Duration(seconds: 2);
+  }
+
+  /// Notes which transactions the reload added and which it removed. The
+  /// first load animates nothing.
+  void _trackChanges() {
+    final store = widget.transactionStore;
+    if (store.loading) return;
+    final now = {for (final t in store.transactions) t.id: t};
+    final before = _lastShown;
+    _lastShown = now;
+    _withLeaving = null;
+    _leaving.removeWhere((id, _) => now.containsKey(id));
+    if (before == null) return;
+    final time = DateTime.now();
+    _arrived.removeWhere(
+      (_, at) => time.difference(at) > const Duration(seconds: 5),
+    );
+    for (final id in now.keys) {
+      if (!before.containsKey(id)) _arrived[id] = time;
+    }
+    final gone = [
+      for (final MapEntry(:key, :value) in before.entries)
+        if (!now.containsKey(key)) (key, value),
+    ];
+    if (gone.isEmpty) return;
+    for (final (id, transaction) in gone) {
+      _leaving[id] = transaction;
+    }
+    Timer(RowTransition.duration + const Duration(milliseconds: 40), () {
+      if (!mounted) return;
+      for (final (id, _) in gone) {
+        _leaving.remove(id);
+      }
+      _withLeaving = null;
+      _onStoreChanged();
+    });
+  }
+
+  List<MoneyTransaction> get _transactions {
+    final current =
+        widget.preview?.transactions ?? widget.transactionStore.transactions;
+    if (_leaving.isEmpty || widget.preview != null) return current;
+    // Kept in the ledger's order (newest first), so a leaving row folds
+    // away where it was.
+    return _withLeaving ??= [...current, ..._leaving.values]
+      ..sort((a, b) {
+        final byDate = b.date.compareTo(a.date);
+        return byDate != 0 ? byDate : b.id.compareTo(a.id);
+      });
+  }
+  Future<void> _refresh() async {
+    if (widget.preview case final preview?) return preview.onRefresh();
+    await widget.onSync?.call();
+    await widget.transactionStore.load();
+  }
 
   List<TransactionCurrency> _currenciesFor(DateTimeRange range) =>
       _currencyOptions[range] ??= _computeCurrenciesFor(range);
@@ -420,6 +510,7 @@ class TransactionsScreenState extends State<TransactionsScreen>
     // SMS review index. Ignoring them here keeps the preview's SQL page and
     // aggregate results warm while switching apps.
     if (widget.preview != null) return;
+    _trackChanges();
     _onStoreChanged();
   }
 
@@ -735,6 +826,21 @@ class TransactionsScreenState extends State<TransactionsScreen>
           }
         });
         return;
+      case _MenuAction.select:
+        setState(() => _selection = _selection == null ? {} : null);
+        return;
+      case _MenuAction.selectAll:
+        _selectAll();
+        return;
+      case _MenuAction.deleteSelected:
+        await _deleteSelected();
+        return;
+      case _MenuAction.categorizeSelected:
+        await _categorizeSelected();
+        return;
+      case _MenuAction.moveSelected:
+        await _moveSelected();
+        return;
       case _MenuAction.range:
         await _selectRange();
       case _MenuAction.filter:
@@ -756,6 +862,165 @@ class TransactionsScreenState extends State<TransactionsScreen>
           transactionStore: widget.transactionStore,
         );
     }
+  }
+
+  /// The ticked transactions, as they are now in the store.
+  List<MoneyTransaction> get _picked => [
+    for (final t in widget.transactionStore.transactions)
+      if (_selection?.contains(t.id) ?? false) t,
+  ];
+
+  /// What the list in front of you shows: the period, account and filters.
+  List<MoneyTransaction> get _shown =>
+      _visibleFrom(_periodTransactionsFor(_activeRange));
+
+  bool get _allSelected {
+    final shown = _shown;
+    final picked = _selection;
+    return picked != null &&
+        shown.isNotEmpty &&
+        shown.every((t) => picked.contains(t.id));
+  }
+
+  void _selectAll() => setState(() {
+    final shown = _shown;
+    _selection = _allSelected ? <int>{} : {for (final t in shown) t.id};
+  });
+
+  Future<void> _deleteSelected() async {
+    final picked = _picked;
+    if (picked.isEmpty) {
+      showAppToast(context, 'Select transactions first');
+      return;
+    }
+    final n = picked.length;
+    final ok = await showDeleteConfirmation(
+      context,
+      title: 'Delete $n ${n == 1 ? 'transaction' : 'transactions'}?',
+      message: 'Their effect on your account balances is reversed.',
+    );
+    if (!ok || !mounted) return;
+    var failed = 0;
+    for (final t in picked) {
+      try {
+        await widget.transactionStore.deleteTransaction(t.id);
+      } catch (_) {
+        failed++;
+      }
+    }
+    _finishBatch(done: n - failed, failed: failed, verb: 'deleted');
+  }
+
+  Future<void> _categorizeSelected() async {
+    final picked = _picked.where((t) => t.type != TransactionType.transfer);
+    if (picked.isEmpty) {
+      showAppToast(context, 'Select expenses or income first');
+      return;
+    }
+    final types = picked.map((t) => t.type).toSet();
+    if (types.length > 1) {
+      showAppToast(context, 'Select only expenses or only income');
+      return;
+    }
+    final pick = await showReviewCategoryPicker(
+      context,
+      title: 'Change category',
+      categories: widget.categoryStore.categories,
+      store: widget.categoryStore,
+      type: types.single == TransactionType.income
+          ? CategoryType.income
+          : CategoryType.expense,
+      selected: null,
+    );
+    final id = pick?.categoryId;
+    if (id == null || !mounted) return;
+    var failed = 0;
+    for (final t in picked) {
+      try {
+        await widget.transactionStore.updateExpenseOrIncome(
+          id: t.id,
+          type: t.type,
+          amountMinor: t.amountMinor,
+          accountId: t.accountId,
+          categoryId: id,
+          title: t.title,
+          note: t.note,
+          date: t.date,
+        );
+      } catch (_) {
+        failed++;
+      }
+    }
+    _finishBatch(done: picked.length - failed, failed: failed, verb: 'updated');
+  }
+
+  Future<void> _moveSelected() async {
+    final picked = _picked.where((t) => t.type != TransactionType.transfer);
+    if (picked.isEmpty) {
+      showAppToast(context, 'Select expenses or income first');
+      return;
+    }
+    final accounts = widget.accountStore;
+    final currencies = {
+      for (final t in picked) accounts.byId(t.accountId)?.currency,
+    };
+    if (currencies.length > 1) {
+      showAppToast(context, 'Select transactions in one currency');
+      return;
+    }
+    final currency = currencies.single;
+    final id = await showReviewAccountPicker(
+      context,
+      title: 'Change account',
+      heading: 'Move to',
+      selected: null,
+      items: [
+        for (final a in accounts.accounts)
+          if (a.currency == currency)
+            ChoiceItem(
+              value: a.id,
+              icon: AppIcon(a.icon, size: 28),
+              label: a.name,
+              subtitle: formatTransactionMoney(a.balanceMinor, a),
+              chevron: true,
+            ),
+      ],
+      onAdd: (_) async => null,
+    );
+    if (id == null || !mounted) return;
+    var failed = 0;
+    for (final t in picked) {
+      try {
+        await widget.transactionStore.updateExpenseOrIncome(
+          id: t.id,
+          type: t.type,
+          amountMinor: t.amountMinor,
+          accountId: id,
+          categoryId: t.categoryId ?? 0,
+          title: t.title,
+          note: t.note,
+          date: t.date,
+        );
+      } catch (_) {
+        failed++;
+      }
+    }
+    _finishBatch(done: picked.length - failed, failed: failed, verb: 'moved');
+  }
+
+  void _finishBatch({
+    required int done,
+    required int failed,
+    required String verb,
+  }) {
+    if (!mounted) return;
+    setState(() => _selection = null);
+    showAppToast(
+      context,
+      failed == 0
+          ? '$done ${done == 1 ? 'transaction' : 'transactions'} $verb'
+          : '$done $verb, $failed could not be changed',
+    );
   }
 
   Future<void> _openTransaction(MoneyTransaction transaction) async {
@@ -789,6 +1054,10 @@ class TransactionsScreenState extends State<TransactionsScreen>
 
   /// Returns true when back was consumed by the search UI.
   bool handleBack() {
+    if (_selection != null) {
+      setState(() => _selection = null);
+      return true;
+    }
     if (!_isSearch) return false;
     _cancelSearch();
     return true;
@@ -805,7 +1074,7 @@ class TransactionsScreenState extends State<TransactionsScreen>
         ? Duration.zero
         : const Duration(milliseconds: 320);
     return PopScope(
-      canPop: widget.parentHandlesBack || !_isSearch,
+      canPop: _selection == null && (widget.parentHandlesBack || !_isSearch),
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) handleBack();
       },
@@ -1272,6 +1541,10 @@ class TransactionsScreenState extends State<TransactionsScreen>
                       categoryById: _categoryById,
                       formatAmount: _formatTransactionAmount,
                       onOpen: _openTransaction,
+                      selection: _selection,
+                      onToggle: widget.preview == null ? _toggleSelected : null,
+                      entering: _isNew,
+                      leaving: _leaving.keys.toSet(),
                     );
                   },
                 ),
@@ -1291,6 +1564,7 @@ class TransactionsScreenState extends State<TransactionsScreen>
             ? 'Ready to save transactions'
             : widget.preview!.title,
         leading: Navigator.of(context).canPop() ? const AppBackButton() : null,
+        centered: true,
         titleStyle: const TextStyle(fontSize: 16),
         actions: [
           if (widget.preview!.guide case final guide? when !_isSearch)
@@ -1328,46 +1602,92 @@ class TransactionsScreenState extends State<TransactionsScreen>
   Widget _buildOptions() => MorePopupButton<_MenuAction>(
     tooltip: _isSearch ? 'Search options' : 'Transaction options',
     onSelected: _onMenuAction,
-    items: [
-      if (widget.preview?.load != null) ...[
-        if (_readyToSaveOnly || _needsAttentionOnly)
-          const MorePopupItem(
-            value: _MenuAction.allPreview,
-            label: 'All transactions',
-          ),
-        MorePopupItem(
-          value: _needsAttentionOnly
-              ? _MenuAction.readyPreview
-              : _MenuAction.attention,
-          label: _needsAttentionOnly ? 'Ready to save' : 'Needs attention',
-        ),
-      ] else if (widget.preview != null)
-        MorePopupItem(
-          value: _MenuAction.attention,
-          label: _needsAttentionOnly ? 'Ready to save' : 'Needs attention',
-        ),
-      MorePopupItem(value: _MenuAction.range, label: 'Select time range'),
-      if (_grouping == _Grouping.category) ...[
-        MorePopupItem(value: _MenuAction.filter, label: 'View by transaction'),
-        MorePopupItem(value: _MenuAction.category, label: 'Filter by category'),
-      ] else ...[
-        MorePopupItem(value: _MenuAction.category, label: 'View by category'),
-        MorePopupItem(value: _MenuAction.filter, label: 'Filter by type'),
-      ],
-      if (_isSearch || widget.preview != null)
-        const MorePopupItem(
-          value: _MenuAction.account,
-          label: 'Select account',
-        ),
-      if (!_isSearch && widget.preview == null)
-        MorePopupItem(
-          value: _MenuAction.adjust,
-          label: 'Adjust balance',
-          dividerBefore: true,
-        ),
-      if (!_isSearch && widget.preview == null)
-        MorePopupItem(value: _MenuAction.transfer, label: 'Transfer money'),
-    ],
+    items: _selection != null
+        ? [
+            MorePopupItem(
+              value: _MenuAction.selectAll,
+              label: _allSelected ? 'Deselect all' : 'Select all',
+            ),
+            MorePopupItem(
+              value: _MenuAction.categorizeSelected,
+              label: 'Change category',
+            ),
+            MorePopupItem(
+              value: _MenuAction.moveSelected,
+              label: 'Change account',
+            ),
+            MorePopupItem(
+              value: _MenuAction.deleteSelected,
+              label: 'Delete',
+              dividerBefore: true,
+            ),
+            MorePopupItem(
+              value: _MenuAction.select,
+              label: 'Cancel selection',
+              dividerBefore: true,
+            ),
+          ]
+        : [
+            if (widget.preview?.load != null) ...[
+              if (_readyToSaveOnly || _needsAttentionOnly)
+                const MorePopupItem(
+                  value: _MenuAction.allPreview,
+                  label: 'All transactions',
+                ),
+              MorePopupItem(
+                value: _needsAttentionOnly
+                    ? _MenuAction.readyPreview
+                    : _MenuAction.attention,
+                label: _needsAttentionOnly
+                    ? 'Ready to save'
+                    : 'Needs attention',
+              ),
+            ] else if (widget.preview != null)
+              MorePopupItem(
+                value: _MenuAction.attention,
+                label: _needsAttentionOnly
+                    ? 'Ready to save'
+                    : 'Needs attention',
+              ),
+            if (widget.preview == null)
+              MorePopupItem(
+                value: _MenuAction.select,
+                label: _selection == null ? 'Select' : 'Cancel selection',
+              ),
+            MorePopupItem(value: _MenuAction.range, label: 'Select time range'),
+            if (_grouping == _Grouping.category) ...[
+              MorePopupItem(
+                value: _MenuAction.filter,
+                label: 'View by transaction',
+              ),
+              MorePopupItem(
+                value: _MenuAction.category,
+                label: 'Filter by category',
+              ),
+            ] else ...[
+              MorePopupItem(
+                value: _MenuAction.category,
+                label: 'View by category',
+              ),
+              MorePopupItem(value: _MenuAction.filter, label: 'Filter by type'),
+            ],
+            if (_isSearch || widget.preview != null)
+              const MorePopupItem(
+                value: _MenuAction.account,
+                label: 'Select account',
+              ),
+            if (!_isSearch && widget.preview == null)
+              MorePopupItem(
+                value: _MenuAction.adjust,
+                label: 'Adjust balance',
+                dividerBefore: true,
+              ),
+            if (!_isSearch && widget.preview == null)
+              MorePopupItem(
+                value: _MenuAction.transfer,
+                label: 'Transfer money',
+              ),
+          ],
   );
 
   /// One surface for the account being looked at: its icon, name and last
@@ -2066,6 +2386,10 @@ class TransactionsScreenState extends State<TransactionsScreen>
       categoryById: _categoryById,
       formatAmount: _formatTransactionAmount,
       onOpen: _openTransaction,
+      selection: _selection,
+      onToggle: widget.preview == null ? _toggleSelected : null,
+      entering: _isNew,
+      leaving: _leaving.keys.toSet(),
     );
   }
 }

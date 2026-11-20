@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -61,11 +62,18 @@ class ProController extends ChangeNotifier {
   bool subscribed = false;
 
   ///
-  /// A debug build may opt in to Pro with `--dart-define=DEBUG_PRO=true`
-  /// ([MonetizationConfig.debugPro]), which also turns ads off as Pro does.
-  /// It does nothing in release builds.
-  bool get isPro =>
-      ownsLifetime || subscribed || (kDebugMode && MonetizationConfig.debugPro);
+  /// A debug build is Pro, which also turns ads off as Pro does; build with
+  /// `--dart-define=DEBUG_PRO=false` to see the free plan
+  /// ([MonetizationConfig.debugPro]). Profile and release builds never are.
+  bool get isPro => ownsLifetime || subscribed || debugPro;
+
+  /// Pro given to a debug build. Widget tests run in debug mode too, but
+  /// test the free plan unless they set this.
+  @visibleForTesting
+  static bool debugPro =
+      kDebugMode &&
+      MonetizationConfig.debugPro &&
+      !Platform.environment.containsKey('FLUTTER_TEST');
 
   /// Whether the free plan's limits (budgets, accent colours) are open: for
   /// Pro, and for everyone while [enforceLimits] is off. [isPro] stays the

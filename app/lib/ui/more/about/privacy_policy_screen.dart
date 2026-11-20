@@ -68,7 +68,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 '• Report SMS: only the messages you select, with any note '
                 'or contact you add, are sent securely to the developer.\n'
                 '• Exchange rates: downloaded from a public currency '
-                'service. No personal data is sent.',
+                'service. No personal data is sent.\n'
+                '• Portfolio prices: if you add stocks or funds, the app '
+                'looks up their latest closing price once a day from public '
+                'sources (AMFI for Indian mutual funds, Yahoo Finance for '
+                'stocks and ETFs). Only the ticker or fund code is sent, '
+                'never your name, amounts or accounts.',
           ),
           const SizedBox(height: 14),
           const _Section(

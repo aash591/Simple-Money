@@ -147,7 +147,7 @@ void main() {
     },
   );
 
-  test('encrypted restore holds uploads, rejects wrong PIN, and preserves legacy copies', () async {
+  test('encrypted restore holds uploads, rejects wrong PIN, and replaces the plain copy', () async {
     final db = AppDatabase(NativeDatabase.memory(), false);
     final fresh = AppDatabase(NativeDatabase.memory(), false);
     addTearDown(db.close);
@@ -166,7 +166,11 @@ void main() {
     await repository.connect('test@example.com', 'subject');
     expect((await repository.status()).encryption, isNull);
     expect(await engine.run(), isTrue);
-    final legacy = drive.files.values.single;
+    final mine = await repository.mirrorId();
+    SyncBatch fileOf(String mirror) => drive.files.values.singleWhere(
+      (f) => f.mirrorId == mirror && f.section == 'accounts',
+    );
+    expect(backupBatchEncryption(fileOf(mine).payload), isNull);
     keys.failWrites = true;
     await expectLater(engine.enableEncryption('Ab12x9'), throwsStateError);
     expect((await repository.status()).encryption, isNull);
@@ -174,10 +178,16 @@ void main() {
     await engine.enableEncryption('Ab12x9');
     drive.loseResponse = true;
     expect(await engine.run(), isFalse);
-    final frozen = drive.files.values.last.payload;
+    final files = drive.files.length;
+    final frozen = fileOf(mine).payload;
     expect(await engine.run(force: true), isTrue);
-    expect(drive.files.values.last.payload, frozen);
-    expect(drive.files[legacy.fileId], same(legacy));
+    // The retry replaced the same files rather than making more.
+    expect(drive.files, hasLength(files));
+    // The plain copies uploaded before are replaced, not kept beside them.
+    expect(
+      drive.files.values.every((f) => backupBatchEncryption(f.payload) != null),
+      isTrue,
+    );
     expect(backupBatchEncryption(frozen), isNotNull);
 
     final target = SyncRepository(fresh);
@@ -209,13 +219,13 @@ void main() {
     expect((await AccountRepository(fresh).load()).single.name, 'Wallet');
     expect(await targetEngine.run(force: true), isTrue);
     expect(
-      backupBatchEncryption(drive.files.values.last.payload),
+      backupBatchEncryption(fileOf(await target.mirrorId()).payload),
       configuration,
     );
 
     await targetKeys.forget('subject');
     await fresh.customStatement(
-      "UPDATE accounts SET name = 'Changed' WHERE id = 1",
+      "UPDATE accounts SET name = 'Changed'",
     );
     final before = drive.files.length;
     expect(await targetEngine.run(force: true), isFalse);
@@ -228,7 +238,6 @@ void main() {
     expect((await repository.status()).encryption, configuration);
     await engine.disableEncryption('Ab12x9');
     expect(await engine.run(force: true), isTrue);
-    expect(backupBatchEncryption(drive.files.values.last.payload), isNull);
-    expect(drive.files[legacy.fileId], same(legacy));
+    expect(backupBatchEncryption(fileOf(mine).payload), isNull);
   });
 }

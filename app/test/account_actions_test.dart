@@ -173,6 +173,99 @@ void main() {
     expect(transactions.transactions, isEmpty);
   });
 
+  test('Merging moves history and SMS links, sums balances, drops transfers between', () async {
+    final cash = accounts.accounts.single.id;
+    await accounts.save(
+      name: 'Debit card',
+      currency: 'INR',
+      digits: 2,
+      openingBalance: 30000,
+    );
+    final card = accounts.accounts.last.id;
+    await accounts.save(
+      name: 'Euro',
+      currency: 'EUR',
+      digits: 2,
+      openingBalance: 0,
+    );
+    await transactions.addTransfer(
+      amountMinor: 5000,
+      fromAccountId: cash,
+      toAccountId: card,
+      date: DateTime(2026),
+    );
+    await transactions.addExpenseOrIncome(
+      type: TransactionType.expense,
+      amountMinor: 1000,
+      accountId: card,
+      categoryId: 1,
+      date: DateTime(2026),
+    );
+    await transactions.addExpenseOrIncome(
+      type: TransactionType.income,
+      amountMinor: 4000,
+      accountId: cash,
+      categoryId: 1,
+      date: DateTime(2026),
+    );
+    await db.customStatement(
+      "INSERT INTO sms_account_links(bank_key, account_id) VALUES ('hdfc:1234', $card)",
+    );
+    final total =
+        accounts.byId(cash)!.balanceMinor + accounts.byId(card)!.balanceMinor;
+
+    await transactions.mergeAccount(sourceId: card, targetId: cash);
+
+    expect(accounts.byId(card), isNull);
+    expect(accounts.byId(cash)!.balanceMinor, total);
+    expect(accounts.byId(cash)!.transactionCount, 2);
+    expect(transactions.transactions.map((t) => t.accountId), [cash, cash]);
+    expect(
+      transactions.transactions.where(
+        (t) => t.type == TransactionType.transfer,
+      ),
+      isEmpty,
+    );
+    expect(
+      (await db
+              .customSelect(
+                "SELECT account_id FROM sms_account_links WHERE bank_key = 'hdfc:1234'",
+              )
+              .getSingle())
+          .read<int>('account_id'),
+      cash,
+    );
+    final euro = accounts.accounts.last.id;
+    expect(
+      () => transactions.mergeAccount(sourceId: euro, targetId: cash),
+      throwsArgumentError,
+    );
+  });
+
+  testWidgets('Merge into picks a same-currency account and leaves one', (
+    tester,
+  ) async {
+    await accounts.save(
+      name: 'Bank',
+      currency: 'INR',
+      digits: 2,
+      openingBalance: 200000,
+    );
+    await openSettings(tester);
+    await choose(tester, 'Merge into…');
+    await tester.tap(find.text('Bank').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Merge into Bank?'), findsOneWidget);
+    expect(find.text('Cash is removed'), findsOneWidget);
+    await tester.tap(find.widgetWithText(GlassButton, 'Merge'));
+    await tester.runAsync(
+      () async => Future<void>.delayed(const Duration(milliseconds: 150)),
+    );
+    await tester.pumpAndSettle();
+    expect(accounts.accounts.single.name, 'Bank');
+    expect(accounts.accounts.single.balanceMinor, 300000);
+  });
+
   test('A failed deletion rolls back account and history together', () async {
     final cash = accounts.accounts.single.id;
     await transactions.addExpenseOrIncome(

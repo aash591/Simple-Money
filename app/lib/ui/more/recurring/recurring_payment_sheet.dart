@@ -208,9 +208,7 @@ class _RecurringPaymentSheetState extends State<RecurringPaymentSheet> {
   Future<void> _pickCategory() async {
     final pick = await showReviewCategoryPicker(
       context,
-      title: _existing == null
-          ? 'Add recurring payment'
-          : 'Edit recurring payment',
+      title: _existing == null ? 'New recurring' : 'Edit recurring',
       categories: widget.store.categoryStore.categories,
       store: widget.store.categoryStore,
       type: _categoryType,
@@ -347,14 +345,15 @@ class _RecurringPaymentSheetState extends State<RecurringPaymentSheet> {
     final editing = _existing != null;
     return SheetPage(
       header: SheetHeader(
-        editing ? 'Edit recurring payment' : 'Add recurring payment',
+        editing ? 'Edit recurring' : 'New recurring',
         onBack: editing ? _back : null,
+        centered: true,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'How much does it cost?',
+            'How much?',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 22,
@@ -409,8 +408,9 @@ class _RecurringPaymentSheetState extends State<RecurringPaymentSheet> {
     VoidCallback? edit(VoidCallback onEdit) => _saving ? null : onEdit;
     return SheetPage(
       header: SheetHeader(
-        existing == null ? 'Add recurring payment' : 'Edit recurring payment',
+        existing == null ? 'New recurring' : 'Edit recurring',
         onBack: existing == null ? _back : null,
+        centered: true,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

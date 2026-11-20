@@ -147,6 +147,15 @@ class _AccountCardState extends State<AccountCard> {
                                     ),
                                     ?leading,
                                     const SizedBox(width: 8),
+                                    if (account.hasDebitCard) ...[
+                                      Icon(
+                                        debitCardIcon,
+                                        size: 20,
+                                        color: colors.onSurfaceVariant,
+                                        semanticLabel: 'Debit card',
+                                      ),
+                                      const SizedBox(width: 6),
+                                    ],
                                     Icon(
                                       accountTypeIcon(account.type),
                                       size: 20,

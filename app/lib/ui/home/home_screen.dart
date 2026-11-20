@@ -18,6 +18,8 @@ import '../components/accent_glow.dart';
 import '../components/adaptive_sheet.dart';
 import '../budgets/budgets_screen.dart';
 import '../components/common.dart';
+import '../components/review_prompt_alert.dart';
+import '../../state/review_prompt.dart';
 import '../components/liquid_glass_nav_bar.dart';
 import '../../state/account_store.dart';
 import '../../state/budget_store.dart';
@@ -28,6 +30,8 @@ import '../../state/loan_store.dart';
 import '../../state/recurring_payment_store.dart';
 import '../../state/transaction_store.dart';
 import '../../data/agent/ai_session.dart';
+import '../../state/app_update.dart';
+import '../components/update_sheet.dart';
 import '../more/more_screen.dart';
 import '../transactions/transaction_sheet.dart';
 import '../transactions/transactions_screen.dart';
@@ -120,6 +124,12 @@ class _HomeScreenState extends State<HomeScreen>
     _sms.initialize();
     widget.transactionStore.addListener(_reloadSmsQueue);
     WidgetsBinding.instance.addPostFrameCallback((_) => _reviewUpi());
+    // Tell about a new version at launch, and again once its background
+    // download has finished so it can be installed.
+    AppUpdate.instance.addListener(_onUpdateChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(maybeShowUpdateSheet(context));
+    });
     unawaited(_syncCommunity());
     unawaited(_watchNetwork());
   }
@@ -245,6 +255,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    AppUpdate.instance.removeListener(_onUpdateChanged);
     _network?.cancel();
     _historySlide.dispose();
     _tabMotion.dispose();
@@ -394,12 +405,27 @@ class _HomeScreenState extends State<HomeScreen>
     },
   );
 
-  Future<void> _openMoneyEntry() => showAddTransactionSheet(
-    context,
-    accountStore: widget.accountStore,
-    categoryStore: widget.categoryStore,
-    transactionStore: widget.transactionStore,
-  );
+  AppUpdateStage _lastUpdateStage = AppUpdateStage.none;
+
+  void _onUpdateChanged() {
+    final stage = AppUpdate.instance.stage;
+    final becameReady =
+        stage == AppUpdateStage.ready && _lastUpdateStage != stage;
+    _lastUpdateStage = stage;
+    if (becameReady && mounted) unawaited(showUpdateSheet(context));
+  }
+
+  Future<void> _openMoneyEntry() async {
+    final saves = ReviewPrompt.instance.saves;
+    await showAddTransactionSheet(
+      context,
+      accountStore: widget.accountStore,
+      categoryStore: widget.categoryStore,
+      transactionStore: widget.transactionStore,
+    );
+    // Just after something went well is the one moment worth asking.
+    if (mounted) await maybeAskForReview(context, savesBefore: saves);
+  }
 
   void _backToHome() => _selectTab(0);
 
@@ -463,6 +489,7 @@ class _HomeScreenState extends State<HomeScreen>
               categoryStore: widget.categoryStore,
               transactionStore: widget.transactionStore,
               onAddTransaction: _openMoneyEntry,
+              onSync: widget.syncController?.syncNow,
             ),
             BudgetsScreen(
               key: _budgets,
@@ -525,7 +552,13 @@ class _HomeScreenState extends State<HomeScreen>
           ignoring: sheets > 0,
           child: AnimatedOpacity(
             opacity: sheets > 0 ? 0 : 1,
-            duration: const Duration(milliseconds: 180),
+            // Gone at once when a sheet opens (it slides up over this spot
+            // within a frame or two): fading it drew the bar's glass into a
+            // fresh layer on every frame of the sheet's entrance, and kept it
+            // in the screen the sheet's frost is made from.
+            duration: sheets > 0
+                ? Duration.zero
+                : const Duration(milliseconds: 180),
             child: child,
           ),
         ),

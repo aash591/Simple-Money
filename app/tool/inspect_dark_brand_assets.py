@@ -5,9 +5,21 @@ from PIL import Image, ImageDraw, ImageFont
 app = Path(__file__).resolve().parents[1]
 catalog = (app / 'lib/domain/brand_icons.dart').read_text()
 keys = []
+bank_countries = {}
 for entry in catalog.split('  BrandIcon(')[1:]:
+    key = re.search(r"'([^']+)'", entry).group(1)
+    country = re.search(r'isBank: true,.*?bankCountry: "([^"]+)"', entry)
+    if country:
+        bank_countries[key] = re.sub(r'[^a-z0-9]+', '_', country.group(1).lower()).strip('_')
     if 'isOriginal: true' in entry:
-        keys.append(re.search(r"'([^']+)'", entry).group(1))
+        keys.append(key)
+
+def icon_path(key, dark=False):
+    filename = f'{key}{"_dark" if dark else ""}.webp'
+    country = bank_countries.get(key)
+    if country:
+        return app / 'assets/icon_packs/logos/banks' / country / filename
+    return app / 'assets/icon_packs/logos/brands' / filename
 
 font = ImageFont.truetype('C:/Windows/Fonts/arial.ttf', 13)
 for page, start in enumerate(range(0, len(keys), 40), 1):
@@ -17,7 +29,7 @@ for page, start in enumerate(range(0, len(keys), 40), 1):
         x = (index % 8) * 100
         y = (index // 8) * 120
         draw.rounded_rectangle((x + 5, y + 5, x + 95, y + 95), 8, fill='#454b50')
-        icon = Image.open(app / 'assets/icon_packs/brands' / f'{key}.webp').convert('RGBA')
+        icon = Image.open(icon_path(key)).convert('RGBA')
         icon.thumbnail((78, 78), Image.Resampling.LANCZOS)
         tile = Image.new('RGBA', (90, 90), (0, 0, 0, 0))
         tile.alpha_composite(icon, ((90 - icon.width) // 2, (90 - icon.height) // 2))
@@ -41,7 +53,7 @@ for page, start in enumerate(range(0, len(simple), 40), 1):
         x = (index % 8) * 100
         y = (index // 8) * 120
         draw.rounded_rectangle((x + 5, y + 5, x + 95, y + 95), 8, fill='#454b50')
-        icon = Image.open(app / 'assets/icon_packs/brands' / f'{key}.webp').convert('RGBA')
+        icon = Image.open(icon_path(key)).convert('RGBA')
         icon.thumbnail((78, 78), Image.Resampling.LANCZOS)
         tile = Image.new('RGBA', (90, 90), (0, 0, 0, 0))
         tile.alpha_composite(icon, ((90 - icon.width) // 2, (90 - icon.height) // 2))
@@ -59,7 +71,7 @@ for index, key in enumerate(variants):
     x = (index % 8) * 100
     y = (index // 8) * 120
     draw.rounded_rectangle((x + 5, y + 5, x + 95, y + 95), 8, fill='#454b50')
-    icon = Image.open(app / 'assets/icon_packs/brands' / f'{key}_dark.webp').convert('RGBA')
+    icon = Image.open(icon_path(key, dark=True)).convert('RGBA')
     icon.thumbnail((78, 78), Image.Resampling.LANCZOS)
     tile = Image.new('RGBA', (90, 90), (0, 0, 0, 0))
     tile.alpha_composite(icon, ((90 - icon.width) // 2, (90 - icon.height) // 2))

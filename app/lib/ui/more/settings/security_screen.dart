@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../state/security_controller.dart';
 import '../../components/choice_list_sheet.dart';
 import '../../components/common.dart';
+import '../../components/empty_art.dart' show GlassGlyph;
 import '../../components/feature_page.dart';
 
 class SecurityScreen extends StatelessWidget {
@@ -48,10 +49,7 @@ class SecurityScreen extends StatelessWidget {
         children: [
           _SettingCard(
             child: SwitchListTile.adaptive(
-              secondary: Icon(
-                Icons.visibility_off_outlined,
-                color: theme.colorScheme.primary,
-              ),
+              secondary: GlassGlyph(Icons.visibility_off_outlined),
               title: const Text('Hide amounts'),
               subtitle: const Text(
                 'Balances show as dots until you tap the eye.',
@@ -65,10 +63,7 @@ class SecurityScreen extends StatelessWidget {
           const SizedBox(height: 14),
           _SettingCard(
             child: SwitchListTile.adaptive(
-              secondary: Icon(
-                Icons.fingerprint_rounded,
-                color: theme.colorScheme.primary,
-              ),
+              secondary: GlassGlyph(Icons.fingerprint_rounded),
               title: const Text('Authenticate to show amounts'),
               subtitle: const Text(
                 'Use fingerprint, face or PIN to show hidden balances.',
@@ -83,10 +78,7 @@ class SecurityScreen extends StatelessWidget {
           const SizedBox(height: 14),
           _SettingCard(
             child: SwitchListTile.adaptive(
-              secondary: Icon(
-                Icons.lock_outline_rounded,
-                color: theme.colorScheme.primary,
-              ),
+              secondary: GlassGlyph(Icons.lock_outline_rounded),
               title: const Text('App lock'),
               subtitle: const Text(
                 'Require device authentication when opening SimpleMoney.',
@@ -103,10 +95,7 @@ class SecurityScreen extends StatelessWidget {
               const SizedBox(height: 14),
               _SettingCard(
                 child: SwitchListTile.adaptive(
-                  secondary: Icon(
-                    Icons.phonelink_lock_outlined,
-                    color: theme.colorScheme.primary,
-                  ),
+                  secondary: GlassGlyph(Icons.phonelink_lock_outlined),
                   title: const Text('Lock when the screen turns off'),
                   subtitle: const Text(
                     'Ask again as soon as your phone locks.',
@@ -119,10 +108,7 @@ class SecurityScreen extends StatelessWidget {
             const SizedBox(height: 14),
             _SettingCard(
               child: SwitchListTile.adaptive(
-                secondary: Icon(
-                  Icons.layers_clear_outlined,
-                  color: theme.colorScheme.primary,
-                ),
+                secondary: GlassGlyph(Icons.layers_clear_outlined),
                 title: const Text('Lock when cleared from recents'),
                 subtitle: const Text(
                   'Lock when cleared from recents, even before the time-away limit.',
@@ -134,10 +120,7 @@ class SecurityScreen extends StatelessWidget {
             const SizedBox(height: 14),
             _SettingCard(
               child: ListTile(
-                leading: Icon(
-                  Icons.timer_outlined,
-                  color: theme.colorScheme.primary,
-                ),
+                leading: GlassGlyph(Icons.timer_outlined),
                 title: const Text('Lock after time away'),
                 subtitle: Text(
                   security.timing.label,
@@ -174,10 +157,7 @@ class SecurityScreen extends StatelessWidget {
           const SizedBox(height: 18),
           _SettingCard(
             child: SwitchListTile.adaptive(
-              secondary: Icon(
-                Icons.visibility_off_outlined,
-                color: theme.colorScheme.primary,
-              ),
+              secondary: GlassGlyph(Icons.visibility_off_outlined),
               title: const Text('Hide app preview'),
               subtitle: const Text(
                 'Blurs SimpleMoney in recent apps. Doesn’t change when it locks.',

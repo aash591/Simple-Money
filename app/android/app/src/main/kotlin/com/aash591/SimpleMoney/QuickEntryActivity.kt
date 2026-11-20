@@ -10,8 +10,13 @@ import io.flutter.embedding.android.FlutterActivityLaunchConfigs.BackgroundMode
 import io.flutter.embedding.android.RenderMode
 import io.flutter.embedding.engine.FlutterEngine
 
-/** A separate translucent task: closing the sheet returns to the launcher. */
-class QuickEntryActivity : MainActivity() {
+/**
+ * A sheet over whatever was on screen, in its own translucent task: the
+ * launcher widgets' quick entry and the bank-SMS notification. What's behind
+ * keeps drawing (and is blurred by [ModalBackgroundBlur]) instead of going
+ * black. Pair it with the QuickEntryTheme.Wallpaper theme.
+ */
+abstract class TranslucentSheetActivity : MainActivity() {
     private var modalBlur: ModalBackgroundBlur? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -88,7 +93,10 @@ class QuickEntryActivity : MainActivity() {
     // (Vulkan) on some GPUs (seen on a MediaTek Mali) never fills: the sheet
     // works but nothing shows. A see-through SurfaceView draws fine.
     override fun getRenderMode() = RenderMode.surface
+}
 
+/** A separate translucent task: closing the sheet returns to the launcher. */
+class QuickEntryActivity : TranslucentSheetActivity() {
     override fun getInitialRoute() = "/quick/${quickAction(intent) ?: "expense"}"
 
     override fun onNewIntent(intent: Intent) {

@@ -102,11 +102,12 @@ void main() {
     },
   );
   late AppDatabase db;
+  late int cash;
   late LoanRepository repository;
   setUp(() async {
     db = AppDatabase(NativeDatabase.memory(), false);
     repository = LoanRepository(db);
-    await AccountRepository(
+    cash = await AccountRepository(
       db,
     ).save(name: 'Cash', currency: 'INR', digits: 2, openingBalance: 1000000);
   });
@@ -159,7 +160,7 @@ void main() {
   });
   test('Opening charges are either an expense of their own or come off the '
       'money disbursed', () async {
-    await repository.add(terms(charges: 2400), 1, receivedIn: 1);
+    await repository.add(terms(charges: 2400), cash, receivedIn: cash);
     // Disbursal in full, charges paid separately out of the same account.
     expect(await balance(), 1000000 + 120000 - 2400);
     final logged = await TransactionRepository(db).load();
@@ -181,8 +182,8 @@ void main() {
     final before = await balance();
     await repository.add(
       terms(charges: 2400, chargesDeducted: true),
-      1,
-      receivedIn: 1,
+      cash,
+      receivedIn: cash,
     );
     // Netted off instead: less money arrives and nothing is logged for the
     // charges, but the principal to repay is unchanged.
@@ -195,7 +196,7 @@ void main() {
 
   test('An interest-only loan repays nothing until its last payment, and a '
       'bullet loan is settled in one', () async {
-    await repository.add(terms(mode: LoanRepaymentMode.interestOnly), 1);
+    await repository.add(terms(mode: LoanRepaymentMode.interestOnly), cash);
     final monthly = (await current()).schedule.first;
     expect(monthly.principal, 0);
     expect(monthly.interest, 1200); // 120000 at 12% for one month.
@@ -203,7 +204,7 @@ void main() {
       await current(),
       kind: LoanEventKind.emi,
       date: DateTime.now(),
-      accountId: 1,
+      accountId: cash,
       amount: 1200,
     );
     final after = await current();
@@ -215,7 +216,7 @@ void main() {
     expect(await balance(), 1000000 - 1200);
 
     await repository.delete(after);
-    await repository.add(terms(mode: LoanRepaymentMode.bullet), 1);
+    await repository.add(terms(mode: LoanRepaymentMode.bullet), cash);
     final bullet = await current();
     expect(bullet.schedule, hasLength(1));
     expect(bullet.schedule.single.principal, 120000);
@@ -232,18 +233,18 @@ void main() {
         'asset': 'Swift Dzire',
         'assetIcon': 'car',
       });
-      await repository.add(bought, 1);
+      await repository.add(bought, cash);
       await repository.record(
         await current(),
         kind: LoanEventKind.emi,
         date: DateTime.now(),
-        accountId: 1,
+        accountId: cash,
       );
       final category = (await CategoryRepository(db).load()).first;
       await TransactionRepository(db).addExpenseOrIncome(
         type: TransactionType.expense,
         amountMinor: 500,
-        accountId: 1,
+        accountId: cash,
         categoryId: category.id,
         title: 'Lunch',
         date: DateTime.now(),
@@ -260,14 +261,14 @@ void main() {
 
   test('A late payment takes the interest actually charged, and a penal '
       'charge is never added to the principal', () async {
-    await repository.add(terms(), 1);
+    await repository.add(terms(), cash);
     final loan = await current();
     final scheduled = loan.schedule.first;
     await repository.record(
       loan,
       kind: LoanEventKind.emi,
       date: DateTime.now(),
-      accountId: 1,
+      accountId: cash,
       amount: scheduled.amount,
       interestCharged: scheduled.interest + 500,
       fee: 600,
@@ -285,11 +286,11 @@ void main() {
 
   test('A loan the lender paid the seller for moves no money, and its EMIs '
       'can come from any account', () async {
-    await AccountRepository(
+    final salary = await AccountRepository(
       db,
     ).save(name: 'Salary', currency: 'INR', digits: 2, openingBalance: 500000);
     // A car loan: nothing is disbursed to the borrower.
-    await repository.add(terms(), 1);
+    await repository.add(terms(), cash);
     expect(await balance(), 1000000);
     expect(await TransactionRepository(db).load(), isEmpty);
 
@@ -298,14 +299,14 @@ void main() {
       await current(),
       kind: LoanEventKind.emi,
       date: DateTime.now(),
-      accountId: 1,
+      accountId: cash,
     );
     final first = (await current()).events.single;
     await repository.record(
       await current(),
       kind: LoanEventKind.emi,
       date: DateTime.now(),
-      accountId: 2,
+      accountId: salary,
     );
     final loan = await current();
     expect(loan.paid, 2);
@@ -319,7 +320,7 @@ void main() {
     final directory = await Directory.systemTemp.createTemp('loan_migration_');
     final file = File('${directory.path}/ledger.sqlite');
     final old = AppDatabase(NativeDatabase(file), false);
-    await AccountRepository(
+    final existing = await AccountRepository(
       old,
     ).save(name: 'Existing', currency: 'INR', digits: 2, openingBalance: 12345);
     await old.customStatement('DROP TABLE loan_events');
@@ -332,7 +333,7 @@ void main() {
         (await AccountRepository(upgraded).load()).single.balanceMinor,
         12345,
       );
-      await LoanRepository(upgraded).add(terms(), 1);
+      await LoanRepository(upgraded).add(terms(), existing);
       final queued = await upgraded
           .customSelect("SELECT * FROM sync_outbox WHERE table_name = 'loans'")
           .get();
@@ -348,7 +349,7 @@ void main() {
       final directory = await Directory.systemTemp.createTemp('loan_charges_');
       final file = File('${directory.path}/ledger.sqlite');
       final old = AppDatabase(NativeDatabase(file), false);
-      await AccountRepository(old).save(
+      final existing = await AccountRepository(old).save(
         name: 'Existing',
         currency: 'INR',
         digits: 2,
@@ -362,8 +363,8 @@ void main() {
       account_id INTEGER, disbursal_id INTEGER
     )''');
       await old.customInsert(
-        'INSERT INTO loans (payload, account_id) VALUES (?, 1)',
-        variables: [Variable(jsonEncode(terms().toJson()))],
+        'INSERT INTO loans (payload, account_id) VALUES (?, ?)',
+        variables: [Variable(jsonEncode(terms().toJson())), Variable(existing)],
       );
       await old.customStatement('PRAGMA user_version = 13');
       await old.close();
@@ -378,7 +379,7 @@ void main() {
           loan,
           lender: 'Renamed Bank',
           icon: 'bank',
-          accountId: 1,
+          accountId: existing,
           remind: true,
         );
         final queued = await upgraded
@@ -397,21 +398,21 @@ void main() {
     },
   );
   test('Imported balance never adds historical expenses', () async {
-    await repository.add(terms(paid: 4, balance: 80000), 1);
+    await repository.add(terms(paid: 4, balance: 80000), cash);
     expect((await current()).outstanding, 80000);
     expect((await current()).paid, 4);
     expect(await balance(), 1000000);
     expect(await TransactionRepository(db).load(), isEmpty);
   });
   test('EMI with fee atomically logs expense, advances once, and undo reverses both', () async {
-    await repository.add(terms(), 1);
+    await repository.add(terms(), cash);
     final loan = await current();
     final next = loan.schedule.first;
     await repository.record(
       loan,
       kind: LoanEventKind.emi,
       date: DateTime(2026, 2, 1),
-      accountId: 1,
+      accountId: cash,
       fee: 500,
     );
     expect(await balance(), 1000000 - next.amount - 500);
@@ -429,7 +430,7 @@ void main() {
         loan,
         kind: LoanEventKind.emi,
         date: DateTime(2026, 2, 1),
-        accountId: 1,
+        accountId: cash,
       ),
       throwsStateError,
     );
@@ -443,19 +444,19 @@ void main() {
   test(
     'Wrong currency rolls back without category or transaction changes',
     () async {
-      await AccountRepository(db).save(
+      final dollars = await AccountRepository(db).save(
         name: 'Dollars',
         currency: 'USD',
         digits: 2,
         openingBalance: 1000000,
       );
-      await repository.add(terms(), 1);
+      await repository.add(terms(), cash);
       await expectLater(
         repository.record(
           await current(),
           kind: LoanEventKind.emi,
           date: DateTime(2026, 2, 1),
-          accountId: 2,
+          accountId: dollars,
         ),
         throwsArgumentError,
       );
@@ -467,13 +468,13 @@ void main() {
   test(
     'Prepayment and rate changes preserve history and can be undone in order',
     () async {
-      await repository.add(terms(), 1);
+      await repository.add(terms(), cash);
       final initial = await current();
       await repository.record(
         initial,
         kind: LoanEventKind.partPayment,
         amount: 40000,
-        accountId: 1,
+        accountId: cash,
         date: DateTime(2026, 2, 1),
       );
       final part = await current();
@@ -499,13 +500,13 @@ void main() {
     },
   );
   test('Early closure and deletion retain real ledger history', () async {
-    await repository.add(terms(), 1);
+    await repository.add(terms(), cash);
     await repository.record(
       await current(),
       kind: LoanEventKind.closure,
       amount: 121000,
       fee: 200,
-      accountId: 1,
+      accountId: cash,
       date: DateTime(2026, 2, 1),
     );
     final closed = await current();
@@ -517,12 +518,12 @@ void main() {
     expect((await TransactionRepository(db).load()).single.amountMinor, 121200);
   });
   test('Linked transactions require loan undo; deleting an account preserves loan history', () async {
-    await repository.add(terms(), 1);
+    await repository.add(terms(), cash);
     await repository.record(
       await current(),
       kind: LoanEventKind.emi,
       date: DateTime(2026, 2, 1),
-      accountId: 1,
+      accountId: cash,
     );
     final loan = await current();
     final tx = (await TransactionRepository(db).load()).single;
@@ -535,7 +536,7 @@ void main() {
         id: tx.id,
         type: TransactionType.expense,
         amountMinor: 100,
-        accountId: 1,
+        accountId: cash,
         categoryId: tx.categoryId!,
         date: DateTime(2026, 2, 1),
       ),
@@ -581,7 +582,7 @@ void main() {
       ),
       throwsArgumentError,
     );
-    await AccountRepository(db).delete(1);
+    await AccountRepository(db).delete(cash);
     final after = await current();
     expect(after.outstanding, loan.outstanding);
     expect(after.accountId, isNull);
@@ -589,14 +590,14 @@ void main() {
     await expectLater(repository.undo(after), throwsStateError);
   });
   test('Disbursal changes cash but not earned income; loans round-trip through backup', () async {
-    await repository.add(terms(), 1, receivedIn: 1);
+    await repository.add(terms(), cash, receivedIn: cash);
     expect(await balance(), 1120000);
     expect((await HomeRepository(db).load(DateTime.now(), 'INR', 2)).income, 0);
     await repository.record(
       await current(),
       kind: LoanEventKind.emi,
       date: DateTime(2026, 2, 1),
-      accountId: 1,
+      accountId: cash,
     );
     final backup = parseLedgerExport(await exportLedger(db));
     expect(backup.count('loans'), 1);
@@ -664,8 +665,8 @@ void main() {
           startDate: start,
           snapshotDate: start,
         ),
-        1,
-        receivedIn: 1,
+        cash,
+        receivedIn: cash,
       );
       await loans.load();
       final before = await balance();
@@ -842,20 +843,20 @@ void main() {
       expect(saved.assetIcon, isNotNull);
       expect(saved.icon, isNot(saved.assetIcon));
       expect((await current()).icon, saved.assetIcon);
-      expect((await current()).accountId, 1);
+      expect((await current()).accountId, cash);
       expect(tester.takeException(), isNull);
     },
   );
   testWidgets('A paid-off loan reads as done and cannot be paid again', (
     tester,
   ) async {
-    await repository.add(terms(), 1);
+    await repository.add(terms(), cash);
     await repository.record(
       await current(),
       kind: LoanEventKind.closure,
       amount: 121000,
       fee: 200,
-      accountId: 1,
+      accountId: cash,
       date: DateTime(2026, 2, 1),
     );
     final loans = await store();
@@ -881,7 +882,7 @@ void main() {
   testWidgets(
     'List, detail and schedule fit at 360px with large text in dark mode',
     (tester) async {
-      await repository.add(terms(), 1);
+      await repository.add(terms(), cash);
       final loans = await store();
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
@@ -929,7 +930,7 @@ void main() {
   testWidgets(
     'Part-payment previews and rate-change sheet save revised terms',
     (tester) async {
-      await repository.add(terms(), 1);
+      await repository.add(terms(), cash);
       final loans = await store();
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
@@ -990,7 +991,7 @@ void main() {
   testWidgets(
     'Loan detail uses the shared menu and shows rate changes without a payment split',
     (tester) async {
-      await repository.add(terms(), 1);
+      await repository.add(terms(), cash);
       await repository.record(
         await current(),
         kind: LoanEventKind.rateChange,
@@ -1058,7 +1059,7 @@ void main() {
   testWidgets(
     'Every loan action sheet scrolls at 320px with large text and keyboard',
     (tester) async {
-      await repository.add(terms(), 1);
+      await repository.add(terms(), cash);
       final loans = await store();
       tester.view.physicalSize = const Size(320, 740);
       tester.view.devicePixelRatio = 1;

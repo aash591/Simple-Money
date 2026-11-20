@@ -7,7 +7,11 @@ import sharp from 'sharp';
 
 const app = dirname(dirname(fileURLToPath(import.meta.url)));
 const catalog = readFileSync(join(app, 'lib/domain/brand_icons.dart'), 'utf8');
-const brands = join(app, 'assets/icon_packs/brands');
+const brands = join(app, 'assets/icon_packs/logos');
+const countryFolder = (country) => country
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '_')
+  .replace(/^_|_$/g, '');
 let count = 0;
 for (const entry of catalog.split('  BrandIcon(').slice(1)) {
   if (entry.includes('isOriginal: true')) continue;
@@ -15,7 +19,10 @@ for (const entry of catalog.split('  BrandIcon(').slice(1)) {
   const hex = entry.match(/Color\(0xFF([0-9A-Fa-f]{6})\)/)?.[1];
   if (!key || !hex) throw new Error(`Incomplete catalog entry: ${entry.slice(0, 80)}`);
   const rgb = [0, 2, 4].map((offset) => parseInt(hex.slice(offset, offset + 2), 16));
-  const path = join(brands, `${key}.webp`);
+  const country = entry.match(/isBank: true,[^\n]*bankCountry: "([^"]+)"/)?.[1];
+  const path = country == null
+    ? join(brands, 'brands', `${key}.webp`)
+    : join(brands, 'banks', countryFolder(country), `${key}.webp`);
   const { data, info } = await sharp(readFileSync(path)).ensureAlpha().raw()
     .toBuffer({ resolveWithObject: true });
   for (let i = 0; i < data.length; i += 4) {

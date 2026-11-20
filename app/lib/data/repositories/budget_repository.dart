@@ -137,7 +137,7 @@ class BudgetRepository {
       final id =
           existing?.read<int>('id') ??
           await database.customInsert(
-            "INSERT INTO budgets (kind, currency, digits) VALUES ('total', ?, ?)",
+            "INSERT INTO budgets (id, kind, currency, digits) VALUES (${newRowId('budgets')}, 'total', ?, ?)",
             variables: [Variable(currency), Variable(digits)],
           );
       await _setAmount(id, fromMonth, amountMinor);
@@ -250,8 +250,8 @@ class BudgetRepository {
       }
       if (id == null) {
         id = await database.customInsert(
-          '''INSERT INTO budgets (kind, name, icon, currency, digits)
-          VALUES ('categories', ?, ?, ?, ?)''',
+          '''INSERT INTO budgets (id, kind, name, icon, currency, digits)
+          VALUES (${newRowId('budgets')}, 'categories', ?, ?, ?, ?)''',
           variables: [
             Variable(budgetName),
             Variable(icon),

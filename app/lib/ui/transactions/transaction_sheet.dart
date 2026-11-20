@@ -332,7 +332,10 @@ class _TransactionSheetState extends State<TransactionSheet> {
         type: widget.initialType ?? TransactionType.expense,
         accountId: widget.initialType == null
             ? null
-            : widget.accountStore.accounts.firstOrNull?.id,
+            : widget.accountStore.accounts
+                  .where((a) => !a.isBroker)
+                  .firstOrNull
+                  ?.id,
       );
     }
     return TransactionDraft.fromTransaction(
@@ -543,7 +546,9 @@ class _TransactionSheetState extends State<TransactionSheet> {
   void _chooseType(TransactionType type) {
     _draft.type = type;
     _calculator.clear();
-    final accounts = widget.accountStore.accounts;
+    final accounts = widget.accountStore.accounts
+        .where((a) => !a.isBroker)
+        .toList();
     if (_account == null && accounts.isNotEmpty) {
       _draft.accountId = accounts.first.id;
     }

@@ -123,7 +123,7 @@ class DebtRepository {
       final id =
           personId ??
           await database.customInsert(
-            'INSERT INTO debt_people (name, phone, created_at) VALUES (?, ?, ?)',
+            'INSERT INTO debt_people (id, name, phone, created_at) VALUES (${newRowId('debt_people')}, ?, ?, ?)',
             variables: [
               Variable(name),
               Variable(_optional(newPersonPhone)),
@@ -185,9 +185,9 @@ class DebtRepository {
       }
       final entryId = await database.customInsert(
         '''INSERT INTO debt_entries
-        (person_id, kind, amount_minor, currency, digits, account_id,
+        (id, person_id, kind, amount_minor, currency, digits, account_id,
          transaction_id, note, date, due_date, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+        VALUES (${newRowId('debt_entries')}, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
         variables: [
           Variable(id),
           Variable(kind.storageValue),
@@ -432,8 +432,8 @@ class DebtRepository {
         .getSingleOrNull();
     if (existing != null) return (id: existing.read<int>('id'), added: false);
     final id = await database.customInsert(
-      '''INSERT INTO categories (name, type, icon, parent_id, sort_order)
-      VALUES (?, 'debt_loan', ?, NULL,
+      '''INSERT INTO categories (id, name, type, icon, parent_id, sort_order)
+      VALUES (${newRowId('categories')}, ?, 'debt_loan', ?, NULL,
         (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM categories))''',
       variables: [Variable(name), Variable(icon)],
     );

@@ -383,16 +383,20 @@ class TransactionReviewHeader extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.schedule_rounded, size: 13, color: colors.muted),
-                const SizedBox(width: 5),
+                Icon(Icons.schedule_rounded, size: 16, color: colors.text),
+                const SizedBox(width: 6),
                 Flexible(
                   child: pen(
                     Text(
                       date,
-                      style: TextStyle(color: colors.muted, fontSize: 12),
+                      style: TextStyle(
+                        color: colors.text,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    12,
-                    colors.muted,
+                    14,
+                    colors.text,
                     onEditDate,
                   ),
                 ),

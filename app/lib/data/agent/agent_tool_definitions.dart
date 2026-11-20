@@ -8,7 +8,9 @@ extension _AgentToolDefinitions on AgentTools {
       title: 'List accounts',
       description:
           'The user\'s accounts (bank, credit card, cash) with id, currency, '
-          'balance and the last digits of the account number when known.',
+          'balance, transaction count, icon, bank, credit limits and the '
+          'last digits of the account number when known. Change them with '
+          'suggest_account_changes.',
       inputSchema: AgentTools._schema({
         'include_archived': {'type': 'boolean', 'default': false},
       }),
@@ -60,6 +62,43 @@ extension _AgentToolDefinitions on AgentTools {
         required: ['from', 'to'],
       ),
       handler: _searchTransactions,
+    ),
+    AgentTool(
+      name: 'find_by_phone',
+      title: 'Find by phone number',
+      description:
+          'Everything that mentions a phone number: saved transactions '
+          '(from bank SMS, UPI scans or entered by hand), bank SMS waiting '
+          'for review and unparsed bank SMS. Finds UPI IDs built on the '
+          'number (9876543210@ybl) and SMS quoting it, with exact totals. It '
+          'can\'t see payments through a UPI ID based on an email or name: '
+          'always tell the user the accuracy it returns.',
+      inputSchema: AgentTools._schema(
+        {
+          'phone': {
+            'type': 'string',
+            'description': 'e.g. 9876543210 or +91 98765 43210',
+          },
+          'from': AgentTools._date,
+          'to': AgentTools._date,
+          'include_unparsed': {
+            'type': 'boolean',
+            'default': true,
+            'description':
+                'Also read the inbox for bank SMS no rule reads (last 180 days '
+                'unless from is given)',
+          },
+          'limit': {
+            'type': 'integer',
+            'minimum': 1,
+            'maximum': 200,
+            'default': 50,
+            'description': 'Per list; totals always count everything',
+          },
+        },
+        required: ['phone'],
+      ),
+      handler: _findByPhone,
     ),
     AgentTool(
       name: 'spending_summary',
@@ -634,11 +673,127 @@ extension _AgentToolDefinitions on AgentTools {
             'description': 'An icon key from list_icons. Optional.',
           },
           'remind': {'type': 'boolean', 'default': true},
+          'transaction_ids': {
+            'type': 'array',
+            'items': {'type': 'integer'},
+            'maxItems': 60,
+            'description':
+                'Past payments of it (from find_recurring_payments or '
+                'search_transactions), linked as its payment history.',
+          },
+          'sms_ids': {
+            'type': 'array',
+            'items': {'type': 'string'},
+            'maxItems': 60,
+            'description':
+                'Bank SMS of its past payments from find_recurring_payments, '
+                'waiting for review or unparsed. Approving saves each into '
+                'the account and links it as history, so none is left in SMS '
+                'review or unread.',
+          },
           'reason': AgentTools._reasonField,
         },
         required: ['name', 'amount', 'account_id'],
       ),
       handler: _suggestRecurringPayments,
+    ),
+    AgentTool(
+      name: 'find_recurring_payments',
+      title: 'Find recurring payments',
+      description:
+          'Looks through saved transactions, bank SMS waiting for review and '
+          'unparsed bank SMS for payments that repeat: the same payee, about '
+          'the same amount, weekly, monthly, quarterly or yearly. Finds '
+          'subscriptions, bills, rent paid to a person and money that comes '
+          'in on a schedule, with each one\'s past transaction_ids and '
+          'sms_ids and where each was seen. Leaves out what is already '
+          'tracked. Changes nothing.',
+      inputSchema: AgentTools._schema({
+        'include_unparsed': {
+          'type': 'boolean',
+          'default': true,
+          'description': 'Also read the inbox for bank SMS no rule reads',
+        },
+        'months': {
+          'type': 'integer',
+          'minimum': 3,
+          'maximum': 24,
+          'default': 12,
+        },
+        'include_income': {'type': 'boolean', 'default': true},
+        'limit': {
+          'type': 'integer',
+          'minimum': 1,
+          'maximum': 60,
+          'default': 25,
+        },
+      }),
+      handler: _findRecurringPayments,
+    ),
+    AgentTool(
+      name: 'suggest_account_changes',
+      title: 'Suggest account changes',
+      description:
+          'Adds, edits or tidies the user\'s accounts, for them to approve. '
+          'action: create (name, type, currency, last_digits, institution, '
+          'balance as the opening balance, credit_limit and available_credit '
+          'for a card); update (account_id and only the fields to change); '
+          'adjust_balance (account_id and balance: what it holds now, e.g. '
+          'from a bank SMS or statement; no transaction is logged); archive '
+          'or restore (account_id); merge (account_id is removed, its '
+          'transactions, balance and SMS links move into merge_into_id: for '
+          'one real account SMS scanning split in two, such as a bank '
+          'account and its debit card; same currency only); delete '
+          '(account_id and every transaction in it; prefer archive or merge). '
+          'Check list_accounts first. Changes nothing until approved.',
+      readOnly: false,
+      inputSchema: AgentTools._items(
+        {
+          'action': {
+            'type': 'string',
+            'enum': [for (final a in AgentAccountAction.values) a.toolName],
+          },
+          'account_id': {
+            'type': 'integer',
+            'description': 'The account to change; not for create',
+          },
+          'merge_into_id': {
+            'type': 'integer',
+            'description': 'For merge: the account to keep',
+          },
+          'name': {'type': 'string', 'maxLength': 40},
+          'type': {
+            'type': 'string',
+            'enum': [for (final t in AccountType.values) t.name],
+          },
+          'currency': {
+            'type': 'string',
+            'description': 'ISO code, e.g. INR. Defaults to the main account',
+          },
+          'last_digits': {
+            'type': 'string',
+            'description': 'Last 2–4 digits of the account or card number',
+          },
+          'institution': {
+            'type': 'string',
+            'description': 'The bank, e.g. HDFC Bank',
+          },
+          'icon': {
+            'type': 'string',
+            'description': 'An icon key from list_icons. Optional.',
+          },
+          'balance': {
+            'type': 'string',
+            'description':
+                'Decimal, e.g. 12500.00; negative for a card that is owed',
+          },
+          'credit_limit': {'type': 'string'},
+          'available_credit': {'type': 'string'},
+          'reason': AgentTools._reasonField,
+        },
+        required: ['action'],
+      ),
+      handler: _suggestAccountChanges,
     ),
     AgentTool(
       name: 'list_icons',
@@ -657,8 +812,11 @@ extension _AgentToolDefinitions on AgentTools {
       description:
           'Sets up a loan from a statement or sanction letter, for the user '
           'to approve. Copy what it says; the app checks the sums and finds '
-          'each payment in the ledger, so nothing is recorded twice. Calling '
-          'again replaces the suggestion.',
+          'each payment in the ledger, so nothing is recorded twice. It also '
+          'returns related_sms: bank SMS (saved, waiting for review or '
+          'unparsed) that look like this loan\'s repayments but aren\'t in '
+          'it. Ask the user which are, then call again adding those as '
+          'payments. Calling again replaces the suggestion.',
       readOnly: false,
       inputSchema: AgentTools._schema(
         {
@@ -783,7 +941,15 @@ extension _AgentToolDefinitions on AgentTools {
                 },
                 'transaction_id': {
                   'type': 'integer',
-                  'description': 'Only to correct the app\'s match',
+                  'description':
+                      'To correct the app\'s match, or a saved one from '
+                      'related_sms the user confirmed',
+                },
+                'sms_id': {
+                  'type': 'string',
+                  'description':
+                      'A needs_review or unparsed message from related_sms '
+                      'the user confirmed is this payment. Approving saves it.',
                 },
                 'not_in_ledger': {
                   'type': 'boolean',

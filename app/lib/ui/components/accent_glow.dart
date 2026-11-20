@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/surface_style.dart';
+import 'glass_blur.dart';
 import 'glass_surface.dart';
 
 /// Lays the glass backdrop — soft pools of the accent colour — behind
@@ -13,12 +14,14 @@ class AccentGlowScope extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GlassCards(
-    child: Stack(
-      children: [
-        const Positioned.fill(child: GlassBackdrop()),
-        // Frosted cards over a picture share one blur of it.
-        BackdropGroup(child: child),
-      ],
+    child: PageFrostHost(
+      child: Stack(
+        children: [
+          const Positioned.fill(child: GlassBackdrop()),
+          // Glass that blurs live over a picture shares one blur of it.
+          BackdropGroup(child: child),
+        ],
+      ),
     ),
   );
 }

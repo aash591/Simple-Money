@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../components/app_back_button.dart';
 import '../../components/app_toast.dart';
+import '../../components/glass_blur.dart';
 
 ThemeMode _nextThemeMode(ThemeMode mode) => switch (mode) {
   ThemeMode.light => ThemeMode.dark,
@@ -53,6 +54,16 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     const buttonSize = BoxConstraints.tightFor(width: 44, height: 44);
+    // The header scrolls with Home's cards: its discs only ever have the
+    // page backdrop behind them.
+    return OnPageBackdrop(child: _row(context, colors, buttonSize));
+  }
+
+  Widget _row(
+    BuildContext context,
+    ColorScheme colors,
+    BoxConstraints buttonSize,
+  ) {
     return Row(
       children: [
         Expanded(

@@ -7,6 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:simple_money/data/agent/agent_tools.dart';
 import 'package:simple_money/data/db/app_database.dart';
 import 'package:simple_money/data/ledger_match.dart';
+import 'package:simple_money/data/reportable_sms.dart';
+import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart'
+    show BankSms;
 import 'package:simple_money/data/repositories/account_repository.dart';
 import 'package:simple_money/data/repositories/category_repository.dart';
 import 'package:simple_money/data/repositories/debt_repository.dart';
@@ -531,6 +534,123 @@ void main() {
         expect(sms.read<int>('transaction_id'), txn);
         // The real debit leaves the account once, as the message.
         expect(await balance(sbi), before - 215000);
+      });
+
+      group('and other bank messages like its payments', () {
+        ReportableSms unread(String body, DateTime at) => ReportableSms(
+          'fp-${at.millisecondsSinceEpoch}',
+          BankSms(sender: 'VM-SBIINB', body: body, receivedAt: at),
+          ReportableKind.missed,
+          'noRule',
+          null,
+        );
+
+        setUp(() async {
+          tools = AgentTools(
+            db,
+            missedSms: (_) async => [
+              unread(
+                'Rs 2,150.00 debited from a/c **2199 towards BAJAJ FINANCE EMI',
+                DateTime(2026, 11, 2, 10),
+              ),
+              unread(
+                'Rs 500.00 debited from a/c **2199 at SWIGGY',
+                DateTime(2026, 10, 5, 13),
+              ),
+            ],
+          );
+          for (final month in [6, 7, 8, 9, 10]) {
+            await saved(
+              month == 6 ? 271900 : 215000,
+              DateTime(2026, month, 2, 9),
+            );
+          }
+          // An extra debit an SMS saved, and one still waiting for review.
+          final extra = await saved(215000, DateTime(2026, 10, 20, 9));
+          await db.customStatement(
+            "INSERT INTO sms_imports (fingerprint, sender, body, received_at, candidate, rule_id, pack_version, status, transaction_id) VALUES ('oct20', 'VM-SBIINB', NULL, ?, '{}', 'test', 1, 'imported', ?)",
+            [DateTime(2026, 10, 20, 9).millisecondsSinceEpoch, extra],
+          );
+          await waiting('far', 215000, DateTime(2026, 9, 20));
+        });
+
+        test('are listed for the AI app to ask about', () async {
+          final reply = await call('suggest_loan', bajaj());
+          final related = (reply['related_sms'] as List).cast<Map>();
+          expect(
+            [for (final r in related) r['kind']],
+            ['needs_review', 'saved', 'unparsed'],
+          );
+          expect(related[0]['sms_id'], 'far');
+          expect(related[1]['transaction_id'], isA<int>());
+          expect(related[2]['amount'], '2150.00');
+          expect(related[2]['matches_payment'], '2026-11-02');
+          expect(related[2]['sms_id'], startsWith('m'));
+          expect(reply['next'], contains('Should I mark these'));
+          // Nothing about Swiggy: it isn't this loan's.
+          expect(jsonEncode(related), isNot(contains('SWIGGY')));
+        });
+
+        test(
+          'an unparsed one the user confirms is saved on approval',
+          () async {
+            final first = await call('suggest_loan', bajaj());
+            final ref = (first['related_sms'] as List).cast<Map>().firstWhere(
+              (r) => r['kind'] == 'unparsed',
+            )['sms_id'];
+            final reply = await call(
+              'suggest_loan',
+              bajaj(
+                payments: [
+                  {'date': '2026-06-02', 'amount': '2,719.00', 'fee': '569.00'},
+                  for (final month in ['07', '08', '09', '10'])
+                    {'date': '2026-$month-02', 'amount': '2,150.00'},
+                  {'date': '2026-11-02', 'amount': '2,150.00', 'sms_id': ref},
+                ],
+              ),
+            );
+            expect(reply['payments_in_unread_sms'], 1);
+            expect(reply['payments_not_found'], 0);
+            final related = (reply['related_sms'] as List).cast<Map>();
+            expect(related.any((r) => r['kind'] == 'unparsed'), isFalse);
+
+            final before = await balance(sbi);
+            expect(await tools.suggestions.apply(await suggestionId()), isNull);
+            final loan = (await LoanRepository(db).load()).single;
+            expect(loan.paid, 6);
+            expect(loan.events.last.offLedger, isFalse);
+            final row = await db
+                .customSelect(
+                  "SELECT status, transaction_id FROM sms_imports WHERE fingerprint LIKE 'fp-%'",
+                )
+                .getSingle();
+            expect(row.read<String>('status'), 'imported');
+            expect(
+              row.read<int>('transaction_id'),
+              loan.events.last.transactionId,
+            );
+            final txn = (await TransactionRepository(
+              db,
+            ).load()).firstWhere((t) => t.id == loan.events.last.transactionId);
+            expect(txn.note, contains('BAJAJ FINANCE EMI'));
+            expect(await balance(sbi), before - 215000);
+          },
+        );
+
+        test('a saved one is named by transaction_id, not sms_id', () async {
+          final reply = await call(
+            'suggest_loan',
+            bajaj(
+              payments: [
+                {'date': '2026-06-02', 'amount': '2,719.00', 'fee': '569.00'},
+                for (final month in ['07', '08', '09', '10'])
+                  {'date': '2026-$month-02', 'amount': '2,150.00'},
+                {'date': '2026-11-02', 'amount': '2,150.00', 'sms_id': 'oct20'},
+              ],
+            ),
+          );
+          expect(reply['error'], contains('transaction_id'));
+        });
       });
 
       test('falls back when the message was dismissed first', () async {

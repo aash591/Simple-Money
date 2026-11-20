@@ -389,7 +389,7 @@ class BudgetsScreenState extends State<BudgetsScreen> {
                                     constraints.precedingScrollExtent)
                                 .clamp(0.0, double.infinity),
                         child: EmptyState(
-                          icon: Icons.savings_outlined,
+                          icon: Icons.pie_chart_rounded,
                           title: 'Set your first budget',
                           message:
                               'Set a spending limit for ${DateFormat.MMMM().format(month)}. One category, or a few together.',

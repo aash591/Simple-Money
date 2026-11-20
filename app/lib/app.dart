@@ -23,8 +23,11 @@ import 'state/account_store.dart';
 import 'state/budget_store.dart';
 import 'state/category_store.dart';
 import 'state/debt_store.dart';
+import 'data/prices/price_service.dart';
+import 'state/holding_store.dart';
 import 'state/loan_store.dart';
 import 'state/recurring_payment_store.dart';
+import 'data/repositories/holding_repository.dart';
 import 'data/repositories/loan_repository.dart';
 import 'data/repositories/recurring_payment_repository.dart';
 import 'state/transaction_store.dart';
@@ -35,10 +38,12 @@ import 'state/ad_gate.dart';
 import 'state/pro_controller.dart';
 import 'state/upi_settings.dart';
 import 'ui/components/app_lock_gate.dart';
+import 'ui/components/glass_blur.dart' show ScreenAnchor;
 
 import 'dart:async' show unawaited;
 
 import 'data/daily_reminders.dart';
+import 'ui/components/empty_art.dart' show EmptyArtWarmup;
 import 'ui/components/scroll_edge_haptics.dart';
 import 'data/backup/sync_repository.dart';
 import 'ui/components/feature_page.dart';
@@ -125,6 +130,12 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     categoryStore: _categories,
     transactionStore: _transactions,
   );
+  late final HoldingStore _holdings = HoldingStore(
+    HoldingRepository(_database ?? _transactions.repository.database),
+    accountStore: _accounts,
+    // Tests that inject their own stores never reach the network.
+    prices: widget.accountStore == null ? PriceService(_rateClient) : null,
+  );
   late final RecurringPaymentStore _recurringPayments = RecurringPaymentStore(
     RecurringPaymentRepository(_database ?? _transactions.repository.database),
     accountStore: _accounts,
@@ -146,6 +157,7 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     if (_transactions.loading) _transactions.load();
     _debts.load();
     _loans.load();
+    _loadHoldings();
     _recurringPayments.load();
     _startSync();
     _upiSettings.restore();
@@ -244,7 +256,14 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     _budgets.reload();
     _debts.load();
     _loans.load();
+    _loadHoldings();
     _recurringPayments.load();
+  }
+
+  /// Holdings, then today's closing prices if they haven't been fetched yet.
+  Future<void> _loadHoldings() async {
+    await _holdings.load();
+    if (mounted) await _holdings.refreshPrices();
   }
 
   @override
@@ -277,6 +296,7 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     if (widget.budgetStore == null) _budgets.dispose();
     _debts.dispose();
     _loans.dispose();
+    _holdings.dispose();
     _recurringPayments.dispose();
     if (widget.accountStore == null) _database?.close();
     super.dispose();
@@ -335,20 +355,29 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
         style: _themeMode.style,
       ),
       themeMode: mode,
-      builder: (context, child) => AppearanceScope(
-        controller: _themeMode,
-        child: UpiSettingsScope(
-          settings: _upiSettings,
-          child: HomeLayoutScope(
-            layout: _homeLayout,
-            child: MainCurrencyScope(
-              controller: _mainCurrency,
-              child: ScrollEdgeHaptics(
-                child: LoanStoreScope(
-                  store: _loans,
-                  child: DebtStoreScope(
-                    store: _debts,
-                    child: AppLockGate(controller: _security, child: child!),
+      // Where popups line up the page backdrop they show on low-end phones.
+      builder: (context, child) => ScreenAnchor(
+        child: AppearanceScope(
+          controller: _themeMode,
+          child: UpiSettingsScope(
+            settings: _upiSettings,
+            child: HomeLayoutScope(
+              layout: _homeLayout,
+              child: MainCurrencyScope(
+                controller: _mainCurrency,
+                child: ScrollEdgeHaptics(
+                  child: LoanStoreScope(
+                    store: _loans,
+                    child: DebtStoreScope(
+                      store: _debts,
+                      child: HoldingStoreScope(
+                        store: _holdings,
+                        child: AppLockGate(
+                          controller: _security,
+                          child: EmptyArtWarmup(child: child!),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

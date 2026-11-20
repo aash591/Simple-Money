@@ -157,25 +157,29 @@ class _FrostFade extends StatelessWidget {
     final step = height / sigmas.length;
     return SizedBox(
       height: height,
-      child: Column(
-        children: [
-          for (var i = 0; i < sigmas.length; i++)
-            SizedBox(
-              height: step,
-              child: ClipRect(
-                child: BackdropFilter(
-                  filter: ui.ImageFilter.blur(
-                    sigmaX: sigmas[i] * blend,
-                    sigmaY: sigmas[i] * blend,
-                    tileMode: TileMode.mirror,
-                  ),
-                  child: ColoredBox(
-                    color: tint.withValues(alpha: .34 * blend * (1 - i / 3)),
+      // The strips sit side by side, so they can all blur one copy of the
+      // screen instead of each taking its own.
+      child: BackdropGroup(
+        child: Column(
+          children: [
+            for (var i = 0; i < sigmas.length; i++)
+              SizedBox(
+                height: step,
+                child: ClipRect(
+                  child: BackdropFilter.grouped(
+                    filter: ui.ImageFilter.blur(
+                      sigmaX: sigmas[i] * blend,
+                      sigmaY: sigmas[i] * blend,
+                      tileMode: TileMode.mirror,
+                    ),
+                    child: ColoredBox(
+                      color: tint.withValues(alpha: .34 * blend * (1 - i / 3)),
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -6,9 +6,11 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import '../../data/device_performance.dart';
 import '../../state/appearance_controller.dart' show AppearanceScope;
 import '../theme/app_theme.dart'
     show AppChrome, auroraDarkPage, usesGlass, usesAurora;
+import 'glass_blur.dart';
 import 'glass_button.dart' show GlassRim;
 import 'inner_glow.dart';
 
@@ -44,8 +46,12 @@ class GlassBackdrop extends StatelessWidget {
       final wallpaper = appearance?.wallpaperPath;
       if (wallpaper != null && !black) {
         final dim = appearance!.wallpaperDim;
-        return _SnapshotBackdrop(
+        // The page's glass draws from a frosted copy of the picture, pinned
+        // to this backdrop, instead of blurring it live.
+        final frost = PageFrostHost.maybeOf(context);
+        final backdrop = _SnapshotBackdrop(
           id: ('wallpaper', wallpaper, dim, dark),
+          frost: frost,
           builder: (ready) => _WallpaperBackdrop(
             path: wallpaper,
             dim: dim,
@@ -53,6 +59,9 @@ class GlassBackdrop extends StatelessWidget {
             onReady: ready,
           ),
         );
+        return frost == null
+            ? backdrop
+            : CompositedTransformTarget(link: frost.link, child: backdrop);
       }
       return _SnapshotBackdrop(
         id: ('aurora', accent, dark, black),
@@ -112,10 +121,18 @@ class GlassBackdrop extends StatelessWidget {
 /// [builder] calls its argument once the backdrop has everything it needs
 /// on screen (a picture decoded), so a half-loaded one is never kept.
 class _SnapshotBackdrop extends StatefulWidget {
-  const _SnapshotBackdrop({required this.id, required this.builder});
+  const _SnapshotBackdrop({
+    required this.id,
+    required this.builder,
+    this.frost,
+  });
 
   /// What the backdrop shows, apart from its size; equal ids paint alike.
   final Object id;
+
+  /// Given frosted copies of the snapshot once it is taken, for the page's
+  /// glass to draw. Only a picture has anything to frost.
+  final PageFrost? frost;
   final Widget Function(VoidCallback ready) builder;
 
   @override
@@ -127,6 +144,9 @@ class _SnapshotBackdropState extends State<_SnapshotBackdrop> {
   /// clones, so evicting one never pulls an image out from under a page.
   static final _cache = <(Object, Size, double), ui.Image>{};
   static const _cacheSize = 4;
+
+  /// The frosted copies of those snapshots that have been asked for.
+  static final _frosts = <(Object, Size, double), FrostImages>{};
 
   /// Widget tests can't wait on real timers; they get the live backdrop.
   static final _enabled = !Platform.environment.containsKey('FLUTTER_TEST');
@@ -141,12 +161,17 @@ class _SnapshotBackdropState extends State<_SnapshotBackdrop> {
   void didUpdateWidget(_SnapshotBackdrop old) {
     super.didUpdateWidget(old);
     if (old.id != widget.id) _ready = false;
+    if (old.frost != widget.frost) {
+      old.frost?.show(null);
+      _frost();
+    }
   }
 
   @override
   void dispose() {
     _capture?.cancel();
     _image?.dispose();
+    widget.frost?.show(null);
     super.dispose();
   }
 
@@ -156,6 +181,36 @@ class _SnapshotBackdropState extends State<_SnapshotBackdrop> {
     _capture?.cancel();
     _image?.dispose();
     _image = _cache[key]?.clone();
+    _frost();
+    _publish();
+  }
+
+  /// Hands the snapshot on screen to [ShownBackdrop], for low-end phones'
+  /// popups to show: a picture frosted as a card frosts it, the Aurora glow
+  /// as it is (blurring it again would change nothing). Only Aurora's.
+  void _publish() {
+    final key = _key, image = _image;
+    if (key == null || image == null || !DevicePerformance.lowEnd) return;
+    switch (key.$1) {
+      case ('wallpaper', _, _, _):
+        final copies = _frosts[key] ??= FrostImages.of(image, key.$2, key.$3);
+        ShownBackdrop.show(
+          copies.blurredBy(FrostImages.cardSigma)!.clone(),
+          key.$2,
+        );
+      case ('aurora', _, _, _):
+        ShownBackdrop.show(image.clone(), key.$2);
+    }
+  }
+
+  /// Hands the page the frosted copies of the snapshot on screen, or none
+  /// while the backdrop is still painted live.
+  void _frost() {
+    final frost = widget.frost, key = _key, image = _image;
+    if (frost == null) return;
+    if (key == null || image == null) return frost.show(null);
+    final copies = _frosts[key] ??= FrostImages.of(image, key.$2, key.$3);
+    frost.show(copies.clone());
   }
 
   /// Called during build; the capture waits for the frame regardless.
@@ -168,28 +223,46 @@ class _SnapshotBackdropState extends State<_SnapshotBackdrop> {
 
   /// Snapshots once the backdrop has held still for a moment, so a size
   /// that is still animating (the keyboard opening) is never kept.
-  void _schedule((Object, Size, double) key) {
+  void _schedule((Object, Size, double) key, {int attempt = 0}) {
     _capture?.cancel();
-    _capture = Timer(const Duration(milliseconds: 250), () => _take(key));
+    // Later and later while it can't be taken, up to every two seconds.
+    final wait = Duration(milliseconds: math.min(2000, 250 << attempt));
+    _capture = Timer(wait, () => _take(key, attempt: attempt));
   }
 
-  Future<void> _take((Object, Size, double) key) async {
+  Future<void> _take((Object, Size, double) key, {int attempt = 0}) async {
     if (!mounted || _key != key || _image != null || !_ready) return;
+    // Not drawn yet, typically because the page is hidden under another
+    // (the look was changed from Customization): try again later. Giving up
+    // left the page redrawing its full-screen blur on every frame for good.
+    void retry() {
+      if (mounted && _key == key && _image == null) {
+        _schedule(key, attempt: math.min(attempt + 1, 3));
+      }
+    }
+
     final boundary = _boundary.currentContext?.findRenderObject();
-    if (boundary is! RenderRepaintBoundary || !boundary.hasSize) return;
+    if (boundary is! RenderRepaintBoundary || !boundary.hasSize) {
+      return retry();
+    }
     final ui.Image image;
     try {
       image = await boundary.toImage(pixelRatio: key.$3);
     } catch (_) {
-      return; // Keep painting it live.
+      return retry();
     }
     _cache.remove(key)?.dispose();
+    _frosts.remove(key)?.dispose();
     _cache[key] = image;
     while (_cache.length > _cacheSize) {
-      _cache.remove(_cache.keys.first)!.dispose();
+      final oldest = _cache.keys.first;
+      _cache.remove(oldest)!.dispose();
+      _frosts.remove(oldest)?.dispose();
     }
     if (!mounted || _key != key || _image != null) return;
     setState(() => _image = image.clone());
+    _frost();
+    _publish();
   }
 
   @override
@@ -440,26 +513,33 @@ class GlassPage extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => Stack(
-    fit: StackFit.expand,
-    children: [
-      const GlassBackdrop(),
-      // Frosted cards over a picture share one blur of it.
-      BackdropGroup(
-        child: Theme(
-          data: Theme.of(context)
-              .copyWith(scaffoldBackgroundColor: Colors.transparent),
-          child: child,
+  Widget build(BuildContext context) => PageFrostHost(
+    child: Stack(
+      fit: StackFit.expand,
+      children: [
+        const GlassBackdrop(),
+        // Glass that blurs live over a picture shares one blur of it.
+        BackdropGroup(
+          child: Theme(
+            data: Theme.of(context)
+                .copyWith(scaffoldBackgroundColor: Colors.transparent),
+            child: child,
+          ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }
 
 /// The card body: frosted grey glass, a shade lighter than the page and
 /// lightest at the top-left where the light falls. [color] replaces the
-/// neutral body.
-Gradient glassCardFill(BuildContext context, {Color? color}) {
+/// neutral body. [deeper] sits a dark tint under the pale sheen of cards on the
+/// dark aurora style; sheets and other surfaces leave it off.
+Gradient glassCardFill(
+  BuildContext context, {
+  Color? color,
+  bool deeper = false,
+}) {
   final dark = Theme.of(context).brightness == Brightness.dark;
   final List<Color> colors;
   if (usesAurora(context) && color == null) {
@@ -479,19 +559,28 @@ Gradient glassCardFill(BuildContext context, {Color? color}) {
           ],
         );
       }
+      // A dark tint sits under the pale sheen so the card reads a little
+      // deeper than the picture behind it.
+      final shade = Colors.black.withValues(alpha: deeper ? .26 : 0);
       return LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
           Color.alphaBlend(
-            accent.withValues(alpha: .10),
-            Colors.white,
-          ).withValues(alpha: .11),
-          Colors.white.withValues(alpha: .055),
+            Color.alphaBlend(
+              accent.withValues(alpha: .10),
+              Colors.white,
+            ).withValues(alpha: .11),
+            shade,
+          ),
+          Color.alphaBlend(Colors.white.withValues(alpha: .055), shade),
           Color.alphaBlend(
-            accent.withValues(alpha: .25),
-            Colors.white,
-          ).withValues(alpha: .075),
+            Color.alphaBlend(
+              accent.withValues(alpha: .25),
+              Colors.white,
+            ).withValues(alpha: .075),
+            shade,
+          ),
         ],
         stops: const [0, .55, 1],
       );

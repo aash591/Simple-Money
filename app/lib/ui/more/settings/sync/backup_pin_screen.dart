@@ -7,7 +7,8 @@ import '../../../components/app_back_button.dart';
 import '../../../components/feature_page.dart';
 import '../../../welcome/privacy_card.dart';
 
-enum BackupPinPurpose { enable, unlock, disable }
+/// [join]: entering the PIN the account's other phones already use.
+enum BackupPinPurpose { enable, unlock, disable, join }
 
 /// Opens the backup PIN flow as a full screen and returns whether it
 /// finished. Used from Settings, while restoring, and in first-time setup.
@@ -286,11 +287,13 @@ class _BackupPinScreenState extends State<BackupPinScreen> {
           BackupPinPurpose.enable => 'Choose a backup PIN',
           BackupPinPurpose.unlock => 'Enter your backup PIN',
           BackupPinPurpose.disable => 'Turn off backup encryption?',
+          BackupPinPurpose.join => 'Enter your other phone\'s PIN',
         };
         final message = switch (widget.purpose) {
           BackupPinPurpose.enable => '6 letters or numbers, and case-sensitive. A mix of both is harder to guess.',
           BackupPinPurpose.unlock => 'Use the PIN you chose for this backup. If you forgot it, data already on your phone stays available, but this encrypted backup cannot be restored.',
-          BackupPinPurpose.disable => 'Enter your current PIN. Future backups will no longer be encrypted. Older encrypted copies will still need their PIN.',
+          BackupPinPurpose.disable => 'Enter your current PIN. Your synced data on Google Drive will no longer be encrypted, from this phone and your other phones.',
+          BackupPinPurpose.join => 'Your other phone keeps synced data locked with a PIN. Enter the same PIN to sync with it again.',
         };
         return (
           content: content(
@@ -321,9 +324,11 @@ class _BackupPinScreenState extends State<BackupPinScreen> {
                 ? 'Continue'
                 : _busy
                 ? 'Please wait…'
-                : widget.purpose == BackupPinPurpose.unlock
-                ? 'Unlock backup'
-                : 'Turn off encryption',
+                : switch (widget.purpose) {
+                    BackupPinPurpose.unlock => 'Unlock backup',
+                    BackupPinPurpose.join => 'Unlock sync',
+                    _ => 'Turn off encryption',
+                  },
             loading: _busy,
             onPressed: _setup
                 ? (_pinValid ? () => _go(_Step.confirm) : null)
@@ -370,7 +375,7 @@ class _BackupPinScreenState extends State<BackupPinScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'New backups will be encrypted. Older Drive copies keep their existing protection.',
+                'Your synced data on Google Drive is encrypted from now on. Your other phones will ask for this PIN once.',
                 textAlign: TextAlign.center,
                 style: text.bodySmall?.copyWith(color: muted),
               ),

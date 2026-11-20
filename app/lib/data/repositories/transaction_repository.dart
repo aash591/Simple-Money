@@ -113,8 +113,8 @@ class TransactionRepository {
     return database.transaction(() async {
       final id = await database.customInsert(
         '''INSERT INTO transactions
-        (type, amount_minor, account_id, category_id, title, note, date, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+        (id, type, amount_minor, account_id, category_id, title, note, date, created_at)
+        VALUES (${newRowId('transactions')}, ?, ?, ?, ?, ?, ?, ?, ?)''',
         variables: [
           Variable(type.storageValue),
           Variable(amountMinor),
@@ -259,9 +259,9 @@ class TransactionRepository {
       }
       final id = await database.customInsert(
         '''INSERT INTO transactions
-        (type, amount_minor, account_id, to_account_id, to_amount_minor,
+        (id, type, amount_minor, account_id, to_account_id, to_amount_minor,
          note, date, created_at)
-        VALUES ('transfer', ?, ?, ?, ?, ?, ?, ?)''',
+        VALUES (${newRowId('transactions')}, 'transfer', ?, ?, ?, ?, ?, ?, ?)''',
         variables: [
           Variable(amountMinor),
           Variable(fromAccountId),

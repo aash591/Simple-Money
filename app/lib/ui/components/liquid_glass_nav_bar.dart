@@ -124,13 +124,19 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
 
   int get _last => widget.destinations.length - 1;
 
+  /// Low-end phones: the bar, pill and droplet look and move just the same,
+  /// but nothing behind them is blurred or bent. The lens and blur re-read
+  /// the screen on every frame the page moves under the bar, which is most
+  /// of what the bar costs; the bright rim they leave is painted instead.
+  static bool get _noFilter => DevicePerformance.lowEnd;
+
   @override
   void initState() {
     super.initState();
     _position.addListener(_wakeTrail);
-    // The lens is a second full backdrop pass on every frame the page moves
-    // behind the bar; low-end phones keep the single-pass frosted glass.
-    if (ui.ImageFilter.isShaderFilterSupported && !DevicePerformance.lowEnd) {
+    // Low-end phones draw the same bar without its filters (see [_noFilter]),
+    // so they never need the lens.
+    if (ui.ImageFilter.isShaderFilterSupported && !_noFilter) {
       _loadShaders();
     }
   }
@@ -389,29 +395,23 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                           ),
                         ),
                       )
+                    : _noFilter
+                    ? _LensRim(highlight: dark ? .28 : .6)
                     : barShader == null
                     ? _FrostedGlass(color: barTint, dark: dark)
-                    // The lens goes over its own blur layer, so it bends pixels
-                    // that are already soft. Composing the two into one filter
-                    // hands the shader a padded texture it can't line up.
-                    : Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          BackdropFilter(
-                            filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                            child: const SizedBox.expand(),
-                          ),
-                          _GlassBackdrop(
-                            shader: barShader,
-                            pixelRatio: pixelRatio,
-                            repaint: routeMotion,
-                            refractionHeight: 24,
-                            refractionAmount: 24,
-                            saturation: 1.5,
-                            tint: barTint,
-                            highlight: dark ? .28 : .6,
-                          ),
-                        ],
+                    // The lens softens what it bends itself: a blur filter under
+                    // it was a second save and reload of the whole screen on
+                    // every frame, which a tiled phone GPU pays for dearly.
+                    : _GlassBackdrop(
+                        shader: barShader,
+                        pixelRatio: pixelRatio,
+                        repaint: routeMotion,
+                        refractionHeight: 24,
+                        refractionAmount: 24,
+                        saturation: 1.5,
+                        tint: barTint,
+                        highlight: dark ? .28 : .6,
+                        blur: 2,
                       ),
               ),
             ),
@@ -573,7 +573,16 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                       ),
                     ),
                     // The droplet goes over the tabs so it bends them too.
-                    if (pillShader != null && press > 0)
+                    if (_noFilter && press > 0)
+                      pill(
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: .03 * press),
+                          ),
+                          child: _LensRim(highlight: (dark ? .4 : .7) * press),
+                        ),
+                      )
+                    else if (pillShader != null && press > 0)
                       pill(
                         _GlassBackdrop(
                           shader: pillShader,
@@ -714,6 +723,52 @@ class _Tab extends StatelessWidget {
   }
 }
 
+/// The lens's bright rim, without the lens: a hairline just inside a
+/// capsule, lit where it faces the top-left or the bottom-right, as the
+/// glass shader draws it. For phones that skip the filter.
+class _LensRim extends StatelessWidget {
+  const _LensRim({required this.highlight});
+  final double highlight;
+
+  @override
+  Widget build(BuildContext context) =>
+      CustomPaint(painter: _LensRimPainter(highlight), size: Size.infinite);
+}
+
+class _LensRimPainter extends CustomPainter {
+  const _LensRimPainter(this.highlight);
+  final double highlight;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || highlight <= 0) return;
+    final rect = Offset.zero & size;
+    // The shader lights the rim by how squarely it faces the diagonal: fully
+    // at the top-left and bottom-right of each end, not at all at the other
+    // two, and a little under three quarters along the straight sides.
+    final ends = size.shortestSide / size.width / 2;
+    Color white(double facing) =>
+        Colors.white.withValues(alpha: (highlight * facing).clamp(0.0, 1.0));
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        rect.deflate(.75),
+        Radius.circular(size.shortestSide / 2),
+      ),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5
+        ..blendMode = BlendMode.plus
+        ..shader = LinearGradient(
+          colors: [white(1), white(.707), white(.707), white(1)],
+          stops: [0, ends, 1 - ends, 1],
+        ).createShader(rect),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_LensRimPainter old) => highlight != old.highlight;
+}
+
 /// The stand-in for the glass where shader filters can't run.
 class _FrostedGlass extends StatelessWidget {
   const _FrostedGlass({required this.color, required this.dark});
@@ -821,6 +876,7 @@ class _GlassBackdrop extends LeafRenderObjectWidget {
     this.dispersion = 0,
     this.saturation = 1,
     this.magnification = const ui.Offset(1, 1),
+    this.blur = 0,
   });
   final ui.FragmentShader shader;
   final double pixelRatio;
@@ -834,6 +890,10 @@ class _GlassBackdrop extends LeafRenderObjectWidget {
   final double dispersion;
   final double saturation;
   final ui.Offset magnification;
+
+  /// How much to soften what shows through, as a blur sigma in logical
+  /// pixels.
+  final double blur;
   final Color tint;
   final double highlight;
 
@@ -912,7 +972,8 @@ class _RenderGlassBackdrop extends RenderBox {
       ..setFloat(15, _glass.highlight)
       ..setFloat(16, ratio)
       ..setFloat(17, _glass.magnification.dx)
-      ..setFloat(18, _glass.magnification.dy);
+      ..setFloat(18, _glass.magnification.dy)
+      ..setFloat(19, _glass.blur * ratio);
     layer ??= BackdropFilterLayer();
     layer!.filter = ui.ImageFilter.shader(_glass.shader);
     context.pushLayer(layer!, (_, _) {}, offset);

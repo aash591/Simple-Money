@@ -135,9 +135,15 @@ files from `app/assets/icon_packs/3d/`.
 ### Service, brand, and bank account icon workflow
 
 Named services, merchants, banks, and payment providers use their real logos
-in `app/assets/icon_packs/brands/`. Generic activities such as haircut and
+in `app/assets/icon_packs/logos/`. Generic activities such as haircut and
 salon belong in the soft 3D category pack above, even when SMS merchant names
 automatically select them.
+
+Bank files are grouped by country in
+`app/assets/icon_packs/logos/banks/<country>/`; their raw masters mirror that
+layout under `assets_raw/icon_packs_raw/logos/banks/`. Merchant, service, and
+payment-only files live in the sibling `brands/brands/` directory in both
+trees.
 
 1. Search Google/Google Images for a high-quality original logo, then download
    the original file from its source rather than saving a search thumbnail.
@@ -162,7 +168,7 @@ automatically select them.
 5. Add reproducible source URLs and any crop, isolation, or stacking operations
    to `app/tool/fetch_brand_icons.mjs`. Export a transparent 256x256 lossy WebP
    at quality 90 and alpha quality 100. Retain the resulting master copy in
-   `assets_raw/icon_packs_raw/brands/` as well as the bundled app asset. From `app/`,
+   `assets_raw/icon_packs_raw/logos/` as well as the bundled app asset. From `app/`,
    regenerate only the affected keys to avoid overwriting unrelated artwork:
 
    ```powershell

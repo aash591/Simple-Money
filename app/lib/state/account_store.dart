@@ -45,15 +45,32 @@ class AccountStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Only the first load shows as loading. Reloads (returning to the app,
+  /// changes from another phone) keep the current list on screen and swap
+  /// in the new one at once, so lists don't flicker; a reload that finishes
+  /// after a newer one is dropped, and one that fails keeps the list shown.
+  bool _loaded = false;
+  int _generation = 0;
+
   Future<void> load({bool initializeDefault = false}) async {
-    loading = true;
-    loadError = null;
-    notifyListeners();
+    final generation = ++_generation;
+    if (!_loaded) {
+      loading = true;
+      loadError = null;
+      notifyListeners();
+    }
     try {
       if (initializeDefault) await repository.ensureDefaultCashAccount();
-      _accounts = await repository.load();
+      final accounts = await repository.load();
+      if (generation != _generation) return;
+      _accounts = accounts;
+      _loaded = true;
+      loadError = null;
     } catch (_) {
-      loadError = 'Your accounts could not be loaded. Please try again.';
+      if (generation != _generation) return;
+      if (!_loaded) {
+        loadError = 'Your accounts could not be loaded. Please try again.';
+      }
     }
     loading = false;
     notifyListeners();
@@ -73,6 +90,7 @@ class AccountStore extends ChangeNotifier {
     String? icon,
     required int digits,
     required int openingBalance,
+    bool broker = false,
   }) async {
     if (saving) throw StateError('An account update is already being saved.');
     saving = true;
@@ -92,6 +110,7 @@ class AccountStore extends ChangeNotifier {
         icon: icon,
         digits: digits,
         openingBalance: openingBalance,
+        broker: broker,
       );
       _accounts = await repository.load();
     } finally {
@@ -112,6 +131,9 @@ class AccountStore extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> merge({required int sourceId, required int targetId}) =>
+      _retire(() => repository.merge(sourceId: sourceId, targetId: targetId));
 
   Future<void> archive(int id) => _retire(() => repository.archive(id));
 

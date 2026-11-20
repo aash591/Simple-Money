@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/category.dart';
+import '../../components/common.dart' show MoneyCard;
 import '../../components/settings_icon.dart';
 import '../../components/feature_page.dart';
 import '../../components/search_field.dart';
@@ -60,45 +61,55 @@ class _SelectParentCategoryScreenState
           ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.only(bottom: 24),
+              padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               children: [
-                _Row(
-                  icon: Icon(
-                    Icons.horizontal_rule_rounded,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  title: 'None (top-level category)',
-                  selected: widget.selectedId == null,
-                  onTap: () => Navigator.pop(context, noParentSentinel),
-                ),
-                if (results.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.search_off_rounded,
-                          size: 42,
+                MoneyCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      _Row(
+                        icon: Icon(
+                          Icons.horizontal_rule_rounded,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No categories found',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  for (final c in results)
-                    _Row(
-                      icon: SettingsIcon(c.icon, size: 32),
-                      title: c.name,
-                      selected: c.id == widget.selectedId,
-                      onTap: () => Navigator.pop(context, c.id),
-                    ),
+                        title: 'None (top-level category)',
+                        selected: widget.selectedId == null,
+                        onTap: () => Navigator.pop(context, noParentSentinel),
+                      ),
+                      if (results.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(32),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.search_off_rounded,
+                                size: 42,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'No categories found',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        for (final (i, c) in results.indexed)
+                          _Row(
+                            icon: SettingsIcon(c.icon, size: 32),
+                            title: c.name,
+                            selected: c.id == widget.selectedId,
+                            divider: i < results.length - 1,
+                            onTap: () => Navigator.pop(context, c.id),
+                          ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -114,14 +125,19 @@ class _Row extends StatelessWidget {
     required this.title,
     required this.selected,
     required this.onTap,
+    this.divider = true,
   });
   final Widget icon;
   final String title;
   final bool selected;
   final VoidCallback onTap;
+
+  /// A hairline under the row, except under a card's last one.
+  final bool divider;
   @override
   Widget build(BuildContext context) => Material(
-    color: Theme.of(context).colorScheme.surface,
+    // See-through, so the card's glass and the page behind it show.
+    type: MaterialType.transparency,
     child: Column(
       children: [
         ListTile(
@@ -141,10 +157,11 @@ class _Row extends StatelessWidget {
           ),
           onTap: onTap,
         ),
-        const Padding(
-          padding: EdgeInsets.only(left: 68, right: 18),
-          child: Divider(height: 1),
-        ),
+        if (divider)
+          const Padding(
+            padding: EdgeInsets.only(left: 68, right: 18),
+            child: Divider(height: 1),
+          ),
       ],
     ),
   );

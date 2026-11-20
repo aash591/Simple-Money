@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,7 @@ import '../domain/account.dart';
 import '../domain/title_suggestions.dart';
 import '../domain/transaction.dart';
 import 'account_store.dart';
+import 'review_prompt.dart';
 
 class TransactionStore extends ChangeNotifier {
   TransactionStore(this.repository, this.accountStore);
@@ -32,15 +34,32 @@ class TransactionStore extends ChangeNotifier {
   bool saving = false;
   String? loadError;
 
+  /// Only the first load shows as loading. Reloads (returning to the app,
+  /// changes from another phone) keep the current list on screen and swap
+  /// in the new one at once, so lists don't flicker; a reload that finishes
+  /// after a newer one is dropped, and one that fails keeps the list shown.
+  bool _loaded = false;
+  int _generation = 0;
+
   Future<void> load() async {
-    loading = true;
-    loadError = null;
-    notifyListeners();
+    final generation = ++_generation;
+    if (!_loaded) {
+      loading = true;
+      loadError = null;
+      notifyListeners();
+    }
     try {
-      _transactions = await repository.load();
+      final transactions = await repository.load();
+      if (generation != _generation) return;
+      _transactions = transactions;
       _titleSuggestions = null;
+      _loaded = true;
+      loadError = null;
     } catch (_) {
-      loadError = 'Your transactions could not be loaded. Please try again.';
+      if (generation != _generation) return;
+      if (!_loaded) {
+        loadError = 'Your transactions could not be loaded. Please try again.';
+      }
     }
     loading = false;
     notifyListeners();
@@ -68,6 +87,7 @@ class TransactionStore extends ChangeNotifier {
         note: note,
         date: date,
       );
+      unawaited(ReviewPrompt.instance.noteSave());
       await Future.wait([_reloadTransaction(id), accountStore.load()]);
     } finally {
       saving = false;
@@ -161,6 +181,7 @@ class TransactionStore extends ChangeNotifier {
         note: note,
         date: date,
       );
+      unawaited(ReviewPrompt.instance.noteSave());
       await Future.wait([_reloadTransaction(id), accountStore.load()]);
     } finally {
       saving = false;
@@ -221,6 +242,12 @@ class TransactionStore extends ChangeNotifier {
   /// which accounts are in play, so the ledger is reread the same way.
   Future<void> archiveAccount(int id) =>
       _withAccounts(() => accountStore.archive(id));
+
+  /// Moves every transaction across, so the ledger is reread as well.
+  Future<void> mergeAccount({required int sourceId, required int targetId}) =>
+      _withAccounts(
+        () => accountStore.merge(sourceId: sourceId, targetId: targetId),
+      );
 
   Future<void> restoreAccount(int id) =>
       _withAccounts(() => accountStore.restore(id));

@@ -68,39 +68,118 @@ class StatementImportRepository {
   StatementImportRepository(this.database);
   final AppDatabase database;
 
-  /// Device-local: which app account each statement account was last given.
+  // What the user taught the app about statements lives in synced tables
+  // (see database_schema.dart), so another phone and a restore read files
+  // the same way. Before v47 it was in SharedPreferences under these keys.
   static const linksKey = 'statement_account_links';
+  static const ownerKey = 'statement_owner';
+  static const mappingsKey = 'statement_column_mappings';
 
-  Future<Map<String, int>> accountLinks() async {
+  /// Databases whose old SharedPreferences values were moved (or had none).
+  /// A flag rather than a shared Future: a Future finished in another zone
+  /// would resume its awaiters there.
+  static final _moved = Expando<bool>();
+
+  /// Moves what an older version kept in SharedPreferences into the tables,
+  /// once per database. What is already in the tables (e.g. restored from
+  /// another phone) wins. Until it succeeds (prefs can be unavailable in a
+  /// background isolate) the old values are left where they are. Two first
+  /// calls at once are harmless: both only insert what's missing.
+  Future<void> _movePreferences() async {
+    if (_moved[database] ?? false) return;
     try {
       final prefs = await SharedPreferences.getInstance();
-      final saved = prefs.getString(linksKey);
-      if (saved == null) return {};
-      return {
-        for (final MapEntry(:key, :value)
-            in (jsonDecode(saved) as Map<String, dynamic>).entries)
-          if (value is int) key: value,
-      };
+      final links = prefs.getString(linksKey);
+      final owner = prefs.getString(ownerKey);
+      final mappings = prefs.getString(mappingsKey);
+      if (links == null && owner == null && mappings == null) {
+        _moved[database] = true;
+        return;
+      }
+      await database.transaction(() async {
+        if (links != null) {
+          for (final MapEntry(:key, :value)
+              in (jsonDecode(links) as Map<String, dynamic>).entries) {
+            if (value is! int) continue;
+            await database.customStatement(
+              'INSERT OR IGNORE INTO statement_account_links VALUES (?, ?)',
+              [key, value],
+            );
+          }
+        }
+        if (owner != null) {
+          await database.customStatement(
+            'INSERT OR IGNORE INTO statement_owner VALUES (1, ?)',
+            [jsonEncode(jsonDecode(owner))],
+          );
+        }
+        if (mappings != null) {
+          for (final MapEntry(:key, :value)
+              in (jsonDecode(mappings) as Map<String, dynamic>).entries) {
+            if (key.isEmpty) continue;
+            await database.customStatement(
+              'INSERT OR IGNORE INTO statement_layouts VALUES (?, ?)',
+              [key, jsonEncode(value)],
+            );
+          }
+        }
+      });
+      for (final key in [linksKey, ownerKey, mappingsKey]) {
+        await prefs.remove(key);
+      }
+      _moved[database] = true;
     } catch (_) {
-      return {};
+      // Tried again next time.
     }
   }
 
-  Future<void> saveAccountLinks(Map<String, int> links) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(linksKey, jsonEncode(links));
+  /// Which app account each statement account was last given.
+  Future<Map<String, int>> accountLinks() async {
+    await _movePreferences();
+    return {
+      for (final row
+          in await database
+              .customSelect('SELECT * FROM statement_account_links')
+              .get())
+        row.read<String>('statement_key'): row.read<int>('account_id'),
+    };
   }
 
-  /// Device-local: who the statements imported so far say the user is.
-  static const ownerKey = 'statement_owner';
+  /// Makes [links] the whole set, writing only what changed, so another
+  /// phone receives just those.
+  Future<void> saveAccountLinks(Map<String, int> links) async {
+    await _movePreferences();
+    await database.transaction(() async {
+      for (final key in (await accountLinks()).keys) {
+        if (links.containsKey(key)) continue;
+        await database.customStatement(
+          'DELETE FROM statement_account_links WHERE statement_key = ?',
+          [key],
+        );
+      }
+      for (final MapEntry(:key, :value) in links.entries) {
+        await database.customStatement(
+          '''INSERT INTO statement_account_links VALUES (?, ?)
+          ON CONFLICT(statement_key) DO UPDATE SET account_id = excluded.account_id
+          WHERE account_id IS NOT excluded.account_id''',
+          [key, value],
+        );
+      }
+    });
+  }
 
+  /// Who the statements imported so far say the user is.
   Future<StatementOwner> owner() async {
+    await _movePreferences();
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final saved = prefs.getString(ownerKey);
-      return saved == null
+      final row = await database
+          .customSelect('SELECT data FROM statement_owner WHERE id = 1')
+          .getSingleOrNull();
+      return row == null
           ? const StatementOwner()
-          : StatementOwner.fromJson(jsonDecode(saved) as Map<String, Object?>);
+          : StatementOwner.fromJson(
+              jsonDecode(row.read<String>('data')) as Map<String, Object?>,
+            );
     } catch (_) {
       return const StatementOwner();
     }
@@ -109,22 +188,25 @@ class StatementImportRepository {
   /// Adds what [statement] says about its owner to what's remembered.
   Future<void> rememberOwner(StatementOwner statement) async {
     if (statement.isEmpty) return;
-    final merged = (await owner()).merge(statement);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(ownerKey, jsonEncode(merged.toJson()));
+    final merged = jsonEncode((await owner()).merge(statement).toJson());
+    await database.customStatement(
+      '''INSERT INTO statement_owner VALUES (1, ?)
+      ON CONFLICT(id) DO UPDATE SET data = excluded.data
+      WHERE data IS NOT excluded.data''',
+      [merged],
+    );
   }
 
-  /// Device-local: spreadsheet column mappings, by header signature.
-  static const mappingsKey = 'statement_column_mappings';
-
+  /// The spreadsheet column mappings the user saved, by header signature.
   Future<Map<String, Object?>> columnMappings() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final saved = prefs.getString(mappingsKey);
-      return saved == null ? {} : jsonDecode(saved) as Map<String, Object?>;
-    } catch (_) {
-      return {};
-    }
+    await _movePreferences();
+    return {
+      for (final row
+          in await database
+              .customSelect('SELECT * FROM statement_layouts')
+              .get())
+        row.read<String>('signature'): jsonDecode(row.read<String>('mapping')),
+    };
   }
 
   /// Saved mappings over shared layouts from other users, for finding a
@@ -155,24 +237,23 @@ class StatementImportRepository {
 
   Future<void> saveColumnMapping(String signature, Object mapping) async {
     if (signature.isEmpty) return;
-    final saved = await columnMappings();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      mappingsKey,
-      jsonEncode({...saved, signature: mapping}),
+    await _movePreferences();
+    await database.customStatement(
+      '''INSERT INTO statement_layouts VALUES (?, ?)
+      ON CONFLICT(signature) DO UPDATE SET mapping = excluded.mapping
+      WHERE mapping IS NOT excluded.mapping''',
+      [signature, jsonEncode(mapping)],
     );
   }
 
   /// Puts back [previous] as [signature]'s mapping, or removes it when null.
   Future<void> restoreColumnMapping(String signature, Object? previous) async {
-    final saved = {...await columnMappings()};
-    if (previous == null) {
-      saved.remove(signature);
-    } else {
-      saved[signature] = previous;
-    }
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(mappingsKey, jsonEncode(saved));
+    if (previous != null) return saveColumnMapping(signature, previous);
+    await _movePreferences();
+    await database.customStatement(
+      'DELETE FROM statement_layouts WHERE signature = ?',
+      [signature],
+    );
   }
 
   /// The ledger around [rows]' dates, as candidates for [matchStatementRows].

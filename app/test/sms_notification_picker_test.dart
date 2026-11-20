@@ -226,7 +226,7 @@ void main() {
           currency: 'INR',
           digits: 2,
         ),
-        1,
+        (await AccountRepository(db).load()).first.id,
       );
       balance = (await AccountRepository(db).load()).first.balanceMinor;
     });

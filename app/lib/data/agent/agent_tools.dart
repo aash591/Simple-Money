@@ -25,7 +25,10 @@ import '../repositories/recurring_payment_repository.dart';
 import '../repositories/sms_review_repository.dart';
 import '../statements/statement_table.dart';
 import '../statements/upi_statement.dart';
+import 'agent_accounts.dart';
 import 'agent_loans.dart';
+import 'agent_sms_saver.dart';
+import 'agent_recurring.dart';
 import 'agent_rules.dart';
 import 'agent_suggestion_repository.dart';
 import 'sms_labeler.dart';
@@ -123,6 +126,8 @@ class AgentTools {
 
   late final AgentLoans loans = AgentLoans(database);
 
+  late final AgentAccounts accounts = AgentAccounts(database);
+
   /// The server instructions MCP's `initialize` sends.
   static const instructions =
       'SimpleMoney is the user\'s money manager, answered live by their phone. '
@@ -137,18 +142,28 @@ class AgentTools {
       'categorize_payee per payee. When a balance or total looks wrong: '
       'account_activity. Totals come exact from spending_summary (it groups '
       'by payee too) and search_transactions: never add amounts up '
-      'yourself. '
+      'yourself. To find money paid to or received from a phone number: '
+      'find_by_phone, and tell the user its accuracy (a UPI ID based on an '
+      'email or name doesn\'t show the number). '
       'To teach the app a bank SMS it misses: list_missed_sms, then '
       'label_sms with values copied exactly from one message. To teach it a '
       'statement layout: list_statements_to_map, then map_statement with '
       'column names. When the user shares a loan statement or sanction '
       'letter: read it, then suggest_loan with what it says and every payment '
       'from the start; the app finds those payments in the ledger so nothing '
-      'is recorded twice. Money lent to or borrowed from a person: '
+      'is recorded twice. Its reply lists other bank SMS that look like the '
+      'loan\'s repayments (saved, waiting for review or unparsed): ask the '
+      'user whether to mark them as repayments before suggesting again with '
+      'the ones they confirm. Money lent to or borrowed from a person: '
       'suggest_debt_entries. To add a new expense or income the user tells '
       'you about or shows you: suggest_transactions. Things that repeat, '
       'such as subscriptions, rent paid or received, premiums and SIPs: '
-      'list_recurring_payments, then suggest_recurring_payments. '
+      'list_recurring_payments, then suggest_recurring_payments; to find '
+      'them in the user\'s SMS and transactions, find_recurring_payments '
+      'first and ask which to track. '
+      'To add, edit, rebalance, archive, merge or delete accounts: '
+      'list_accounts, then suggest_account_changes; when SMS scanning made '
+      'two accounts for one (a bank account and its debit card), merge them. '
       'Work these out yourself rather than asking the user '
       'which value or column is which: they approve the result in the app. '
       'Each reply\'s next says what usually comes next; follow it, or take '
@@ -220,8 +235,15 @@ class AgentTools {
               'balance': _amount(a.balanceMinor, a.digits),
               if (a.balanceReportedAt case final at?)
                 'balance_from_bank_sms_on': _isoDay(at),
+              'transactions': a.transactionCount,
               'last_digits': ?a.lastDigits,
               'institution': ?a.institution,
+              'icon': ?a.icon,
+              if (a.hasDebitCard) 'has_debit_card': true,
+              if (a.creditLimitMinor case final limit?)
+                'credit_limit': _amount(limit, a.digits),
+              if (a.availableCreditLimitMinor case final available?)
+                'available_credit': _amount(available, a.digits),
               if (a.isArchived) 'archived': true,
             },
       ],
@@ -362,6 +384,227 @@ class AgentTools {
             if (notes) 'note': ?r.readNullable<String>('note'),
           },
       ],
+    };
+  }
+
+  /// What finding money by phone number can't promise, said every time so
+  /// the AI app passes it on.
+  static const _phoneAccuracy =
+      'Only entries whose text holds this number are found: a UPI ID built '
+      'on it (9876543210@ybl, @paytm, @okaxis…) or an SMS quoting it. '
+      'Payments are missed when the person\'s UPI ID is based on an email or '
+      'name (name@okhdfcbank), a custom handle or another number, or when '
+      'the bank SMS shows only a name or masks the number. Entries added by '
+      'hand rarely hold a number at all.';
+
+  /// Saved transactions, SMS waiting for review and unparsed bank SMS that
+  /// mention [phone] as a number of its own, so a UPI ID like
+  /// 9876543210@ybl matches and an account or reference number holding the
+  /// same digits doesn't.
+  Future<Object?> _findByPhone(Map<String, Object?> args) async {
+    var digits = (_string(args, 'phone') ?? '').replaceAll(RegExp(r'\D'), '');
+    if (digits.length > 10 && (digits.startsWith('91') || digits[0] == '0')) {
+      digits = digits.substring(digits.length - 10);
+    }
+    if (digits.length < 7 || digits.length > 12) {
+      throw const _BadInput(
+        'Give a phone number, e.g. 9876543210 or +91 98765 43210.',
+      );
+    }
+    final (from, to) = _optionalRange(args);
+    final limit = (_int(args, 'limit') ?? 50).clamp(1, 200);
+    // The digits as one run, maybe split by spaces or dashes, with an
+    // optional +91 or 0 before them, and no digit either side.
+    final spaced = digits.split('').join(r'[\s-]?');
+    final number = RegExp('(?<![0-9])(?:\\+?91[\\s-]?|0)?$spaced(?![0-9])');
+    String? hit(String text) {
+      final m = number.firstMatch(text);
+      if (m == null) return null;
+      final start = math.max(0, m.start - 40);
+      final end = math.min(text.length, m.end + 40);
+      return text.substring(start, end).replaceAll(RegExp(r'\s+'), ' ').trim();
+    }
+
+    final upiIds = <String>{};
+    final upi = RegExp(
+      '(?<![0-9])$digits@[a-z][a-z0-9.]*',
+      caseSensitive: false,
+    );
+    void collect(String text) =>
+        upiIds.addAll(upi.allMatches(text).map((m) => m[0]!.toLowerCase()));
+
+    // Saved: prefiltered in SQL on the bare digits, confirmed here.
+    final rows = await database
+        .customSelect(
+          '''SELECT t.id, t.type, t.amount_minor, t.date, t.title, t.note,
+              a.name AS account_name, a.currency, a.digits,
+              c.name AS category_name, p.name AS parent_name,
+              (SELECT group_concat(s.candidate, ' ') FROM sms_imports s
+                WHERE s.transaction_id = t.id) AS sms
+          FROM transactions t
+          JOIN accounts a ON a.id = t.account_id
+          LEFT JOIN categories c ON c.id = t.category_id
+          LEFT JOIN categories p ON p.id = c.parent_id
+          WHERE t.date >= ? AND t.date < ?
+            AND instr(replace(replace(replace(
+                  coalesce(t.title, '') || ' ' || coalesce(t.note, '') || ' '
+                  || coalesce((SELECT group_concat(s.candidate, ' ')
+                    FROM sms_imports s WHERE s.transaction_id = t.id), ''),
+                ' ', ''), '-', ''), char(10), ''), ?) > 0
+          ORDER BY t.date DESC, t.id DESC''',
+          variables: [
+            Variable(from.millisecondsSinceEpoch),
+            Variable(to.millisecondsSinceEpoch),
+            Variable(digits),
+          ],
+        )
+        .get();
+    final saved = <Map<String, Object?>>[];
+    final totals = <(String, String, int), (int, int)>{};
+    final names = <String>{};
+    for (final r in rows) {
+      final note = r.readNullable<String>('note') ?? '';
+      final text =
+          '${r.readNullable<String>('title') ?? ''}\n$note\n'
+          '${r.readNullable<String>('sms') ?? ''}';
+      final where = hit(text);
+      if (where == null) continue;
+      collect(text);
+      final type = r.read<String>('type');
+      final key = (type, r.read<String>('currency'), r.read<int>('digits'));
+      final sum = totals[key] ?? (0, 0);
+      totals[key] = (sum.$1 + r.read<int>('amount_minor'), sum.$2 + 1);
+      if (r.readNullable<String>('title') case final title?
+          when title.trim().isNotEmpty) {
+        names.add(title.trim());
+      }
+      if (saved.length >= limit) continue;
+      saved.add({
+        'id': r.read<int>('id'),
+        'date': _isoDay(
+          DateTime.fromMillisecondsSinceEpoch(r.read<int>('date')),
+        ),
+        'type': type,
+        'amount': _amount(r.read<int>('amount_minor'), r.read<int>('digits')),
+        'currency': r.read<String>('currency'),
+        'title': ?r.readNullable<String>('title'),
+        'account': r.read<String>('account_name'),
+        if (r.readNullable<String>('category_name') case final name?)
+          'category': _path(r.readNullable<String>('parent_name'), name),
+        'from':
+            r.readNullable<String>('sms') != null || note.startsWith('Sender: ')
+            ? 'bank_sms'
+            : note.startsWith('UPI • ')
+            ? 'upi_scan'
+            : 'entered',
+        'matched': where,
+      });
+    }
+
+    // Waiting for review.
+    final waiting = <Map<String, Object?>>[];
+    for (final r
+        in await database
+            .customSelect(
+              '''SELECT fingerprint, body, received_at, candidate FROM sms_imports
+          WHERE status = 'pending' AND received_at >= ? AND received_at < ?
+          ORDER BY received_at DESC''',
+              variables: [
+                Variable(from.millisecondsSinceEpoch),
+                Variable(to.millisecondsSinceEpoch),
+              ],
+            )
+            .get()) {
+      final text =
+          '${r.readNullable<String>('body') ?? ''}\n'
+          '${r.read<String>('candidate')}';
+      final where = hit(text);
+      if (where == null) continue;
+      collect(text);
+      final data = Map<String, dynamic>.from(
+        jsonDecode(r.read<String>('candidate')) as Map,
+      );
+      if (waiting.length >= limit) continue;
+      waiting.add({
+        'sms_id': r.read<String>('fingerprint'),
+        'date': _isoDay(
+          DateTime.fromMillisecondsSinceEpoch(r.read<int>('received_at')),
+        ),
+        if (data['amountMinor'] case final int minor)
+          'amount': _amount(minor, 2),
+        'currency': ?data['currencyCode'],
+        'direction': ?data['direction'],
+        'matched': where,
+      });
+    }
+
+    // Unparsed bank SMS in the inbox, when the phone lets the app read it.
+    final unparsed = <Map<String, Object?>>[];
+    String? inbox;
+    if (_bool(args, 'include_unparsed') ?? true) {
+      final now = DateTime.now();
+      final start = from.isAfter(DateTime(2000))
+          ? from
+          : now.subtract(const Duration(days: 180));
+      try {
+        final days = now.difference(start).inDays.clamp(1, 400) + 1;
+        for (final m in await (missedSms ?? _readMissedSms)(
+          Duration(days: days),
+        )) {
+          if (m.sms.receivedAt.isBefore(from) ||
+              !m.sms.receivedAt.isBefore(to)) {
+            continue;
+          }
+          final where = hit(m.sms.body);
+          if (where == null) continue;
+          collect(m.sms.body);
+          if (unparsed.length >= limit) continue;
+          unparsed.add({
+            'id': _missedId(m),
+            'date': _isoDay(m.sms.receivedAt),
+            'sender': normalizeRuleSender(m.sms.sender) ?? m.sms.sender,
+            'text': m.sms.body,
+          });
+        }
+        inbox = 'Unparsed SMS searched from ${_isoDay(start)}.';
+      } catch (_) {
+        inbox =
+            'Unparsed SMS not searched: SimpleMoney can’t read SMS on '
+            'this phone now.';
+      }
+    }
+
+    final found = saved.length + waiting.length + unparsed.length;
+    return {
+      'phone': digits,
+      'accuracy': _phoneAccuracy,
+      'upi_ids_seen': upiIds.toList()..sort(),
+      'saved': {
+        'count': totals.values.fold(0, (n, t) => n + t.$2),
+        // Exact, so an AI app never adds rows up itself.
+        'totals': [
+          for (final MapEntry(key: (type, currency, digits), value: (sum, n))
+              in totals.entries)
+            {
+              'type': type,
+              'total': _amount(sum, digits),
+              'currency': currency,
+              'count': n,
+            },
+        ],
+        'transactions': saved,
+      },
+      'sms_waiting_for_review': waiting,
+      'unparsed_sms': unparsed,
+      'unparsed_sms_search': ?inbox,
+      if (names.isNotEmpty) 'names_seen': names.take(10).toList(),
+      'next':
+          '${found == 0 ? 'Nothing mentions this number. ' : ''}'
+          'Tell the user what was found, and always say plainly how far it '
+          'can be trusted (accuracy): payments to this person through a UPI '
+          'ID not built on the number are not here. '
+          '${names.isNotEmpty ? 'To catch more, search_transactions with a name from names_seen, and say those matches are by name only. ' : 'If the user knows the person\'s name or UPI ID, search_transactions with it. '}'
+          'Use the saved totals as given; never add amounts up yourself.',
     };
   }
 
@@ -739,28 +982,221 @@ class AgentTools {
     };
   }
 
-  Future<Object?> _suggestRecurringPayments(
-    Map<String, Object?> args,
-  ) => _suggest(
-    args,
-    (item) => suggestions.prepareRecurringPayment(
-      name: _rawString(item, 'name') ?? (throw const _BadInput('Give name.')),
-      amount: _money(item, 'amount') ?? (throw const _BadInput('Give amount.')),
-      accountId:
-          _int(item, 'account_id') ??
-          (throw const _BadInput('Give account_id.')),
-      cycle:
-          _enum(item, 'cycle', ['weekly', 'monthly', 'quarterly', 'yearly']) ??
-          'monthly',
-      nextDue: _optionalDay(item, 'next_due'),
-      incoming: _bool(item, 'incoming') ?? false,
-      categoryId: _int(item, 'category_id'),
-      categoryName: _string(item, 'category_name'),
-      icon: _string(item, 'icon'),
-      remind: _bool(item, 'remind') ?? true,
-      reason: _string(item, 'reason'),
-    ),
-  );
+  /// Short ids list_missed_sms and the finders give unparsed messages.
+  static final _unreadRef = RegExp(r'^m[0-9a-z]{1,8}$');
+
+  /// The inbox's bank SMS no rule reads, from the last [days]; null when the
+  /// app can't read SMS on this phone now.
+  Future<List<LoanSms>?> _unreadSms(int days) async {
+    try {
+      return [
+        for (final m in await (missedSms ?? _readMissedSms)(
+          Duration(days: days.clamp(1, 400)),
+        ))
+          (
+            ref: _missedId(m),
+            id: m.id,
+            sender: m.sms.sender,
+            body: m.sms.body,
+            receivedAt: m.sms.receivedAt,
+          ),
+      ];
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<Object?> _suggestRecurringPayments(Map<String, Object?> args) async {
+    List<String> smsIds(Map<String, Object?> item) => switch (item['sms_ids']) {
+      null => const [],
+      final List ids when ids.every((id) => id is String) => ids.cast<String>(),
+      _ => throw const _BadInput('sms_ids must be an array of ids.'),
+    };
+    // Unparsed messages are read from the inbox once, for every item.
+    final items = args['items'];
+    final wantsInbox =
+        items is List &&
+        items.any(
+          (i) =>
+              i is Map &&
+              i['sms_ids'] is List &&
+              (i['sms_ids'] as List).any(
+                (s) => s is String && _unreadRef.hasMatch(s),
+              ),
+        );
+    final inbox = wantsInbox ? await _unreadSms(400) : const <LoanSms>[];
+    return _suggest(args, (item) {
+      final unread = <LoanSms>[];
+      final waiting = <String>[];
+      for (final id in smsIds(item)) {
+        if (!_unreadRef.hasMatch(id)) {
+          waiting.add(id);
+          continue;
+        }
+        final sms = inbox?.where((m) => m.ref == id).firstOrNull;
+        if (sms == null) {
+          throw _BadInput(
+            inbox == null
+                ? 'SimpleMoney can’t read SMS on this phone now, so unparsed '
+                      'message “$id” can’t be saved. Leave it out.'
+                : 'No unparsed message has sms_id “$id”. Use an id from '
+                      'find_recurring_payments.',
+          );
+        }
+        unread.add(sms);
+      }
+      return suggestions.prepareRecurringPayment(
+        name: _rawString(item, 'name') ?? (throw const _BadInput('Give name.')),
+        amount:
+            _money(item, 'amount') ?? (throw const _BadInput('Give amount.')),
+        accountId:
+            _int(item, 'account_id') ??
+            (throw const _BadInput('Give account_id.')),
+        cycle:
+            _enum(item, 'cycle', [
+              'weekly',
+              'monthly',
+              'quarterly',
+              'yearly',
+            ]) ??
+            'monthly',
+        nextDue: _optionalDay(item, 'next_due'),
+        incoming: _bool(item, 'incoming') ?? false,
+        categoryId: _int(item, 'category_id'),
+        categoryName: _string(item, 'category_name'),
+        icon: _string(item, 'icon'),
+        remind: _bool(item, 'remind') ?? true,
+        transactionIds: switch (item['transaction_ids']) {
+          null => const [],
+          final List ids when ids.every((id) => id is int) => ids.cast<int>(),
+          _ => throw const _BadInput(
+            'transaction_ids must be an array of transaction ids.',
+          ),
+        },
+        waitingSms: waiting,
+        unreadSms: unread,
+        reason: _string(item, 'reason'),
+      );
+    });
+  }
+
+  Future<Object?> _findRecurringPayments(Map<String, Object?> args) async {
+    final months = (_int(args, 'months') ?? 12).clamp(3, 24);
+    final now = DateTime.now();
+    final wantsInbox = _bool(args, 'include_unparsed') ?? true;
+    final unread = wantsInbox
+        ? await _unreadSms(
+            now.difference(DateTime(now.year, now.month - months)).inDays + 1,
+          )
+        : const <LoanSms>[];
+    final found = await AgentRecurringFinder(database).find(
+      months: months,
+      income: _bool(args, 'include_income') ?? true,
+      unparsed: unread ?? const [],
+    );
+    final limit = (_int(args, 'limit') ?? 25).clamp(1, 60);
+    final fresh = found.where((c) => !c.alreadyTracked).toList();
+    final tracked = found.length - fresh.length;
+    final fromSms = fresh.any(
+      (c) => c.payments.any((p) => p.source != RecurringSource.saved),
+    );
+    String sourceName(RecurringSource source) => switch (source) {
+      RecurringSource.saved => 'saved',
+      RecurringSource.needsReview => 'needs_review',
+      RecurringSource.unparsed => 'unparsed',
+    };
+    return {
+      'months_searched': months,
+      'found': fresh.length,
+      if (tracked > 0) 'already_tracked': tracked,
+      'searched': [
+        'saved transactions',
+        'SMS waiting for review',
+        if (wantsInbox && unread != null) 'unparsed bank SMS',
+      ],
+      if (wantsInbox && unread == null)
+        'unparsed_sms':
+            'Not searched: SimpleMoney can’t read SMS on this phone now.',
+      'candidates': [
+        for (final c in fresh.take(limit))
+          {
+            'name': c.name,
+            'kind': c.kind,
+            if (c.knownService) 'known_service': true,
+            'incoming': c.incoming,
+            'amount': _amount(c.amountMinor, c.digits),
+            if (!c.exact) 'amount_varies': true,
+            'currency': c.currency,
+            'cycle': c.cycle.name,
+            'account_id': c.accountId,
+            if (c.accountId != null) 'account': c.account,
+            'next_due': _isoDay(c.nextDue),
+            'last_paid': _isoDay(c.payments.last.date),
+            'times': c.payments.length,
+            'seen_in': {
+              for (final source in RecurringSource.values)
+                if (c.from(source).isNotEmpty)
+                  sourceName(source): c.from(source).length,
+            },
+            'confidence': c.confidence.name,
+            if (c.stopped) 'may_have_stopped': true,
+            'category': ?c.category,
+            // The newest 24 are plenty to link as its history.
+            'transaction_ids': [
+              for (final t in c.payments.reversed.take(24)) ?t.transactionId,
+            ],
+            'sms_ids': [for (final t in c.payments.reversed.take(24)) ?t.smsId],
+          },
+      ],
+      'next': fresh.isEmpty
+          ? 'Nothing repeats steadily enough to suggest. If the user names '
+                'one (rent to a person, a subscription), search_transactions '
+                'for it and suggest_recurring_payments.'
+          : 'Nothing has changed yet. List these for the user, grouped by '
+                'kind (subscriptions, bills, rent or a person, money coming '
+                'in), with amount, cycle and how many times it was seen; say '
+                'which look stopped or vary in amount, and that a pattern is '
+                'a guess (a friend paid the same sum monthly isn’t rent).'
+                '${fromSms ? ' Say which payments were seen in bank SMS waiting for review or unparsed (seen_in): approving saves those messages as its past payments, so none is left in SMS review or unread.' : ''} '
+                'Ask which to track. For those, call '
+                'suggest_recurring_payments with name, amount, account_id '
+                '(from list_accounts when it is null here), cycle, next_due, '
+                'incoming, and transaction_ids and sms_ids as given here '
+                '(they become its payment history), then ask the user to '
+                'approve in SimpleMoney → More → AI suggestions.',
+    };
+  }
+
+  Future<Object?> _suggestAccountChanges(Map<String, Object?> args) =>
+      _suggest(args, (item) {
+        final action =
+            AgentAccountAction.fromToolName(
+              _enum(item, 'action', [
+                for (final a in AgentAccountAction.values) a.toolName,
+              ]),
+            ) ??
+            (throw const _BadInput('Give action.'));
+        final type = _enum(item, 'type', [
+          for (final t in AccountType.values) t.name,
+        ]);
+        return accounts.prepare(
+          action: action,
+          accountId: _int(item, 'account_id'),
+          mergeIntoId: _int(item, 'merge_into_id'),
+          fields: AgentAccountFields(
+            name: _rawString(item, 'name'),
+            type: type == null ? null : AccountType.values.byName(type),
+            currency: _string(item, 'currency'),
+            lastDigits: _string(item, 'last_digits'),
+            institution: _rawString(item, 'institution'),
+            icon: _string(item, 'icon'),
+            balance: _money(item, 'balance'),
+            creditLimit: _money(item, 'credit_limit'),
+            availableCredit: _money(item, 'available_credit'),
+          ),
+          reason: _string(item, 'reason'),
+        );
+      });
 
   Future<Object?> _listIcons(Map<String, Object?> args) async {
     final query = _string(args, 'query')?.toLowerCase() ?? '';
@@ -787,12 +1223,21 @@ class AgentTools {
     if (payments != null && payments is! List) {
       throw const _BadInput('Give payments as an array.');
     }
+    // Messages no rule reads, from the loan's start: the user is asked about
+    // the ones that look like its payments. Without inbox access, the ledger
+    // and the SMS review queue are still searched.
+    final start = _day(args, 'start_date');
+    final days = DateTime.now().difference(start).inDays + 4;
+    final unread = await _unreadSms(days);
+    final inboxRead = unread != null;
+    LoanSms? unreadSms(String id) =>
+        unread?.where((m) => m.ref == id).firstOrNull;
     final plan = await loans.prepareLoan(
       LoanInput(
         lender: _requiredString(args, 'lender'),
         amount:
             _money(args, 'amount') ?? (throw const _BadInput('Give amount.')),
-        startDate: _day(args, 'start_date'),
+        startDate: start,
         asset: _string(args, 'asset'),
         assetIcon: _string(args, 'asset_icon'),
         lenderIcon: _string(args, 'lender_icon'),
@@ -820,6 +1265,18 @@ class AgentTools {
             if (item is Map)
               () {
                 final p = Map<String, Object?>.from(item);
+                final smsId = _string(p, 'sms_id');
+                final unparsed = smsId == null ? null : unreadSms(smsId);
+                // Any other id is looked up in the SMS review queue.
+                if (smsId != null && unparsed == null && !inboxRead) {
+                  if (RegExp(r'^m[0-9a-z]{1,8}$').hasMatch(smsId)) {
+                    throw _BadInput(
+                      'SimpleMoney can’t read SMS on this phone now, so '
+                      'unparsed message “$smsId” can’t be saved. Leave out '
+                      'its sms_id.',
+                    );
+                  }
+                }
                 return LoanPaymentInput(
                   date: _day(p, 'date'),
                   amount:
@@ -830,16 +1287,25 @@ class AgentTools {
                   transactionId: _int(p, 'transaction_id'),
                   notInLedger: _bool(p, 'not_in_ledger') ?? false,
                   partPayment: _bool(p, 'part_payment') ?? false,
+                  smsId: smsId,
+                  unparsed: unparsed,
                 );
               }()
             else
               throw const _BadInput('Each payment must be an object.'),
         ],
       ),
+      unparsed: unread ?? const [],
     );
     await suggestions.add([plan.draft]);
     onSuggestionsChanged?.call();
-    return {'suggested': 1, ...plan.report};
+    return {
+      'suggested': 1,
+      ...plan.report,
+      if (!inboxRead)
+        'unparsed_sms':
+            'Not searched: SimpleMoney can’t read SMS on this phone now.',
+    };
   }
 
   Future<Object?> _suggestDebtEntries(Map<String, Object?> args) => _suggest(

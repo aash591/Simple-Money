@@ -145,7 +145,9 @@ class _Off extends StatelessWidget {
   }
 }
 
-enum _Health { restoring, locked, syncing, error, pending, synced }
+/// [pin]: this phone's changes are up, but the other phones' are locked
+/// with a PIN not entered here yet.
+enum _Health { restoring, locked, syncing, error, pending, pin, synced }
 
 class _Connected extends StatelessWidget {
   const _Connected({required this.sync, required this.status});
@@ -167,6 +169,8 @@ class _Connected extends StatelessWidget {
         ? _Health.error
         : pending > 0
         ? _Health.pending
+        : status.peerEncryption != null
+        ? _Health.pin
         : _Health.synced;
     final lastSynced = status.lastSynced == null
         ? null
@@ -188,6 +192,10 @@ class _Connected extends StatelessWidget {
       _Health.pending => (
         '$pending change${pending == 1 ? '' : 's'} waiting',
         'They sync when you’re back online',
+      ),
+      _Health.pin => (
+        'PIN needed',
+        'Enter your other phone’s PIN below to get its changes',
       ),
       _Health.synced => ('Up to date', lastSynced!),
     };
@@ -345,6 +353,7 @@ class _HealthBadge extends StatelessWidget {
         Icons.cloud_queue_rounded,
         Theme.of(context).colorScheme.primary,
       ),
+      _Health.pin => (Icons.key_rounded, coral),
       _Health.synced => (Icons.cloud_done_rounded, green),
     };
     final working = health == _Health.syncing || health == _Health.restoring;

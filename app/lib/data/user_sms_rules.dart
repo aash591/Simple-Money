@@ -286,7 +286,7 @@ class UserSmsRuleRepository {
     required Map<String, dynamic> format,
     required List<String> samples,
   }) => database.customInsert(
-    'INSERT INTO user_sms_rules (bank_name, senders, format, samples, created_at) VALUES (?, ?, ?, ?, ?)',
+    'INSERT INTO user_sms_rules (id, bank_name, senders, format, samples, created_at) VALUES (${newRowId('user_sms_rules')}, ?, ?, ?, ?, ?)',
     variables: [
       Variable(bankName),
       Variable(jsonEncode(senders)),

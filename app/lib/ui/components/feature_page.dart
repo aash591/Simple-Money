@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_back_button.dart';
+import 'glass_blur.dart';
 import 'glass_surface.dart';
 
 import 'secondary_header.dart';
@@ -73,19 +74,22 @@ class FeaturePage extends StatelessWidget {
             ),
             child: SafeArea(
               bottom: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  header ??
-                      SecondaryHeader(
-                        title: title,
-                        leading: Navigator.of(context).canPop()
-                            ? const AppBackButton()
-                            : null,
-                        actions: actions ?? const [],
-                      ),
-                  ?bottom,
-                ],
+              // The page's body starts below the bar, never under it.
+              child: OnPageBackdrop(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    header ??
+                        SecondaryHeader(
+                          title: title,
+                          leading: Navigator.of(context).canPop()
+                              ? const AppBackButton()
+                              : null,
+                          actions: actions ?? const [],
+                        ),
+                    ?bottom,
+                  ],
+                ),
               ),
             ),
           ),

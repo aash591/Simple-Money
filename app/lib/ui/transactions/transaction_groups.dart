@@ -131,7 +131,16 @@ class _CategoryGroup extends StatelessWidget {
     required this.categoryById,
     required this.formatAmount,
     required this.onOpen,
+    this.selection,
+    this.onToggle,
+    this.entering,
+    this.leaving = const {},
   });
+
+  /// Which rows are new (unfold) and which are deleted (fold away); see
+  /// RowTransition.
+  final bool Function(int id)? entering;
+  final Set<int> leaving;
   final String title;
   final bool showHeader;
   final Widget icon;
@@ -152,6 +161,10 @@ class _CategoryGroup extends StatelessWidget {
   final Category? Function(int?) categoryById;
   final String Function(MoneyTransaction) formatAmount;
   final ValueChanged<MoneyTransaction> onOpen;
+
+  /// The ids picked while selecting, or null when not selecting.
+  final Set<int>? selection;
+  final ValueChanged<MoneyTransaction>? onToggle;
 
   Widget _headerTotal(String amount, Color color) => FittedBox(
     fit: BoxFit.scaleDown,
@@ -251,7 +264,12 @@ class _CategoryGroup extends StatelessWidget {
                           index < transactions.length;
                           index++
                         ) ...[
-                          TransactionListRow(
+                          RowTransition(
+                            key: ValueKey(transactions[index].id),
+                            entering:
+                                entering?.call(transactions[index].id) ?? false,
+                            leaving: leaving.contains(transactions[index].id),
+                            child: TransactionListRow(
                             transaction: transactions[index],
                             account: accountById(transactions[index].accountId),
                             toAccount: accountById(
@@ -266,9 +284,19 @@ class _CategoryGroup extends StatelessWidget {
                             ),
                             formattedAmount: formatAmount(transactions[index]),
                             onTap: () => onOpen(transactions[index]),
+                            selected: selection?.contains(
+                              transactions[index].id,
+                            ),
+                            onSelected: selection == null
+                                ? null
+                                : (_) => onToggle?.call(transactions[index]),
+                            onLongPress: onToggle == null
+                                ? null
+                                : () => onToggle!(transactions[index]),
                             // A category group spans the whole period, so the
                             // day is what places a row, not the hour.
                             showDate: true,
+                          ),
                           ),
                           if (index < transactions.length - 1)
                             const Divider(height: 1),
@@ -326,7 +354,16 @@ class _TransactionGroup extends StatelessWidget {
     required this.categoryById,
     required this.formatAmount,
     required this.onOpen,
+    this.selection,
+    this.onToggle,
+    this.entering,
+    this.leaving = const {},
   });
+
+  /// Which rows are new (unfold) and which are deleted (fold away); see
+  /// RowTransition.
+  final bool Function(int id)? entering;
+  final Set<int> leaving;
   final DateTime date;
   final List<MoneyTransaction> transactions;
 
@@ -339,6 +376,8 @@ class _TransactionGroup extends StatelessWidget {
   final Category? Function(int?) categoryById;
   final String Function(MoneyTransaction) formatAmount;
   final ValueChanged<MoneyTransaction> onOpen;
+  final Set<int>? selection;
+  final ValueChanged<MoneyTransaction>? onToggle;
 
   @override
   Widget build(BuildContext context) => TransactionDayGroup(
@@ -347,7 +386,11 @@ class _TransactionGroup extends StatelessWidget {
     expenses: expenses,
     rows: [
       for (final transaction in transactions)
-        TransactionListRow(
+        RowTransition(
+          key: ValueKey(transaction.id),
+          entering: entering?.call(transaction.id) ?? false,
+          leaving: leaving.contains(transaction.id),
+          child: TransactionListRow(
           transaction: transaction,
           account: accountById(transaction.accountId),
           toAccount: accountById(transaction.toAccountId),
@@ -357,6 +400,12 @@ class _TransactionGroup extends StatelessWidget {
           ),
           formattedAmount: formatAmount(transaction),
           onTap: () => onOpen(transaction),
+          selected: selection?.contains(transaction.id),
+          onSelected: selection == null
+              ? null
+              : (_) => onToggle?.call(transaction),
+          onLongPress: onToggle == null ? null : () => onToggle!(transaction),
+        ),
         ),
     ],
   );
@@ -372,13 +421,16 @@ class _EmptyState extends StatelessWidget {
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        GlassLens(
-          size: 104,
-          child: EmptyArtwork(
-            filtered ? EmptyArt.search : EmptyArt.receipt,
-            size: 56,
+        if (usesGlass(context))
+          EmptyArtwork(filtered ? EmptyArt.search : EmptyArt.receipt, size: 96)
+        else
+          GlassLens(
+            size: 104,
+            child: EmptyArtwork(
+              filtered ? EmptyArt.search : EmptyArt.receipt,
+              size: 56,
+            ),
           ),
-        ),
         const SizedBox(height: 22),
         Text(
           filtered

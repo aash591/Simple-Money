@@ -1,5 +1,6 @@
 import 'ai_assistant_guide.dart';
 import 'loan_suggestion_card.dart';
+import 'account_suggestion_card.dart';
 import 'recurring_suggestion_card.dart';
 import 'share_fix_prompt.dart';
 import '../../../data/community/community_fixes.dart';
@@ -110,6 +111,7 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen>
             s.kind == AgentSuggestionKind.transactionAdd ||
             s.kind == AgentSuggestionKind.parserRule ||
             s.kind == AgentSuggestionKind.recurringPayment ||
+            s.kind == AgentSuggestionKind.account ||
             s.kind == AgentSuggestionKind.newLoan,
       )) {
         try {
@@ -475,6 +477,15 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen>
               }),
       );
     }
+    if (s.kind == AgentSuggestionKind.account) {
+      if (!_stores) return null;
+      // Archived accounts too: restoring names one.
+      return AccountSuggestionPreview.maybe(
+        payload: s.payload,
+        detail: s.detail,
+        accountOf: _accounts.byId,
+      );
+    }
     if (s.kind == AgentSuggestionKind.recurringPayment) {
       return RecurringSuggestionPreview(
         payload: s.payload,
@@ -484,6 +495,17 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen>
                   .where((c) => c.id == s.payload['categoryId'])
                   .firstOrNull
             : null,
+        rowFor: (id) {
+          final t = _transactions.transactions
+              .where((t) => t.id == id)
+              .firstOrNull;
+          return t == null || !_stores ? null : _row(t);
+        },
+        accountOf: _stores ? _account : null,
+        pending: s.status == AgentSuggestionStatus.pending,
+        savedFromSms: s.status == AgentSuggestionStatus.applied
+            ? [...?(s.before?['savedSms'] as List?)?.cast<int>()]
+            : const [],
       );
     }
     if (s.kind == AgentSuggestionKind.parserRule) {
@@ -753,7 +775,8 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen>
                         hideReason: grouped.contains(s.id),
                         bare:
                             s.kind == AgentSuggestionKind.transactionAdd ||
-                            s.kind == AgentSuggestionKind.parserRule,
+                            s.kind == AgentSuggestionKind.parserRule ||
+                            (s.kind == AgentSuggestionKind.account && _stores),
                         // Rejected ones can still be applied, from their tab.
                         onApprove: _busy ? null : () => _approve(s),
                         onReject: _busy || tab != _Tab.pending
@@ -881,6 +904,7 @@ class _SuggestionCard extends StatelessWidget {
     AgentSuggestionKind.debtEntry => Icons.handshake_outlined,
     AgentSuggestionKind.transactionAdd => Icons.add_card_rounded,
     AgentSuggestionKind.recurringPayment => Icons.autorenew_rounded,
+    AgentSuggestionKind.account => Icons.account_balance_wallet_outlined,
   };
 
   @override

@@ -11,6 +11,7 @@ import 'package:simple_money/data/repositories/realtime_sms_repository.dart';
 import 'package:simple_money/data/repositories/sms_import_repository.dart';
 import 'package:simple_money/data/repositories/transaction_repository.dart';
 import 'package:simple_money/data/repositories/upi_repository.dart';
+import 'package:simple_money/data/repositories/upi_sms_match.dart';
 import 'package:simple_money/domain/upi_payment.dart';
 
 void main() {
@@ -135,6 +136,82 @@ void main() {
     },
   );
 
+  PendingUpiPayment draft({String amount = '500'}) => PendingUpiPayment(
+    id: 'd1',
+    recipient: UpiRecipient.parse('upi://pay?pa=shop@bank&pn=Shop'),
+    amountText: amount,
+    categoryId: null,
+    accountId: null,
+    date: paidAt,
+  );
+
+  test('bankSms finds the expense an SMS saved for the payment', () async {
+    expect(await upi.bankSms(draft()), isNull);
+    await live.receive(sms(), engine);
+    final found = (await upi.bankSms(draft()))!;
+    expect(found.saved, isTrue);
+    expect(found.accountId, bank);
+    expect(await upi.bankSms(draft(amount: '501')), isNull);
+  });
+
+  test('bankSms finds an SMS still waiting for review', () async {
+    final message = sms();
+    await SmsImportRepository(db).enqueue(message, engine.parse(message));
+    final found = (await upi.bankSms(draft()))!;
+    expect(found.saved, isFalse);
+    // Not linked to an account yet: the payment keeps the account it has.
+    expect(found.accountId, isNull);
+  });
+
+  Future<int> wallet() =>
+      AccountRepository(db)
+          .save(name: 'Wallet', currency: 'INR', digits: 2, openingBalance: 0);
+
+  Future<bool> payTransfer(int to) async {
+    await upi.put(
+      draft().copyWith(isTransfer: true, accountId: bank, toAccountId: to),
+    );
+    return upi.confirm('d1');
+  }
+
+  test('a transfer saved after its SMS takes over the SMS expense', () async {
+    final to = await wallet();
+    await live.receive(sms(), engine);
+    expect(await payTransfer(to), isTrue);
+    final ledger = await TransactionRepository(db).load();
+    expect(ledger, hasLength(1));
+    expect(ledger.single.type.name, 'transfer');
+    expect(ledger.single.toAccountId, to);
+    expect(await balance(), 50000);
+  });
+
+  test('a transfer joins the SMS waiting for review', () async {
+    final to = await wallet();
+    final message = sms();
+    await SmsImportRepository(db).enqueue(message, engine.parse(message));
+    expect(await payTransfer(to), isTrue);
+    expect(await TransactionRepository(db).load(), hasLength(1));
+    expect(await importStatuses(), ['imported']);
+  });
+
+  test('an SMS arriving after a UPI transfer joins it', () async {
+    final to = await wallet();
+    expect(await payTransfer(to), isFalse);
+    await live.receive(sms(), engine);
+    expect(await TransactionRepository(db).load(), hasLength(1));
+    expect(await importStatuses(), ['imported']);
+  });
+
+  test('moving the payment to another account still saves one', () async {
+    final other = await wallet();
+    await live.receive(sms(), engine);
+    await upi.put(draft().copyWith(categoryId: groceries, accountId: other));
+    expect(await upi.confirm('d1'), isTrue);
+    final ledger = await TransactionRepository(db).load();
+    expect(ledger, hasLength(1));
+    expect(ledger.single.accountId, other);
+  });
+
   test('a different amount or a much later SMS stays separate', () async {
     await pay('p1');
     await live.receive(sms(amount: '501'), engine);
@@ -185,4 +262,46 @@ void main() {
       expect(note, startsWith('UPI • me@bank • Payment confirmed by you'));
     },
   );
+
+  group('a live SMS for a UPI scan', () {
+    test('still pending takes the scan’s category, and picking one '
+        'settles the scan into the same expense', () async {
+      await upi.put(draft().copyWith(categoryId: groceries, accountId: bank));
+      final got = (await live.receive(sms(), engine))!;
+      expect(got.categoryId, groceries);
+      expect((await pendingUpiForSms(db, got.sms))?.id, 'd1');
+
+      await live.selectCategory(
+        got.sms.id,
+        groceries,
+        accountId: got.accountId,
+      );
+      expect(await upi.load(), isEmpty);
+      final ledger = await TransactionRepository(db).load();
+      expect(ledger, hasLength(1));
+      expect(ledger.single.note, startsWith('UPI • shop@bank'));
+      expect(await balance(), 50000);
+    });
+
+    test('already saved is reported as confirmed by the bank', () async {
+      expect(await pay('p1'), isFalse);
+      final message = sms();
+      expect(await live.receive(message, engine), isNull);
+      final id =
+          (await db
+                  .customSelect('SELECT fingerprint FROM sms_imports')
+                  .getSingle())
+              .read<String>('fingerprint');
+      final joined = (await upiExpenseJoinedBy(db, id))!;
+      expect(joined.payee, 'Shop');
+      expect(joined.amountMinor, 50000);
+      expect(joined.category, isNotNull);
+    });
+
+    test('a credit or another amount matches no scan', () async {
+      await upi.put(draft(amount: '499'));
+      final got = (await live.receive(sms(), engine))!;
+      expect(await pendingUpiForSms(db, got.sms), isNull);
+    });
+  });
 }

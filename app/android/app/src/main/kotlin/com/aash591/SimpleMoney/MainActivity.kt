@@ -78,6 +78,65 @@ open class MainActivity : FlutterFragmentActivity() {
         if (this !is QuickEntryActivity) openQuickAction(intent)
     }
 
+    override fun onResume() {
+        super.onResume()
+        // After the window is attached, so its attributes can be changed.
+        window.decorView.post { requestHighestRefreshRate() }
+    }
+
+    // Some phones (Xiaomi/Poco/Redmi on HyperOS, Nothing and others) run a
+    // Flutter app at 60 Hz on a 120 Hz screen unless the window asks for
+    // more: Flutter draws into a SurfaceView, which their heuristics treat
+    // like a game or a video. So ask for the display's fastest mode at the
+    // current resolution (flutter/flutter#160952).
+    /** A Qualcomm Snapdragon chip, and so an Adreno GPU. */
+    private fun isSnapdragon(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val maker = Build.SOC_MANUFACTURER
+            if (maker.equals("QTI", ignoreCase = true) ||
+                maker.equals("Qualcomm", ignoreCase = true)
+            ) return true
+            if (maker.isNotBlank() && maker != Build.UNKNOWN) return false
+        }
+        return listOf(Build.HARDWARE, Build.BOARD).any {
+            it.contains("qcom", ignoreCase = true)
+        }
+    }
+
+    private fun requestHighestRefreshRate() {
+        val display = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            display
+        } else {
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay
+        } ?: return
+        val current = display.mode
+        val best = display.supportedModes
+            .filter {
+                it.physicalWidth == current.physicalWidth &&
+                    it.physicalHeight == current.physicalHeight
+            }
+            .let { modes ->
+                // Snapdragon's Adreno GPUs can't quite draw a frame of this
+                // app in 8.3 ms on a very sharp screen under Flutter's
+                // Vulkan renderer, so 120 Hz drops every few frames; a
+                // steady 90 Hz (11.1 ms a frame) looks smoother than that.
+                val pixels = current.physicalWidth.toLong() * current.physicalHeight
+                val steady = if (isSnapdragon() && pixels > 3_200_000) {
+                    modes.filter { it.refreshRate in 85f..95f }
+                        .maxByOrNull { it.refreshRate }
+                } else {
+                    null
+                }
+                steady ?: modes.maxByOrNull { it.refreshRate }
+            } ?: return
+        if (best.refreshRate <= 60.5f) return
+        val attributes = window.attributes
+        if (attributes.preferredDisplayModeId == best.modeId) return
+        attributes.preferredDisplayModeId = best.modeId
+        window.attributes = attributes
+    }
+
     // Older pinned shortcuts/widgets may still target MainActivity. Handle
     // both a cold launch and a tap while the dashboard's activity is alive.
     private fun openQuickAction(source: Intent) {

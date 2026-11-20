@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,10 +12,12 @@ import '../../data/repositories/sms_import_repository.dart';
 import '../../data/repositories/transaction_repository.dart';
 import '../../domain/account.dart';
 import '../../domain/currency.dart';
+import '../../state/account_store.dart';
 import '../../state/main_currency_controller.dart';
 import '../../state/onboarding.dart';
 import '../../state/sms_import_store.dart';
 import '../../state/sync_controller.dart';
+import '../../state/transaction_store.dart';
 import '../components/action_buttons.dart';
 import '../components/common.dart';
 import '../components/currency_flag.dart';
@@ -25,13 +25,14 @@ import '../components/feature_page.dart';
 import '../components/menu_list.dart';
 import '../more/accounts/account_card.dart';
 import '../more/accounts/currency_screen.dart';
+import '../more/accounts/edit_account_screen.dart';
 import '../more/settings/sync/backup_widgets.dart';
 import '../more/settings/sync/backup_pin_screen.dart';
 import '../more/settings/sync/sync_flow.dart';
 import 'backup_welcome_screen.dart';
 import 'privacy_card.dart';
 
-enum _Step { welcome, currency, backup, sms, accounts }
+enum _Step { welcome, currency, backup, sms, accounts, save }
 
 /// The first-open setup, one step at a time with its buttons at the bottom:
 /// a welcome that lists what comes next, the main currency (guessed from the
@@ -84,7 +85,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   /// The SMS prompt was refused or dismissed: the page stays, with a note.
   bool _smsDenied = false;
-  List<_BalanceRow>? _rows;
+  final _scroll = ScrollController();
+
+  // The accounts step reuses the Accounts screen: its own stores, so a card
+  // opens the same account page (balance, menu) as in More › Accounts.
+  AccountStore? _accountStore;
+  TransactionStore? _transactionStore;
+  bool _accountsReady = false;
+  List<Account>? get _rows => _accountsReady ? _accountStore!.accounts : null;
   String? _error;
 
   /// The main currency on offer: the phone's region to begin with.
@@ -108,9 +116,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void dispose() {
     _sms.removeListener(_smsChanged);
     if (widget.sms == null) _sms.dispose();
-    for (final row in _rows ?? const <_BalanceRow>[]) {
-      row.controller.dispose();
-    }
+    _transactionStore?.dispose();
+    _accountStore?.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -243,6 +251,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _finish();
       return;
     }
+    // The scan adds accounts but holds the transactions it finds: whether to
+    // save them is asked on the last step, after the accounts are checked.
+    _sms.saveFound = false;
     setState(() {
       _asking = true;
       _smsDenied = false;
@@ -276,8 +287,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_step == _Step.sms && _sms.enabled) {
       setState(() {
         _asking = false;
-        _steps = [..._steps!, _Step.accounts];
-        _index = _steps!.length - 1;
+        _steps = [..._steps!, _Step.accounts, _Step.save];
+        _index = _steps!.length - 2;
       });
     } else if (_step == _Step.accounts) {
       setState(() {});
@@ -285,58 +296,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _loadAccounts() async {
-    try {
-      final accounts = await AccountRepository(widget.database).load();
-      if (!mounted) return;
-      setState(
-        () => _rows = [
-          for (final a in accounts)
-            if (!a.isArchived && a.type != AccountType.creditCard)
-              _BalanceRow(a),
-        ],
-      );
-    } catch (_) {
-      if (mounted) setState(() => _rows = []);
-    }
+    final accounts = AccountStore(AccountRepository(widget.database));
+    _accountStore = accounts;
+    _transactionStore = TransactionStore(
+      TransactionRepository(widget.database),
+      accounts,
+    );
+    accounts.addListener(_accountsChanged);
+    await accounts.load();
+    if (mounted) setState(() => _accountsReady = true);
   }
 
-  Future<void> _saveBalances() async {
-    final changes = <(int, int)>[];
-    for (final row in _rows ?? const <_BalanceRow>[]) {
-      // Left as filled in, or cleared: the balance stays as it is.
-      if (row.untouched || row.controller.text.trim().isEmpty) continue;
-      final amount = row.amount;
-      if (amount == null || amount < 0) {
-        setState(() => _error = 'Check the balance for ${row.account.name}.');
-        return;
-      }
-      if (amount != row.account.balanceMinor) {
-        changes.add((row.account.id, amount));
-      }
-    }
-    setState(() {
-      _saving = true;
-      _error = null;
-    });
-    try {
-      final transactions = TransactionRepository(widget.database);
-      for (final (id, amount) in changes) {
-        await transactions.adjustBalance(
-          accountId: id,
-          mode: BalanceAdjustmentMode.setTo,
-          amountMinor: amount,
-        );
-      }
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _saving = false;
-        _error = 'Could not save the balances. Please try again.';
-      });
-      return;
-    }
-    await _finish();
+  void _accountsChanged() {
+    if (mounted) setState(() {});
   }
+
+  /// Opens an account on its own page, as Accounts does.
+  void _openAccount(Account account) => Navigator.of(context).push(
+    FeatureRoute<void>(
+      EditAccountScreen(
+        store: _accountStore!,
+        account: account,
+        transactionStore: _transactionStore,
+        onboarding: true,
+      ),
+    ),
+  );
 
   Future<void> _finish() async {
     if (_done) return;
@@ -404,7 +389,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         (steps.contains(_Step.sms) &&
                 !_smsWasOn &&
                 !steps.contains(_Step.accounts)
-            ? 1
+            ? 2
             : 0);
   }
 
@@ -413,27 +398,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _header(step),
       Expanded(
         child: LayoutBuilder(
-          builder: (context, box) => SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: box.maxHeight),
-              // Pictures sit at the top, so they stay put from page to page;
-              // only the accounts step, which has none, is centred.
-              child: Align(
-                alignment: step == _Step.accounts
-                    ? Alignment.center
-                    : const Alignment(0, -1),
-                child: switch (step) {
-                  _Step.welcome => _WelcomeContent(
-                    currency: _steps!.contains(_Step.currency),
-                    backup: _steps!.contains(_Step.backup),
-                    sms: _steps!.contains(_Step.sms),
-                  ),
-                  _Step.currency => _currencyContent(context),
-                  _Step.backup => const BackupWelcomeContent(),
-                  _Step.sms => _SmsContent(denied: _smsDenied),
-                  _Step.accounts => _accountsContent(context),
-                },
+          builder: (context, box) => Scrollbar(
+            controller: step == _Step.accounts ? _scroll : null,
+            // The balances list is long: keep its handle on show.
+            thumbVisibility: step == _Step.accounts,
+            thickness: 5,
+            radius: const Radius.circular(3),
+            child: SingleChildScrollView(
+              controller: step == _Step.accounts ? _scroll : null,
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: box.maxHeight),
+                // Pictures sit at the top, so they stay put from page to page;
+                // only the accounts step, which has none, is centred.
+                child: Align(
+                  alignment: step == _Step.accounts
+                      ? Alignment.center
+                      : const Alignment(0, -1),
+                  child: switch (step) {
+                    _Step.welcome => _WelcomeContent(
+                      currency: _steps!.contains(_Step.currency),
+                      backup: _steps!.contains(_Step.backup),
+                      sms: _steps!.contains(_Step.sms),
+                    ),
+                    _Step.currency => _currencyContent(context),
+                    _Step.backup => const BackupWelcomeContent(),
+                    _Step.sms => _SmsContent(denied: _smsDenied),
+                    _Step.accounts => _accountsContent(context),
+                    _Step.save => _saveContent(context),
+                  },
+                ),
               ),
             ),
           ),
@@ -445,6 +439,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         _Step.backup => _backupBar(),
         _Step.sms => _smsBar(),
         _Step.accounts => _accountsBar(),
+        _Step.save => _saveBar(),
       },
     ],
   );
@@ -600,33 +595,130 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _accountsBar() {
     final rows = _rows;
-    // Scanning: nothing to press yet but Finish. The result comes next, then
-    // the balances, each only when the person chooses to go on.
+    // Scanning (rows not known yet): Finish is disabled until the scan is
+    // done. The result comes next, then the balances, each only when the
+    // person chooses to go on.
     final onResult = rows != null && rows.isNotEmpty && !_checking;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: SizedBox(
         width: double.infinity,
         child: PillButton(
-          label: onResult ? 'Check accounts' : 'Finish',
+          label: onResult
+              ? 'Check accounts'
+              : rows != null && rows.isNotEmpty
+              ? 'Continue'
+              : 'Finish',
           loading: _saving,
           onPressed: rows == null
-              ? _finish
+              ? null
               : onResult
               ? () => setState(() => _checking = true)
-              : _saveBalances,
+              : rows.isEmpty || _sms.foundTransactions == 0
+              ? _finish
+              : _next,
         ),
       ),
     );
   }
 
-  /// What the scan found, before the balances: how much it added, and a
-  /// button to go and check the accounts.
-  Widget _scanResult(BuildContext context, List<_BalanceRow> rows) {
+  Widget _saveBar() => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        PillButton(
+          label: 'Save found transactions',
+          loading: _saving,
+          onPressed: _saving ? null : () => _chooseSaving(true),
+        ),
+        const SizedBox(height: 10),
+        PillButton(
+          label: 'Only save from now on',
+          primary: false,
+          onPressed: _saving ? null : () => _chooseSaving(false),
+        ),
+      ],
+    ),
+  );
+
+  /// Saves what the scan found, or sets it aside so only new SMS are saved.
+  /// The accounts stay as they are either way.
+  Future<void> _chooseSaving(bool saveFound) async {
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      if (saveFound) {
+        await _sms.saveReady();
+      } else {
+        await _sms.dismissPending();
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = 'Could not save. Please try again.';
+      });
+      return;
+    }
+    await _finish();
+  }
+
+  Widget _saveContent(BuildContext context) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
     final number = NumberFormat.decimalPattern();
-    final saved = _sms.lastScan?.saved ?? _sms.foundTransactions;
+    final accounts = _rows?.length ?? 0;
+    final found = _sms.foundTransactions;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const RoundIcon(Icons.receipt_long_rounded),
+        const SizedBox(height: 24),
+        Text(
+          'Save your transactions?',
+          textAlign: TextAlign.center,
+          style: text.headlineMedium,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Here are your ${number.format(accounts)} ${accounts == 1 ? 'account' : 'accounts'}, '
+          'and we found ${number.format(found)} ${found == 1 ? 'transaction' : 'transactions'} '
+          'in your SMS. You can go back to edit your accounts. Your accounts '
+          'are kept either way.',
+          textAlign: TextAlign.center,
+          style: text.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 22),
+        Row(
+          children: [
+            Expanded(child: _Figure(number.format(found), 'Transactions')),
+            const SizedBox(width: 10),
+            Expanded(child: _Figure(number.format(accounts), 'Accounts')),
+          ],
+        ),
+        if (_error != null) ...[
+          const SizedBox(height: 14),
+          ErrorBanner(_error!),
+        ],
+      ],
+    );
+  }
+
+  /// What the scan found, before the balances: how much it added, and a
+  /// button to go and check the accounts.
+  Widget _scanResult(BuildContext context, List<Account> rows) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    final number = NumberFormat.decimalPattern();
+    final saved = _sms.foundTransactions;
     final banks = _sms.foundAccounts.length;
     final muted = text.bodyMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
@@ -721,7 +813,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
     }
     if (rows.isNotEmpty && !_checking) return _scanResult(context, rows);
-    final saved = _sms.lastScan?.saved ?? 0;
+    final saved = _sms.foundTransactions;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -737,7 +829,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ? 'No bank SMS yet. New ones are added as they arrive.'
               : [
                   if (saved > 0)
-                    '${number.format(saved)} ${saved == 1 ? 'transaction' : 'transactions'} added.',
+                    '${number.format(saved)} ${saved == 1 ? 'transaction' : 'transactions'} found.',
                   'Balances from your bank’s SMS are filled in.',
                 ].join(' '),
           textAlign: TextAlign.center,
@@ -748,8 +840,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ErrorBanner(_sms.error!),
         ],
         const SizedBox(height: 20),
-        for (final row in rows) ...[
-          _BalanceField(row),
+        for (final account in rows) ...[
+          AccountCard(
+            account: account,
+            showTransactionCount: false,
+            subtitle: account.balanceReportedAt != null
+                ? 'Balance from your SMS'
+                : 'Tap to check the balance',
+            onTap: () => _openAccount(account),
+          ),
           const SizedBox(height: 12),
         ],
         if (_error != null) ErrorBanner(_error!),
@@ -794,34 +893,30 @@ class _WelcomeContent extends StatelessWidget {
         ),
         const SizedBox(height: 28),
         MenuGroup(
-          label: 'What you’ll set up',
+          label: 'Quick setup',
           children: [
             if (currency)
               const MenuRow(
                 icon: Icons.currency_exchange_rounded,
-                title: 'Choose your currency',
-                subtitle: 'Set from your phone’s region',
+                title: 'Currency',
                 trailing: SizedBox.shrink(),
               ),
             if (backup)
               MenuRow(
                 icon: Icons.cloud_rounded,
-                title: 'Back up to Google Drive',
-                subtitle: 'Optional · a private copy in your Drive',
+                title: 'Google Drive backup',
                 trailing: const SizedBox.shrink(),
               ),
             if (sms)
               MenuRow(
                 icon: Icons.sms_rounded,
-                title: 'Add payments from SMS',
-                subtitle: 'Optional · bank payments added for you',
+                title: 'Payments from SMS',
                 trailing: const SizedBox.shrink(),
               ),
             if (sms)
               const MenuRow(
                 icon: Icons.account_balance_wallet_rounded,
-                title: 'Check your accounts',
-                subtitle: 'Confirm the balances we find',
+                title: 'Your accounts',
                 trailing: SizedBox.shrink(),
               ),
           ],
@@ -944,78 +1039,6 @@ class _Figure extends StatelessWidget {
           const SizedBox(height: 2),
           Text(label, style: text.bodySmall),
         ],
-      ),
-    );
-  }
-}
-
-class _BalanceRow {
-  _BalanceRow(this.account)
-    : initial = _plain(account.balanceMinor, account.digits) {
-    controller = TextEditingController(text: initial);
-  }
-  final Account account;
-  final String initial;
-  late final TextEditingController controller;
-
-  bool get untouched => controller.text.trim() == initial;
-
-  int? get amount => parseAccountAmount(controller.text, account.digits);
-
-  /// An amount as typed: no grouping, no trailing zero decimals.
-  static String _plain(int minor, int digits) {
-    final scale = math.pow(10, digits).toInt();
-    final whole = minor.abs() ~/ scale;
-    final fraction = minor.abs() % scale;
-    final sign = minor < 0 ? '-' : '';
-    return fraction == 0
-        ? '$sign$whole'
-        : '$sign$whole.${fraction.toString().padLeft(digits, '0')}';
-  }
-}
-
-/// An account as it looks in Accounts, with its balance to confirm.
-class _BalanceField extends StatelessWidget {
-  const _BalanceField(this.row);
-  final _BalanceRow row;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.headlineSmall?.copyWith(
-      fontWeight: FontWeight.w700,
-      letterSpacing: -.5,
-    );
-    return AccountCard(
-      account: row.account,
-      showTransactionCount: false,
-      subtitle: row.account.balanceReportedAt != null
-          ? 'Balance from your SMS'
-          : 'Enter today’s balance',
-      balanceEditor: Align(
-        alignment: Alignment.centerLeft,
-        child: SizedBox(
-          width: 200,
-          child: TextField(
-            controller: row.controller,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-            ],
-            textInputAction: TextInputAction.done,
-            onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-            style: style,
-            decoration: InputDecoration(
-              hintText: 'Set balance',
-              hintStyle: style?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: .38),
-              ),
-              border: InputBorder.none,
-              isDense: true,
-              contentPadding: EdgeInsets.zero,
-            ),
-          ),
-        ),
       ),
     );
   }

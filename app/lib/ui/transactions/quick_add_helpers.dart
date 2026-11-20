@@ -18,9 +18,13 @@ List<ChoiceItem<int>> accountChoiceItems(
   AccountStore accountStore, {
   int? excludeId,
   String? currency,
+  bool brokers = false,
 }) => [
   for (final account in accountStore.accounts)
-    if (account.id != excludeId &&
+    // A broker holds money to invest, not to spend: only transfers (a
+    // deposit or a withdrawal) may use one.
+    if ((brokers || !account.isBroker) &&
+        account.id != excludeId &&
         (currency == null ||
             (account.currency == currency && account.digits == 2)))
       ChoiceItem(

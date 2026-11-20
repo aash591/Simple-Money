@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../../domain/account.dart';
 import '../../../domain/app_icons.dart';
+import '../../../domain/bank_institution_icon.dart';
 import '../../../domain/currency.dart';
 import '../../../domain/currency_scope.dart';
 import '../../../state/main_currency_controller.dart';
@@ -13,6 +14,7 @@ import '../../../state/transaction_store.dart';
 import '../../components/action_buttons.dart';
 import '../../components/app_icon.dart';
 import '../../components/app_toast.dart';
+import '../../components/choice_list_sheet.dart';
 import '../../components/common.dart';
 import '../../components/confirmation_alert.dart';
 import '../../components/currency_flag.dart';
@@ -26,7 +28,7 @@ import 'account_card.dart';
 
 import 'package:flutter/services.dart';
 
-enum _AccountAction { edit, adjust, transfer, archive, restore, delete }
+enum _AccountAction { edit, adjust, transfer, merge, archive, restore, delete }
 
 /// Above this many entries, deleting an account throws away enough history to
 /// be worth a third look, so [_confirmDelete] adds a warning step that says
@@ -45,10 +47,15 @@ class EditAccountScreen extends StatefulWidget {
     this.initialLastDigits,
     this.initialInstitution,
     this.initialType = AccountType.bank,
+    this.onboarding = false,
   }) : assert(account == null || transactionStore != null);
   final String? initialName, initialIcon, initialCurrency;
   final String? initialLastDigits, initialInstitution;
   final AccountType initialType;
+
+  /// Opened from first-run setup: Edit stands in for Transfer, which has
+  /// nothing to move yet.
+  final bool onboarding;
   final AccountStore store;
   final Account? account;
   final TransactionStore? transactionStore;
@@ -193,6 +200,81 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     currency: account.currency,
   );
 
+  /// Active accounts [account] could be folded into: the same currency and
+  /// precision, since a merged account keeps a single balance.
+  List<Account> _mergeTargets(Account account) => [
+    for (final other in widget.store.accounts)
+      if (other.id != account.id &&
+          other.currency == account.currency &&
+          other.digits == account.digits)
+        other,
+  ];
+
+  Future<Account?> _pickMergeTarget(Account account) async {
+    final targets = _mergeTargets(account);
+    final id = await showChoiceListSheet<int>(
+      context,
+      title: 'Merge into',
+      items: [
+        for (final other in targets)
+          ChoiceItem<int>(
+            value: other.id,
+            icon: AppIcon(other.icon, size: 28),
+            label: other.name,
+            subtitle: [
+              if (other.lastDigits != null) '•• ${other.lastDigits}',
+              _money(other),
+            ].join(' · '),
+          ),
+      ],
+      selected: null,
+    );
+    return targets.where((a) => a.id == id).firstOrNull;
+  }
+
+  /// Says what moves and what stays: the target keeps its own details, and
+  /// this account is gone afterwards.
+  Future<bool> _confirmMerge(Account account, Account target) {
+    final count = account.transactionCount;
+    final combined = formatAccountMoney(
+      account.balanceMinor + target.balanceMinor,
+      digits: target.digits,
+      currency: target.currency,
+    );
+    return showConfirmationAlert(
+      context,
+      title: 'Merge into ${target.name}?',
+      content: ConfirmationFacts(
+        subtitle: _subtitleFor(account),
+        facts: [
+          ConfirmationFact(
+            Icons.receipt_long_outlined,
+            '$count ${count == 1 ? 'transaction' : 'transactions'} move over',
+          ),
+          ConfirmationFact(
+            Icons.account_balance_wallet_outlined,
+            'New balance $combined',
+          ),
+          const ConfirmationFact(
+            Icons.sms_outlined,
+            'Future SMS land here too',
+          ),
+          const ConfirmationFact(
+            Icons.swap_horiz_rounded,
+            'Transfers between them removed',
+          ),
+          ConfirmationFact(
+            Icons.delete_outline_rounded,
+            '${account.name} is removed',
+            grave: true,
+          ),
+        ],
+      ),
+      confirmLabel: 'Merge',
+      destructive: false,
+    );
+  }
+
   /// The delete gauntlet: what goes, then — for an account carrying
   /// [_bulkDeleteThreshold] entries or more — a step that says the number out
   /// loud and points at archiving, then the final can't-be-undone. Deleting
@@ -299,6 +381,21 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     );
   }
 
+  /// The name this screen filled in from a logo, so choosing another logo
+  /// can replace it while a name typed or already saved is left alone.
+  String? _autoName;
+
+  /// Picking a bank or service logo names an empty account after it.
+  void _fillNameFromIcon(String icon) {
+    final name = nameForIcon(icon);
+    final current = _name.text.trim();
+    if (name != null && (current.isEmpty || current == _autoName)) {
+      _name.text = name;
+      _autoName = name;
+      _error = null;
+    }
+  }
+
   Future<void> _discard() async {
     if (_saving || _askingToDiscard) return;
     _askingToDiscard = true;
@@ -391,6 +488,21 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
             transactionStore: transactions,
             initialFromAccountId: account.id,
           );
+        case _AccountAction.merge:
+          final target = await _pickMergeTarget(account);
+          if (target == null || !mounted) return;
+          if (!await _confirmMerge(account, target) || !mounted) return;
+          setState(() {
+            _saving = true;
+            _error = null;
+          });
+          await transactions.mergeAccount(
+            sourceId: account.id,
+            targetId: target.id,
+          );
+          if (!mounted) return;
+          showAppToast(context, 'Merged into ${target.name}');
+          await _leave();
         case _AccountAction.archive:
           final count = account.transactionCount;
           final confirmed = await showConfirmationAlert(
@@ -483,8 +595,14 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
             onPressed: busy ? null : () => _onAction(_AccountAction.adjust),
           ),
           PillButton(
-            label: 'Transfer',
-            onPressed: busy ? null : () => _onAction(_AccountAction.transfer),
+            label: widget.onboarding ? 'Edit' : 'Transfer',
+            onPressed: busy
+                ? null
+                : () => _onAction(
+                    widget.onboarding
+                        ? _AccountAction.edit
+                        : _AccountAction.transfer,
+                  ),
           ),
         ];
         if (constraints.maxWidth < 300 ||
@@ -664,6 +782,12 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
         label: 'Edit',
         icon: Icons.edit_outlined,
       ),
+      if (account != null && _mergeTargets(account).isNotEmpty)
+        const MorePopupItem(
+          value: _AccountAction.merge,
+          label: 'Merge into…',
+          icon: Icons.merge_rounded,
+        ),
       if ((account?.transactionCount ?? 0) > 0)
         const MorePopupItem(
           value: _AccountAction.archive,
@@ -830,7 +954,10 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                                                 ),
                                               );
                                           if (icon != null && mounted) {
-                                            setState(() => _icon = icon);
+                                            setState(() {
+                                              _icon = icon;
+                                              _fillNameFromIcon(icon);
+                                            });
                                           }
                                         },
                                   child: AppIcon(_icon, size: 34),

@@ -80,7 +80,7 @@ a:hover { text-decoration-color: transparent; }
 .reel { overflow: hidden; padding: 30px 0 70px; }
 .reel-track { display: flex; gap: 36px; width: max-content; animation: slide 60s linear infinite; }
 .reel:hover .reel-track { animation-play-state: paused; }
-.reel img { width: min(340px, 62vw); height: auto; aspect-ratio: 9 / 16; border-radius: 26px; }
+.reel img { width: min(300px, 58vw); height: auto; aspect-ratio: 540 / 1200; border-radius: 30px; border: 6px solid #0c0d12; background: #0c0d12; box-sizing: border-box; }
 @keyframes slide { to { transform: translateX(calc(-50% - 18px)); } }
 
 .foot { text-align: center; padding: 10px 20px 46px; color: var(--soft); font-size: 0.95rem; }
@@ -123,6 +123,8 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; }
 .strip { display: flex; flex-wrap: wrap; gap: 30px 22px; padding: 14px 0 22px; margin: 6px 0 4px; counter-reset: step; }
 .strip figure { flex: 0 0 216px; margin: 0; counter-increment: step; }
 .strip img { border-radius: 20px; border: 5px solid #0c0d12; background: #0c0d12; width: 100%; height: auto; }
+.strip figure { min-width: 0; }
+.strip figcaption .path { white-space: normal; }
 .strip figcaption { font-size: 0.95rem; line-height: 1.4; margin-top: 12px; padding-left: 30px; position: relative; }
 .strip figcaption::before { content: counter(step); position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: var(--bg); font-size: 0.78rem; font-weight: 800; display: grid; place-items: center; }
 .strip.plain figcaption { padding-left: 0; color: var(--soft); }
@@ -164,3 +166,29 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; }
   .reel { overflow-x: auto; scrollbar-width: none; }
   .headline .caret { animation: none; }
 }
+
+.footnote { display: block; font-size: 0.88rem; line-height: 1.5; color: var(--soft); border-top: 1px solid var(--line); padding-top: 12px; margin-top: 6px; }
+.footnote sup, .body sup a { font-weight: 700; }
+
+/* SEO landing pages */
+.seo-h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; margin: 0 0 8px; }
+.prose h3 { font-size: 1.1rem; font-weight: 700; margin: 1.4em 0 0.2em; }
+.prose .lead { font-size: 1.15rem; line-height: 1.55; }
+.prose .note { color: var(--soft); font-size: 0.9rem; }
+.prose .cta { margin: 2em 0; display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+.prose .btn { background: var(--ink); color: var(--bg, #fff); padding: 12px 20px; border-radius: 12px; font-weight: 700; text-decoration: none; }
+.prose .seo-shot { float: right; width: 150px; height: auto; margin: 4px 0 12px 20px; border-radius: 18px; border: 1px solid var(--line); }
+.prose .related { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 18px; }
+@media (max-width: 560px) { .prose .seo-shot { display: none; } .seo-h1 { font-size: 1.6rem; } }
+.seo-about { max-width: 46em; margin: 56px auto 0; padding: 0 20px; }
+.seo-about h2 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
+.seo-about h3 { font-size: 1.1rem; margin-top: 1.6em; }
+.seo-about ul { padding-left: 1.2em; }
+.seo-about summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+.seo-about details p { margin: 2px 0 10px; color: var(--soft); }
+.seo-about { max-width: 46em; margin: 48px auto 0; padding: 20px 20px 0; border-top: 1px solid var(--line); font-size: 0.95rem; color: var(--soft); box-sizing: border-box; }
+.seo-about h2 { font-size: 1.15rem; margin: 0 0 6px; color: var(--ink); }
+.seo-about h3 { font-size: 0.95rem; margin: 18px 0 4px; color: var(--ink); }
+.seo-about p { line-height: 1.55; margin: 0 0 10px; }
+.seo-about ul { padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.seo-about summary { font-size: 0.95rem; }

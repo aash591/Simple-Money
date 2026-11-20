@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'fake_drive_listing.dart';
 import 'package:simple_money/data/backup/drive_client.dart';
 import 'package:simple_money/data/backup/sync_engine.dart';
 import 'package:simple_money/data/backup/sync_repository.dart';
@@ -40,15 +41,12 @@ class _Drive implements MirrorTransport {
   @override
   Future<String> newFileId() async => 'file-${++allocated}';
   @override
-  Future<List<MirrorFile>> listFiles() async => [
-    for (final batch in files.values)
-      MirrorFile(
-        id: batch.fileId,
-        mirrorId: batch.mirrorId,
-        sequence: batch.sequence,
-        modified: modified[batch.fileId]!,
-      ),
-  ];
+  Future<List<MirrorFile>> listFiles({DateTime? modifiedAfter}) async =>
+      fakeListing(
+        files,
+        (id) => modified[id]!,
+        modifiedAfter: modifiedAfter,
+      );
   @override
   Future<Uint8List> download(String fileId) async => files[fileId]!.payload;
   @override

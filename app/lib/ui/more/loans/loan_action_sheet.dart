@@ -95,6 +95,16 @@ class _LoanActionSheetState extends State<LoanActionSheet> {
   LoanEventKind get kind => widget.kind;
   bool get _rateChange => kind == LoanEventKind.rateChange;
   String _money(int amount) => loanMoney(loan.terms, amount);
+
+  /// The currency before an amount typed in a field.
+  String get _prefix => currencyPrefix(loan.terms.currency).trim();
+
+  /// [amount] without its currency, for after a field's [_prefix].
+  String _digitsOf(int amount) => formatAccountAmount(
+    amount,
+    digits: loan.terms.digits,
+    currency: loan.terms.currency,
+  );
   @override
   void initState() {
     super.initState();
@@ -280,13 +290,9 @@ class _LoanActionSheetState extends State<LoanActionSheet> {
             ? (loan.terms.mode.amortises ? 'Record EMI' : 'Record payment')
             : loanActionLabel(kind),
         onBack: _saving ? null : widget.onBack,
-        trailing: widget.onBack != null
-            ? null
-            : IconButton(
-                tooltip: 'Close',
-                icon: const Icon(Icons.close_rounded),
-                onPressed: _saving ? null : _close,
-              ),
+        // Titled like Add a transaction; the sheet closes by dragging it
+        // down or with Cancel.
+        centered: true,
       ),
       body: AbsorbPointer(
         absorbing: _saving,
@@ -306,7 +312,9 @@ class _LoanActionSheetState extends State<LoanActionSheet> {
                     LoanField(
                       _interest,
                       'Interest paid',
-                      hint: 'Use the lender’s allocation. Enter 0 for principal only.',
+                      prefix: _prefix,
+                      placeholder: 'From the lender’s statement',
+                      hint: 'Enter 0 if it all went to principal.',
                       onChanged: () => setState(() {}),
                     )
                   else ...[
@@ -343,7 +351,9 @@ class _LoanActionSheetState extends State<LoanActionSheet> {
                   LoanField(
                     _interestAfter,
                     'Unpaid interest after payment',
-                    hint: 'Optional. Leave blank to use the estimate.',
+                    prefix: _prefix,
+                    placeholder: 'Estimated',
+                    hint: 'Optional, if your statement shows it.',
                     onChanged: () => setState(() {}),
                   ),
                 ],
@@ -716,13 +726,18 @@ class _LoanActionSheetState extends State<LoanActionSheet> {
                 LoanField(
                   _interest,
                   'Interest charged',
-                  hint:
-                      'Leave blank for the scheduled ${_money(loan.schedule.firstOrNull?.interest ?? 0)}.',
+                  prefix: _prefix,
+                  // Blank means the schedule's figure, so it shows there.
+                  placeholder:
+                      '${_digitsOf(loan.schedule.firstOrNull?.interest ?? 0)} as scheduled',
+                  hint: 'Only if the lender charged a different amount.',
                   onChanged: () => setState(() {}),
                 ),
               LoanField(
                 _fee,
                 emi ? 'Late fee or penal charge' : 'Fee',
+                prefix: _prefix,
+                placeholder: 'None',
                 hint: 'Paid on top. Never added to your principal.',
                 onChanged: () => setState(() {}),
               ),

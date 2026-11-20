@@ -28,10 +28,11 @@ void main() {
   late AccountStore accounts;
   late CategoryStore categories;
   late TransactionStore ledger;
+  late int bank;
   setUp(() async {
     SharedPreferences.setMockInitialValues({'transactions_range_kind': 'year'});
     db = AppDatabase(NativeDatabase.memory());
-    await AccountRepository(
+    bank = await AccountRepository(
       db,
     ).save(name: 'Bank', currency: 'INR', digits: 2, openingBalance: 10000000);
     accounts = AccountStore(AccountRepository(db));
@@ -62,7 +63,7 @@ void main() {
             id: i,
             type: TransactionType.expense,
             amountMinor: 50000,
-            accountId: 1,
+            accountId: bank,
             categoryId: category.id,
             title: i == 2999 ? 'Unique recipient' : 'Person $i',
             date: DateTime(2026, 10, 12),
@@ -211,7 +212,7 @@ void main() {
       final originalNotes = (await repository.pending())
           .map((sms) => 'Sender: ${sms.sender}\n\n${sms.body}')
           .toList();
-      await tester.runAsync(() => store.linkAccount(store.pending.first, 1));
+      await tester.runAsync(() => store.linkAccount(store.pending.first, bank));
       var reviewed = 0;
       await tester.pumpWidget(
         MaterialApp(
@@ -354,7 +355,7 @@ void main() {
         depositSms,
         type: TransactionType.income,
         amountMinor: depositSms.amountMinor,
-        accountId: 1,
+        accountId: bank,
         date: depositSms.receivedAt,
       ),
       throwsStateError,
@@ -362,7 +363,7 @@ void main() {
     await tester.runAsync(
       () => store.linkAccount(
         store.pending.singleWhere((sms) => sms.isAtmWithdrawal),
-        1,
+        bank,
       ),
     );
     await tester.pumpWidget(
@@ -408,10 +409,10 @@ void main() {
     final transactions = await TransactionRepository(db).load();
     expect(transactions, hasLength(3));
     final saved = transactions.singleWhere(
-      (t) => t.accountId == 1 && t.type == TransactionType.transfer,
+      (t) => t.accountId == bank && t.type == TransactionType.transfer,
     );
     expect(saved.type, TransactionType.transfer);
-    expect(saved.accountId, 1);
+    expect(saved.accountId, bank);
     final cash = accounts.accounts.singleWhere(
       (a) => a.type == AccountType.cash,
     );
@@ -419,12 +420,12 @@ void main() {
     expect(cash.balanceMinor, 25000);
     final deposit = transactions.singleWhere((t) => t.accountId == cash.id);
     expect(deposit.type, TransactionType.transfer);
-    expect(deposit.toAccountId, 1);
+    expect(deposit.toAccountId, bank);
     expect(deposit.amountMinor, 25000);
     final debit = transactions.singleWhere(
       (t) => t.type == TransactionType.expense,
     );
-    expect(debit.accountId, 1);
+    expect(debit.accountId, bank);
     expect(store.pending, isEmpty);
     await tester.pumpWidget(const SizedBox());
   });

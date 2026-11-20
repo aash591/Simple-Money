@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'common.dart';
+import '../theme/app_theme.dart' show usesAurora;
+import 'empty_art.dart';
 import 'glass_surface.dart';
 
 const _tileSize = 40.0;
@@ -72,6 +74,17 @@ class MenuIconTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Aurora draws icons with glass artwork, with no tile behind. Glassy keeps
+    // the simple icon set on menus, in its glass tile.
+    final art = usesAurora(context) ? menuArtFor(icon) : null;
+    if (art != null) {
+      return SizedBox.square(
+        dimension: _tileSize,
+        child: Center(
+          child: EmptyArtwork(art, size: menuArtSize, tint: tint),
+        ),
+      );
+    }
     return GlassIconTile(
       icon,
       size: _tileSize,

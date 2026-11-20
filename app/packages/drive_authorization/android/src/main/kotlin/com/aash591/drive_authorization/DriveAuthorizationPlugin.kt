@@ -36,6 +36,25 @@ class DriveAuthorizationPlugin : FlutterPlugin, ActivityAware,
     }
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
+        if (call.method == "sdkInt") {
+            result.success(android.os.Build.VERSION.SDK_INT)
+            return
+        }
+        if (call.method == "deviceName") {
+            // What the user named the phone (Settings > About), else its model:
+            // how the activity log on their other phones refers to this one.
+            val named = try {
+                android.provider.Settings.Global.getString(context.contentResolver, "device_name")
+            } catch (_: Exception) {
+                null
+            }
+            val maker = android.os.Build.MANUFACTURER.orEmpty()
+            val model = android.os.Build.MODEL.orEmpty()
+            val fallback = if (model.startsWith(maker, ignoreCase = true)) model
+                else "${maker.replaceFirstChar { it.uppercase() }} $model"
+            result.success(named?.trim()?.takeIf { it.isNotEmpty() } ?: fallback.trim())
+            return
+        }
         if (call.method == "installationId") {
             // Android device transfer can copy the ledger. This ID is deliberately
             // excluded from OS backups, so the copy gets an independent mirror.

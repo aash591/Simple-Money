@@ -1,10 +1,11 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 
 import '../../state/appearance_controller.dart' show AppearanceScope;
 import '../theme/app_theme.dart' show AppChrome, usesGlass, usesAurora;
 import '../theme/surface_style.dart';
+import 'cached_shadow.dart';
+import 'empty_art.dart' show EmptyArtwork, menuArtFor;
+import 'glass_blur.dart';
 import 'glass_surface.dart';
 import 'search_field.dart' show SearchField;
 
@@ -67,43 +68,59 @@ class MoneyCard extends StatelessWidget {
     var body = color != null
         ? _clipped(radius)
         : GlassCardWash(radius: radius, child: _clipped(radius));
-    // Over a picture, the card frosts what is behind it.
-    if (usesAurora(context) &&
+    final fill = wash ?? glassCardFill(context, color: color, deeper: true);
+    // Over a picture, the card frosts what is behind it. The fill goes over
+    // the frost, not under it: the frost is an opaque copy of the picture
+    // and would hide it, leaving a light card as dark as the picture.
+    final frosted =
+        usesAurora(context) &&
         border == null &&
-        AppearanceScope.maybeOf(context)?.wallpaperPath != null) {
+        AppearanceScope.maybeOf(context)?.wallpaperPath != null;
+    if (frosted) {
       body = ClipRRect(
         borderRadius: radius,
-        child: BackdropFilter.grouped(
-          filter: ui.ImageFilter.blur(
-            sigmaX: 22,
-            sigmaY: 22,
-            tileMode: TileMode.mirror,
+        child: Frosted(
+          sigma: FrostImages.cardSigma,
+          tileMode: TileMode.mirror,
+          onPage: true,
+          child: DecoratedBox(
+            decoration: BoxDecoration(gradient: fill),
+            child: body,
           ),
-          child: body,
         ),
       );
     }
-    return DecoratedBox(
-      // Glass: a see-through, top-lit fill over the page's soft backdrop.
-      // The true-black theme keeps its plain hairline instead of the glass
-      // edge, which would glow too brightly against black.
-      decoration: BoxDecoration(
-        gradient: wash ?? glassCardFill(context, color: color),
-        borderRadius: radius,
-        border: border == null ? null : Border.all(color: border),
-        boxShadow: glassCardShadows(theme.brightness),
+    // The shadows come from cached images rather than the decoration: two
+    // blur shaders under every card, on every frame of a scroll, cost more
+    // than the rest of the card's glass put together.
+    return CustomPaint(
+      painter: BoxShadowPainter(
+        radius: radius,
+        shadows: glassCardShadows(theme.brightness),
       ),
-      child: border != null
-          ? body
-          : DecoratedBox(
-              position: DecorationPosition.foreground,
-              decoration: GlassCardRim(
-                dark: theme.brightness == Brightness.dark,
-                radius: radius,
-                accent: usesAurora(context) ? theme.colorScheme.primary : null,
+      child: DecoratedBox(
+        // Glass: a see-through, top-lit fill over the page's soft backdrop.
+        // The true-black theme keeps its plain hairline instead of the glass
+        // edge, which would glow too brightly against black.
+        decoration: BoxDecoration(
+          gradient: frosted ? null : fill,
+          borderRadius: radius,
+          border: border == null ? null : Border.all(color: border),
+        ),
+        child: border != null
+            ? body
+            : DecoratedBox(
+                position: DecorationPosition.foreground,
+                decoration: GlassCardRim(
+                  dark: theme.brightness == Brightness.dark,
+                  radius: radius,
+                  accent: usesAurora(context)
+                      ? theme.colorScheme.primary
+                      : null,
+                ),
+                child: body,
               ),
-              child: body,
-            ),
+      ),
     );
   }
 
@@ -172,11 +189,23 @@ class MenuRowIcon extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) => GlassIconTile(
-    icon,
-    tint: color ?? Theme.of(context).colorScheme.primary,
-    size: size * .95,
-  );
+  Widget build(BuildContext context) {
+    // Glass artwork is Aurora's; Glassy keeps the simple icons in glass tiles.
+    final art = usesAurora(context) ? menuArtFor(icon) : null;
+    if (art != null) {
+      return SizedBox.square(
+        dimension: size * .95,
+        child: Center(
+          child: EmptyArtwork(art, size: size * .88, tint: color),
+        ),
+      );
+    }
+    return GlassIconTile(
+      icon,
+      tint: color ?? Theme.of(context).colorScheme.primary,
+      size: size * .95,
+    );
+  }
 }
 
 class IconTile extends StatelessWidget {

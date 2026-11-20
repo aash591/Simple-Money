@@ -18,7 +18,11 @@
          is in Claude or ChatGPT (AiSession.kt). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- appCategory: a finance app is productivity. Without a category some
+         phone makers' power managers (HyperOS) classify a Flutter app as a
+         game and cap it at 60 Hz (flutter/flutter#160952). -->
     <application
+        android:appCategory="productivity"
         android:fullBackupContent="@xml/backup_rules"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:label="@string/app_notification_name"
@@ -39,9 +43,10 @@
         <receiver android:name=".UpiPaymentReceiver" android:exported="false" />
         <activity android:name=".SmsNotificationActivity" android:exported="false"
             android:taskAffinity="${applicationId}.sms" android:excludeFromRecents="true"
-            android:theme="@style/QuickEntryTheme" android:hardwareAccelerated="true"
+            android:theme="@style/QuickEntryTheme.Wallpaper" android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode">
-            <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/QuickEntryTheme" />
+            <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/QuickEntryTheme.Wallpaper" />
         </activity>
         <activity android:name=".QuickEntryActivity" android:exported="false"
             android:taskAffinity="${applicationId}.quickentry" android:excludeFromRecents="true"

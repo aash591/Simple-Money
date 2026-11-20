@@ -54,6 +54,8 @@ class AccountRepository {
                     ),
               territory: r.readNullable<String>('territory'),
               icon: r.readNullable<String>('icon'),
+              hasDebitCard: (r.readNullable<int>('debit_card') ?? 0) != 0,
+              isBroker: (r.readNullable<int>('broker') ?? 0) != 0,
               digits: r.read<int>('digits'),
               balanceMinor: r.read<int>('balance_minor'),
               transactionCount: r.read<int>('transaction_count'),
@@ -82,6 +84,7 @@ class AccountRepository {
     String? icon,
     required int digits,
     required int openingBalance,
+    bool broker = false,
   }) async {
     final cleanName = name.trim();
     if (cleanName.isEmpty || cleanName.length > 40) {
@@ -111,8 +114,8 @@ class AccountRepository {
     if (existing == null) {
       return await database.customInsert(
         '''INSERT INTO accounts
-        (name, currency, territory, icon, digits, balance_minor, type, last_digits, institution, credit_limit_minor, available_limit_minor, balance_reported_at, available_limit_reported_at, credit_limit_reported_at, sort_order)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM accounts))''',
+        (id, name, currency, territory, icon, digits, balance_minor, type, last_digits, institution, credit_limit_minor, available_limit_minor, balance_reported_at, available_limit_reported_at, credit_limit_reported_at, broker, sort_order)
+        VALUES (${newRowId('accounts')}, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM accounts))''',
         variables: [
           Variable(cleanName),
           Variable(currency),
@@ -128,6 +131,7 @@ class AccountRepository {
           Variable(balanceReportedAt?.millisecondsSinceEpoch),
           Variable(availableLimitReportedAt?.millisecondsSinceEpoch),
           Variable(creditLimitReportedAt?.millisecondsSinceEpoch),
+          Variable(broker ? 1 : 0),
         ],
       );
     } else {
@@ -212,6 +216,19 @@ class AccountRepository {
     await DebtRepository(database).detachAccount(id);
     await RecurringPaymentRepository(database).detachAccount(id);
     await database.customUpdate(
+      'DELETE FROM holding_trades WHERE holding_id IN '
+      '(SELECT id FROM holdings WHERE account_id = ?)',
+      variables: [Variable(id)],
+    );
+    await database.customUpdate(
+      'DELETE FROM holdings WHERE account_id = ?',
+      variables: [Variable(id)],
+    );
+    await database.customUpdate(
+      'UPDATE holding_trades SET pay_account_id = NULL WHERE pay_account_id = ?',
+      variables: [Variable(id)],
+    );
+    await database.customUpdate(
       '''DELETE FROM transactions WHERE account_id = ? OR to_account_id = ?''',
       variables: [Variable(id), Variable(id)],
     );
@@ -224,6 +241,134 @@ class AccountRepository {
         WHERE t.account_id = accounts.id OR t.to_account_id = accounts.id
       )''');
   });
+
+  /// Folds [sourceId] into [targetId] and removes it — for one real account
+  /// that SMS scanning split in two, such as a bank account and its debit
+  /// card reporting different last digits.
+  ///
+  /// Every transaction, loan, debt entry, recurring payment and SMS link moves
+  /// over, so later messages from the source's card land in the target. The
+  /// target keeps its own name, icon, type and digits; its balance becomes
+  /// the sum of both, which is what the two already added up to. Transfers
+  /// between the two would become transfers from an account to itself, so
+  /// they go — together they moved nothing out of the merged account.
+  Future<void> merge({
+    required int sourceId,
+    required int targetId,
+  }) => database.transaction(() async {
+    if (sourceId == targetId) {
+      throw ArgumentError('Choose a different account to merge into.');
+    }
+    final rows = {
+      for (final r
+          in await database
+              .customSelect(
+                'SELECT id, currency, digits, balance_minor, debit_card FROM accounts WHERE id IN (?, ?)',
+                variables: [Variable(sourceId), Variable(targetId)],
+              )
+              .get())
+        r.read<int>('id'): r,
+    };
+    final source = rows[sourceId], target = rows[targetId];
+    if (source == null || target == null) {
+      throw StateError('One of these accounts no longer exists.');
+    }
+    if (source.read<String>('currency') != target.read<String>('currency') ||
+        source.read<int>('digits') != target.read<int>('digits')) {
+      throw ArgumentError('Only accounts in the same currency can merge.');
+    }
+
+    final ids = [Variable(sourceId), Variable(targetId)];
+    const between = '''SELECT id FROM transactions WHERE type = 'transfer' AND
+            ((account_id = ?1 AND to_account_id = ?2) OR
+             (account_id = ?2 AND to_account_id = ?1))''';
+    // Unhook what pointed at those transfers before they go, the way
+    // deleting one transaction does — but keep the debts and loans
+    // themselves, which are still real.
+    await database.customUpdate(
+      'DELETE FROM recurring_payment_history WHERE transaction_id IN ($between)',
+      variables: ids,
+    );
+    await database.customUpdate(
+      'UPDATE debt_entries SET transaction_id = NULL WHERE transaction_id IN ($between)',
+      variables: ids,
+    );
+    await database.customUpdate(
+      'UPDATE loans SET disbursal_id = NULL WHERE disbursal_id IN ($between)',
+      variables: ids,
+    );
+    await database.customUpdate(
+      'UPDATE loans SET charges_id = NULL WHERE charges_id IN ($between)',
+      variables: ids,
+    );
+    await database.customUpdate(
+      'UPDATE loan_events SET transaction_id = NULL WHERE transaction_id IN ($between)',
+      variables: ids,
+    );
+    await database.customUpdate(
+      'DELETE FROM transactions WHERE id IN ($between)',
+      variables: ids,
+    );
+
+    // Everything else that names the source now names the target.
+    const moves = {
+      'transactions': ['account_id', 'to_account_id'],
+      'loans': ['account_id'],
+      'loan_events': ['account_id'],
+      'debt_entries': ['account_id'],
+      'recurring_payments': ['account_id'],
+      'sms_account_links': ['account_id'],
+      'sms_review': ['account_id', 'to_account_id'],
+      'realtime_sms': ['account_id', 'other_account_id'],
+      'sms_created_accounts': ['account_id'],
+      'holdings': ['account_id'],
+      'holding_trades': ['pay_account_id'],
+    };
+    final existing = {
+      for (final r
+          in await database
+              .customSelect(
+                "SELECT name FROM sqlite_master WHERE type = 'table'",
+              )
+              .get())
+        r.read<String>('name'),
+    };
+    for (final MapEntry(key: table, value: columns) in moves.entries) {
+      if (!existing.contains(table)) continue;
+      for (final column in columns) {
+        await database.customUpdate(
+          'UPDATE $table SET $column = ?2 WHERE $column = ?1',
+          variables: ids,
+        );
+      }
+    }
+
+    await database.customUpdate(
+      '''UPDATE accounts SET balance_minor = balance_minor + ?,
+            debit_card = MAX(debit_card, ?),
+            transaction_count = (
+              SELECT COUNT(*) FROM transactions t
+              WHERE t.account_id = accounts.id OR t.to_account_id = accounts.id
+            )
+          WHERE id = ?''',
+      variables: [
+        Variable(source.read<int>('balance_minor')),
+        Variable(source.read<int>('debit_card')),
+        Variable(targetId),
+      ],
+    );
+    await database.customUpdate(
+      'DELETE FROM accounts WHERE id = ?',
+      variables: [Variable(sourceId)],
+    );
+  });
+
+  /// Notes that [id] has a debit card (or is one), so its card shows the card
+  /// icon. Never turns it off: a card seen once is still the account's.
+  Future<void> markDebitCard(int id) => database.customUpdate(
+    'UPDATE accounts SET debit_card = 1 WHERE id = ? AND debit_card = 0',
+    variables: [Variable(id)],
+  );
 
   /// Retires the account without touching a single transaction: it leaves the
   /// pickers and the balance totals, while its history stays readable. The

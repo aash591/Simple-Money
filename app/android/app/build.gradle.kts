@@ -75,23 +75,26 @@ android {
         }
     }
 
+    // Every build type uses the same package name (com.aash591.SimpleMoney)
+    // and, when the upload key is present, the same signing key. Google
+    // sign-in (Drive sync) identifies the app by exactly that pair, so debug,
+    // profile and release builds can all sign in with the one Android OAuth
+    // client. A checkout without secrets/android/key.properties falls back to
+    // the debug key, so `flutter run` keeps working (Google sign-in then needs
+    // that machine's debug SHA-1 registered).
+    //
+    // The profile build seeds a sample ledger on a fresh install only; on a
+    // phone that already has the app it keeps that phone's data.
+    val sharedSigning =
+        if (hasKeystoreProperties) {
+            signingConfigs.getByName("release")
+        } else {
+            signingConfigs.getByName("debug")
+        }
     buildTypes {
-        getByName("profile") {
-            // Keep the testing APK independent from a user's release data.
-            // The profile build seeds its own sample ledger on first launch.
-            applicationIdSuffix = ".profile"
-            signingConfig = signingConfigs.getByName("debug")
-        }
-        release {
-            // Signs with the upload key (secrets/android/key.properties) when present, so a
-            // checkout without it still falls back to the debug key and
-            // `flutter run --release` keeps working.
-            signingConfig = if (hasKeystoreProperties) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
-        }
+        getByName("debug") { signingConfig = sharedSigning }
+        getByName("profile") { signingConfig = sharedSigning }
+        release { signingConfig = sharedSigning }
     }
 
     packaging {

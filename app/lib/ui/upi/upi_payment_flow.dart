@@ -7,6 +7,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/repositories/upi_repository.dart';
+import '../../data/repositories/upi_sms_match.dart';
 import '../../data/upi_platform.dart';
 import '../../domain/category.dart';
 import '../../domain/account.dart';
@@ -22,6 +23,8 @@ import '../components/adaptive_sheet.dart';
 import '../components/app_icon.dart';
 import '../components/app_toast.dart';
 import '../components/choice_list_sheet.dart';
+import '../components/transactions/review_pickers.dart';
+import '../components/transactions/transaction_review_content.dart';
 import '../theme/surface_style.dart';
 import '../theme/sheet_colors.dart';
 import '../transactions/amount_calculator.dart';
@@ -93,6 +96,14 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
   int? _categoryId, _accountId, _toAccountId, _subcategoryParentId;
   bool _isTransfer = false;
   PendingUpiPayment? _draft;
+
+  /// The bank's SMS for [_draft] has arrived, so the payment went through:
+  /// the flow skips asking and opens the save page with the account the SMS
+  /// reports. Closing then leaves things as they are.
+  var _smsArrived = false;
+  UpiPaymentSms? _bankSms;
+  var _checkingSms = false;
+  Timer? _smsPoll;
   List<PendingUpiPayment> _pending = [];
   List<UpiApp> _apps = [];
 
@@ -110,10 +121,17 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) AdaptiveSheetRoute.of(context)?.avoidKeyboard = true;
     });
+    // The SMS can arrive while the question is on screen, or while the app
+    // is still reading the inbox after coming back from Google Pay.
+    _smsPoll = Timer.periodic(
+      const Duration(seconds: 3),
+      (_) => unawaited(_checkBankSms()),
+    );
   }
 
   @override
   void dispose() {
+    _smsPoll?.cancel();
     widget.accountStore.removeListener(_storesChanged);
     widget.categoryStore.removeListener(_storesChanged);
     super.dispose();
@@ -189,6 +207,22 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
 
   Future<void> _back() async {
     if (_busy || _exitAlert) return;
+    if (_draft != null && _smsArrived) {
+      final previous = switch (_step) {
+        _Step.categoryReview => _Step.accountReview,
+        _Step.category => _Step.categoryReview,
+        _Step.subcategory => _Step.category,
+        _Step.account => _Step.accountReview,
+        _Step.destination => _Step.account,
+        _ => null,
+      };
+      if (previous != null) {
+        await _edited(previous);
+      } else {
+        await _closeMatched();
+      }
+      return;
+    }
     if (_draft != null) {
       final previous = switch (_step) {
         _Step.amount => _Step.result,
@@ -242,8 +276,13 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
   void _pickCategory(int id) {
     _isTransfer = false;
     _categoryId = id;
-    _edited(_Step.account, forward: true);
+    _edited(_afterCategory, forward: true);
   }
+
+  /// Once the bank SMS has named the account, a category goes straight back
+  /// to the save page.
+  _Step get _afterCategory =>
+      _smsArrived && _account != null ? _Step.accountReview : _Step.account;
 
   Future<void> _selectRecipient(UpiRecipient recipient) async {
     _recipient = recipient;
@@ -461,6 +500,7 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
       );
   void _resume(PendingUpiPayment payment) {
     _draft = payment;
+    _smsArrived = false;
     _isTransfer = payment.isTransfer;
     _toAccountId = payment.toAccountId;
     _recipient = payment.recipient;
@@ -499,6 +539,67 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
         }
       });
     } catch (_) {}
+    await _checkBankSms();
+  }
+
+  /// When the bank's SMS for the payment on screen has come, there's no need
+  /// to ask whether it went through: the save page opens with the category
+  /// resolved and the account the SMS names, ready to change or save.
+  Future<void> _checkBankSms() async {
+    final draft = _draft;
+    if (draft == null ||
+        _smsArrived ||
+        _checkingSms ||
+        _busy ||
+        _exitAlert ||
+        _step != _Step.result) {
+      return;
+    }
+    _checkingSms = true;
+    try {
+      final sms = await _repository.bankSms(
+        draft.copyWith(amountText: _amount, isTransfer: _isTransfer),
+      );
+      if (sms == null ||
+          !mounted ||
+          _draft?.id != draft.id ||
+          _busy ||
+          _exitAlert ||
+          _step != _Step.result) {
+        return;
+      }
+      _smsArrived = true;
+      _bankSms = sms;
+      _isTransfer = false;
+      if (sms.accountId != null) _accountId = sms.accountId;
+      _categoryId ??= sms.categoryId;
+      _go(
+        upiAmountMinor(_amount) == null ? _Step.amount : _Step.accountReview,
+        forward: true,
+      );
+    } catch (_) {
+      // The question stays; answering it works as before.
+    } finally {
+      _checkingSms = false;
+    }
+  }
+
+  /// Closing a payment the bank SMS confirmed changes nothing: the expense
+  /// the SMS saved, or the SMS waiting for review, stays as it is. Only the
+  /// draft (and its reminder) goes, so it isn't asked about again.
+  Future<void> _closeMatched() async {
+    final draft = _draft;
+    if (draft == null || _busy) return;
+    setState(() => _busy = true);
+    try {
+      await _repository.delete(draft.id);
+      unawaited(_platform.cancelReminder(draft.id));
+    } catch (_) {
+      // Left in the queue, it's simply offered again later.
+    }
+    if (!mounted) return;
+    setState(() => _busy = false);
+    widget.onClose();
   }
 
   /// Fills in a first payment to [recipient]'s category by the shared rules:
@@ -553,7 +654,9 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
       showAppToast(
         context,
         _isTransfer
-            ? 'UPI transfer saved'
+            ? matchedSms
+                  ? 'UPI transfer saved. Matched with your bank SMS.'
+                  : 'UPI transfer saved'
             : matchedSms
             ? 'UPI expense saved. Matched with your bank SMS.'
             : 'UPI expense saved',
@@ -1061,7 +1164,10 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
               if (_draft == null) {
                 _loadApps();
               } else {
-                _edited(_Step.categoryReview, forward: true);
+                _edited(
+                  _smsArrived ? _Step.accountReview : _Step.categoryReview,
+                  forward: true,
+                );
               }
             },
     ),
@@ -1107,9 +1213,10 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
           ? null
           : () {
               _isTransfer = false;
-              _edited(_Step.account);
+              _edited(_afterCategory);
             },
     ),
+    _Step.accountReview when _smsArrived => _smsReviewPage(),
     _Step.accountReview => _simple(
       _isTransfer ? 'Save this transfer' : 'Save this expense',
       [
@@ -1445,6 +1552,151 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
         ),
     ]),
   };
+
+  Iterable<Account> get _inrAccounts => widget.accountStore.accounts.where(
+    (a) => a.currency == 'INR' && a.digits == 2 && a.archivedAt == null,
+  );
+
+  Future<void> _smsPickCategory() async {
+    final pick = await showReviewCategoryPicker(
+      context,
+      title: 'Pay with UPI',
+      categories: widget.categoryStore.categories,
+      store: widget.categoryStore,
+      type: CategoryType.expense,
+      selected: _categoryId,
+      shortcuts: const CategoryShortcuts(transfer: true),
+    );
+    if (!mounted || pick == null) return;
+    setState(() {
+      if (pick.transfer) {
+        _isTransfer = true;
+      } else if (pick.categoryId case final id?) {
+        _categoryId = id;
+      }
+    });
+  }
+
+  Future<void> _smsPickAccount({bool destination = false}) async {
+    final id = await showReviewAccountPicker(
+      context,
+      title: 'Pay with UPI',
+      heading: destination
+          ? 'Transfer to'
+          : _isTransfer
+          ? 'Transfer from'
+          : 'Paid from',
+      selected: destination ? _toAccountId : _accountId,
+      items: [
+        for (final a in _inrAccounts)
+          if (!_isTransfer || a.id != (destination ? _accountId : _toAccountId))
+            ChoiceItem(
+              value: a.id,
+              icon: AppIcon(a.icon, size: 28),
+              label: a.name,
+              subtitle: formatTransactionMoney(a.balanceMinor, a),
+              chevron: true,
+            ),
+      ],
+      onAdd: (context) async {
+        final account = await addAccountAndSelect(context, widget.accountStore);
+        return account?.currency == 'INR' && account?.digits == 2
+            ? account?.id
+            : null;
+      },
+    );
+    if (!mounted || id == null) return;
+    setState(() => destination ? _toAccountId = id : _accountId = id);
+  }
+
+  /// The payment once its bank SMS has come, laid out like the SMS preview:
+  /// it is one payment, so Save records one transaction and Cancel changes
+  /// nothing.
+  Widget _smsReviewPage() {
+    final colors = SheetColors.of(context);
+    final sms = _bankSms;
+    final date = _draft?.date.toLocal() ?? DateTime.now();
+    final place = _draft?.place;
+    return SheetPage(
+      header: SheetHeader.flow('Pay with UPI', onBack: _busy ? null : _back),
+      body: TransactionReviewContent<bool>(
+        badge: 'Money paid',
+        color: Colors.red,
+        badgeIcon: Icons.north_east_rounded,
+        amount: upiAmountMinor(_amount) == null
+            ? 'Add amount'
+            : formatAccountMoney(
+                upiAmountMinor(_amount)!,
+                currency: 'INR',
+                digits: 2,
+              ),
+        onEditAmount: _busy ? null : _editAmount,
+        title: _title.trim().isEmpty ? _recipient!.name : _title,
+        titleText: _isTransfer ? null : _title,
+        onTitleChanged: _busy || _isTransfer ? null : (text) => _title = text,
+        titleSuggestions: (text) =>
+            widget.transactionStore.titleSuggestions.suggest(
+              text,
+              type: TransactionType.expense,
+              categoryId: _categoryId,
+            ),
+        date:
+            '${formatTransactionDate(date)} · ${DateFormat('h:mm a').format(date)}',
+        kinds: const [
+          ReviewKind(false, 'Expense', Icons.category_outlined),
+          ReviewKind(true, 'Transfer', Icons.swap_horiz),
+        ],
+        kind: _isTransfer,
+        onKindChanged: _busy
+            ? null
+            : (value) => setState(() {
+                _isTransfer = value;
+                if (_toAccountId == _accountId) _toAccountId = null;
+              }),
+        helper: [
+          'Paid to ${_recipient!.address}. Your bank’s SMS confirmed it.',
+          if (place != null) 'Near $place.',
+        ].join(' '),
+        rows: [
+          if (!_isTransfer) ...[
+            ReviewChoiceRow(
+              label: 'Category',
+              value: _category?.name ?? 'Choose category',
+              icon: AppIcon(_category?.icon, size: 30),
+              onTap: _busy ? null : _smsPickCategory,
+            ),
+            Divider(height: 1, indent: 64, color: colors.divider),
+          ],
+          ReviewChoiceRow(
+            label: _isTransfer ? 'Transfer from' : 'Paid from',
+            value: _account?.name ?? 'Choose INR account',
+            icon: AppIcon(_account?.icon ?? 'bank_transfer', size: 30),
+            onTap: _busy ? null : () => _smsPickAccount(),
+          ),
+          if (_isTransfer) ...[
+            Divider(height: 1, indent: 64, color: colors.divider),
+            ReviewChoiceRow(
+              label: 'Transfer to',
+              value: _destination?.name ?? 'Choose INR account',
+              icon: AppIcon(_destination?.icon ?? 'bank_transfer', size: 30),
+              onTap: _busy ? null : () => _smsPickAccount(destination: true),
+            ),
+          ],
+        ],
+        sourceDetail: sms == null || sms.sender.trim().isEmpty
+            ? null
+            : sms.sender,
+        sourceText: sms?.text,
+        error: _error,
+      ),
+      actions: ActionButtonBar(
+        secondaryLabel: 'Cancel',
+        onSecondary: _busy ? null : _closeMatched,
+        primaryLabel: _busy ? 'Saving...' : 'Save',
+        onPrimary: _detailsValid && !_busy ? _confirm : null,
+      ),
+    );
+  }
 
   Widget _recipientCard() => Padding(
     padding: const EdgeInsets.symmetric(vertical: 12),

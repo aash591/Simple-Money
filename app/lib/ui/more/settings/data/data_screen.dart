@@ -97,7 +97,8 @@ class _DataScreenState extends State<DataScreen> {
               'It has ${count('accounts', 'account')} and '
               '${count('transactions', 'transaction')} from '
               '${DateFormat.yMMMd().format(data.updatedAt)}. They replace '
-              'everything on this phone.',
+              'everything on this phone. If sync is on, it turns off; your '
+              'Google Drive copy stays.',
           confirmLabel: 'Import',
         )) {
       return null;
@@ -110,7 +111,7 @@ class _DataScreenState extends State<DataScreen> {
     if (!await showDeleteConfirmation(
       context,
       title: 'Delete data on this phone?',
-      message: 'Deletes all accounts, transactions and budgets on this phone. Categories reset. Your Google Drive copy stays.',
+      message: 'Deletes all accounts, transactions and budgets on this phone. Categories reset. Sync turns off; your Google Drive copy stays.',
     )) {
       return;
     }
@@ -157,7 +158,7 @@ class _DataScreenState extends State<DataScreen> {
                 label: 'Export & import',
                 children: [
                   MenuRow(
-                    icon: Icons.file_download_rounded,
+                    icon: Icons.file_upload_rounded,
                     title: 'Export all data',
                     subtitle: 'A file you can import later',
                     onTap: idle ? () => _exportAll(sync) : null,
@@ -169,7 +170,7 @@ class _DataScreenState extends State<DataScreen> {
                     onTap: idle ? () => _exportCsv(sync) : null,
                   ),
                   MenuRow(
-                    icon: Icons.file_upload_rounded,
+                    icon: Icons.file_download_rounded,
                     title: 'Import from file',
                     subtitle: 'Replaces this phone’s data',
                     onTap: idle ? () => _import(sync) : null,

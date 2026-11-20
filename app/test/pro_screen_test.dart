@@ -30,7 +30,7 @@ void main() {
     await open(tester);
     expect(find.text('You’re a supporter'), findsOneWidget);
     expect(find.text('AI assistant'), findsOneWidget);
-    expect(find.byIcon(Icons.check_circle_rounded), findsNWidgets(5));
+    expect(find.byIcon(Icons.check_circle_rounded), findsNWidgets(4));
     expect(find.text('Manage subscription'), findsOneWidget);
     expect(find.text('Restore purchases'), findsNothing);
     expect(tester.takeException(), isNull);

@@ -132,7 +132,7 @@ void main() {
   test(
     'split corpus preserves all cases and identifies each country and bank',
     () {
-      expect(cases.where((f) => f['country'] == 'IN'), hasLength(1229));
+      expect(cases.where((f) => f['country'] == 'IN'), hasLength(1232));
       expect(cases.length, greaterThan(1249));
       expect(cases.map((f) => f['id']).toSet(), hasLength(cases.length));
       final banks = <String, String>{
@@ -141,7 +141,7 @@ void main() {
             bank['id'] as String: source['country'] as String,
       };
       expect(cases.map((f) => f['bankId']).toSet(), banks.keys.toSet());
-      expect(banks.values.where((country) => country == 'IN'), hasLength(54));
+      expect(banks.values.where((country) => country == 'IN'), hasLength(55));
       for (final fixture in cases) {
         expect(fixture['country'], banks[fixture['bankId']]);
       }

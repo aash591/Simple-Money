@@ -105,6 +105,97 @@ bool sameSmsInstitution(PendingSmsImport a, PendingSmsImport b) =>
     a.currency == b.currency &&
     a.creditCard == b.creditCard;
 
+/// The fullest number [suffix] can stand for among [known]: some banks print
+/// `XX1234` in one message and `XX234` (leading zero dropped, or the mask cut
+/// short) in the next, and those are one account. Only a tail of three or more
+/// digits counts, and only when exactly one longer number ends with it —
+/// `234` could as well be `1234` or `5234`, and then it stays as it is.
+String? fullerAccountSuffix(String suffix, Iterable<String> known) {
+  if (suffix.length < 3 || !RegExp(r'^\d+$').hasMatch(suffix)) return null;
+  final longer = {
+    for (final other in known)
+      if (other.length > suffix.length &&
+          RegExp(r'^\d+$').hasMatch(other) &&
+          other.endsWith(suffix))
+        other,
+  };
+  return longer.length == 1 ? longer.single : null;
+}
+
+PendingSmsImport _withAccountLast4(PendingSmsImport sms, String last4) =>
+    PendingSmsImport(
+      id: sms.id,
+      sender: sms.sender,
+      body: sms.body,
+      receivedAt: sms.receivedAt,
+      data: {...sms.data, 'accountLast4': last4},
+    );
+
+/// A debit-card message: the number it carries is the card's, not the
+/// account's ("on Federal Bank Debit Card 6226"). A credit card is an account
+/// of its own, so it is not one of these.
+bool isDebitCardMessage(PendingSmsImport sms) =>
+    sms.data['channel'] == 'card' && !sms.creditCard;
+
+/// The number [sms] should be known by, given what [known] shows of the same
+/// bank, or null to leave it as it is.
+///
+/// A shortened number joins the fuller one (`XX234` is `XX1234`). A debit
+/// card's number joins the bank's one account when the bank has only one: the
+/// card is how that account was paid, not another account. With several
+/// accounts the card can't be placed, so it stays as it was.
+String? canonicalAccountLast4(
+  PendingSmsImport sms,
+  Iterable<PendingSmsImport> known,
+) {
+  final last4 = sms.accountLast4;
+  if (last4 == null) return null;
+  final same = [
+    for (final row in known)
+      if (row.accountLast4 != null && sameSmsInstitution(row, sms)) row,
+  ];
+  final accounts = {
+    for (final row in same)
+      if (!isDebitCardMessage(row)) row.accountLast4!,
+  };
+  if (isDebitCardMessage(sms)) {
+    final identities = {
+      for (final number in accounts)
+        fullerAccountSuffix(number, accounts) ?? number,
+    };
+    if (identities.length == 1) return identities.single;
+  }
+  return fullerAccountSuffix(
+    last4,
+    isDebitCardMessage(sms)
+        ? {
+            ...accounts,
+            for (final row in same)
+              if (isDebitCardMessage(row)) row.accountLast4!,
+          }
+        : accounts,
+  );
+}
+
+/// [rows] with each shortened number or debit-card number replaced by the
+/// account number the same bank also sends, so one account is not counted
+/// twice.
+List<PendingSmsImport> unifyAccountSuffixes(List<PendingSmsImport> rows) => [
+  for (final row in rows)
+    switch (canonicalAccountLast4(row, rows)) {
+      // Carrying the account's number, the row stands for the account and
+      // no longer for the card it was read from.
+      final last4? when last4 != row.accountLast4 => PendingSmsImport(
+        id: row.id,
+        sender: row.sender,
+        body: row.body,
+        receivedAt: row.receivedAt,
+        data: {...row.data, 'accountLast4': last4, 'channel': 'other'},
+      ),
+      _ => row,
+    },
+];
+
 /// Infer only from explicit account identities in history, never from an
 /// earlier inference. Keep the stored SMS candidate unchanged so new accounts
 /// can make an old suggestion ambiguous again.
@@ -117,11 +208,16 @@ PendingSmsImport resolveSmsAccount(
   PendingSmsImport sms,
   List<PendingSmsImport> detected,
 ) {
+  final last4 = sms.accountLast4;
+  if (last4 != null) {
+    final canonical = canonicalAccountLast4(sms, detected);
+    return canonical == null || canonical == last4
+        ? sms
+        : _withAccountLast4(sms, canonical);
+  }
   // A shop's or biller's SMS waits for the user, or the bank's SMS, to give
   // its account; it is never resolved by its sender's name.
-  if (sms.accountLast4 != null ||
-      !sms.holdsMoney ||
-      sms.data.containsKey(otherAccountKey)) {
+  if (!sms.holdsMoney || sms.data.containsKey(otherAccountKey)) {
     return sms;
   }
   final suffixes = detected
@@ -208,10 +304,10 @@ class SmsImportRepository {
     List<PendingSmsImport>? queued,
   }) async {
     final groups = <String, PendingSmsImport>{};
-    final rows = [
+    final rows = unifyAccountSuffixes([
       ...await _detected(),
       ...(queued ?? const <PendingSmsImport>[]),
-    ];
+    ]);
     for (final row in rows) {
       // A bank seen only without a number is one account under its name; once
       // a number is known, unnumbered messages resolve to it instead.
@@ -260,6 +356,23 @@ class SmsImportRepository {
             .get())
       r.read<String>('bank_key'): r.read<int>('credit_limit_minor'),
   };
+
+  /// Gives the accounts a debit card is used on their card icon: for each
+  /// debit-card message seen, the account its number belongs to (the bank's
+  /// one account, or the card's own when it stands alone).
+  Future<void> markDebitCardAccounts() async {
+    final detected = await _detected();
+    final links = await accountLinks();
+    final accounts = AccountRepository(database);
+    for (final row in detected) {
+      final last4 = row.accountLast4;
+      if (last4 == null || !isDebitCardMessage(row)) continue;
+      final number = canonicalAccountLast4(row, detected) ?? last4;
+      final id = links[smsBankKey({...row.data, 'accountLast4': number})];
+      if (id != null) await accounts.markDebitCard(id);
+    }
+  }
+
   Future<void> recordBalance(
     Map<String, dynamic> data,
     DateTime receivedAt,
@@ -277,6 +390,9 @@ class SmsImportRepository {
         ON CONFLICT(bank_key) DO UPDATE SET data=excluded.data,received_at=excluded.received_at WHERE excluded.received_at > sms_detected_accounts.received_at''',
         [key, jsonEncode(data), receivedAt.millisecondsSinceEpoch],
       );
+      if (data['channel'] == 'card' && data['isCreditCard'] != true) {
+        await markDebitCardAccounts();
+      }
     }
     final balance = data['balanceMinor'] as int?;
     final limit = data['availableCreditLimitMinor'] as int?;
@@ -578,6 +694,7 @@ class SmsImportRepository {
         );
       }
     }
+    await markDebitCardAccounts();
   });
   Future<void> linkAccount(PendingSmsImport sms, int accountId) async {
     await _account(accountId, sms.currency);
@@ -953,6 +1070,13 @@ class SmsImportRepository {
   Future<void> checkpoint(int value) => database.customStatement(
     'UPDATE sms_import_state SET scanned_at=? WHERE id=1',
     [value],
+  );
+
+  /// Sets aside every message still waiting: used when the person chooses to
+  /// start fresh, so what the first scan found is not saved. The messages stay
+  /// on record as dismissed, so a later scan does not queue them again.
+  Future<void> dismissAllPending() => database.customStatement(
+    "UPDATE sms_imports SET status='dismissed',body=NULL WHERE status='pending'",
   );
   Future<void> dismiss(String id) => database.transaction(() async {
     final original = await database

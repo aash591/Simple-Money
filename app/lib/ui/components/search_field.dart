@@ -1,7 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
+import 'glass_blur.dart';
 import 'glass_button.dart';
 import '../theme/app_theme.dart' show AppChrome, usesAurora, usesGlass;
 
@@ -83,7 +82,7 @@ class SearchField extends StatelessWidget {
   }
 
   /// A small sigma: just enough to soften what shows through, and cheap.
-  static const blurSigma = 6.0;
+  static const blurSigma = FrostImages.controlSigma;
 
   @override
   Widget build(BuildContext context) {
@@ -105,9 +104,9 @@ class SearchField extends StatelessWidget {
           : GlassRim(dark: dark, solid: false, radius: radius),
       child: ClipRRect(
         borderRadius: radius,
-        child: BackdropFilter.grouped(
-          enabled: usesGlass(context),
-          filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+        child: Frosted(
+          enabled: usesGlass(context) && GlassBlur.of(context),
+          sigma: blurSigma,
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -242,6 +241,11 @@ class SearchableHeader extends StatelessWidget {
     final duration = MediaQuery.disableAnimationsOf(context)
         ? Duration.zero
         : const Duration(milliseconds: 320);
+    // A page's header: nothing scrolls beneath its discs and field.
+    return OnPageBackdrop(child: _switcher(context, duration));
+  }
+
+  Widget _switcher(BuildContext context, Duration duration) {
     return ClipRect(
       child: AnimatedSize(
         duration: duration,

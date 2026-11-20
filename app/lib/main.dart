@@ -7,6 +7,7 @@ import 'data/realtime_sms.dart';
 import 'data/upi_reminder.dart';
 import 'state/appearance_controller.dart';
 import 'state/onboarding.dart';
+import 'state/review_prompt.dart';
 import 'state/vibration_settings.dart';
 
 @pragma('vm:entry-point')
@@ -20,9 +21,10 @@ Future<void> upiPaymentMain() => processBackgroundUpiPayment();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final (_, _, onboarding, _) = await (
+  final (_, _, _, onboarding, _) = await (
     VibrationSettings.instance.restore(),
     DevicePerformance.restore(),
+    ReviewPrompt.instance.restore(),
     Onboarding.needed(),
     // The saved style and colours, ready for the very first frame.
     AppearanceController.preload(),

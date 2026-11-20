@@ -6,9 +6,19 @@ import '../../domain/brand_dark_icons.dart';
 bool usesDarkBrandAsset(String key, Brightness brightness) =>
     brightness == Brightness.dark && darkBrandIconKeys.contains(key);
 
+String _bankCountryFolder(String country) => country
+    .toLowerCase()
+    .replaceAll(RegExp('[^a-z0-9]+'), '_')
+    .replaceAll(RegExp(r'^_|_$'), '');
+
 String brandIconAssetPath(String key, Brightness brightness) {
   final suffix = usesDarkBrandAsset(key, brightness) ? '_dark' : '';
-  return 'assets/icon_packs/brands/$key$suffix.webp';
+  final brand = resolveBrandIcon(brandIconKey(key));
+  final directory = brand?.isBank == true
+      ? 'assets/icon_packs/logos/banks/'
+            '${_bankCountryFolder(brand!.bankCountry!)}'
+      : 'assets/icon_packs/logos/brands';
+  return '$directory/$key$suffix.webp';
 }
 
 /// The image [AppIcon] draws for [iconKey], or null for a text wordmark —

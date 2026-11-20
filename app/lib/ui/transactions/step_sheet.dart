@@ -58,6 +58,7 @@ class _StepSheetScaffoldState extends State<StepSheetScaffold> {
             children: [
               SecondaryHeader(
                 title: widget.title ?? '',
+                centered: true,
                 leading: AppBackButton(
                   close: widget.currentIndex == 0,
                   onPressed: widget.onBack,

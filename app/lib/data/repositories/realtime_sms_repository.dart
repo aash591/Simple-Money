@@ -16,6 +16,8 @@ import 'loan_repository.dart';
 import 'category_repository.dart';
 import 'sms_import_repository.dart';
 import 'transaction_repository.dart';
+import 'upi_repository.dart';
+import 'upi_sms_match.dart';
 import '../../domain/currency_digits.dart';
 
 class LiveSms {
@@ -261,6 +263,14 @@ class RealtimeSmsRepository {
               .getSingleOrNull();
     if (accountId != null) {
       await edit(id, accountId: accountId, categoryId: categoryId);
+      // The UPI scan this message reports is settled by the same answer:
+      // it joins this expense, so it isn't asked about again.
+      if (await pendingUpiForSms(db, before.sms) case final upi?) {
+        await UpiRepository(db).confirm(
+          upi.id,
+          details: upi.copyWith(categoryId: categoryId, accountId: accountId),
+        );
+      }
     } else {
       await choosePendingCategory(id, categoryId);
     }
@@ -525,6 +535,17 @@ class RealtimeSmsRepository {
             )
             .firstOrNull;
         category = rememberedCategory ?? category;
+      }
+      // A UPI scan waiting to be saved is this very payment: the category
+      // picked for its payee then beats one guessed from the bank's text.
+      if (assigned == null) {
+        final upi = await pendingUpiForSms(db, sms);
+        final picked = (await categories.load())
+            .where(
+              (c) => c.id == upi?.categoryId && c.type == CategoryType.expense,
+            )
+            .firstOrNull;
+        category = picked ?? category;
       }
       if (category != null && category.id < 0) {
         await categories.save(

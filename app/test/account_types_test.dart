@@ -512,7 +512,10 @@ void main() {
     });
     await tester.runAsync(() async {
       await tester.tap(find.text('Create 1 account'));
-      await Future<void>.delayed(const Duration(milliseconds: 100));
+      // Until the account is saved, however long a loaded machine takes.
+      for (var i = 0; i < 50 && accountStore.accounts.isEmpty; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
     });
     await tester.pumpAndSettle();
     expect(find.text('SMS review'), findsOneWidget);

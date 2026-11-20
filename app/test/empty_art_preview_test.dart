@@ -48,7 +48,7 @@ Widget _panel(Brightness b, Color c) => Theme(
 void main() {
   testWidgets('empty art preview', (tester) async {
     await loadPreviewFonts();
-    tester.view.physicalSize = const Size(1200, 1000);
+    tester.view.physicalSize = const Size(1200, 1800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(

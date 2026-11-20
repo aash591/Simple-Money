@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_back_button.dart';
+import 'glass_blur.dart';
 
 /// The one-line title bar at the top of a main tab, sized and placed exactly
 /// like Home's (see HomeHeader): a 24dp title in a 48dp row, its text 4dp in
@@ -41,47 +42,51 @@ class TabHeader extends StatelessWidget {
         padding: EdgeInsets.zero,
       ),
     ),
-    child: SizedBox(
-      height: 48,
-      child: Row(
-        children: [
-          ?leading,
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 4),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.5,
-                    height: 1.2,
-                  ),
+    // Fixed above the tab's list or scrolling with it: either way the discs
+    // only ever have the page backdrop behind them.
+    child: OnPageBackdrop(child: _row(context)),
+  );
+
+  Widget _row(BuildContext context) => SizedBox(
+    height: 48,
+    child: Row(
+      children: [
+        ?leading,
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.5,
+                  height: 1.2,
                 ),
               ),
             ),
           ),
-          if (roundActions)
-            Transform.translate(
-              offset: const Offset(GlassCircleButton.edgeInset, 0),
-              child: Row(mainAxisSize: MainAxisSize.min, children: actions),
-            )
-          else
-            for (final a in actions) GlassActionSlot(child: a),
-          if (trailing != null)
-            Transform.translate(
-              offset: const Offset(GlassCircleButton.edgeInset, 0),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: trailing,
-              ),
+        ),
+        if (roundActions)
+          Transform.translate(
+            offset: const Offset(GlassCircleButton.edgeInset, 0),
+            child: Row(mainAxisSize: MainAxisSize.min, children: actions),
+          )
+        else
+          for (final a in actions) GlassActionSlot(child: a),
+        if (trailing != null)
+          Transform.translate(
+            offset: const Offset(GlassCircleButton.edgeInset, 0),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: trailing,
             ),
-        ],
-      ),
+          ),
+      ],
     ),
   );
 }

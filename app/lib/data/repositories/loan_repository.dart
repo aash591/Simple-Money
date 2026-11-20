@@ -135,7 +135,7 @@ class LoanRepository {
         .getSingleOrNull();
     return row?.read<int>('id') ??
         await database.customInsert(
-          "INSERT INTO categories (name, type, icon, sort_order) VALUES (?, ?, 'bank', (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM categories))",
+          "INSERT INTO categories (id, name, type, icon, sort_order) VALUES (${newRowId('categories')}, ?, ?, 'bank', (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM categories))",
           variables: [Variable(name), Variable(type)],
         );
   }
@@ -167,8 +167,8 @@ class LoanRepository {
       adopted,
     );
     return database.customInsert(
-      '''INSERT INTO loans (payload, account_id, disbursal_id, charges_id)
-      VALUES (?, ?, ?, ?)''',
+      '''INSERT INTO loans (id, payload, account_id, disbursal_id, charges_id)
+      VALUES (${newRowId('loans')}, ?, ?, ?, ?)''',
       variables: [
         Variable(jsonEncode(terms.toJson())),
         Variable(accountId),
@@ -554,7 +554,7 @@ class LoanRepository {
     );
     await database.customInsert(
       '''INSERT INTO loan_events
-        (loan_id, kind, installment, payload, account_id, transaction_id) VALUES (?, ?, ?, ?, ?, ?)''',
+        (id, loan_id, kind, installment, payload, account_id, transaction_id) VALUES (${newRowId('loan_events')}, ?, ?, ?, ?, ?, ?)''',
       variables: [
         Variable(current.id),
         Variable(kind.name),

@@ -16,6 +16,7 @@ import '../repositories/debt_repository.dart';
 import '../repositories/loan_repository.dart';
 import '../repositories/sms_import_repository.dart';
 import '../repositories/transaction_repository.dart';
+import 'agent_sms_saver.dart';
 import 'agent_suggestion_repository.dart';
 
 /// One payment as a lender's statement lists it. [amount] is everything that
@@ -29,6 +30,8 @@ class LoanPaymentInput {
     this.transactionId,
     this.notInLedger = false,
     this.partPayment = false,
+    this.smsId,
+    this.unparsed,
   });
   final DateTime date;
   final String amount;
@@ -42,6 +45,11 @@ class LoanPaymentInput {
 
   /// Extra money towards the principal, not a monthly instalment.
   final bool partPayment;
+
+  /// The bank message that is this payment, as related_sms listed it: one
+  /// waiting for review, or (with [unparsed]) one no rule reads.
+  final String? smsId;
+  final LoanSms? unparsed;
 }
 
 /// What an AI app read off a loan statement.
@@ -111,7 +119,12 @@ class AgentLoans {
 
   // ── Loans. ──
 
-  Future<LoanPlan> prepareLoan(LoanInput input) async {
+  /// [unparsed] are the inbox's bank messages no rule reads, searched with
+  /// the ledger and the review queue for this loan's other payments.
+  Future<LoanPlan> prepareLoan(
+    LoanInput input, {
+    List<LoanSms> unparsed = const [],
+  }) async {
     final lender = input.lender.trim();
     final active = (await AccountRepository(
       database,
@@ -154,7 +167,7 @@ class AgentLoans {
       }
       plan = await _plan(input, lender, chosen);
     }
-    return _describe(input, lender, chosen, active, plan);
+    return _describe(input, lender, chosen, active, plan, unparsed);
   }
 
   Future<_Plan> _plan(LoanInput input, String lender, Account? account) async {
@@ -247,7 +260,7 @@ class AgentLoans {
       LedgerCandidate? match;
       if (p.transactionId case final id?) {
         match = await _named(id, paid[i], TransactionType.expense, sameMoney);
-      } else if (!p.notInLedger) {
+      } else if (!p.notInLedger && p.smsId == null) {
         match = closestInLedger(
           ledger,
           amountMinor: paid[i],
@@ -406,6 +419,7 @@ class AgentLoans {
     Account account,
     List<Account> accounts,
     _Plan p,
+    List<LoanSms> unparsedInbox,
   ) async {
     final loans = await LoanRepository(database).load();
     final day = _dayOnly(input.startDate);
@@ -485,20 +499,48 @@ class AgentLoans {
     final added = input.addMissingToAccount;
     // Payments the ledger lacks but a bank message waiting for review has:
     // approving saves the message as that payment.
-    final waiting = await _waitingSms(account, accounts, [
-      for (final (i, payment) in p.payments.indexed)
-        if (p.matched[i] == null && !payment.notInLedger)
-          (i, payment.date, p.paid[i]),
-    ]);
+    final waiting = {
+      ...await _waitingSms(account, accounts, [
+        for (final (i, payment) in p.payments.indexed)
+          if (p.matched[i] == null &&
+              !payment.notInLedger &&
+              payment.smsId == null)
+            (i, payment.date, p.paid[i]),
+      ]),
+    };
+    // Messages the AI app named, once the user said they are this loan's.
+    final unparsed = <int, LoanSms>{};
+    for (final (i, payment) in p.payments.indexed) {
+      final id = payment.smsId;
+      if (id == null) continue;
+      if (payment.unparsed case final sms?) {
+        if (account.digits != 2) {
+          throw ArgumentError(
+            'Bank messages are only saved to two-decimal accounts.',
+          );
+        }
+        unparsed[i] = sms;
+      } else {
+        waiting[i] = await _namedSms(id, p.paid[i], account, accounts);
+      }
+    }
+    final smsIds = [
+      ...waiting.values.map((s) => s.id),
+      ...unparsed.values.map((s) => s.id),
+    ];
+    if (smsIds.length != smsIds.toSet().length) {
+      throw ArgumentError('A bank message is used for two payments.');
+    }
     final rows = <Map<String, Object?>>[];
     final lines = <String>[];
     final missing = <int>[];
     for (final (i, payment) in p.payments.indexed) {
       final match = p.matched[i];
       final sms = waiting[i];
+      final raw = unparsed[i];
       final date = _shown(payment.date);
       final amount = money(p.paid[i]);
-      if (match == null && sms == null) missing.add(i);
+      if (match == null && sms == null && raw == null) missing.add(i);
       lines.add(
         match != null
             ? '$date · $amount → ${match.title ?? 'Saved transaction'} · '
@@ -506,6 +548,8 @@ class AgentLoans {
             : sms != null
             ? '$date · $amount → saves bank message · ${sms.title} · '
                   '${_name(accounts, sms.account)}'
+            : raw != null
+            ? '$date · $amount → saves unread bank message · ${account.name}'
             : '$date · $amount → ${added ? 'adds to ${account.name}' : 'counted as paid'}',
       );
       // Kept short: the AI app already has each payment's split.
@@ -516,6 +560,8 @@ class AgentLoans {
           'transaction_id': match.id
         else if (sms != null)
           'sms_id': sms.id
+        else if (raw != null)
+          'sms_id': raw.ref
         else
           'status': added ? 'will_add_to_account' : 'not_in_ledger',
       });
@@ -548,10 +594,13 @@ class AgentLoans {
       if (p.payments.isNotEmpty)
         missing.isEmpty
             ? 'All ${p.payments.length} payments found in your accounts'
-            : '${found + waiting.length} of ${p.payments.length} payments found in your accounts',
+            : '${found + waiting.length + unparsed.length} of ${p.payments.length} payments found in your accounts',
       if (waiting.isNotEmpty)
         'Saves ${waiting.length} bank '
             '${waiting.length == 1 ? 'message' : 'messages'} waiting for review',
+      if (unparsed.isNotEmpty)
+        'Saves ${unparsed.length} bank '
+            '${unparsed.length == 1 ? 'message' : 'messages'} the app couldn’t read',
       ...lines,
     ];
     final payload = <String, Object?>{
@@ -575,11 +624,26 @@ class AgentLoans {
               'smsId': sms.id,
               'smsAccount': sms.account,
             },
+            if (unparsed[i] case final sms?) 'unparsed': unreadSmsPayload(sms),
             // For a message, only used if it's gone by the time of approval.
             'offLedger': p.matched[i] == null && !added,
           },
       ],
     };
+    final related = await _relatedSms(
+      lender: lender,
+      since: day.subtract(const Duration(days: _matchDays)),
+      emi: p.emi,
+      account: account,
+      payments: [for (final i in missing) (p.payments[i].date, p.paid[i])],
+      usedTransactions: {
+        ...p.matched.whereType<LedgerCandidate>().map((t) => t.id),
+        ?p.disbursal?.id,
+        ?p.chargesPaid?.id,
+      },
+      usedSms: smsIds.toSet(),
+      unparsed: unparsedInbox,
+    );
     return LoanPlan(
       AgentSuggestionDraft(
         kind: AgentSuggestionKind.newLoan,
@@ -598,14 +662,31 @@ class AgentLoans {
         if (p.payments.isNotEmpty) ...{
           'payments_found_in_ledger': found,
           if (waiting.isNotEmpty) 'payments_in_sms_review': waiting.length,
+          if (unparsed.isNotEmpty) 'payments_in_unread_sms': unparsed.length,
           'payments_not_found': missing.length,
           'payments': rows,
         },
-        'next':
-            'Nothing has changed yet. Tell the user what was found, and ask '
-            'them to approve it in SimpleMoney → More → AI suggestions'
-            '${waiting.isEmpty ? '' : ', which also saves the bank messages it matched'}. '
-            'Calling suggest_loan again replaces this suggestion.',
+        if (related.isNotEmpty) 'related_sms': related,
+        'next': related.isEmpty
+            ? 'Nothing has changed yet. Tell the user what was found, and ask '
+                  'them to approve it in SimpleMoney → More → AI suggestions'
+                  '${waiting.isEmpty && unparsed.isEmpty ? '' : ', which also saves the bank messages it matched'}. '
+                  'Calling suggest_loan again replaces this suggestion.'
+            : 'Nothing has changed yet. related_sms lists ${related.length} '
+                  'bank ${related.length == 1 ? 'message' : 'messages'} '
+                  'that may be repayments of this loan but aren’t in this '
+                  'suggestion: saved (already a transaction), needs_review '
+                  '(waiting in SMS review) or unparsed (no rule reads it). '
+                  'Before anything else, show them to the user (date, amount, '
+                  'what the message says) and ask: "Should I mark these as '
+                  'repayments of this loan?" Leave out ones that are clearly '
+                  'not (a due reminder, a bounce, another loan). For the ones '
+                  'the user confirms, call suggest_loan again with the same '
+                  'details, adding each as a payment with its date and '
+                  'amount, and transaction_id for saved or sms_id for '
+                  'needs_review and unparsed; one with matches_payment goes '
+                  'on that statement payment instead. Then ask them to '
+                  'approve it in SimpleMoney → More → AI suggestions.',
       },
     );
   }
@@ -666,13 +747,7 @@ class AgentLoans {
       final into =
           row.readNullable<int>('account_id') ??
           sms.data['assignedAccountId'] as int?;
-      final saveTo = accounts
-          .where(
-            (a) =>
-                a.id == into && a.currency == account.currency && a.digits == 2,
-          )
-          .firstOrNull;
-      candidates.add((sms, saveTo?.id ?? account.id));
+      candidates.add((sms, _smsAccount(into, account, accounts)));
     }
     final found = <int, _WaitingSms>{};
     final used = <String>{};
@@ -695,25 +770,43 @@ class AgentLoans {
     return found;
   }
 
-  /// The transaction bank message [id] became, saving it first as a loan
-  /// payment into [accountId] while it still waits for review. Null when it
-  /// was dismissed or deleted since.
-  Future<int?> _savedSms(String id, int accountId, int categoryId) async {
+  /// A bank message waiting for review that the AI app named as payment of
+  /// [amount], and the account approving saves it into.
+  Future<_WaitingSms> _namedSms(
+    String id,
+    int amount,
+    Account account,
+    List<Account> accounts,
+  ) async {
     final row = await database
         .customSelect(
-          '''SELECT sender, body, received_at, candidate, status, transaction_id
-          FROM sms_imports WHERE fingerprint = ?''',
+          '''SELECT i.status, i.transaction_id, i.received_at, i.candidate,
+              r.account_id
+          FROM sms_imports i
+          LEFT JOIN sms_review r ON r.fingerprint = i.fingerprint
+          WHERE i.fingerprint = ?''',
           variables: [Variable(id)],
         )
         .getSingleOrNull();
-    if (row == null) return null;
-    if (row.read<String>('status') != 'pending') {
-      return row.readNullable<int>('transaction_id');
+    if (row == null) {
+      throw ArgumentError(
+        'No bank message has sms_id “$id”. Use an id from related_sms.',
+      );
+    }
+    switch (row.read<String>('status')) {
+      case 'imported':
+        throw ArgumentError(
+          'Bank message “$id” is already saved as transaction '
+          '${row.readNullable<int>('transaction_id')}: give that '
+          'transaction_id instead.',
+        );
+      case 'dismissed':
+        throw ArgumentError('Bank message “$id” was dismissed in SMS review.');
     }
     final sms = PendingSmsImport(
       id: id,
-      sender: row.read<String>('sender'),
-      body: row.readNullable<String>('body') ?? '',
+      sender: '',
+      body: '',
       data: Map<String, dynamic>.from(
         jsonDecode(row.read<String>('candidate')) as Map,
       ),
@@ -721,17 +814,202 @@ class AgentLoans {
         row.read<int>('received_at'),
       ),
     );
-    final imports = SmsImportRepository(database);
-    await imports.save(
-      sms,
-      type: TransactionType.expense,
-      amountMinor: sms.amountMinor,
-      accountId: accountId,
-      categoryId: categoryId,
+    if (sms.credit ||
+        sms.data['amountMinor'] != amount ||
+        sms.data['currencyCode'] != account.currency) {
+      throw ArgumentError(
+        'Bank message “$id” isn’t a payment of this amount: give the amount '
+        'it shows.',
+      );
+    }
+    return (
+      id: id,
+      account: _smsAccount(
+        row.readNullable<int>('account_id') ??
+            sms.data['assignedAccountId'] as int?,
+        account,
+        accounts,
+      ),
       title: sms.title,
-      date: sms.receivedAt,
     );
-    return imports.transactionOf(id);
+  }
+
+  /// The account a message linked to [into] saves into: that one when it
+  /// fits the loan's money, otherwise the loan's own.
+  static int _smsAccount(int? into, Account account, List<Account> accounts) =>
+      accounts
+          .where(
+            (a) =>
+                a.id == into && a.currency == account.currency && a.digits == 2,
+          )
+          .firstOrNull
+          ?.id ??
+      account.id;
+
+  static final _loanWords = RegExp(
+    r'\b(emi|loan|nach|ecs|instal+ment|mandate|repayment)\b',
+    caseSensitive: false,
+  );
+  static final _rupees = RegExp(
+    r'(?:rs\.?|inr|₹)\s*([\d,]+(?:\.\d{1,2})?)',
+    caseSensitive: false,
+  );
+
+  /// Bank messages from [since] that may be this loan's payments but the
+  /// suggestion doesn't use: saved as a transaction, waiting for review, or
+  /// read by no rule. They name the lender, are the EMI's amount, or (with
+  /// no EMI to go by) speak of a loan. The AI app asks the user about each.
+  Future<List<Map<String, Object?>>> _relatedSms({
+    required String lender,
+    required DateTime since,
+    required int emi,
+    required Account account,
+    required List<(DateTime, int)> payments,
+    required Set<int> usedTransactions,
+    required Set<String> usedSms,
+    required List<LoanSms> unparsed,
+  }) async {
+    if (account.digits != 2) return const [];
+    final names = {
+      lender.toLowerCase(),
+      for (final w in lender.toLowerCase().split(RegExp(r'[^a-z0-9]+')))
+        if (w.length >= 4 &&
+            !const {'bank', 'finance', 'loan', 'loans'}.contains(w))
+          w,
+    };
+    bool related(String text, int? amount) {
+      final lower = text.toLowerCase();
+      return names.any(lower.contains) ||
+          (emi > 0 ? amount == emi : _loanWords.hasMatch(text));
+    }
+
+    // The statement payment, missing from the ledger, that this one is.
+    String? matches(DateTime date, int? amount) {
+      for (final (day, paid) in payments) {
+        if (paid == amount &&
+            _dayOnly(day).difference(_dayOnly(date)).inDays.abs() <=
+                _matchDays) {
+          return _iso(day);
+        }
+      }
+      return null;
+    }
+
+    String clip(String text) {
+      final flat = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+      return flat.length <= 240 ? flat : '${flat.substring(0, 239)}…';
+    }
+
+    final found = <(DateTime, Map<String, Object?>)>[];
+    void add(
+      String kind,
+      String key,
+      Object id,
+      DateTime date,
+      int? amount,
+      String text,
+    ) => found.add((
+      date,
+      {
+        'kind': kind,
+        key: id,
+        'date': _iso(date),
+        'amount': amount == null ? null : _plain(amount, 2),
+        'text': clip(text),
+        'matches_payment': ?matches(date, amount),
+      },
+    ));
+
+    final imported = await database
+        .customSelect(
+          'SELECT fingerprint, transaction_id FROM sms_imports '
+          'WHERE received_at >= ?',
+          variables: [Variable(since.millisecondsSinceEpoch)],
+        )
+        .get();
+    final fromSms = {
+      for (final r in imported) ?r.readNullable<int>('transaction_id'),
+    };
+    final known = {for (final r in imported) r.read<String>('fingerprint')};
+    final money = {
+      for (final a in await AccountRepository(database).load())
+        a.id: (a.currency, a.digits),
+    };
+    for (final t in await ledgerBetween(database, since, DateTime.now())) {
+      if (t.type != TransactionType.expense ||
+          !t.free ||
+          !fromSms.contains(t.id) ||
+          usedTransactions.contains(t.id) ||
+          money[t.accountId] != (account.currency, 2) ||
+          !related('${t.title ?? ''} ${t.references}', t.amountMinor)) {
+        continue;
+      }
+      add(
+        'saved',
+        'transaction_id',
+        t.id,
+        t.date,
+        t.amountMinor,
+        t.references.trim().isEmpty ? t.title ?? '' : t.references,
+      );
+    }
+
+    final waiting = await database
+        .customSelect(
+          '''SELECT fingerprint, body, received_at, candidate FROM sms_imports
+          WHERE status = 'pending' AND received_at >= ?
+            AND json_extract(candidate, '\$.direction') = 'debit'
+            AND json_extract(candidate, '\$.currencyCode') = ?''',
+          variables: [
+            Variable(since.millisecondsSinceEpoch),
+            Variable(account.currency),
+          ],
+        )
+        .get();
+    for (final row in waiting) {
+      final sms = PendingSmsImport(
+        id: row.read<String>('fingerprint'),
+        sender: '',
+        body: row.readNullable<String>('body') ?? '',
+        data: Map<String, dynamic>.from(
+          jsonDecode(row.read<String>('candidate')) as Map,
+        ),
+        receivedAt: DateTime.fromMillisecondsSinceEpoch(
+          row.read<int>('received_at'),
+        ),
+      );
+      if (usedSms.contains(sms.id) ||
+          sms.requiresTransfer ||
+          sms.data['amountMinor'] is! int ||
+          !related('${sms.title} ${sms.body}', sms.amountMinor)) {
+        continue;
+      }
+      add(
+        'needs_review',
+        'sms_id',
+        sms.id,
+        sms.receivedAt,
+        sms.amountMinor,
+        sms.body.isEmpty ? sms.title : sms.body,
+      );
+    }
+
+    for (final sms in unparsed) {
+      if (sms.receivedAt.isBefore(since) ||
+          known.contains(sms.id) ||
+          usedSms.contains(sms.id)) {
+        continue;
+      }
+      final amount = switch (_rupees.firstMatch(sms.body)?.group(1)) {
+        final text? => parseAccountAmount(text.replaceAll(',', ''), 2),
+        null => null,
+      };
+      if (!related(sms.body, amount)) continue;
+      add('unparsed', 'sms_id', sms.ref, sms.receivedAt, amount, sms.body);
+    }
+
+    found.sort((a, b) => a.$1.compareTo(b.$1));
+    return [for (final f in found.take(40)) f.$2];
   }
 
   /// Adds the loan and its payments. Returns what undoing needs.
@@ -757,10 +1035,21 @@ class AgentLoans {
     for (final (i, p) in payments.indexed) {
       var transactionId = p['transactionId'] as int?;
       if (p['smsId'] case final String sms when transactionId == null) {
-        transactionId = await _savedSms(
+        transactionId = await AgentSmsSaver(database).saveWaiting(
           sms,
-          p['smsAccount'] as int,
-          category ??= await repository.paymentCategory(),
+          accountId: p['smsAccount'] as int,
+          categoryId: category ??= await repository.paymentCategory(),
+        );
+      }
+      if (p['unparsed'] case final Map sms when transactionId == null) {
+        transactionId = await AgentSmsSaver(database).saveUnread(
+          sms,
+          accountId: accountId,
+          amountMinor: (p['amount'] as int) + (p['fee'] as int),
+          categoryId: category ??= await repository.paymentCategory(),
+          title: terms.lender,
+          currency: terms.currency,
+          ruleId: 'loan',
         );
       }
       await repository.record(

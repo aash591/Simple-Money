@@ -138,10 +138,10 @@ void main() {
     await open(tester, sync: sync);
     await waitFor(tester, () => shows('Welcome to Simple Money'));
     // The welcome lists every step that follows.
-    expect(find.text('Back up to Google Drive'), findsOneWidget);
-    expect(find.text('Add payments from SMS'), findsOneWidget);
-    expect(find.text('Check your accounts'), findsOneWidget);
-    expect(find.bySemanticsLabel('Step 1 of 4'), findsOneWidget);
+    expect(find.text('Google Drive backup'), findsOneWidget);
+    expect(find.text('Payments from SMS'), findsOneWidget);
+    expect(find.text('Your accounts'), findsOneWidget);
+    expect(find.bySemanticsLabel('Step 1 of 5'), findsOneWidget);
     final heroTop = tester.getRect(find.byType(HeroSlot)).top;
     final heroSize = tester.getSize(find.byType(HeroSlot));
     await tester.tap(find.text('Get started'));
@@ -150,7 +150,7 @@ void main() {
     // Says where the backup lives, before asking to sign in.
     expect(shows('private, hidden app data folder'), isTrue);
     expect(shows('Only Simple Money can open it'), isTrue);
-    expect(find.bySemanticsLabel('Step 2 of 4'), findsOneWidget);
+    expect(find.bySemanticsLabel('Step 2 of 5'), findsOneWidget);
     // The picture is the same size and in the same place on every page.
     expect(tester.getRect(find.byType(HeroSlot)).top, heroTop);
     expect(tester.getSize(find.byType(HeroSlot)), heroSize);
@@ -201,7 +201,7 @@ void main() {
       ),
     );
     await waitFor(tester, () => shows('Welcome to Simple Money'));
-    expect(find.text('Choose your currency'), findsOneWidget);
+    expect(find.text('Currency'), findsOneWidget);
     await tester.tap(find.text('Get started'));
     await waitFor(tester, () => shows('Each account can have'));
     expect(find.text('USD'), findsOneWidget);
@@ -217,7 +217,7 @@ void main() {
   testWidgets('without Drive there is no backup step', (tester) async {
     await open(tester);
     await waitFor(tester, () => shows('Welcome to Simple Money'));
-    expect(find.text('Back up to Google Drive'), findsNothing);
+    expect(find.text('Google Drive backup'), findsNothing);
     await tester.tap(find.text('Get started'));
     await waitFor(tester, () => shows('Enable Automatic Detection'));
     await tester.tap(find.text('Skip'));
@@ -303,21 +303,20 @@ void main() {
     expect(shows('Check your balances'), isFalse);
     expect(inbox.requests, 1);
     expect(store.enabled, isTrue);
-    expect(find.bySemanticsLabel('Step 3 of 3'), findsOneWidget);
+    expect(find.bySemanticsLabel('Step 3 of 4'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('Check accounts'));
     await waitFor(tester, () => shows('Check your balances'));
 
     final accounts = await tester.runAsync(() => AccountRepository(db).load());
     final bank = accounts!.single;
-    expect(bank.lastDigits, isNotNull);
-    expect(find.byType(TextField), findsOneWidget);
+    expect(find.byType(TextField), findsNothing);
 
-    await tester.enterText(find.byType(TextField), '2500.50');
-    await tester.tap(find.text('Finish'));
+    // Then the choice: save what was found, or only what comes from now on.
+    await tester.tap(find.text('Continue'));
+    await waitFor(tester, () => shows('Save your transactions?'));
+    await tester.tap(find.text('Save found transactions'));
     await waitFor(tester, () => done);
-    final saved = await tester.runAsync(() => AccountRepository(db).load());
-    expect(saved!.single.balanceMinor, 250050);
     expect((await prefs()).getBool(Onboarding.doneKey), isTrue);
   });
 

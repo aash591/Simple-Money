@@ -1,7 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
+import 'glass_blur.dart';
 import 'inner_glow.dart';
 import '../theme/app_theme.dart' show usesGlass;
 
@@ -117,14 +116,11 @@ class _GlassButtonState extends State<GlassButton>
   }
 
   Widget _blurred(BorderRadius radius, Widget body) =>
-      widget.blur == 0 || !usesGlass(context)
+      widget.blur == 0 || !usesGlass(context) || !GlassBlur.of(context)
       ? body
       : ClipRRect(
           borderRadius: radius,
-          child: BackdropFilter.grouped(
-            filter: ImageFilter.blur(sigmaX: widget.blur, sigmaY: widget.blur),
-            child: body,
-          ),
+          child: Frosted(sigma: widget.blur, child: body),
         );
 
   @override

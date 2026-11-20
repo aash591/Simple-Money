@@ -170,7 +170,11 @@ class _StepSliderState extends State<StepSlider>
                   );
             return Stack(
               children: [
-                if (outgoing != null)
+                // In a modal change the leaving page is gone at once, and
+                // only the new one fades in over its place: fading both
+                // drew two offscreen layers a frame, which Snapdragon phones
+                // are slowest at, for a difference hard to see.
+                if (outgoing != null && !_modal)
                   Positioned(
                     key: ValueKey(_outgoingKey),
                     top: 0,
@@ -185,12 +189,10 @@ class _StepSliderState extends State<StepSlider>
                             constraints: BoxConstraints(
                               maxHeight: constraints.maxHeight,
                             ),
-                            child: _modal
-                                ? Opacity(opacity: 1 - t, child: outgoing)
-                                : FractionalTranslation(
-                                    translation: Offset(-direction * t, 0),
-                                    child: outgoing,
-                                  ),
+                            child: FractionalTranslation(
+                              translation: Offset(-direction * t, 0),
+                              child: outgoing,
+                            ),
                           ),
                         ),
                       ),

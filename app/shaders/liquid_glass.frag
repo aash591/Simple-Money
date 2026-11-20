@@ -28,6 +28,10 @@ uniform float u_pixel_ratio;
 // Independent lens zoom: values below 1 shrink the bar beneath the handle,
 // especially its height. The outer bar uses (1, 1) for unchanged sampling.
 uniform vec2 u_magnification;
+// A slight softening of what is seen through the glass, in physical pixels;
+// 0 for none. Done here rather than by a blur filter underneath, so the bar
+// costs the GPU one pass over the screen instead of two.
+uniform float u_blur;
 
 uniform sampler2D u_backdrop;
 
@@ -62,7 +66,26 @@ vec4 backdrop(vec2 coord) {
   coord = center + (coord - center) / max(u_magnification, vec2(0.01));
   // No y flip for OpenGL ES, whatever the ImageFilter.shader docs say: as a
   // backdrop filter the texture already arrives the right way up there.
-  return texture(u_backdrop, coord / u_size);
+  if (u_blur <= 0.0) {
+    return texture(u_backdrop, coord / u_size);
+  }
+  // A small Gaussian blur of sigma [u_blur]: a 5x5 grid of taps two thirds
+  // of a sigma apart. Taps a whole sigma apart showed each letter as a few
+  // offset copies, an outline rather than a blur; this close, and with the
+  // hardware blending between texels, they merge.
+  vec2 stride = vec2(u_blur * 0.6667) / u_size;
+  vec2 uv = coord / u_size;
+  vec4 sum = vec4(0.0);
+  for (int y = -2; y <= 2; y++) {
+    for (int x = -2; x <= 2; x++) {
+      vec2 tap = vec2(float(x), float(y));
+      // exp(-d^2 / 2) with d in sigmas (2/3 a tap), over the grid's total
+      // weight, 3.4238^2.
+      float weight = exp(-0.2222 * dot(tap, tap)) / 11.7225;
+      sum += texture(u_backdrop, uv + tap * stride) * weight;
+    }
+  }
+  return sum;
 }
 
 void main() {

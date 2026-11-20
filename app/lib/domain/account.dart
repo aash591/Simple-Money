@@ -33,8 +33,19 @@ class Account {
     this.creditLimitMinor,
     this.availableCreditLimitMinor,
     this.balanceReportedAt,
+    this.hasDebitCard = false,
+    this.isBroker = false,
   });
   final int id;
+
+  /// A broker or investing platform: its balance is cash waiting to be
+  /// invested, and the stocks and funds held there sit under it. It is only
+  /// offered in transfers (deposits and withdrawals), never for spending.
+  final bool isBroker;
+
+  /// A debit card is paid from this account, or this account is one: the
+  /// card icon is shown beside the account's kind.
+  final bool hasDebitCard;
   final String name, currency;
   final AccountType type;
   final String? lastDigits, institution;

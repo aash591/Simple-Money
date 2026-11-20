@@ -14,6 +14,54 @@ import 'package:simple_money/ui/components/select_icon_screen.dart';
 import 'package:simple_money/ui/components/settings_icon.dart';
 
 void main() {
+  test('every broker logo is bundled, found by name, and in its country', () {
+    const brokers = {
+      'Groww': 'groww',
+      'Upstox': 'upstox',
+      'Angel One': 'angelone',
+      'ICICI Direct': 'icicidirect',
+      'HDFC Securities': 'hdfcsecurities',
+      'Kotak Securities': 'kotakneo',
+      'Dhan': 'dhan',
+      'Paytm Money': 'paytmmoney',
+      'Fidelity': 'fidelity',
+      'E*TRADE': 'etrade',
+      'Vanguard': 'vanguard',
+      'Interactive Brokers': 'interactivebrokers',
+      'Webull': 'webull',
+      'Merrill Edge': 'merrilledge',
+      'SoFi': 'sofi',
+      'Trading 212': 'trading212',
+      'AJ Bell': 'ajbell',
+      'eToro': 'etoro',
+      'Trade Republic': 'traderepublic',
+      'DEGIRO': 'degiro',
+      'Questrade': 'questrade',
+      'Wealthsimple': 'wealthsimple',
+      'CommSec': 'commsec',
+      'Stake': 'stake',
+      'Tiger Brokers': 'tigerbrokers',
+      'XP Investimentos': 'xp',
+    };
+    for (final MapEntry(key: typed, value: key) in brokers.entries) {
+      expect(matchingInstitutionIcon(typed), brandIconKey(key), reason: typed);
+      final brand = brandIcons.firstWhere((b) => b.key == key);
+      expect(brand.isBank && brand.bankCountry != null, isTrue, reason: key);
+      expect(
+        File(brandIconAssetPath(key, Brightness.light)).existsSync(),
+        isTrue,
+        reason: '$key asset',
+      );
+    }
+    expect(matchingInstitutionIcon('Zerodha'), brandIconKey('zerodha'));
+    expect(matchingInstitutionIcon('Robinhood Gold'), brandIconKey('robinhood'));
+    expect(darkBrandIconKeys, contains('xp'));
+    expect(
+      File(brandIconAssetPath('xp', Brightness.dark)).existsSync(),
+      isTrue,
+    );
+  });
+
   testWidgets('brand WebPs render directly without a runtime tint', (
     tester,
   ) async {
@@ -59,24 +107,30 @@ void main() {
         reason: key,
       );
       expect(
-        brandIconAssetPath(key, Brightness.light),
-        'assets/icon_packs/brands/$key.webp',
+        File(brandIconAssetPath(key, Brightness.light)).existsSync(),
+        true,
+        reason: key,
       );
     }
     expect(
       brandIconAssetPath('openai', Brightness.dark),
-      'assets/icon_packs/brands/openai_dark.webp',
+      'assets/icon_packs/logos/brands/openai_dark.webp',
     );
     expect(
       brandIconAssetPath('sbicard', Brightness.dark),
-      'assets/icon_packs/brands/sbicard_dark.webp',
+      'assets/icon_packs/logos/brands/sbicard_dark.webp',
     );
     for (final key in ['equitas', 'btn', 'viindia']) {
       expect(
         brandIconAssetPath(key, Brightness.dark),
-        'assets/icon_packs/brands/$key.webp',
+        brandIconAssetPath(key, Brightness.light),
       );
     }
+    expect(
+      brandIconAssetPath('goldmansachs', Brightness.dark),
+      'assets/icon_packs/logos/banks/united_states/'
+      'goldmansachs_dark.webp',
+    );
   });
 
   test('bank catalog assigns every bank to a country', () {
@@ -87,6 +141,15 @@ void main() {
       banks,
       everyElement(predicate<BrandIcon>((bank) => bank.bankCountry != null)),
     );
+    for (final bank in banks) {
+      final path = brandIconAssetPath(bank.key, Brightness.light);
+      expect(
+        path,
+        startsWith('assets/icon_packs/logos/banks/'),
+        reason: bank.key,
+      );
+      expect(File(path).existsSync(), true, reason: bank.key);
+    }
     expect(
       banks
           .where((bank) => bank.bankCountry == 'India')
@@ -106,6 +169,7 @@ void main() {
         'IDBI Bank',
         'CSB Bank',
         'Central Bank of India',
+        'ESAF Small Finance Bank',
         'Punjab & Sind Bank',
         'Bajaj Finance',
       ]),
@@ -118,12 +182,144 @@ void main() {
     );
   });
 
+  test('non-bank brand assets use the nested brands directory', () {
+    for (final brand in brandIcons.where((brand) => !brand.isBank)) {
+      final path = brandIconAssetPath(brand.key, Brightness.light);
+      expect(
+        path,
+        startsWith('assets/icon_packs/logos/brands/'),
+        reason: brand.key,
+      );
+      expect(File(path).existsSync(), true, reason: brand.key);
+    }
+  });
+
   test('Bajaj Finance merchant aliases resolve to its brand icon', () {
     expect(serviceIcon('Bajaj Finance'), brandIconKey('bajajfinance'));
     expect(
       serviceIcon('BAJAJ FINSERV EMI PAYMENT'),
       brandIconKey('bajajfinance'),
     );
+  });
+
+  test('ESAF Small Finance Bank resolves to its bundled bank icon', () {
+    expect(
+      bankInstitutionIcon('ESAF Small Finance Bank'),
+      brandIconKey('esafbank'),
+    );
+    expect(
+      File(brandIconAssetPath('esafbank', Brightness.light)).lengthSync(),
+      greaterThan(1000),
+    );
+  });
+
+  test('major US, UK, Indonesian, and African bank icons are bundled', () {
+    const regionalKeys = <String, List<String>>{
+      'United States': [
+        'wellsfargo',
+        'usbank',
+        'capitalone',
+        'pncbank',
+        'truist',
+        'tdbank',
+        'fifththird',
+        'bmo',
+        'firstcitizens',
+        'citizensbank',
+        'mtbank',
+        'keybank',
+        'allybank',
+        'hsbcusa',
+        'regionsbank',
+        'santanderus',
+        'goldmansachs',
+        'bnymellon',
+        'morganstanley',
+        'statestreet',
+        'northerntrust',
+      ],
+      'United Kingdom': [
+        'barclays',
+        'hsbcuk',
+        'lloydsbank',
+        'natwest',
+        'santanderuk',
+        'standardchartereduk',
+        'bankofscotland',
+        'tsbuk',
+        'virginmoneyuk',
+        'cooperativebankuk',
+        'nationwideuk',
+        'halifaxuk',
+        'metrobankuk',
+      ],
+      'Indonesia': [
+        'banksyariahindonesia',
+        'cimbniaga',
+        'ocbcindonesia',
+        'permatabank',
+        'danamon',
+      ],
+      'Africa': [
+        'standardbanksa',
+        'fnbsa',
+        'absa',
+        'nedbank',
+        'investec',
+        'capitec',
+        'banquemisr',
+        'qnbegypt',
+        'arabafricanbank',
+        'attijariwafa',
+        'bcpgroup',
+        'bankofafrica',
+        'creditagricolemaroc',
+        'cihbank',
+        'sahambank',
+        'uba',
+        'firstbanknigeria',
+        'cpaalgeria',
+        'bdlalgeria',
+        'ecobank',
+        'mcbmauritius',
+        'kcbkenya',
+        'bgfibank',
+      ],
+    };
+    for (final region in regionalKeys.entries) {
+      for (final key in region.value) {
+        final brand = resolveBrandIcon(brandIconKey(key));
+        expect(brand?.isBank, true, reason: '$key (${region.key})');
+        expect(brand?.bankCountry, isNotNull, reason: key);
+        expect(
+          File(brandIconAssetPath(key, Brightness.light)).lengthSync(),
+          greaterThan(1000),
+          reason: key,
+        );
+      }
+    }
+  });
+
+  test('regional bank aliases resolve to their institution marks', () {
+    const aliases = <String, String>{
+      'FirstRand': 'fnbsa',
+      'First National Bank': 'fnbsa',
+      'Standard Bank South Africa': 'standardbanksa',
+      'BNY': 'bnymellon',
+      'BSI': 'banksyariahindonesia',
+      'AAIB': 'arabafricanbank',
+      'BCP': 'bcpgroup',
+      'CPA': 'cpaalgeria',
+      'BDL': 'bdlalgeria',
+      'MCB': 'mcbmauritius',
+    };
+    for (final alias in aliases.entries) {
+      expect(
+        bankInstitutionIcon(alias.key),
+        brandIconKey(alias.value),
+        reason: alias.key,
+      );
+    }
   });
 
   test('reviewed worldwide bank logos resolve and have bundled assets', () {
@@ -142,7 +338,7 @@ void main() {
     for (final entry in institutions.entries) {
       expect(bankInstitutionIcon(entry.key), brandIconKey(entry.value));
       expect(
-        File('assets/icon_packs/brands/${entry.value}.webp').lengthSync(),
+        File(brandIconAssetPath(entry.value, Brightness.light)).lengthSync(),
         greaterThan(1000),
         reason: entry.key,
       );
@@ -197,7 +393,7 @@ void main() {
     for (final key in keys) {
       expect(resolveBrandIcon(brandIconKey(key)), isNotNull, reason: key);
       expect(
-        File('assets/icon_packs/brands/$key.webp').lengthSync(),
+        File(brandIconAssetPath(key, Brightness.light)).lengthSync(),
         greaterThan(1000),
         reason: key,
       );
@@ -215,15 +411,67 @@ void main() {
       of: find.byKey(const PageStorageKey<String>('icon-tab-banks')),
       matching: find.byType(Scrollable),
     );
-    expect(find.text('Banks - India'), findsOneWidget);
+    expect(find.text('Algeria'), findsOneWidget);
 
     await tester.scrollUntilVisible(
-      find.text('Banks - Indonesia'),
+      find.text('Indonesia'),
       500,
       scrollable: scrollable,
     );
-    expect(find.text('Banks - Indonesia'), findsOneWidget);
+    expect(find.text('Indonesia'), findsOneWidget);
     expect(find.text('Banks around the world'), findsNothing);
+  });
+
+  testWidgets('brokers are their own section under Services, not in Banks', (
+    tester,
+  ) async {
+    final brokers = brandIcons.where((b) => b.isBroker).toList();
+    expect(brokers.length, greaterThanOrEqualTo(28));
+    expect(
+      brokers.map((b) => b.key),
+      containsAll(['zerodha', 'robinhood', 'charlesschwab', 'groww', 'xp']),
+    );
+
+    await tester.pumpWidget(const MaterialApp(home: SelectIconScreen()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Services'));
+    await tester.pumpAndSettle();
+    final services = find.descendant(
+      of: find.byKey(const PageStorageKey<String>('icon-tab-brands')),
+      matching: find.byType(Scrollable),
+    );
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('icon-section-Brokers')),
+      600,
+      scrollable: services,
+    );
+    expect(find.byKey(const ValueKey('icon-section-Brokers')), findsOneWidget);
+
+    // Banks keep their own countries, with no broker-only country listed.
+    await tester.tap(find.text('Banks'));
+    await tester.pumpAndSettle();
+    final banks = find.descendant(
+      of: find.byKey(const PageStorageKey<String>('icon-tab-banks')),
+      matching: find.byType(Scrollable),
+    );
+    await tester.scrollUntilVisible(
+      find.text('United States'),
+      800,
+      scrollable: banks,
+    );
+    for (final country in ['Singapore', 'Israel', 'Canada', 'Australia']) {
+      expect(find.text(country), findsNothing, reason: country);
+    }
+  });
+
+  testWidgets('a broker icon reopens the picker on Services', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SelectIconScreen(selectedKey: brandIconKey('zerodha')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Services & subscriptions'), findsOneWidget);
   });
 
   testWidgets('picker opens on the tab holding the current icon', (
@@ -246,7 +494,8 @@ void main() {
 
     // A bank icon opens on Banks, without the user hunting for it.
     await pumpWith(brandIconKey('hdfcbank'));
-    expect(find.text('Banks - India'), findsOneWidget);
+    expect(find.byType(Scrollable), findsWidgets);
+    expect(find.text('Services & subscriptions'), findsNothing);
 
     // A service mark opens on Services.
     await pumpWith(brandIconKey('netflix'));
@@ -256,7 +505,7 @@ void main() {
     // Category artwork (and no selection at all) opens on the icon set.
     await pumpWith('groceries');
     expect(find.text('Services & subscriptions'), findsNothing);
-    expect(find.text('Banks - India'), findsNothing);
+    expect(find.text('Algeria'), findsNothing);
   });
 
   testWidgets('long pressing a brand icon shows its name', (tester) async {

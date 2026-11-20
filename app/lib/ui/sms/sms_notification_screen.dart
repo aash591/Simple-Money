@@ -89,8 +89,13 @@ class _SmsNotificationHostState extends State<SmsNotificationScreen> {
       opened = true;
       WidgetsBinding.instance.addPostFrameCallback((_) => open());
     }
+    // See-through like the launcher's quick entry: the app or home screen
+    // behind shows (blurred), never the theme's solid background.
     return widget.field == 'transaction'
-        ? const Scaffold(body: SizedBox.expand())
+        ? const Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SizedBox.expand(),
+          )
         : const SizedBox.expand();
   }
 }

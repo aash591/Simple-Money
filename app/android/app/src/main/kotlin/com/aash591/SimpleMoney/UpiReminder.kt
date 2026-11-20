@@ -86,7 +86,8 @@ object UpiNotifications {
         if (open != null) builder.setContentIntent(PendingIntent.getActivity(context, 0, open,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
         if (data["done"] == true) {
-            builder.setTimeoutAfter(60_000)
+            // "keep": news worth reading later (the bank confirmed a payment).
+            if (data["keep"] != true) builder.setTimeoutAfter(60_000)
         } else {
             // Android shows three actions: up to two category pills, then "Not paid".
             @Suppress("UNCHECKED_CAST")

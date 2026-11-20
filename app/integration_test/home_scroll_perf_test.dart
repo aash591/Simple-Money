@@ -32,6 +32,24 @@ void main() {
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(Onboarding.doneKey, true);
+    // The look to measure: --dart-define=STYLE=aurora, THEME=dark, and
+    // WALLPAPER=<path to a picture on the phone> with WALLPAPER_DIM.
+    const style = String.fromEnvironment('STYLE');
+    const theme = String.fromEnvironment('THEME');
+    const wallpaper = String.fromEnvironment('WALLPAPER');
+    if (style.isNotEmpty) await prefs.setString('ui_style', style);
+    if (theme.isNotEmpty) await prefs.setString('theme_mode', theme);
+    if (wallpaper.isEmpty) {
+      await prefs.remove('aurora_wallpaper');
+    } else {
+      await prefs.setString('aurora_wallpaper', wallpaper);
+      await prefs.setDouble(
+        'aurora_wallpaper_dim',
+        double.parse(
+          const String.fromEnvironment('WALLPAPER_DIM', defaultValue: '.45'),
+        ),
+      );
+    }
     await DevicePerformance.restore();
     if (const bool.fromEnvironment('BIG_LEDGER')) await _growLedger();
     final rows = await _prepareCurrentMonth();
