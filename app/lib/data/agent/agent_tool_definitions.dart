@@ -745,6 +745,10 @@ extension _AgentToolDefinitions on AgentTools {
           'one real account SMS scanning split in two, such as a bank '
           'account and its debit card; same currency only); delete '
           '(account_id and every transaction in it; prefer archive or merge). '
+          'For a new investment account give place: broker (a broker, '
+          'exchange or app that holds cash: balance is its funds) or '
+          'in_hand (gold at home, a locker, a crypto wallet: no cash); its '
+          'holdings are then added with suggest_portfolio_changes. '
           'Check list_accounts first. Changes nothing until approved.',
       readOnly: false,
       inputSchema: AgentTools._items(
@@ -789,11 +793,182 @@ extension _AgentToolDefinitions on AgentTools {
           },
           'credit_limit': {'type': 'string'},
           'available_credit': {'type': 'string'},
+          'place': {
+            'type': 'string',
+            'enum': [for (final p in AccountPlace.selectable) p.toolName],
+            'description': 'For create: makes an investment account',
+          },
           'reason': AgentTools._reasonField,
         },
         required: ['action'],
       ),
       handler: _suggestAccountChanges,
+    ),
+    AgentTool(
+      name: 'list_portfolio',
+      title: 'List portfolio',
+      description:
+          'The user\'s investments: each broker, exchange, wallet or in-hand '
+          'place (gold at home, a locker) with its funds, and the holdings in '
+          'it (stocks, ETFs, mutual funds, crypto, metals) with units, '
+          'average price, last price and its date, value, gain and where the '
+          'price comes from. Metal units are grams. Give holding_id for one '
+          'holding with its trades (trade_id for remove_trade), or '
+          'include_trades for all. Change things with '
+          'suggest_portfolio_changes.',
+      inputSchema: AgentTools._schema({
+        'account_id': {
+          'type': 'integer',
+          'description': 'Only this broker or place',
+        },
+        'holding_id': {
+          'type': 'integer',
+          'description': 'Only this holding, with its trades',
+        },
+        'include_trades': {'type': 'boolean', 'default': false},
+        'include_archived': {'type': 'boolean', 'default': false},
+      }),
+      handler: _listPortfolio,
+    ),
+    AgentTool(
+      name: 'find_security',
+      title: 'Find a stock, fund or coin',
+      description:
+          'Searches the price sources the app uses (Yahoo Finance for '
+          'stocks, ETFs and funds worldwide, AMFI for Indian mutual funds, '
+          'CoinGecko for crypto) and returns the name, symbol, exchange and '
+          'price_source to give add_holding. For kind metal it lists the '
+          'metals (gold, silver, platinum, palladium) and their usual '
+          'purities. Search by name or ticker; funds outside India are found '
+          'by their exact name (e.g. "Vanguard 500 Index"). Reads the '
+          'internet through the phone; nothing is saved.',
+      inputSchema: AgentTools._schema(
+        {
+          'query': {'type': 'string'},
+          'kind': {
+            'type': 'string',
+            'enum': [for (final k in HoldingKind.selectable) k.name],
+            'default': 'stock',
+          },
+          'account_id': {
+            'type': 'integer',
+            'description':
+                'The broker it is for; its currency decides which funds '
+                'are offered',
+          },
+          'currency': {
+            'type': 'string',
+            'description': 'Instead of account_id: ISO code, e.g. INR',
+          },
+        },
+        required: ['query'],
+      ),
+      handler: _findSecurity,
+    ),
+    AgentTool(
+      name: 'suggest_portfolio_changes',
+      title: 'Suggest portfolio changes',
+      description:
+          'Adds, records or fixes investments, for the user to approve. '
+          'Holdings sit under a broker or in-hand place from list_portfolio '
+          '(add those with suggest_account_changes, place). action: '
+          'add_holding (account_id, kind, name, symbol and exchange and '
+          'price_source from find_security; for a metal: metal and purity '
+          'instead of symbol; optionally units, price and date to record '
+          'what is owned as its first buy); edit_holding (holding_id and '
+          'only the fields to change); buy or sell (holding_id, units, '
+          'price per unit in the holding\'s currency, date, fees; buy may '
+          'name pay_from_account_id, a bank, otherwise it is paid from the '
+          'broker\'s funds; give amount when the holding is priced in '
+          'another currency than the account); dividend (holding_id, amount '
+          'received, date); set_price (holding_id, price: for a holding '
+          'priced by hand); remove_trade (trade_id from list_portfolio); '
+          'archive_holding or restore_holding; delete_holding (and every '
+          'trade; prefer archive). A buy or sell moves the broker\'s funds '
+          'like it does in the app, so check list_portfolio funds first and '
+          'suggest the deposit (a transfer, suggest_transactions) if short. '
+          'Metal units are grams. Changes nothing until approved.',
+      readOnly: false,
+      inputSchema: AgentTools._items(
+        {
+          'action': {
+            'type': 'string',
+            'enum': [for (final a in AgentPortfolioAction.values) a.toolName],
+          },
+          'account_id': {
+            'type': 'integer',
+            'description': 'For add_holding: the broker or place',
+          },
+          'holding_id': {'type': 'integer'},
+          'trade_id': {'type': 'integer'},
+          'kind': {
+            'type': 'string',
+            'enum': [for (final k in HoldingKind.selectable) k.name],
+          },
+          'name': {'type': 'string', 'maxLength': 60},
+          'symbol': {
+            'type': 'string',
+            'description':
+                'Ticker, AMFI scheme code or CoinGecko id, as find_security '
+                'gives it',
+          },
+          'exchange': {'type': 'string'},
+          'price_source': {
+            'type': 'string',
+            'enum': [
+              PriceSourceId.yahoo,
+              PriceSourceId.amfi,
+              PriceSourceId.coingecko,
+              PriceSourceId.metalWorld,
+              PriceSourceId.manual,
+            ],
+            'description': 'Left out, it follows from kind and symbol',
+          },
+          'currency': {
+            'type': 'string',
+            'description':
+                'The currency of its price when not the account\'s, e.g. USD '
+                'for a US stock in a rupee account',
+          },
+          'metal': {
+            'type': 'string',
+            'enum': [for (final m in MetalType.values) m.id],
+          },
+          'purity': {
+            'type': 'string',
+            'description':
+                'Carats (22K) or parts per thousand (916), for any metal',
+          },
+          'icon': {
+            'type': 'string',
+            'description': 'An icon key from list_icons. Optional.',
+          },
+          'units': {
+            'type': 'string',
+            'description': 'Up to 6 decimals; grams for a metal',
+          },
+          'price': {
+            'type': 'string',
+            'description': 'Per unit (per gram for a metal), up to 4 decimals',
+          },
+          'amount': {
+            'type': 'string',
+            'description':
+                'What it came to in the account\'s currency, if not units × '
+                'price; the dividend received',
+          },
+          'fees': {'type': 'string'},
+          'date': AgentTools._date,
+          'pay_from_account_id': {
+            'type': 'integer',
+            'description': 'For buy: a bank, card or cash account to pay from',
+          },
+          'note': {'type': 'string'},
+          'reason': AgentTools._reasonField,
+        },
+        required: ['action'],
+      ),
+      handler: _suggestPortfolioChanges,
     ),
     AgentTool(
       name: 'list_icons',

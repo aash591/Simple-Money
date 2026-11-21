@@ -177,6 +177,7 @@ class _AdjustBalanceSheetState extends State<AdjustBalanceSheet> {
       currentIndex: 0,
       onBack: _cancel,
       title: 'Adjust balance',
+      showClose: false,
       footerPadding: EdgeInsets.zero,
       footer: ActionButtonBar(
         secondaryLabel: 'Cancel',

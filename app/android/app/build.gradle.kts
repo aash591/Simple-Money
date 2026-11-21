@@ -105,6 +105,12 @@ android {
             // straight from the APK.
             useLegacyPackaging = true
         }
+        resources {
+            // pdfbox-android bundles BouncyCastle, whose post-quantum
+            // (picnic, sike, ...) parameter tables are ~3.7 MB of data the
+            // app never loads: PDFs only need classic encryption.
+            excludes += "org/bouncycastle/pqc/**"
+        }
     }
 }
 

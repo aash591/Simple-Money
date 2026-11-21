@@ -1,16 +1,106 @@
 /// A validated UPI QR payload. Old phone drafts remain readable for review only.
 class UpiRecipient {
-  const UpiRecipient._({this.uri, this.phone, this.rawQr, required this.name});
+  const UpiRecipient._({
+    this.uri,
+    this.phone,
+    this.rawQr,
+    this.emvAddress,
+    this.emvAmount,
+    required this.name,
+  });
   final Uri? uri;
   final String? rawQr;
+
+  /// Set for bank/merchant EMVCo QR codes (`000201…`), which are not
+  /// `upi://` links. Their CRC covers the amount, so they pass through as is.
+  final String? emvAddress, emvAmount;
+  bool get isEmv => emvAddress != null;
 
   /// Compatibility with drafts saved before phone entry was removed.
   final String? phone;
   final String name;
   bool get isLegacyPhone => phone != null;
-  String get address => phone ?? uri!.queryParameters['pa']!;
-  String get amount => uri?.queryParameters['am'] ?? '';
-  bool get amountLocked => uri?.queryParameters.containsKey('sign') ?? false;
+  String get address => phone ?? emvAddress ?? uri!.queryParameters['pa']!;
+  String get amount => emvAmount ?? uri?.queryParameters['am'] ?? '';
+  bool get amountLocked =>
+      isEmv || (uri?.queryParameters.containsKey('sign') ?? false);
+
+  /// Reads an EMVCo merchant QR; null when [input] is not one.
+  static UpiRecipient? _parseEmv(String input) {
+    final text = input.trim();
+    if (!text.startsWith('000201')) return null;
+    final fields = _tlv(text);
+    if (fields == null) {
+      throw const FormatException('Scan a UPI payment QR code.');
+    }
+    final crc = fields['63'];
+    if (crc == null ||
+        crc.toUpperCase() !=
+            _crc16(text.substring(0, text.length - 4)).toRadixString(16)
+                .toUpperCase()
+                .padLeft(4, '0')) {
+      throw const FormatException('This QR code looks damaged. Scan it again.');
+    }
+    final vpa = RegExp(r'^[a-zA-Z0-9.\-_]+@[a-zA-Z0-9.\-_]+$');
+    String? address;
+    for (var tag = 26; tag <= 51 && address == null; tag++) {
+      final template = fields[tag.toString().padLeft(2, '0')];
+      final sub = template == null ? null : _tlv(template);
+      if (sub == null) continue;
+      for (final value in sub.values) {
+        if (vpa.hasMatch(value)) {
+          address = value;
+          break;
+        }
+      }
+    }
+    if (address == null) {
+      throw const FormatException('This QR has no valid UPI ID.');
+    }
+    final cur = fields['53'];
+    if (cur != null && cur != '356') {
+      throw const FormatException('Only INR payments are supported.');
+    }
+    final amount = fields['54'];
+    if (amount == null || upiAmountMinor(amount) == null) {
+      throw const FormatException(
+        'Scan this QR directly in your UPI app; it has no amount.',
+      );
+    }
+    final name = fields['59']?.trim() ?? '';
+    return UpiRecipient._(
+      rawQr: text,
+      emvAddress: address,
+      emvAmount: amount,
+      name: name.isEmpty ? address : name,
+    );
+  }
+
+  static Map<String, String>? _tlv(String s) {
+    final out = <String, String>{};
+    var i = 0;
+    while (i < s.length) {
+      if (i + 4 > s.length) return null;
+      final len = int.tryParse(s.substring(i + 2, i + 4));
+      if (len == null || i + 4 + len > s.length) return null;
+      out.putIfAbsent(s.substring(i, i + 2), () => s.substring(i + 4, i + 4 + len));
+      i += 4 + len;
+    }
+    return out;
+  }
+
+  /// CRC-16/CCITT-FALSE over [s], as EMVCo specifies.
+  static int _crc16(String s) {
+    var crc = 0xFFFF;
+    for (final unit in s.codeUnits) {
+      crc ^= (unit & 0xFF) << 8;
+      for (var b = 0; b < 8; b++) {
+        crc = (crc & 0x8000) != 0 ? ((crc << 1) ^ 0x1021) : (crc << 1);
+        crc &= 0xFFFF;
+      }
+    }
+    return crc;
+  }
 
   /// True for a [name] worth offering as a transaction title by itself —
   /// an actual person or shop ("Ashique M", "Dhanya Store"), not the bare
@@ -47,6 +137,8 @@ class UpiRecipient {
   }
 
   factory UpiRecipient.parse(String input) {
+    final emv = _parseEmv(input);
+    if (emv != null) return emv;
     final uri = Uri.tryParse(input.trim());
     if (uri == null ||
         uri.scheme != 'upi' ||
@@ -112,7 +204,7 @@ class UpiRecipient {
     if (upiAmountMinor(amountText) == null) {
       throw const FormatException('Enter a valid amount.');
     }
-    // Signed QR data must be handed off unchanged.
+    // Signed and EMV QR data must be handed off unchanged.
     if (amountLocked) {
       if (upiAmountMinor(amountText) != upiAmountMinor(amount)) {
         throw const FormatException('The amount in this QR cannot be changed.');

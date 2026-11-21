@@ -5,6 +5,158 @@
   "packVersion": 1,
   "rules": [
     {
+      "id": "in.idbi.charge",
+      "bankId": "in.idbi",
+      "bankName": "IDBI Bank",
+      "country": "IN",
+      "senders": [
+        "IDBI",
+        "IDBIBANK",
+        "IDBIBK"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "INR": 2,
+          "USD": 2,
+          "EUR": 2,
+          "GBP": 2
+        },
+        "denominations": {},
+        "currency": "INR"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "bill has been generated",
+              "ignore if already paid",
+              "converting your outstanding dues"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "IDBI Bank A/C NN"
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 32
+        },
+        {
+          "op": "match_literal",
+          "value": " debited INR. "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 24
+        },
+        {
+          "op": "match_literal",
+          "value": " Det:"
+        },
+        {
+          "op": "capture_text",
+          "name": "detail",
+          "maxLength": 100
+        },
+        {
+          "op": "match_literal",
+          "value": ". Bal "
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        }
+      }
+    },
+    {
       "id": "in.idbi.template001",
       "bankId": "in.idbi",
       "bankName": "IDBI Bank",
@@ -149,13 +301,16 @@
   ],
   "senderIndex": {
     "IDBI": [
-      0
+      0,
+      1
     ],
     "IDBIBANK": [
-      0
+      0,
+      1
     ],
     "IDBIBK": [
-      0
+      0,
+      1
     ]
   },
   "categoryRules": [

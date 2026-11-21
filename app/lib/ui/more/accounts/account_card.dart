@@ -160,7 +160,7 @@ class _AccountCardState extends State<AccountCard> {
                                       accountTypeIcon(account.type),
                                       size: 20,
                                       color: colors.onSurfaceVariant,
-                                      semanticLabel: account.type.label,
+                                      semanticLabel: _kindLabel(account),
                                     ),
                                   ],
                                 ),
@@ -169,7 +169,7 @@ class _AccountCardState extends State<AccountCard> {
                                   children: [
                                     Flexible(
                                       child: Text(
-                                        account.type.label,
+                                        _kindLabel(account),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: text.bodySmall,
@@ -328,3 +328,7 @@ class _AccountEquivalent extends StatelessWidget {
     );
   }
 }
+
+/// What kind of account a card says it is: a broker is not a bank.
+String _kindLabel(Account account) =>
+    account.isBroker ? 'Broker' : account.type.label;

@@ -475,6 +475,171 @@
       }
     },
     {
+      "id": "in.idfc.fastag_toll",
+      "bankId": "in.idfc",
+      "bankName": "IDFC FIRST Bank",
+      "country": "IN",
+      "senders": [
+        "IDFC",
+        "IDFCB",
+        "IDFCBK",
+        "IDFCFB"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "western",
+        "exponents": {
+          "INR": 2,
+          "USD": 2,
+          "EUR": 2,
+          "GBP": 2
+        },
+        "denominations": {},
+        "currency": "INR"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "bill has been generated",
+              "ignore if already paid",
+              "converting your outstanding dues"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "wallet",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "INR "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 24
+        },
+        {
+          "op": "match_literal",
+          "value": " toll paid from IDFC FIRST Bank Tag "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 32
+        },
+        {
+          "op": "match_literal",
+          "value": " for vehicle no. "
+        },
+        {
+          "op": "capture_text",
+          "name": "vehicle",
+          "maxLength": 32
+        },
+        {
+          "op": "match_literal",
+          "value": " at "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 100
+        },
+        {
+          "op": "match_literal",
+          "value": " on "
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
+    },
+    {
       "id": "in.idfc.template001",
       "bankId": "in.idfc",
       "bankName": "IDFC FIRST Bank",
@@ -1749,7 +1914,8 @@
       6,
       7,
       8,
-      9
+      9,
+      10
     ],
     "IDFCB": [
       0,
@@ -1761,7 +1927,8 @@
       6,
       7,
       8,
-      9
+      9,
+      10
     ],
     "IDFCBK": [
       0,
@@ -1773,7 +1940,8 @@
       6,
       7,
       8,
-      9
+      9,
+      10
     ],
     "IDFCFB": [
       0,
@@ -1785,7 +1953,8 @@
       6,
       7,
       8,
-      9
+      9,
+      10
     ]
   },
   "categoryRules": [

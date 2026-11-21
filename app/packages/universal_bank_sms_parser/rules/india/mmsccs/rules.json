@@ -1,0 +1,49 @@
+{
+  "id": "in.mmsccs",
+  "name": "MMSCCS",
+  "senders": [
+    "MMSCCS"
+  ],
+  "formats": [
+    {
+      "id": "in.mmsccs.deposit",
+      "channel": "other",
+      "classification": "completed",
+      "direction": "credit",
+      "output": {
+        "accountLast4": {
+          "capture": "account",
+          "length": 4,
+          "operation": "extract_account_suffix"
+        },
+        "amount": {
+          "capture": "amount"
+        }
+      },
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "INR "
+        },
+        {
+          "maxLength": 32,
+          "name": "amount",
+          "op": "capture_money"
+        },
+        {
+          "op": "match_literal",
+          "value": " deposited in A/c No "
+        },
+        {
+          "maxLength": 32,
+          "name": "account",
+          "op": "capture_account"
+        },
+        {
+          "op": "match_literal",
+          "value": " w.e.f "
+        }
+      ]
+    }
+  ]
+}

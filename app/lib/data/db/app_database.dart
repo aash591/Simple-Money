@@ -34,7 +34,7 @@ class AppDatabase extends GeneratedDatabase {
   /// solely so the profile-seed behavior can be verified in tests.
   final bool _seedProfileData;
   @override
-  int get schemaVersion => 54;
+  int get schemaVersion => 56;
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => const [];
   @override
@@ -52,6 +52,9 @@ class AppDatabase extends GeneratedDatabase {
           await customStatement(
             'ALTER TABLE holdings ADD COLUMN currency TEXT',
           );
+        }
+        if (!await _hasColumn('accounts', 'place')) {
+          await customStatement('ALTER TABLE accounts ADD COLUMN place TEXT');
         }
         for (final table in ['accounts', 'holdings', 'holding_trades']) {
           if (await _tableExists(table)) await createSyncTriggers(this, table);
@@ -79,7 +82,8 @@ class AppDatabase extends GeneratedDatabase {
         credit_limit_reported_at INTEGER,
         available_limit_reported_at INTEGER,
         debit_card INTEGER NOT NULL DEFAULT 0,
-        broker INTEGER NOT NULL DEFAULT 0
+        broker INTEGER NOT NULL DEFAULT 0,
+        place TEXT
       )
     ''');
       await customStatement(_createCategoriesTable);
@@ -246,6 +250,13 @@ class AppDatabase extends GeneratedDatabase {
           !await _hasColumn('holdings', 'currency')) {
         await customStatement('ALTER TABLE holdings ADD COLUMN currency TEXT');
       }
+      // v55: an investment account says where it is kept (see AccountPlace).
+      // Null reads as a broker, so every existing account stays as it was.
+      if (from < 55 &&
+          await _tableExists('accounts') &&
+          !await _hasColumn('accounts', 'place')) {
+        await customStatement('ALTER TABLE accounts ADD COLUMN place TEXT');
+      }
       // v5 -> v6: monthly budgets (see data/repositories/budget_repository
       // .dart), created straight in the v7 shape below.
       // v6 -> v7: a budget covers a set of categories rather than one, so
@@ -309,8 +320,9 @@ class AppDatabase extends GeneratedDatabase {
         await customStatement(_createAgentSuggestionsTable);
         await customStatement(_createUserSmsRulesTable);
       }
-      if (from >= 34 && from < 45) {
-        // New suggestion kinds: SQLite can't change a CHECK, so the table
+      if (from >= 34 && from < 56) {
+        // New suggestion kinds (v45 recurring payments and accounts, v56
+        // portfolio): SQLite can't change a CHECK, so the table
         // is rebuilt with its rows.
         await customStatement(
           'ALTER TABLE agent_suggestions RENAME TO agent_suggestions_old',
@@ -393,7 +405,8 @@ class AppDatabase extends GeneratedDatabase {
       // v52: accounts gained `broker`, and the holding tables are new. v53
       // rebuilt `holdings`, which dropped its triggers: made again here.
       // v54 added `holdings.currency`, so its triggers are made again too.
-      if (from >= 8 && from < 54) {
+      // v55 added `accounts.place`, so its triggers are made again as well.
+      if (from >= 8 && from < 55) {
         for (final table in ['accounts', 'holdings', 'holding_trades']) {
           final exists = await customSelect(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",

@@ -1,10 +1,19 @@
+import 'dart:convert';
 import 'dart:math' as math;
+
+import 'metal.dart';
 
 /// Units are kept as whole millionths of a unit, prices as ten-thousandths of
 /// a currency unit, so no figure is ever a floating point number. Mutual fund
 /// units run to 3–4 places, US stocks can be fractional, and NAVs to 4.
 const unitScale = 1000000;
 const priceScale = 10000;
+
+/// Units for display: up to four places, no trailing zeros.
+String formatUnits(int unitsE6) {
+  final text = (unitsE6 / unitScale).toStringAsFixed(4);
+  return text.replaceFirst(RegExp(r'\.?0+$'), '');
+}
 
 /// What a holding is. The database stores the [name] as free text (no CHECK),
 /// and a newer version of the app may store a kind this one has never heard
@@ -17,6 +26,8 @@ enum HoldingKind {
   stock('Stock'),
   etf('ETF'),
   fund('Mutual fund'),
+  crypto('Crypto'),
+  metal('Metal'),
 
   /// Any kind this version doesn't know. Never offered when adding.
   other('Other');
@@ -25,7 +36,7 @@ enum HoldingKind {
   final String label;
 
   /// The kinds a person can choose from when adding a holding.
-  static const selectable = [stock, etf, fund];
+  static const selectable = [stock, etf, fund, crypto, metal];
 
   static HoldingKind parse(String? id) =>
       values.where((k) => k.name == id).firstOrNull ?? other;
@@ -41,6 +52,13 @@ abstract final class PriceSourceId {
   /// India's AMFI NAV file: mutual funds, by scheme code.
   static const amfi = 'amfi';
 
+  /// CoinGecko's public price list: crypto coins, by CoinGecko id.
+  static const coingecko = 'coingecko';
+
+  /// The international price of gold, silver and platinum, from Yahoo's
+  /// metal futures, turned into a price per gram.
+  static const metalWorld = 'metal_world';
+
   /// The person types the price in; nothing is ever fetched.
   static const manual = 'manual';
 
@@ -50,6 +68,8 @@ abstract final class PriceSourceId {
   /// kind this version doesn't know, which is left unfetched.
   static String? infer(HoldingKind kind, String? symbol) {
     if (kind == HoldingKind.other) return null;
+    if (kind == HoldingKind.crypto) return coingecko;
+    if (kind == HoldingKind.metal) return metalWorld;
     final code = symbol?.trim() ?? '';
     return kind == HoldingKind.fund && RegExp(r'^\d+$').hasMatch(code)
         ? amfi
@@ -106,6 +126,79 @@ class Holding {
   /// Extra details a kind needs (JSON text), room for what later asset types
   /// carry. Kept as stored: this version neither reads nor rewrites it.
   final String? meta;
+
+  /// A coin's logo address from the details, only when it is on CoinGecko's
+  /// image host: the details can arrive from another phone.
+  String? get imageUrl {
+    final text = meta;
+    if (text == null) return null;
+    try {
+      final image = (jsonDecode(text) as Map)['image'];
+      final uri = image is String ? Uri.tryParse(image) : null;
+      return uri != null &&
+              uri.scheme == 'https' &&
+              (uri.host == 'coin-images.coingecko.com' ||
+                  uri.host == 'assets.coingecko.com')
+          // Earlier versions saved the 25 px thumbnail, which looks soft.
+          ? (image as String).replaceFirst('/thumb/', '/large/')
+          : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// The details of a metal holding, or null for anything else.
+  MetalDetails? get metalDetails =>
+      kind == HoldingKind.metal ? MetalDetails.parse(meta) : null;
+
+  /// An icon the person picked for it (an `appIconKeys` or brand key), kept
+  /// in the details; it wins over any logo.
+  String? get iconKey {
+    final text = meta;
+    if (text == null) return null;
+    try {
+      final key = (jsonDecode(text) as Map)['icon'];
+      return key is String && key.isNotEmpty ? key : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Where its price comes from, worded for the screen, or null when it is
+  /// set by hand or unknown.
+  String? get sourceNote {
+    final metal = metalDetails?.metal.label.toLowerCase();
+    return switch (effectivePriceSource) {
+      PriceSourceId.yahoo => 'Source: Yahoo Finance',
+      PriceSourceId.amfi => 'Source: AMFI',
+      PriceSourceId.coingecko => 'Source: CoinGecko',
+      PriceSourceId.metalWorld =>
+        'Source: international ${metal ?? 'metal'} price, Yahoo Finance',
+      _ => null,
+    };
+  }
+
+  /// What the update button does, in few words: "Update from world gold
+  /// price".
+  String get updateLabel {
+    final metal = metalDetails?.metal.label.toLowerCase();
+    return switch (effectivePriceSource) {
+      PriceSourceId.yahoo => 'Update from Yahoo Finance',
+      PriceSourceId.amfi => 'Update from AMFI',
+      PriceSourceId.coingecko => 'Update from CoinGecko',
+      PriceSourceId.metalWorld => 'Update from world ${metal ?? 'metal'} price',
+      _ => 'Update price',
+    };
+  }
+
+  /// The same, once done: "Updated from world gold price".
+  String get updatedLabel => updateLabel == 'Update price'
+      ? 'Price updated'
+      : updateLabel.replaceFirst('Update ', 'Updated ');
+
+  /// Whether its price can be fetched: it has a ticker and a source.
+  bool get canFetchPrice =>
+      (symbol?.trim().isNotEmpty ?? false) && sourceNote != null;
 
   /// The currency its price is quoted in, or null for the account's own
   /// (every holding saved before this existed).
@@ -264,4 +357,27 @@ HoldingPosition positionOf(
     realizedMinor: realized,
     dividendsMinor: dividends,
   );
+}
+
+/// The words a kind of holding uses for its units and price.
+extension HoldingWording on HoldingKind {
+  /// What is counted: shares, fund units or grams.
+  String get unitsName => switch (this) {
+    HoldingKind.fund => 'Units',
+    HoldingKind.metal => 'Grams',
+    _ => 'Shares',
+  };
+
+  String get priceName => switch (this) {
+    HoldingKind.fund => 'NAV per unit',
+    HoldingKind.metal => 'Price per gram',
+    _ => 'Price per share',
+  };
+
+  /// A short unit after a figure: "12.5 units", "10 g".
+  String unitsAfter(int unitsE6) => switch (this) {
+    HoldingKind.fund => 'units',
+    HoldingKind.metal => 'g',
+    _ => unitsE6 == unitScale ? 'share' : 'shares',
+  };
 }

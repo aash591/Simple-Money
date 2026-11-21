@@ -22,6 +22,7 @@ import '../components/review_prompt_alert.dart';
 import '../../state/review_prompt.dart';
 import '../components/liquid_glass_nav_bar.dart';
 import '../../state/account_store.dart';
+import '../../state/holding_store.dart';
 import '../../state/budget_store.dart';
 import '../../state/sync_controller.dart';
 import '../../state/category_store.dart';
@@ -120,6 +121,8 @@ class _HomeScreenState extends State<HomeScreen>
       widget.categoryStore.load();
       widget.transactionStore.load();
       widget.budgetStore.reload();
+      // An approved portfolio suggestion changes holdings and cash.
+      if (mounted) HoldingStoreScope.maybeOf(context)?.load();
     };
     _sms.initialize();
     widget.transactionStore.addListener(_reloadSmsQueue);

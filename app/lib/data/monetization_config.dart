@@ -13,7 +13,7 @@ abstract final class MonetizationConfig {
   );
   static const yearlyPlan = String.fromEnvironment(
     'PRO_YEARLY_PLAN',
-    defaultValue: 'yearly',
+    defaultValue: 'annual',
   );
   static const lifetimeId = String.fromEnvironment(
     'PRO_LIFETIME_ID',

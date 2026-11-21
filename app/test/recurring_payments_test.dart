@@ -590,7 +590,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       final titles = [
-        'Manage Accounts',
+        'Accounts',
         'Categories',
         'Recurring payments',
         'Settings',

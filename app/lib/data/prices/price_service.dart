@@ -33,9 +33,7 @@ class PriceService {
     DateTime Function()? now,
     List<PriceSource>? sources,
   }) : now = now ?? DateTime.now,
-       _sources = {
-         for (final s in sources ?? defaultSources()) s.id: s,
-       };
+       _sources = {for (final s in sources ?? defaultSources()) s.id: s};
   final http.Client client;
   final DateTime Function() now;
   final Map<String, PriceSource> _sources;
@@ -44,7 +42,12 @@ class PriceService {
 
   /// Every place prices come from, in the order search results appear.
   /// `manual` has no entry: a holding priced by hand is never fetched.
-  static List<PriceSource> defaultSources() => [AmfiSource(), YahooSource()];
+  static List<PriceSource> defaultSources() => [
+    AmfiSource(),
+    YahooSource(),
+    CoinGeckoSource(),
+    MetalWorldSource(),
+  ];
 
   static String _day(DateTime t) => '${t.year}-${t.month}-${t.day}';
 
@@ -79,7 +82,8 @@ class PriceService {
     // Each holding goes to the source it names (or, for one that names none,
     // the one inferred). A source this version doesn't have, or a holding
     // priced by hand, is skipped: nothing to fetch isn't a failure.
-    final bySource = <PriceSource, List<({Holding holding, String currency})>>{};
+    final bySource =
+        <PriceSource, List<({Holding holding, String currency})>>{};
     for (final t in targets) {
       if (t.holding.symbol?.trim().isEmpty ?? true) continue;
       final source = _sources[t.holding.effectivePriceSource];
@@ -108,6 +112,8 @@ class PriceService {
     String? symbol,
     String? exchange,
     String? priceSource,
+    String? meta,
+    String? currency,
   }) async {
     final code = symbol?.trim() ?? '';
     if (code.isEmpty) return null;
@@ -119,23 +125,27 @@ class PriceService {
       symbol: code,
       exchange: exchange,
       priceSource: priceSource,
+      meta: meta,
+      currency: currency,
     );
     final source = _sources[holding.effectivePriceSource];
     if (source == null) return null;
     return (await source.quotes(client, [holding]))[0];
   }
 
-  /// Search for the add-holding flow, across every source. [currency] is
-  /// the broker's, which decides what each source offers.
+  /// Search for the add-holding flow, across the sources that offer [kind].
+  /// [currency] is the broker's, which decides what each source offers.
   Future<List<SymbolHit>> search(
     String query, {
     required String currency,
+    HoldingKind kind = HoldingKind.stock,
   }) async {
     final text = query.trim();
     if (text.length < 2) return const [];
     return [
       for (final source in _sources.values)
-        ...await source.search(client, text, currency: currency),
+        if (source.offers(kind))
+          ...await source.search(client, text, currency: currency),
     ];
   }
 }

@@ -57,4 +57,10 @@ const darkBrandIconKeys = <String>{
   'investec',
   'morganstanley',
   'xp',
+  'okx',
+  'bybit',
+  'ledger',
+  'indmoney',
+  'bitso',
+  'hargreaveslansdown',
 };

@@ -1,6 +1,6 @@
 flutter run --dart-define-from-file=../secrets/.env
 
-.\build.ps1 app:play
+.\build.cmd app:play
 
 node tool/webdoc_dev.cjs 3000
 

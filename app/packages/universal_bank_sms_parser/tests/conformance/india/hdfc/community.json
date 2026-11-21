@@ -1,0 +1,128 @@
+[
+  {
+    "id": "hdfc-community-001",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Community-shared fix promoted into this pack; sample message reconstructed from the rule and sanitized",
+    "input": {
+      "sender": "HDFCBN",
+      "body": "Sent Rs.500.00\nFrom HDFC Bank A/C *1234\nTo SAMPLE PERSON\nOn 01/10/26\nRef 123456789012\nNot You?\nCall 18002586161",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.device002.sent",
+      "candidate": {
+        "amountMinor": 50000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": "123456789012",
+        "counterparty": "SAMPLE PERSON",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "hdfc-community-002",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Community-shared fix promoted into this pack; sample message reconstructed from the rule and sanitized",
+    "input": {
+      "sender": "VM-HDFCBK-S",
+      "body": "Deposited! INR 5,000.00 in HDFC Bank A/c XX1234 On 01-10-26 At SAMPLE BRANCH Via Cash Deposit Machine",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.cash_deposit_machine",
+      "candidate": {
+        "amountMinor": 500000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "Cash deposit",
+        "category": {
+          "id": "atm_deposit",
+          "name": "ATM Deposit",
+          "type": "income",
+          "ruleId": "in.category.atm_deposit",
+          "isFallback": false,
+          "aliases": [
+            "Cash Deposit"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "hdfc-community-003",
+    "country": "IN",
+    "bankId": "in.hdfc",
+    "provenance": "Community-shared fix promoted into this pack; sample message reconstructed from the rule and sanitized",
+    "input": {
+      "sender": "VM-HDFCBK-S",
+      "body": "Low Balance Alert! Rs.11.80+GST charged for low balance in your HDFC Bank A/c X1234. Balance as of 01-OCT-26 is Rs.120.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.hdfc.low_balance_charge",
+      "candidate": {
+        "amountMinor": 1180,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "other",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "HDFC Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "HDFC low balance charge",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

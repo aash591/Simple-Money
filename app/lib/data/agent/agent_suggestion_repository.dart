@@ -25,6 +25,7 @@ import '../repositories/transaction_repository.dart';
 import '../user_sms_rules.dart';
 import 'agent_accounts.dart';
 import 'agent_loans.dart';
+import 'agent_portfolio.dart';
 import 'agent_sms_saver.dart';
 import 'statement_samples.dart';
 
@@ -41,7 +42,8 @@ enum AgentSuggestionKind {
   debtEntry('debt_entry'),
   transactionAdd('transaction_add'),
   recurringPayment('recurring_payment'),
-  account('account');
+  account('account'),
+  portfolio('portfolio');
 
   const AgentSuggestionKind(this.storageValue);
   final String storageValue;
@@ -115,6 +117,10 @@ class AgentSuggestion {
           kind == AgentSuggestionKind.recurringPayment ||
           (kind == AgentSuggestionKind.account &&
               (AgentAccountAction.fromToolName(payload['action'] as String?)
+                      ?.canUndo ??
+                  false)) ||
+          (kind == AgentSuggestionKind.portfolio &&
+              (AgentPortfolioAction.fromToolName(payload['action'] as String?)
                       ?.canUndo ??
                   false)));
 }
@@ -1199,6 +1205,11 @@ class AgentSuggestionRepository {
               'action': suggestion.payload['action'],
               ...await AgentAccounts(database).apply(suggestion.payload),
             });
+          case AgentSuggestionKind.portfolio:
+            await _keepForUndo(id, {
+              'action': suggestion.payload['action'],
+              ...await AgentPortfolio(database).apply(suggestion.payload),
+            });
         }
         await _decide(id, AgentSuggestionStatus.applied);
       });
@@ -1415,7 +1426,7 @@ class AgentSuggestionRepository {
       await database.transaction(() async {
         final row = await database
             .customSelect(
-              "SELECT kind, target, before FROM agent_suggestions WHERE id = ? AND status = 'applied' AND kind IN ('transaction_edit', 'parser_rule', 'statement_layout', 'new_loan', 'debt_entry', 'transaction_add', 'recurring_payment', 'account')",
+              "SELECT kind, target, before FROM agent_suggestions WHERE id = ? AND status = 'applied' AND kind IN ('transaction_edit', 'parser_rule', 'statement_layout', 'new_loan', 'debt_entry', 'transaction_add', 'recurring_payment', 'account', 'portfolio')",
               variables: [Variable(id)],
             )
             .getSingleOrNull();
@@ -1429,7 +1440,10 @@ class AgentSuggestionRepository {
             'This is a loan payment now. Remove it from the loan’s screen.',
           );
         }
-        if (row.read<String>('kind') == 'account') {
+        if (row.read<String>('kind') == 'portfolio') {
+          await AgentPortfolio(database)
+              .undo(before['action'] as String, before);
+        } else if (row.read<String>('kind') == 'account') {
           await AgentAccounts(database)
               .undo(before['action'] as String, before);
         } else if (row.read<String>('kind') == 'new_loan') {

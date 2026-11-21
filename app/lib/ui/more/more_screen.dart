@@ -142,7 +142,7 @@ class MoreScreen extends StatelessWidget {
                   children: [
                     MenuRow(
                       icon: Icons.account_balance_wallet_rounded,
-                      title: 'Manage Accounts',
+                      title: 'Accounts',
                       subtitle: 'Cash, banks, and everything in between',
                       onTap: () => Navigator.of(context).push(
                         FeatureRoute<void>(
@@ -153,22 +153,6 @@ class MoreScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (HoldingStoreScope.maybeOf(context) case final holdings?)
-                      MenuRow(
-                        icon: Icons.show_chart_rounded,
-                        title: 'Portfolio',
-                        subtitle: 'Stocks and mutual funds, by account',
-                        onTap: () => Navigator.of(context).push(
-                          FeatureRoute<void>(
-                            PortfolioScreen(
-                              accounts: store,
-                              holdings: holdings,
-                              transactions: transactionStore,
-                              categories: categoryStore,
-                            ),
-                          ),
-                        ),
-                      ),
                     MenuRow(
                       icon: Icons.category_rounded,
                       title: 'Categories',
@@ -179,6 +163,19 @@ class MoreScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (recurringPaymentStore != null)
+                      MenuRow(
+                        icon: Icons.autorenew_rounded,
+                        title: 'Recurring payments',
+                        subtitle: 'Netflix, gym, and everything that renews',
+                        onTap: () => Navigator.of(context).push(
+                          FeatureRoute<void>(
+                            RecurringPaymentsScreen(
+                              store: recurringPaymentStore!,
+                            ),
+                          ),
+                        ),
+                      ),
                     if (debtStore != null)
                       MenuRow(
                         icon: Icons.handshake_rounded,
@@ -197,15 +194,18 @@ class MoreScreen extends StatelessWidget {
                           FeatureRoute<void>(LoansScreen(store: loanStore!)),
                         ),
                       ),
-                    if (recurringPaymentStore != null)
+                    if (HoldingStoreScope.maybeOf(context) case final holdings?)
                       MenuRow(
-                        icon: Icons.autorenew_rounded,
-                        title: 'Recurring payments',
-                        subtitle: 'Netflix, gym, and everything that renews',
+                        icon: Icons.show_chart_rounded,
+                        title: 'Portfolio',
+                        subtitle: 'Your long-term assets, by account',
                         onTap: () => Navigator.of(context).push(
                           FeatureRoute<void>(
-                            RecurringPaymentsScreen(
-                              store: recurringPaymentStore!,
+                            PortfolioScreen(
+                              accounts: store,
+                              holdings: holdings,
+                              transactions: transactionStore,
+                              categories: categoryStore,
                             ),
                           ),
                         ),

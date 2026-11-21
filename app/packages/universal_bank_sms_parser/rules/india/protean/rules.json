@@ -1,0 +1,58 @@
+{
+  "id": "in.protean",
+  "name": "Protean NPS",
+  "senders": [
+    "PTNNPS"
+  ],
+  "formats": [
+    {
+      "id": "in.protean.apy_contribution",
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "other",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "APY(PRAN"
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 32
+        },
+        {
+          "op": "match_literal",
+          "value": ") Contribution of Rs."
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 24
+        },
+        {
+          "op": "match_literal",
+          "value": " for "
+        },
+        {
+          "op": "capture_text",
+          "name": "period",
+          "maxLength": 16
+        },
+        {
+          "op": "match_literal",
+          "value": " credited to your PRAN"
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        }
+      }
+    }
+  ]
+}

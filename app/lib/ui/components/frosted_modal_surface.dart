@@ -23,7 +23,12 @@ class FrostedModalSurface extends StatelessWidget {
     required this.child,
     this.blurSigma = 28,
     this.shadows,
+    this.airy = false,
   });
+
+  /// A clearer glass with a light tint, so the blurred page behind it shows
+  /// its own colours through (used by the More menu).
+  final bool airy;
 
   final BorderRadius borderRadius;
   final Widget child;
@@ -180,7 +185,11 @@ class FrostedModalSurface extends StatelessWidget {
       );
     } else if (!dark) {
       base = SheetColors.lightSheetBase(context)
-          .withValues(alpha: (picture ? .72 : .84) * visibility);
+          .withValues(alpha: (airy ? .6 : (picture ? .72 : .84)) * visibility);
+    } else if (airy) {
+      // Clear dark glass: just enough shade for the text, so what's behind
+      // (a photo, a coloured avatar) glows through the blur.
+      base = Colors.black.withValues(alpha: .35 * visibility);
     } else {
       // Dark glass is the frost and the glass fill alone: a flat dark layer
       // under it (tried at 56-74% black) dulled the sheen and the lit edge
@@ -193,7 +202,7 @@ class FrostedModalSurface extends StatelessWidget {
         color: base,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            gradient: solid || !dark
+            gradient: solid || !dark || airy
                 ? null
                 : (glassCardFill(context) as LinearGradient).scale(
                     .55 * visibility,

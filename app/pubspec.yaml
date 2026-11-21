@@ -1,7 +1,7 @@
 name: simple_money
 description: A simple, private, offline-first money manager.
 publish_to: 'none'
-version: 0.60.21+29
+version: 0.60.26+34
 
 environment:
   sdk: ^3.13.2
@@ -113,20 +113,25 @@ flutter:
     - assets/icon_packs/logos/brands/
     - assets/icon_packs/logos/banks/algeria/
     - assets/icon_packs/logos/banks/australia/
+    - assets/icon_packs/logos/banks/austria/
     - assets/icon_packs/logos/banks/bangladesh/
     - assets/icon_packs/logos/banks/brazil/
     - assets/icon_packs/logos/banks/canada/
+    - assets/icon_packs/logos/banks/denmark/
     - assets/icon_packs/logos/banks/egypt/
     - assets/icon_packs/logos/banks/el_salvador/
     - assets/icon_packs/logos/banks/ethiopia/
     - assets/icon_packs/logos/banks/france/
     - assets/icon_packs/logos/banks/gabon/
     - assets/icon_packs/logos/banks/germany/
+    - assets/icon_packs/logos/banks/hong_kong/
     - assets/icon_packs/logos/banks/india/
     - assets/icon_packs/logos/banks/indonesia/
     - assets/icon_packs/logos/banks/iran/
     - assets/icon_packs/logos/banks/israel/
+    - assets/icon_packs/logos/banks/japan/
     - assets/icon_packs/logos/banks/kenya/
+    - assets/icon_packs/logos/banks/mexico/
     - assets/icon_packs/logos/banks/mauritius/
     - assets/icon_packs/logos/banks/morocco/
     - assets/icon_packs/logos/banks/mozambique/
@@ -137,6 +142,7 @@ flutter:
     - assets/icon_packs/logos/banks/saudi_arabia/
     - assets/icon_packs/logos/banks/singapore/
     - assets/icon_packs/logos/banks/south_africa/
+    - assets/icon_packs/logos/banks/south_korea/
     - assets/icon_packs/logos/banks/spain/
     - assets/icon_packs/logos/banks/sri_lanka/
     - assets/icon_packs/logos/banks/switzerland/

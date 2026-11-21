@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/account.dart';
+import '../../../domain/account_place.dart';
 import '../../../domain/bank_institution_icon.dart';
 import '../../../domain/currency.dart';
 import '../../../state/account_store.dart';
@@ -10,6 +11,7 @@ import '../../components/common.dart';
 import '../../components/confirmation_alert.dart';
 import '../../components/currency_flag.dart';
 import '../../components/feature_page.dart';
+import '../../components/segmented_pill.dart';
 import '../../components/select_icon_screen.dart';
 import '../accounts/currency_screen.dart';
 
@@ -17,8 +19,16 @@ import '../accounts/currency_screen.dart';
 /// name with its icon, currency, then the cash already there. Pops with the
 /// new broker's account id.
 class AddBrokerScreen extends StatefulWidget {
-  const AddBrokerScreen({super.key, required this.accounts});
+  const AddBrokerScreen({
+    super.key,
+    required this.accounts,
+    this.place = AccountPlace.broker,
+  });
   final AccountStore accounts;
+
+  /// Where the investments are kept. A place that holds no cash (a locker)
+  /// skips the cash step.
+  final AccountPlace place;
 
   @override
   State<AddBrokerScreen> createState() => _AddBrokerScreenState();
@@ -48,8 +58,11 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
     super.dispose();
   }
 
-  int? get _cashMinor =>
-      parseAccountAmount(_cash.text.replaceAll(',', ''), _digits);
+  late AccountPlace _place = widget.place;
+  bool get _holdsCash => _place.holdsCash;
+  int? get _cashMinor => _holdsCash
+      ? parseAccountAmount(_cash.text.replaceAll(',', ''), _digits)
+      : 0;
   bool get _valid => _name.text.trim().isNotEmpty && (_cashMinor ?? -1) >= 0;
   bool get _dirty =>
       _name.text.trim().isNotEmpty ||
@@ -137,6 +150,7 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
         digits: _digits,
         openingBalance: _cashMinor!,
         broker: true,
+        place: _place.name,
       );
     } catch (e, stack) {
       debugPrint('Could not save account: $e\n$stack');
@@ -175,6 +189,20 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
                 keyboardDismissBehavior:
                     ScrollViewKeyboardDismissBehavior.onDrag,
                 children: [
+                  SegmentedPill<AccountPlace>(
+                    segments: const [
+                      PillSegment(AccountPlace.broker, 'Broker or exchange'),
+                      PillSegment(AccountPlace.inHand, 'In hand or wallet'),
+                    ],
+                    value: _place,
+                    onChanged: _saving
+                        ? null
+                        : (place) => setState(() {
+                            _place = place;
+                            _error = null;
+                          }),
+                  ),
+                  const SizedBox(height: 14),
                   MoneyCard(
                     padding: EdgeInsets.zero,
                     child: Column(
@@ -205,9 +233,11 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
                                   textCapitalization: TextCapitalization.words,
                                   textInputAction: TextInputAction.next,
                                   onChanged: _onName,
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     labelText: 'Name',
-                                    hintText: 'e.g. Zerodha or Robinhood',
+                                    hintText: _holdsCash
+                                        ? 'e.g. Zerodha or Binance'
+                                        : 'e.g. Home locker or Ledger',
                                     filled: false,
                                     contentPadding: EdgeInsets.zero,
                                     counterText: '',
@@ -224,12 +254,19 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
                         Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            borderRadius: const BorderRadius.vertical(
-                              bottom: Radius.circular(24),
-                            ),
+                            borderRadius: _holdsCash
+                                ? BorderRadius.zero
+                                : const BorderRadius.vertical(
+                                    bottom: Radius.circular(24),
+                                  ),
                             onTap: _saving ? null : _pickCurrency,
                             child: Padding(
-                              padding: const EdgeInsets.fromLTRB(18, 8, 18, 20),
+                              padding: EdgeInsets.fromLTRB(
+                                18,
+                                8,
+                                18,
+                                _holdsCash ? 8 : 20,
+                              ),
                               child: Row(
                                 children: [
                                   _territory == null
@@ -262,66 +299,63 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
                             ),
                           ),
                         ),
+                        if (_holdsCash) ...[
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 18),
+                            child: Divider(height: 24),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(18, 8, 18, 16),
+                            child: Row(
+                              children: [
+                                const AppIcon('paper_money_two', size: 34),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    key: const Key('broker-cash'),
+                                    controller: _cash,
+                                    enabled: !_saving,
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                          decimal: true,
+                                        ),
+                                    textInputAction: TextInputAction.done,
+                                    onChanged: (_) =>
+                                        setState(() => _error = null),
+                                    decoration: InputDecoration(
+                                      labelText: 'Funds in this account',
+                                      prefixText: '$_currency ',
+                                      filled: false,
+                                      contentPadding: EdgeInsets.zero,
+                                      errorText: _cashMinor == null
+                                          ? (_digits == 0
+                                                ? 'Enter a whole number for $_currency.'
+                                                : 'Use a number with up to $_digits decimal places.')
+                                          : (_cashMinor! < 0
+                                                ? 'Cash can’t be negative.'
+                                                : null),
+                                      errorMaxLines: 3,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                  const SizedBox(height: 18),
-                  MoneyCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Cash in this account',
-                          style: text.bodySmall?.copyWith(
-                            color: scheme.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          key: const Key('broker-cash'),
-                          controller: _cash,
-                          enabled: !_saving,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          textInputAction: TextInputAction.done,
-                          style: text.headlineLarge?.copyWith(fontSize: 30),
-                          onChanged: (_) => setState(() => _error = null),
-                          decoration: InputDecoration(
-                            hintText: '0',
-                            prefixIconConstraints: const BoxConstraints(
-                              minWidth: 0,
-                              minHeight: 0,
-                            ),
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.only(right: 12),
-                              child: Text(
-                                _currency,
-                                style: text.titleMedium?.copyWith(
-                                  color: scheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
-                            filled: false,
-                            contentPadding: EdgeInsets.zero,
-                            errorText: _cashMinor == null
-                                ? (_digits == 0
-                                      ? 'Enter a whole number for $_currency.'
-                                      : 'Use a number with up to $_digits decimal places.')
-                                : (_cashMinor! < 0
-                                      ? 'Cash can’t be negative.'
-                                      : null),
-                            errorMaxLines: 3,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Money sitting there, ready to invest. Zero is fine, '
-                          'too. Add stocks and funds after.',
-                          style: text.bodySmall?.copyWith(height: 1.5),
-                        ),
-                      ],
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(6, 18, 6, 0),
+                    child: Text(
+                      _holdsCash
+                          ? 'Funds are the money you have already sent here, '
+                                'waiting to buy stocks, ETFs or crypto. Zero '
+                                'is fine, too. Add what you own after saving.'
+                          : 'For things you keep yourself, like gold at home, '
+                                'a bank locker or a crypto wallet. Add what '
+                                'you own there after saving.',
+                      style: text.bodySmall?.copyWith(height: 1.5),
                     ),
                   ),
                   if (_error != null)
@@ -332,26 +366,6 @@ class _AddBrokerScreenState extends State<AddBrokerScreen> {
                         style: TextStyle(color: scheme.error),
                       ),
                     ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 24),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.lock_outline_rounded,
-                          size: 13,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 6),
-                        Flexible(
-                          child: Text(
-                            'Saved on your device',
-                            style: text.bodySmall,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),

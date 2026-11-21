@@ -297,3 +297,48 @@ Notes:
   for Vanguard resolved to an unrelated app and 5paisa's listing carried an
   outdated icon, so those were replaced or left out.
 - Zerodha and Robinhood were already bundled (Simple Icons) and are unchanged.
+
+Crypto exchanges, wallets and more brokers (official Google Play app icons, full-bleed tiles kept as drawn; listings checked by app name):
+- Kraken (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=com.kraken.invest.app)
+- Bybit (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=com.bybit.app)
+- OKX (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=com.okinc.okex.gp)
+- KuCoin (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=com.kubi.kucoin)
+- Bitget (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=com.bitget.exchange)
+- Gemini (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=com.gemini.android.app)
+- Crypto.com (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=co.mona.android)
+- Bitstamp (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=net.bitstamp.app)
+- MEXC (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=com.mexcpro.client)
+- Gate (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=com.gateio.gateio)
+- HTX (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=pro.huobi)
+- Bitpanda (Austria): [Google Play listing](https://play.google.com/store/apps/details?id=com.bitpanda.bitpanda)
+- Upbit (South Korea): [Google Play listing](https://play.google.com/store/apps/details?id=com.dunamu.exchange)
+- Bithumb (South Korea): [Google Play listing](https://play.google.com/store/apps/details?id=com.btckorea.bithumb)
+- Coincheck (Japan): [Google Play listing](https://play.google.com/store/apps/details?id=jp.coincheck.android)
+- CoinDCX (India): [Google Play listing](https://play.google.com/store/apps/details?id=com.coindcx.btc)
+- WazirX (India): [Google Play listing](https://play.google.com/store/apps/details?id=com.wrx.wazirx)
+- CoinSwitch (India): [Google Play listing](https://play.google.com/store/apps/details?id=com.coinswitch.kuber)
+- VALR (South Africa): [Google Play listing](https://play.google.com/store/apps/details?id=com.valr.app)
+- Mercado Bitcoin (Brazil): [Google Play listing](https://play.google.com/store/apps/details?id=br.com.mercadobitcoin.android)
+- MetaMask (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=io.metamask)
+- Trust Wallet (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=com.wallet.crypto.trustapp)
+- Ledger (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=com.ledger.live)
+- Trezor (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=io.trezor.suite)
+- Phantom (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=app.phantom)
+- Exodus (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=exodusmovement.exodus)
+- Coinbase Wallet (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=org.toshi)
+- Rainbow (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=me.rainbow)
+- SafePal (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=io.safepal.wallet)
+- Atomic Wallet (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=io.atomicwallet)
+- Bitcoin.com Wallet (crypto exchange / wallet, worldwide): [Google Play listing](https://play.google.com/store/apps/details?id=com.bitcoin.mwallet)
+- moomoo (Hong Kong): [Google Play listing](https://play.google.com/store/apps/details?id=com.moomoo.trade)
+- Futubull (Hong Kong): [Google Play listing](https://play.google.com/store/apps/details?id=cn.futu.trader)
+- Firstrade (United States): [Google Play listing](https://play.google.com/store/apps/details?id=com.firstrade.android)
+- Motilal Oswal (India): [Google Play listing](https://play.google.com/store/apps/details?id=com.mosl.mobile)
+- INDmoney (India): [Google Play listing](https://play.google.com/store/apps/details?id=in.indwealth)
+- Black tiles (OKX, Bybit, Ledger, INDmoney) have a `_dark` companion with black and white swapped.
+
+More brokers and exchanges (second batch):
+- Play Store app icons: Public, FYERS, interactive investor, IIFL, Kuvera, tastytrade, Plus500 (futures app icon), BingX, Bitfinex; same treatment as above. Sharekhan (rebranded Mirae Asset) and 5paisa (generic "Alpha" card art) were tried and left out because their icons don't read as the brand.
+- Wikimedia Commons originals, cropped to fit a square tile: Saxo (Saxo Bank logo.svg, the tile as drawn), IG (IG Group logo.svg), Hargreaves Lansdown (Hargreaves Lansdown logo.svg, its two-line wordmark, as it has no symbol), Scalable Capital (Scalable Capital Logo 2024.svg, the teal S on its dark tile, wordmark dropped), Bitso (Logo de Bitso.svg, symbol only). Crops live in `BANK_MARK_CROPS` in `tool/fetch_brand_icons.mjs`.
+- Dark companions: Bitso and Hargreaves Lansdown (white), Plus500 and others need none.
+- Not found: Freetrade, Mudrex, Luno, Bitkub (no usable large original).

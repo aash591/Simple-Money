@@ -15,6 +15,7 @@ class StepSheetScaffold extends StatefulWidget {
     required this.footer,
     this.title,
     this.footerPadding = const EdgeInsets.fromLTRB(20, 8, 20, 16),
+    this.showClose = true,
   });
 
   final int currentIndex;
@@ -25,6 +26,10 @@ class StepSheetScaffold extends StatefulWidget {
   final Widget footer;
   final String? title;
   final EdgeInsetsGeometry footerPadding;
+
+  /// Whether the first step has a close button; false when the footer has its
+  /// own Cancel.
+  final bool showClose;
 
   @override
   State<StepSheetScaffold> createState() => _StepSheetScaffoldState();
@@ -59,10 +64,12 @@ class _StepSheetScaffoldState extends State<StepSheetScaffold> {
               SecondaryHeader(
                 title: widget.title ?? '',
                 centered: true,
-                leading: AppBackButton(
-                  close: widget.currentIndex == 0,
-                  onPressed: widget.onBack,
-                ),
+                leading: widget.currentIndex == 0 && !widget.showClose
+                    ? null
+                    : AppBackButton(
+                        close: widget.currentIndex == 0,
+                        onPressed: widget.onBack,
+                      ),
               ),
               Flexible(
                 fit: FlexFit.loose,

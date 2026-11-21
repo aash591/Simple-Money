@@ -96,6 +96,13 @@ const treatments = [
   // XP's black tile with white lettering vanishes on dark surfaces: swap the
   // two, which is the brand's own white-tile form.
   { key: 'xp', treatment: 'invertTile' },
+  // Black app tiles from crypto exchanges and wallets: same swap.
+  { key: 'okx', treatment: 'invertTile' },
+  { key: 'bybit', treatment: 'invertTile' },
+  { key: 'ledger', treatment: 'invertTile' },
+  { key: 'indmoney', treatment: 'invertTile' },
+  { key: 'bitso', treatment: 'white' },
+  { key: 'hargreaveslansdown', treatment: 'white' },
 ];
 const keys = treatments.map(({ key }) => key);
 const onlyKeys = process.argv.includes('--only')

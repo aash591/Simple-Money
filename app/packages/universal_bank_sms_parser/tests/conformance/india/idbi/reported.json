@@ -1,0 +1,44 @@
+[
+  {
+    "id": "idbi-reported-001",
+    "country": "IN",
+    "bankId": "in.idbi",
+    "provenance": "User-reported SMS (community report), sanitized: account, vehicle and name values replaced",
+    "input": {
+      "sender": "TX-IDBIBK-S",
+      "body": "IDBI Bank A/C NN12345 debited INR. 28.92 Det:SMS_CHARGE_FOR_APR26_TO_JUN26. Bal (incl. of chq in clg) INR. 5274.20 as of 21AUG 12:51 hrs.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idbi.charge",
+      "candidate": {
+        "amountMinor": 2892,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "bankTransfer",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "IDBI Bank",
+        "countryCode": "IN",
+        "accountLast4": "2345",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

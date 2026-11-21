@@ -91,6 +91,7 @@ class AccountStore extends ChangeNotifier {
     required int digits,
     required int openingBalance,
     bool broker = false,
+    String? place,
   }) async {
     if (saving) throw StateError('An account update is already being saved.');
     saving = true;
@@ -111,6 +112,7 @@ class AccountStore extends ChangeNotifier {
         digits: digits,
         openingBalance: openingBalance,
         broker: broker,
+        place: place,
       );
       _accounts = await repository.load();
     } finally {

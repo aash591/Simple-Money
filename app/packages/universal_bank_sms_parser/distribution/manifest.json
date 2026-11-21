@@ -353,8 +353,8 @@
         "IN"
       ],
       "path": "packs/india/hdfc.json",
-      "sha256": "4006a7b9c1f629d3221aa78efd9c9670a3126b357f37155f804a41be1f03515a",
-      "sizeBytes": 96783
+      "sha256": "bd4fcd28484311a383ed81ef7e7d7dfb83531e26814f83f37982c0c1eed555e5",
+      "sizeBytes": 105634
     },
     {
       "id": "in.hdfcmf",
@@ -389,8 +389,8 @@
         "IN"
       ],
       "path": "packs/india/idbi.json",
-      "sha256": "8676cd3811c41695db08cc1a5c4619f03891a123dad670682de8c597929b1641",
-      "sizeBytes": 49698
+      "sha256": "01f0bf18b1aeedd006e05404ee4b50f9a4e09c770a51bca79a7579955a1a154d",
+      "sizeBytes": 53030
     },
     {
       "id": "in.idfc",
@@ -398,8 +398,8 @@
         "IN"
       ],
       "path": "packs/india/idfc.json",
-      "sha256": "2b09c4d4b928b8e78299da340f9478b3fdaa53d4708ef4792c29cf2469b43258",
-      "sizeBytes": 84646
+      "sha256": "222e15e3aea410fe42345b292d0313202c6191006ea8fbcfba1759f9f7eb610a",
+      "sizeBytes": 88284
     },
     {
       "id": "in.indian",
@@ -528,6 +528,15 @@
       "sizeBytes": 49847
     },
     {
+      "id": "in.mmsccs",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/mmsccs.json",
+      "sha256": "3f988c3473041078294b1aaa0b9c91246e89cca837cdb3e937cad59f9fa96488",
+      "sizeBytes": 49619
+    },
+    {
       "id": "in.navi",
       "countries": [
         "IN"
@@ -582,6 +591,15 @@
       "sizeBytes": 54480
     },
     {
+      "id": "in.protean",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/protean.json",
+      "sha256": "d803ee8636454e8bcbce99b3b7262536be2ae48a587b04eb4622ca1cede074f7",
+      "sizeBytes": 49842
+    },
+    {
       "id": "in.psb",
       "countries": [
         "IN"
@@ -607,6 +625,15 @@
       "path": "packs/india/sbi.json",
       "sha256": "ebdac12d64609542ca2c51b1c863df3b35c869eeefabf384c4408de63193a3c8",
       "sizeBytes": 131715
+    },
+    {
+      "id": "in.skpscb",
+      "countries": [
+        "IN"
+      ],
+      "path": "packs/india/skpscb.json",
+      "sha256": "7f92e644e43e8f24107ee6707ee0a27637b675ae0ad02ba0cd7fe5e22a2244ff",
+      "sizeBytes": 52847
     },
     {
       "id": "in.slice",

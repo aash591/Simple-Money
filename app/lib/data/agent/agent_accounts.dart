@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../domain/account.dart';
+import '../../domain/account_place.dart';
 import '../../domain/bank_institution_icon.dart';
 import '../../domain/currency_digits.dart';
 import '../db/app_database.dart';
@@ -50,7 +51,12 @@ class AgentAccountFields {
     this.balance,
     this.creditLimit,
     this.availableCredit,
+    this.place,
   });
+
+  /// For create: an investment account (a broker, or an in-hand place for
+  /// gold or a wallet) rather than a bank, card or cash account.
+  final AccountPlace? place;
   final String? name, currency, lastDigits, institution, icon;
   final AccountType? type;
 
@@ -88,8 +94,13 @@ class AgentAccounts {
         final name = _name(fields.name);
         final currency = _currency(fields.currency ?? _defaultCurrency(all));
         final digits = digitsOf(currency);
-        final type = fields.type ?? AccountType.bank;
-        final lastDigits = _lastDigits(fields.lastDigits, type);
+        final place = fields.place;
+        final type = place != null
+            ? AccountType.bank
+            : (fields.type ?? AccountType.bank);
+        final lastDigits = place != null
+            ? null
+            : _lastDigits(fields.lastDigits, type);
         if (all.any(
           (a) =>
               !a.isArchived &&
@@ -101,6 +112,12 @@ class AgentAccounts {
           );
         }
         final balance = _minor(fields.balance, digits, 'balance') ?? 0;
+        if (place != null && !place.holdsCash && balance != 0) {
+          throw ArgumentError(
+            'An in-hand place holds no cash. Leave balance out and add what '
+            'is kept there with suggest_portfolio_changes.',
+          );
+        }
         final limit = type == AccountType.creditCard
             ? _minor(fields.creditLimit, digits, 'credit_limit', positive: true)
             : null;
@@ -131,13 +148,15 @@ class AgentAccounts {
           'balance': balance,
           'creditLimit': limit,
           'availableCredit': available,
+          if (place != null) ...{'broker': true, 'place': place.name},
         });
         target = 'new:${name.toLowerCase()}:$currency';
         summary = '${action.label} · $name';
         detail.addAll([
-          '${type.label} · $currency',
+          '${place?.tag ?? type.label} · $currency',
           if (lastDigits != null) 'Ending •• $lastDigits',
-          'Opening balance ${_money(balance, digits, currency)}',
+          if (place == null || place.holdsCash)
+            '${place == null ? 'Opening balance' : 'Funds'} ${_money(balance, digits, currency)}',
           if (limit != null) 'Credit limit ${_money(limit, digits, currency)}',
         ]);
 
@@ -298,6 +317,8 @@ class AgentAccounts {
           openingBalance: p['balance'] as int,
           creditLimitMinor: p['creditLimit'] as int?,
           availableCreditLimitMinor: p['availableCredit'] as int?,
+          broker: p['broker'] == true,
+          place: p['place'] as String?,
         );
         return {'accountId': id};
 

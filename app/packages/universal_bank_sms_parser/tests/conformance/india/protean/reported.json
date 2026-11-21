@@ -1,0 +1,44 @@
+[
+  {
+    "id": "protean-reported-001",
+    "country": "IN",
+    "bankId": "in.protean",
+    "provenance": "User-reported SMS (community report), sanitized: account, vehicle and name values replaced",
+    "input": {
+      "sender": "JK-PTNNPS-S",
+      "body": "APY(PRANXX1234) Contribution of Rs.42.00 for Oct-2026 credited to your PRAN. To complete Aadhar seeding Click https://example.com/PTNNPS/e/abc -Protean",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.protean.apy_contribution",
+      "candidate": {
+        "amountMinor": 4200,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "Protean NPS",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

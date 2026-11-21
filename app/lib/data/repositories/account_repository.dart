@@ -56,6 +56,7 @@ class AccountRepository {
               icon: r.readNullable<String>('icon'),
               hasDebitCard: (r.readNullable<int>('debit_card') ?? 0) != 0,
               isBroker: (r.readNullable<int>('broker') ?? 0) != 0,
+              placeId: r.readNullable<String>('place'),
               digits: r.read<int>('digits'),
               balanceMinor: r.read<int>('balance_minor'),
               transactionCount: r.read<int>('transaction_count'),
@@ -85,6 +86,7 @@ class AccountRepository {
     required int digits,
     required int openingBalance,
     bool broker = false,
+    String? place,
   }) async {
     final cleanName = name.trim();
     if (cleanName.isEmpty || cleanName.length > 40) {
@@ -114,8 +116,8 @@ class AccountRepository {
     if (existing == null) {
       return await database.customInsert(
         '''INSERT INTO accounts
-        (id, name, currency, territory, icon, digits, balance_minor, type, last_digits, institution, credit_limit_minor, available_limit_minor, balance_reported_at, available_limit_reported_at, credit_limit_reported_at, broker, sort_order)
-        VALUES (${newRowId('accounts')}, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM accounts))''',
+        (id, name, currency, territory, icon, digits, balance_minor, type, last_digits, institution, credit_limit_minor, available_limit_minor, balance_reported_at, available_limit_reported_at, credit_limit_reported_at, broker, place, sort_order)
+        VALUES (${newRowId('accounts')}, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order), -1) + 1 FROM accounts))''',
         variables: [
           Variable(cleanName),
           Variable(currency),
@@ -132,6 +134,7 @@ class AccountRepository {
           Variable(availableLimitReportedAt?.millisecondsSinceEpoch),
           Variable(creditLimitReportedAt?.millisecondsSinceEpoch),
           Variable(broker ? 1 : 0),
+          Variable(broker ? place : null),
         ],
       );
     } else {

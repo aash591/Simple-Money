@@ -170,20 +170,23 @@ void main() {
       expect(after.meta, '{"purity":"24k"}');
     });
 
-    test('a refresh skips a source it lacks without counting a failure', () async {
-      final requests = <Uri>[];
-      final service = PriceService(
-        MockClient((request) async {
-          requests.add(request.url);
-          return http.Response('', 500);
-        }),
-      );
-      final gold = (await repository.loadHoldings()).single;
-      final result = await service.fetch([(holding: gold, currency: 'INR')]);
-      expect(result.failed, 0);
-      expect(result.updated, isEmpty);
-      expect(requests, isEmpty);
-    });
+    test(
+      'a refresh skips a source it lacks without counting a failure',
+      () async {
+        final requests = <Uri>[];
+        final service = PriceService(
+          MockClient((request) async {
+            requests.add(request.url);
+            return http.Response('', 500);
+          }),
+        );
+        final gold = (await repository.loadHoldings()).single;
+        final result = await service.fetch([(holding: gold, currency: 'INR')]);
+        expect(result.failed, 0);
+        expect(result.updated, isEmpty);
+        expect(requests, isEmpty);
+      },
+    );
   });
 
   test('a price source is inferred only for kinds this version knows', () {
@@ -192,7 +195,12 @@ void main() {
     expect(PriceSourceId.infer(HoldingKind.fund, '122639'), PriceSourceId.amfi);
     expect(PriceSourceId.infer(HoldingKind.fund, 'VTSAX'), PriceSourceId.yahoo);
     expect(PriceSourceId.infer(HoldingKind.other, 'XAU'), isNull);
-    expect(HoldingKind.parse('crypto'), HoldingKind.other);
+    expect(HoldingKind.parse('bond'), HoldingKind.other);
+    expect(HoldingKind.parse('crypto'), HoldingKind.crypto);
+    expect(
+      PriceSourceId.infer(HoldingKind.crypto, 'bitcoin'),
+      PriceSourceId.coingecko,
+    );
     expect(HoldingKind.parse(null), HoldingKind.other);
     expect(HoldingKind.parse('etf'), HoldingKind.etf);
   });

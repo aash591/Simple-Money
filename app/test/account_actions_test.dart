@@ -81,7 +81,7 @@ void main() {
     expect(accounts.archivedAccounts.single.id, id);
     expect(accounts.archivedAccounts.single.balanceMinor, 99000);
     expect(transactions.transactions, hasLength(1));
-    expect(find.text('Manage Accounts'), findsOneWidget);
+    expect(find.text('Accounts'), findsOneWidget);
   });
 
   testWidgets(
@@ -352,7 +352,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(accounts.accounts.single.name, 'Wallet');
       expect(accounts.accounts.single.balanceMinor, 105000);
-      expect(find.text('Manage Accounts'), findsOneWidget);
+      expect(find.text('Accounts'), findsOneWidget);
     },
   );
 

@@ -8,7 +8,7 @@ checkout. Tests use the checked-in source rules and conformance corpus.
 The v0.3 rules contain **all 54 Indian bank and payment-service families** from
 the existing upstream coverage ledger: **289 Indian formats**, plus 98 banks and
 services in 23 other countries (364 formats, generated from PennyWise fixtures,
-see NOTICE.md) beside the Iran/Thailand pilots. The shared corpus has **1,246 cases**, including
+see NOTICE.md) beside the Iran/Thailand pilots. The shared corpus has **2,824 cases**, including
 278 migrated Indian movements, 55 physical-device-derived formats, variable-field examples, and rejection checks.
 See [COVERAGE.md](COVERAGE.md) for the bank list and validation scope.
 This does not yet replace the existing package's 159 worldwide families. Transport,

@@ -335,7 +335,8 @@ class _MorePopupOverlayState<T> extends State<_MorePopupOverlay<T>> {
               width: menuWidth,
               child: FrostedModalSurface(
                 borderRadius: radius,
-                blurSigma: 16,
+                blurSigma: 28,
+                airy: true,
                 shadows: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: dark ? .4 : .12),

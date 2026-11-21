@@ -80,7 +80,7 @@ void main() {
     );
     await tester.tap(find.text('More'));
     await capture('more-light');
-    await tester.tap(find.text('Manage Accounts'));
+    await tester.tap(find.text('Accounts'));
     await capture('accounts-light');
     await tester.tap(find.text('Cash'));
     await capture('account-settings-light');
@@ -109,7 +109,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('More'));
     await capture('more-dark');
-    await tester.tap(find.text('Manage Accounts'));
+    await tester.tap(find.text('Accounts'));
     await capture('accounts-dark');
     tester.view.physicalSize = const Size(320, 640);
     tester.platformDispatcher.textScaleFactorTestValue = 1.6;

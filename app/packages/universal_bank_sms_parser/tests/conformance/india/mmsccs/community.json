@@ -1,0 +1,44 @@
+[
+  {
+    "id": "mmsccs-community-001",
+    "country": "IN",
+    "bankId": "in.mmsccs",
+    "provenance": "Community-shared fix promoted into this pack; sample message reconstructed from the rule and sanitized",
+    "input": {
+      "sender": "MMSCCS",
+      "body": "INR 1,000.00 deposited in A/c No XXXX1234 w.e.f 01-10-2026. Bal INR 5,000.00",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.mmsccs.deposit",
+      "candidate": {
+        "amountMinor": 100000,
+        "currencyCode": "INR",
+        "direction": "credit",
+        "channel": "other",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "MMSCCS",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": null,
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "income",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

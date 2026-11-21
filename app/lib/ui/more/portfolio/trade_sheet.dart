@@ -72,6 +72,7 @@ class _TradeSheetState extends State<TradeSheet> {
   bool get _dividend => widget.type == TradeType.dividend;
   bool get _buy => widget.type == TradeType.buy;
   bool get _fund => widget.holding.kind == HoldingKind.fund;
+  HoldingKind get _kind => widget.holding.kind;
 
   /// The currency the price is quoted in, when it isn't the account's.
   String? get _ownCurrency {
@@ -151,7 +152,7 @@ class _TradeSheetState extends State<TradeSheet> {
     final text = (units / unitScale)
         .toStringAsFixed(_unitDecimals)
         .replaceFirst(RegExp(r'\.?0+$'), '');
-    return '$text ${_fund ? 'units' : (units == unitScale ? 'share' : 'shares')}';
+    return '$text ${_kind.unitsAfter(units)}';
   }
 
   String get _priceLabel {
@@ -159,12 +160,50 @@ class _TradeSheetState extends State<TradeSheet> {
     return price == null ? '' : _formatPrice(price);
   }
 
-  String _formatPrice(int price) {
+  /// A price with 4 places when it needs them; [places] fixes the count, as
+  /// for a converted price, which is only ever an estimate.
+  String _formatPrice(int price, [String? currency, int? places]) {
+    final code = currency ?? _priceCurrency;
     final text = NumberFormat.decimalPatternDigits(
-      locale: _priceCurrency == 'INR' ? 'en_IN' : 'en_US',
-      decimalDigits: price % priceScale == 0 ? 0 : (price % 100 == 0 ? 2 : 4),
+      locale: code == 'INR' ? 'en_IN' : 'en_US',
+      decimalDigits:
+          places ?? (price % priceScale == 0 ? 0 : (price % 100 == 0 ? 2 : 4)),
     ).format(price / priceScale);
-    return '${currencyPrefix(_priceCurrency)} $text';
+    return '${currencyPrefix(code)} $text';
+  }
+
+  /// The price typed, at today's rate in the account's currency, for a holding
+  /// priced in another one; null without a rate.
+  int? get _convertedPriceE4 {
+    final code = _ownCurrency, price = _priceE4;
+    if (code == null || price == null || price == 0) return null;
+    return widget.store.converter?.call(
+      price,
+      from: code,
+      fromDigits: 4,
+      to: _broker.currency,
+      toDigits: 4,
+    );
+  }
+
+  /// Where the last price on record came from.
+  String? get _sourceLine =>
+      widget.holding.sourceNote ??
+      (widget.holding.effectivePriceSource == PriceSourceId.manual
+          ? 'Set by hand'
+          : null);
+
+  /// Under the price: what it comes to in the account's currency, and the last
+  /// close on record.
+  String? get _priceHint {
+    final converted = _convertedPriceE4;
+    final lines = [
+      if (converted != null)
+        '≈ ${_formatPrice(converted, _broker.currency, 2)} in ${_broker.currency}',
+      ?_lastClosedHint,
+      if (_lastClosedHint != null) ?_sourceLine,
+    ];
+    return lines.isEmpty ? null : lines.join('\n');
   }
 
   /// The last close on record, so the price asked for has something to be
@@ -185,7 +224,11 @@ class _TradeSheetState extends State<TradeSheet> {
     TradeType.dividend => 'Dividend',
   };
 
-  String get _noun => _fund ? 'units' : 'shares';
+  String get _noun => _kind == HoldingKind.metal
+      ? 'grams'
+      : _fund
+      ? 'units'
+      : 'shares';
 
   // ---- Steps ------------------------------------------------------------------
 
@@ -421,9 +464,11 @@ class _TradeSheetState extends State<TradeSheet> {
           decimals: _unitDecimals,
         ),
         _Step.price => _keypad(
-          question: _fund
-              ? 'At what NAV per unit?'
-              : 'At what price per share?',
+          question: switch (_kind) {
+            HoldingKind.fund => 'At what NAV per unit?',
+            HoldingKind.metal => 'At what price per gram?',
+            _ => 'At what price per share?',
+          },
           summary: _summary([_unitsLabel]),
           text: _priceText,
           display: AmountTyping.display(
@@ -432,7 +477,7 @@ class _TradeSheetState extends State<TradeSheet> {
             decimals: 2,
           ),
           decimals: _priceDecimals,
-          hint: _lastClosedHint,
+          hint: _priceHint,
         ),
         _Step.paid => _keypad(
           question: _dividend
@@ -604,13 +649,13 @@ class _TradeSheetState extends State<TradeSheet> {
               if (!_dividend) ...[
                 TransactionDetailRow(
                   leading: const SheetIconTile(icon: Icons.pin_outlined),
-                  label: _fund ? 'Units' : 'Shares',
+                  label: _kind.unitsName,
                   value: _unitsLabel.split(' ').first,
                   onTap: edit(() => _goTo(_Step.units)),
                 ),
                 TransactionDetailRow(
                   leading: const SheetIconTile(icon: Icons.sell_outlined),
-                  label: _fund ? 'NAV per unit' : 'Price per share',
+                  label: _kind.priceName,
                   value: _priceLabel,
                   onTap: edit(() => _goTo(_Step.price)),
                 ),
@@ -631,7 +676,9 @@ class _TradeSheetState extends State<TradeSheet> {
                   leading: const SheetIconTile(
                     icon: Icons.receipt_long_outlined,
                   ),
-                  label: 'Fees and taxes',
+                  label: _kind == HoldingKind.metal
+                      ? 'Making charges and tax'
+                      : 'Fees and taxes',
                   value: fees == 0 ? 'None' : _money(fees),
                   placeholder: fees == 0,
                   onTap: edit(() => _goTo(_Step.fees)),

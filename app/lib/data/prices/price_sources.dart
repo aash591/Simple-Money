@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../domain/holding.dart';
+import '../../domain/metal.dart';
 
 /// A closing price (or a fund's NAV) for one day.
 class PriceQuote {
@@ -22,8 +23,12 @@ class SymbolHit {
     required this.kind,
     this.exchange,
     this.priceSource,
+    this.image,
   });
   final String name, symbol;
+
+  /// A logo address, for a source that has one (coins).
+  final String? image;
   final String? exchange;
   final HoldingKind kind;
 
@@ -50,6 +55,11 @@ abstract class PriceSource {
     String query, {
     required String currency,
   }) async => const [];
+
+  /// Whether this source finds holdings of [kind], so a search only asks the
+  /// sources that can answer it.
+  bool offers(HoldingKind kind) =>
+      kind != HoldingKind.crypto && kind != HoldingKind.metal;
 }
 
 int? _toE4(num? value) {
@@ -269,7 +279,9 @@ class YahooQuotes {
           .get(
             Uri.https(
               'query1.finance.yahoo.com',
-              '/v8/finance/chart/${Uri.encodeComponent(yahooSymbol)}',
+              // Uri.https encodes the path itself: encoding here too would turn
+              // `GC=F` into `GC%253DF`, which Yahoo doesn't know.
+              '/v8/finance/chart/$yahooSymbol',
               {'range': '5d', 'interval': '1d'},
             ),
             headers: _headers,
@@ -401,12 +413,204 @@ class YahooSource extends PriceSource {
     required String currency,
   }) async {
     final hits = await YahooQuotes.search(client, query);
-    // A rupee broker's funds come from AMFI, which knows them better.
+    // A rupee broker's Indian funds come from AMFI, which knows them better.
+    // Funds in other countries still come from here: people hold those too.
+    bool indianFund(SymbolHit h) =>
+        h.kind == HoldingKind.fund &&
+        (h.symbol.toUpperCase().endsWith('.BO') ||
+            h.symbol.toUpperCase().endsWith('.NS'));
     return currency == 'INR'
         ? [
             for (final h in hits)
-              if (h.kind != HoldingKind.fund) h,
+              if (!indianFund(h)) h,
           ]
         : hits;
+  }
+}
+
+/// Crypto coins from CoinGecko's public price list, which needs no account or
+/// key. A coin is saved by its CoinGecko id (`bitcoin`), and priced in US
+/// dollars: a rupee account keeps that price in dollars and converts it, the
+/// way it does for a US stock. Every call can fail or be limited, and the app
+/// treats that as "no new price".
+class CoinGeckoSource extends PriceSource {
+  @override
+  String get id => PriceSourceId.coingecko;
+
+  @override
+  bool offers(HoldingKind kind) => kind == HoldingKind.crypto;
+
+  /// A `/simple/price` response, by CoinGecko id.
+  static Map<String, PriceQuote> parsePrices(String body) {
+    try {
+      final json = jsonDecode(body) as Map<String, dynamic>;
+      final found = <String, PriceQuote>{};
+      for (final MapEntry(key: coin, value: row) in json.entries) {
+        if (row is! Map) continue;
+        final e4 = _toE4(row['usd'] as num?);
+        if (e4 == null || e4 <= 0) continue;
+        final stamp = row['last_updated_at'] as num?;
+        final at = stamp == null
+            ? DateTime.now()
+            : DateTime.fromMillisecondsSinceEpoch(
+                stamp.toInt() * 1000,
+                isUtc: true,
+              ).toLocal();
+        found[coin] = PriceQuote(
+          priceE4: e4,
+          date: DateTime(at.year, at.month, at.day),
+          currency: 'USD',
+        );
+      }
+      return found;
+    } catch (_) {
+      return const {};
+    }
+  }
+
+  static List<SymbolHit> parseSearch(String body) {
+    try {
+      final coins = (jsonDecode(body) as Map<String, dynamic>)['coins'];
+      return [
+        for (final c in (coins as List? ?? const []).cast<Map>().take(15))
+          if (c['id'] is String && c['name'] is String)
+            SymbolHit(
+              name: c['name'] as String,
+              symbol: c['id'] as String,
+              kind: HoldingKind.crypto,
+              exchange: (c['symbol'] as String?)?.toUpperCase(),
+              priceSource: PriceSourceId.coingecko,
+              image: c['large'] as String?,
+            ),
+      ];
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  @override
+  Future<Map<int, PriceQuote>> quotes(
+    http.Client client,
+    List<Holding> holdings,
+  ) async {
+    final ids = {for (final h in holdings) h.symbol!.trim().toLowerCase()};
+    try {
+      final response = await client
+          .get(
+            Uri.https('api.coingecko.com', '/api/v3/simple/price', {
+              'ids': ids.join(','),
+              'vs_currencies': 'usd',
+              'include_last_updated_at': 'true',
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
+      if (response.statusCode != 200) return const {};
+      final byCoin = parsePrices(response.body);
+      return {
+        for (final h in holdings)
+          if (byCoin[h.symbol!.trim().toLowerCase()] case final quote?)
+            h.id: quote,
+      };
+    } catch (_) {
+      return const {};
+    }
+  }
+
+  @override
+  Future<List<SymbolHit>> search(
+    http.Client client,
+    String query, {
+    required String currency,
+  }) async {
+    try {
+      final response = await client
+          .get(
+            Uri.https('api.coingecko.com', '/api/v3/search', {'query': query}),
+          )
+          .timeout(const Duration(seconds: 10));
+      return response.statusCode == 200 ? parseSearch(response.body) : const [];
+    } catch (_) {
+      return const [];
+    }
+  }
+}
+
+/// The international price of a metal as a price per gram of its purity, in
+/// the currency Yahoo quotes it in.
+abstract class _MetalSource extends PriceSource {
+  /// The futures quote (dollars per troy ounce) for each of [metals].
+  Future<Map<MetalType, PriceQuote>> _futures(
+    http.Client client,
+    Set<MetalType> metals,
+  ) async {
+    final quotes = await Future.wait([
+      for (final m in metals) YahooQuotes.quote(client, m.futuresSymbol),
+    ]);
+    return {
+      for (final (i, m) in metals.indexed)
+        if (quotes[i] case final quote?) m: quote,
+    };
+  }
+
+  /// A quote per gram of [details]' purity from [ounce], times [rate] and
+  /// [markup], in [currency].
+  PriceQuote? _perGram(
+    PriceQuote ounce,
+    MetalDetails details, {
+    double rate = 1,
+    double markup = 1,
+    required String currency,
+  }) {
+    final perGram =
+        ounce.priceE4 /
+        gramsPerTroyOunce *
+        MetalType.fraction(details.fineness) *
+        rate *
+        markup;
+    final e4 = perGram.round();
+    return e4 <= 0
+        ? null
+        : PriceQuote(priceE4: e4, date: ounce.date, currency: currency);
+  }
+
+  @override
+  bool offers(HoldingKind kind) => false;
+}
+
+/// Gold, silver and platinum at the international price, from Yahoo's metal
+/// futures. A holding's own currency is the one it is priced in: it is
+/// converted from dollars at Yahoo's rate, since people buy metal in their own
+/// currency. Not the price a local shop charges.
+class MetalWorldSource extends _MetalSource {
+  @override
+  String get id => PriceSourceId.metalWorld;
+
+  @override
+  Future<Map<int, PriceQuote>> quotes(
+    http.Client client,
+    List<Holding> holdings,
+  ) async {
+    final wanted = {
+      for (final h in holdings)
+        if (h.metalDetails case final d?) h.id: (d, h.currency ?? 'USD'),
+    };
+    final futures = await _futures(client, {
+      for (final (d, _) in wanted.values) d.metal,
+    });
+    // Dollars to each currency asked for, once each.
+    final rates = <String, double>{'USD': 1};
+    for (final code in {for (final (_, c) in wanted.values) c}) {
+      if (rates.containsKey(code)) continue;
+      final fx = await YahooQuotes.quote(client, '$code=X');
+      if (fx != null) rates[code] = fx.priceE4 / priceScale;
+    }
+    return {
+      for (final MapEntry(key: id, value: (d, code)) in wanted.entries)
+        if (futures[d.metal] case final ounce?)
+          if (rates[code] case final rate?)
+            if (_perGram(ounce, d, rate: rate, currency: code)
+                case final quote?)
+              id: quote,
+    };
   }
 }

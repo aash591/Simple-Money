@@ -45,6 +45,55 @@
           "length": 4
         }
       }
+    },
+    {
+      "id": "in.idbi.charge",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "bankTransfer",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "IDBI Bank A/C NN"
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 32
+        },
+        {
+          "op": "match_literal",
+          "value": " debited INR. "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 24
+        },
+        {
+          "op": "match_literal",
+          "value": " Det:"
+        },
+        {
+          "op": "capture_text",
+          "name": "detail",
+          "maxLength": 100
+        },
+        {
+          "op": "match_literal",
+          "value": ". Bal "
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        }
+      }
     }
   ]
 }

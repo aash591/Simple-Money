@@ -69,23 +69,36 @@ vec4 backdrop(vec2 coord) {
   if (u_blur <= 0.0) {
     return texture(u_backdrop, coord / u_size);
   }
-  // A small Gaussian blur of sigma [u_blur]: a 5x5 grid of taps two thirds
-  // of a sigma apart. Taps a whole sigma apart showed each letter as a few
-  // offset copies, an outline rather than a blur; this close, and with the
-  // hardware blending between texels, they merge.
-  vec2 stride = vec2(u_blur * 0.6667) / u_size;
+  // A Gaussian blur of sigma [u_blur], sampled on a golden-angle spiral that
+  // is turned a little differently for every pixel. A fixed grid of taps
+  // (the old 5x5) stamped each letter behind the bar as a few offset copies,
+  // which read as pixelated; turning the pattern per pixel spreads those
+  // copies into a fine, even grain the eye sees as smooth frost.
   vec2 uv = coord / u_size;
+  // Interleaved gradient noise: a cheap per-pixel angle with no visible
+  // pattern of its own.
+  float spin = 6.2831853 *
+      fract(52.9829189 * fract(dot(FlutterFragCoord().xy,
+                                   vec2(0.06711056, 0.00583715))));
+  // 16 taps, fewer than the grid's 25: the per-pixel turn hides the gaps a
+  // sparse fixed pattern would show. The disc reaches 2.5 sigma; past that a
+  // Gaussian adds next to nothing.
+  vec2 reach = vec2(u_blur * 2.5) / u_size;
+  // Each tap is the last one turned by the golden angle, so the loop needs
+  // no sin or cos: just one turn of the starting direction.
+  vec2 dir = vec2(cos(spin), sin(spin));
+  const mat2 golden = mat2(-0.7373688, 0.6754903, -0.6754903, -0.7373688);
   vec4 sum = vec4(0.0);
-  for (int y = -2; y <= 2; y++) {
-    for (int x = -2; x <= 2; x++) {
-      vec2 tap = vec2(float(x), float(y));
-      // exp(-d^2 / 2) with d in sigmas (2/3 a tap), over the grid's total
-      // weight, 3.4238^2.
-      float weight = exp(-0.2222 * dot(tap, tap)) / 11.7225;
-      sum += texture(u_backdrop, uv + tap * stride) * weight;
-    }
+  float total = 0.0;
+  for (int i = 0; i < 16; i++) {
+    float t = (float(i) + 0.5) / 16.0;
+    // exp(-d^2 / 2) with d = sqrt(t) * 2.5 sigmas.
+    float weight = exp(-3.125 * t);
+    sum += texture(u_backdrop, uv + dir * sqrt(t) * reach) * weight;
+    total += weight;
+    dir = golden * dir;
   }
-  return sum;
+  return sum / total;
 }
 
 void main() {

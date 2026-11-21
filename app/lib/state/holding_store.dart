@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
 import '../data/prices/price_service.dart';
@@ -8,14 +10,13 @@ import '../domain/holding.dart';
 import 'account_store.dart';
 
 /// Converts [minor] between currencies by today's rates; null without a rate.
-typedef RateConverter =
-    int? Function(
-      int minor, {
-      required String from,
-      required int fromDigits,
-      required String to,
-      required int toDigits,
-    });
+typedef RateConverter = int? Function(
+  int minor, {
+  required String from,
+  required int fromDigits,
+  required String to,
+  required int toDigits,
+});
 
 class HoldingStoreScope extends InheritedNotifier<HoldingStore> {
   const HoldingStoreScope({
@@ -148,10 +149,8 @@ class HoldingStore extends ChangeNotifier {
     return totals;
   }
 
-  int holdingsCostMinor(Account broker) => holdingsOf(broker.id).fold(
-    0,
-    (sum, h) => sum + positionFor(h).costMinor,
-  );
+  int holdingsCostMinor(Account broker) =>
+      holdingsOf(broker.id).fold(0, (sum, h) => sum + positionFor(h).costMinor);
 
   /// Cash plus holdings: what the broker account is worth.
   int totalValueMinor(Account broker) =>
@@ -196,6 +195,7 @@ class HoldingStore extends ChangeNotifier {
     String? exchange,
     String? priceSource,
     String? currency,
+    String? meta,
   }) async {
     final id = await repository.saveHolding(
       existing: existing,
@@ -206,6 +206,7 @@ class HoldingStore extends ChangeNotifier {
       exchange: exchange,
       priceSource: priceSource,
       currency: currency,
+      meta: meta,
     );
     await _reload();
     return id;
@@ -246,9 +247,44 @@ class HoldingStore extends ChangeNotifier {
     }
   }
 
-  Future<void> setPrice(Holding holding, int priceE4, DateTime date) async {
-    await repository.setPrice(holding.id, priceE4, date);
+  Future<void> setPrice(
+    Holding holding,
+    int priceE4,
+    DateTime date, {
+    bool overwrite = false,
+  }) async {
+    await repository.setPrice(holding.id, priceE4, date, overwrite: overwrite);
     await _reload();
+  }
+
+  /// Fetches [holding]'s latest price from its own source and keeps it, even
+  /// over a newer-dated one (such as the price of a purchase). False when it
+  /// can't be fetched or the source prices it in another currency.
+  Future<bool> refreshHolding(Holding holding) async {
+    final service = prices;
+    final broker = accountStore.byId(holding.accountId);
+    if (service == null || broker == null || !holding.canFetchPrice) {
+      return false;
+    }
+    final quote = await service.quoteFor(
+      kind: holding.kind,
+      symbol: holding.symbol,
+      exchange: holding.exchange,
+      priceSource: holding.priceSource,
+      meta: holding.meta,
+      currency: holding.currency,
+    );
+    if (quote == null) return false;
+    final want = holding.currencyIn(broker.currency);
+    if (quote.currency != null && quote.currency != want) return false;
+    await repository.setPrice(
+      holding.id,
+      quote.priceE4,
+      quote.date,
+      overwrite: true,
+    );
+    await _reload();
+    return true;
   }
 
   Future<void> addTrade({
@@ -274,18 +310,24 @@ class HoldingStore extends ChangeNotifier {
       note: note,
     );
     // A trade at a price is the latest price known for the day, unless the
-    // market's own close is kept for this holding: what someone paid is not
-    // what it last closed at.
+    // price comes from a source (a market close, a coin or metal price): what
+    // someone paid is not what it is worth now.
+    final source = holding.effectivePriceSource;
     final marketPriced =
         (holding.symbol?.trim().isNotEmpty ?? false) &&
-        (holding.effectivePriceSource == PriceSourceId.yahoo ||
-            holding.effectivePriceSource == PriceSourceId.amfi);
+        source != null &&
+        source != PriceSourceId.manual;
     if (type != TradeType.dividend &&
         priceE4 > 0 &&
         !(marketPriced && holding.lastPriceE4 != null)) {
       await repository.setPrice(holding.id, priceE4, date);
     }
     await _reload();
+    // With no price from its source yet, the price paid stands in for it only
+    // until the source is asked.
+    if (marketPriced && holding.lastPriceE4 == null) {
+      unawaited(refreshPrices(force: true));
+    }
   }
 
   Future<void> deleteTrade(HoldingTrade trade) async {

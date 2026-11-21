@@ -1,0 +1,84 @@
+[
+  {
+    "id": "idfc-reported-001",
+    "country": "IN",
+    "bankId": "in.idfc",
+    "provenance": "User-reported SMS (community report), sanitized: account, vehicle and name values replaced",
+    "input": {
+      "sender": "JM-IDFCFB-S",
+      "body": "INR 30 toll paid from IDFC FIRST Bank Tag 3XXX1234 for vehicle no. KL00AA0000 at SAMPLE TOLL PLAZA on 28/07/2026 18:24. Avbl. Bal.: INR73.00.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.fastag_toll",
+      "candidate": {
+        "amountMinor": 3000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "SAMPLE TOLL PLAZA",
+        "category": {
+          "id": "tolls",
+          "name": "Tolls",
+          "type": "expense",
+          "ruleId": "in.category.tolls",
+          "isFallback": false,
+          "aliases": [
+            "Transportation"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "idfc-reported-002",
+    "country": "IN",
+    "bankId": "in.idfc",
+    "provenance": "User-reported SMS (community report), sanitized: account, vehicle and name values replaced",
+    "input": {
+      "sender": "CP-IDFCFB-S",
+      "body": "INR 55 toll paid from IDFC FIRST Bank Tag 3XXX1234 for vehicle no. KL00AA0000 at SAMPLE TOLL PLAZA on 28/07/2026 13:57. Avbl. Bal.: INR103.00.",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.idfc.fastag_toll",
+      "candidate": {
+        "amountMinor": 5500,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "wallet",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "bankName": "IDFC FIRST Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "SAMPLE TOLL PLAZA",
+        "category": {
+          "id": "tolls",
+          "name": "Tolls",
+          "type": "expense",
+          "ruleId": "in.category.tolls",
+          "isFallback": false,
+          "aliases": [
+            "Transportation"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  }
+]

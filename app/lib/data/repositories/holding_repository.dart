@@ -12,7 +12,9 @@ class HoldingRepository {
 
   Future<List<Holding>> loadHoldings() async =>
       (await database
-              .customSelect('SELECT * FROM holdings ORDER BY name COLLATE NOCASE, id')
+              .customSelect(
+                'SELECT * FROM holdings ORDER BY name COLLATE NOCASE, id',
+              )
               .get())
           .map(
             (r) => Holding(
@@ -72,6 +74,9 @@ class HoldingRepository {
     /// The price's currency when it isn't the account's; null keeps the
     /// account's (or, editing, what is stored).
     String? currency,
+
+    /// Extra details (JSON text); null keeps what is stored.
+    String? meta,
   }) async {
     final clean = name.trim();
     if (clean.isEmpty || clean.length > 60) {
@@ -89,7 +94,7 @@ class HoldingRepository {
       final sameTicker = cleanSymbol == existing.symbol;
       await database.customUpdate(
         '''UPDATE holdings SET kind = ?, name = ?, symbol = ?, exchange = ?,
-             price_source = ?, currency = ? WHERE id = ?''',
+             price_source = ?, currency = ?, meta = ? WHERE id = ?''',
         variables: [
           Variable(sameKind ? existing.kindId : kind.name),
           Variable(clean),
@@ -102,6 +107,7 @@ class HoldingRepository {
                     : PriceSourceId.infer(kind, cleanSymbol)),
           ),
           Variable(currency ?? existing.currency),
+          Variable(meta ?? existing.meta),
           Variable(existing.id),
         ],
       );
@@ -114,7 +120,9 @@ class HoldingRepository {
         )
         .getSingleOrNull();
     if (broker == null || broker.read<int>('broker') == 0) {
-      throw ArgumentError('Holdings can only be added under an investment account.');
+      throw ArgumentError(
+        'Holdings can only be added under an investment account.',
+      );
     }
     // The same ticker in the same account is one holding: a second add (a
     // double tap, a sync from another phone) reuses it instead of doubling it.
@@ -131,8 +139,8 @@ class HoldingRepository {
     return database.customInsert(
       '''INSERT INTO holdings
            (id, account_id, kind, name, symbol, exchange, price_source,
-            currency)
-         VALUES (${newRowId('holdings')}, ?, ?, ?, ?, ?, ?, ?)''',
+            currency, meta)
+         VALUES (${newRowId('holdings')}, ?, ?, ?, ?, ?, ?, ?, ?)''',
       variables: [
         Variable(accountId),
         Variable(kind.name),
@@ -141,21 +149,31 @@ class HoldingRepository {
         Variable(cleanExchange),
         Variable(priceSource ?? PriceSourceId.infer(kind, cleanSymbol)),
         Variable(currency),
+        Variable(meta),
       ],
     );
   }
 
   /// Stores the last close for [holdingId]. An older price never replaces a
   /// newer one, so a slow response can't move a holding backwards in time.
-  Future<void> setPrice(int holdingId, int priceE4, DateTime date) async {
+  ///
+  /// With [overwrite] the price is kept even if it is older than the one
+  /// stored: for a price the person asked to fetch or typed.
+  Future<void> setPrice(
+    int holdingId,
+    int priceE4,
+    DateTime date, {
+    bool overwrite = false,
+  }) async {
     final day = _day(date);
     await database.customUpdate(
       '''UPDATE holdings SET last_price_e4 = ?, price_date = ?
-         WHERE id = ? AND (price_date IS NULL OR price_date <= ?)''',
+         WHERE id = ? AND (? OR price_date IS NULL OR price_date <= ?)''',
       variables: [
         Variable(priceE4),
         Variable(day),
         Variable(holdingId),
+        Variable(overwrite),
         Variable(day),
       ],
     );
@@ -299,10 +317,11 @@ class HoldingRepository {
     }
   }
 
-  Future<void> _moveCash(int accountId, int deltaMinor) => database.customUpdate(
-    'UPDATE accounts SET balance_minor = balance_minor + ? WHERE id = ?',
-    variables: [Variable(deltaMinor), Variable(accountId)],
-  );
+  Future<void> _moveCash(int accountId, int deltaMinor) =>
+      database.customUpdate(
+        'UPDATE accounts SET balance_minor = balance_minor + ? WHERE id = ?',
+        variables: [Variable(deltaMinor), Variable(accountId)],
+      );
 
   Future<Holding> _holding(int id) async {
     final all = await loadHoldings();

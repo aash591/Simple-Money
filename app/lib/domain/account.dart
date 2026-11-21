@@ -37,6 +37,7 @@ class Account {
     this.balanceReportedAt,
     this.hasDebitCard = false,
     this.isBroker = false,
+    this.placeId,
   });
   final int id;
 
@@ -46,9 +47,12 @@ class Account {
   /// withdrawals), never for spending.
   final bool isBroker;
 
+  /// The place as stored, or null for an account saved before places existed.
+  final String? placeId;
+
   /// Which kind of investment account this is, or null for a bank, card or
   /// cash account. See [AccountPlace] for how more kinds get added.
-  AccountPlace? get place => isBroker ? AccountPlace.broker : null;
+  AccountPlace? get place => isBroker ? AccountPlace.parse(placeId) : null;
 
   /// A debit card is paid from this account, or this account is one: the
   /// card icon is shown beside the account's kind.

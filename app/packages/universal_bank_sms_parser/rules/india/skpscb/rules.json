@@ -1,0 +1,97 @@
+{
+  "id": "in.skpscb",
+  "name": "Sreekrishnapuram SCB",
+  "senders": [
+    "SKPSCB"
+  ],
+  "formats": [
+    {
+      "id": "in.skpscb.credit",
+      "channel": "other",
+      "classification": "completed",
+      "defaults": {
+        "grouping": "indian"
+      },
+      "direction": "credit",
+      "output": {
+        "accountLast4": {
+          "capture": "account",
+          "length": 4,
+          "operation": "extract_account_suffix"
+        },
+        "amount": {
+          "capture": "amount"
+        }
+      },
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Dear Customer Rs."
+        },
+        {
+          "maxLength": 20,
+          "name": "amount",
+          "op": "capture_money"
+        },
+        {
+          "op": "match_literal",
+          "value": "has been Credited to your A/c No:"
+        },
+        {
+          "maxLength": 20,
+          "minDigits": 4,
+          "name": "account",
+          "op": "capture_account"
+        },
+        {
+          "op": "match_literal",
+          "value": "Current Balance is"
+        }
+      ]
+    },
+    {
+      "id": "in.skpscb.debit",
+      "channel": "other",
+      "classification": "completed",
+      "defaults": {
+        "grouping": "indian"
+      },
+      "direction": "debit",
+      "output": {
+        "accountLast4": {
+          "capture": "account",
+          "length": 4,
+          "operation": "extract_account_suffix"
+        },
+        "amount": {
+          "capture": "amount"
+        }
+      },
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Dear Customer Rs."
+        },
+        {
+          "maxLength": 20,
+          "name": "amount",
+          "op": "capture_money"
+        },
+        {
+          "op": "match_literal",
+          "value": "has been Debited from your A/c No:"
+        },
+        {
+          "maxLength": 20,
+          "minDigits": 4,
+          "name": "account",
+          "op": "capture_account"
+        },
+        {
+          "op": "match_literal",
+          "value": "Current Balance is"
+        }
+      ]
+    }
+  ]
+}

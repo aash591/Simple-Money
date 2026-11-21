@@ -223,7 +223,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Your profile'), findsOneWidget);
       expect(find.byType(FloatingActionButton), findsNothing);
-      await tester.tap(find.text('Manage Accounts'));
+      await tester.tap(find.text('Accounts'));
       await tester.pumpAndSettle();
       expect(find.text('Add your first account'), findsOneWidget);
       await tester.pageBack();
@@ -425,7 +425,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('More'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Manage Accounts'));
+      await tester.tap(find.text('Accounts'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Add your first account'));
       await tester.pumpAndSettle();

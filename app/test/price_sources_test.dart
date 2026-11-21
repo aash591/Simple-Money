@@ -179,29 +179,36 @@ void main() {
       await db.close();
     });
 
-    test('sets prices, skips another currency, once a day unless forced',
-        () async {
-      final first = await store.refreshPrices();
-      expect(first!.updated.length, 2);
-      expect(first.mismatched, 1, reason: 'Apple is in USD, the broker in INR');
-      Holding named(String n) => store.holdings.firstWhere((h) => h.name == n);
-      expect(named('TCS').lastPriceE4, 35502500);
-      expect(named('PPFAS').lastPriceE4, 824567);
-      expect(named('Apple').lastPriceE4, isNull);
-      expect(named('Typed by hand').lastPriceE4, isNull);
-      // Only tickers and scheme codes go out.
-      for (final url in requested) {
-        expect('$url'.toLowerCase(), isNot(contains('zerodha')));
-      }
+    test(
+      'sets prices, skips another currency, once a day unless forced',
+      () async {
+        final first = await store.refreshPrices();
+        expect(first!.updated.length, 2);
+        expect(
+          first.mismatched,
+          1,
+          reason: 'Apple is in USD, the broker in INR',
+        );
+        Holding named(String n) =>
+            store.holdings.firstWhere((h) => h.name == n);
+        expect(named('TCS').lastPriceE4, 35502500);
+        expect(named('PPFAS').lastPriceE4, 824567);
+        expect(named('Apple').lastPriceE4, isNull);
+        expect(named('Typed by hand').lastPriceE4, isNull);
+        // Only tickers and scheme codes go out.
+        for (final url in requested) {
+          expect('$url'.toLowerCase(), isNot(contains('zerodha')));
+        }
 
-      final count = requested.length;
-      expect(await store.refreshPrices(), isNull, reason: 'done today');
-      expect(requested.length, count);
-      expect(await store.refreshPrices(force: true), isNotNull);
+        final count = requested.length;
+        expect(await store.refreshPrices(), isNull, reason: 'done today');
+        expect(requested.length, count);
+        expect(await store.refreshPrices(force: true), isNotNull);
 
-      today = DateTime(2026, 11, 20);
-      expect(await store.refreshPrices(), isNotNull, reason: 'a new day');
-    });
+        today = DateTime(2026, 11, 20);
+        expect(await store.refreshPrices(), isNotNull, reason: 'a new day');
+      },
+    );
 
     test('a failed fetch is not counted as done, so it tries again', () async {
       final offline = MockClient(
@@ -218,6 +225,74 @@ void main() {
       expect(result.failed, greaterThan(0));
       expect(await store2.prices!.due(), isTrue);
       store2.dispose();
+    });
+  });
+
+  group('CoinGecko crypto', () {
+    final client = MockClient((request) async {
+      if (request.url.path == '/api/v3/search') {
+        return http.Response(
+          jsonEncode({
+            'coins': [
+              {
+                'id': 'ethereum',
+                'name': 'Ethereum',
+                'symbol': 'ETH',
+                'large': 'https://coin-images.coingecko.com/coins/images/279/large/ethereum.png',
+              },
+            ],
+          }),
+          200,
+        );
+      }
+      return http.Response(
+        jsonEncode({
+          'ethereum': {'usd': 3200.5, 'last_updated_at': 1795241536},
+        }),
+        200,
+      );
+    });
+
+    test('search finds a coin with its logo, only for crypto', () async {
+      final service = PriceService(client);
+      final hits = await service.search(
+        'ethereum',
+        currency: 'USD',
+        kind: HoldingKind.crypto,
+      );
+      expect(hits.single.symbol, 'ethereum');
+      expect(hits.single.kind, HoldingKind.crypto);
+      expect(hits.single.exchange, 'ETH');
+      expect(hits.single.image, contains('coin-images.coingecko.com'));
+      final stocks = await service.search('ethereum', currency: 'USD');
+      expect(stocks.where((h) => h.kind == HoldingKind.crypto), isEmpty);
+    });
+
+    test('a coin is priced in dollars by its id', () async {
+      final quote = await PriceService(client)
+          .quoteFor(kind: HoldingKind.crypto, symbol: 'ethereum');
+      expect(quote!.priceE4, 32005000);
+      expect(quote.currency, 'USD');
+    });
+
+    test('only a CoinGecko logo address is trusted', () {
+      Holding withMeta(String meta) => Holding(
+        id: 1,
+        accountId: 1,
+        kind: HoldingKind.crypto,
+        name: 'Ethereum',
+        meta: meta,
+      );
+      expect(
+        withMeta('{"image":"https://coin-images.coingecko.com/a.png"}')
+            .imageUrl,
+        isNotNull,
+      );
+      expect(
+        withMeta('{"image":"https://evil.example/a.png"}').imageUrl,
+        isNull,
+      );
+      expect(withMeta('not json').imageUrl, isNull);
     });
   });
 }

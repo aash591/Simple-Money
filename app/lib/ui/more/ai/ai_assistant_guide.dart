@@ -145,6 +145,16 @@ const aiAssistantGuide = InfoGuide(
             'far.',
       ),
       GuideTip.prompt(
+        'Set up my portfolio',
+        'Here’s my broker statement. Add the broker, then each stock, fund '
+            'or coin I hold with what I paid, so my portfolio matches it.',
+      ),
+      GuideTip.prompt(
+        'Record a purchase',
+        'I bought 10 units of Parag Parikh Flexi Cap today at today’s NAV. '
+            'Record it in my portfolio.',
+      ),
+      GuideTip.prompt(
         'See where money went',
         'Where did my money go last month? Break it down by category and top '
             'payees.',

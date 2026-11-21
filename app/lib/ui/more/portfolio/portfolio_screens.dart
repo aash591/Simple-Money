@@ -10,6 +10,7 @@ import '../../../state/category_store.dart';
 import '../../../state/holding_store.dart';
 import '../../../state/transaction_store.dart';
 import '../../components/action_buttons.dart';
+import '../../components/app_toast.dart';
 import '../../components/animated_amount.dart';
 import '../../components/account_tile.dart' show AccountLogo;
 import '../../components/app_icon.dart';
@@ -31,12 +32,8 @@ import 'add_holding_screen.dart';
 import 'portfolio_sheets.dart';
 import 'trade_sheet.dart';
 import 'broker_money_sheet.dart';
-import 'select_place_screen.dart';
-
-String formatUnits(int unitsE6) {
-  final text = (unitsE6 / unitScale).toStringAsFixed(4);
-  return text.replaceFirst(RegExp(r'\.?0+$'), '');
-}
+import 'add_broker_screen.dart';
+import 'holding_logo.dart';
 
 /// A price in [currency], which is the account's own unless a holding is
 /// quoted in another.
@@ -105,6 +102,59 @@ class _RefreshButton extends StatelessWidget {
         );
 }
 
+/// Fetches one holding's latest price from its own source.
+class _HoldingRefreshButton extends StatefulWidget {
+  const _HoldingRefreshButton({required this.store, required this.holding});
+  final HoldingStore store;
+  final Holding holding;
+
+  @override
+  State<_HoldingRefreshButton> createState() => _HoldingRefreshButtonState();
+}
+
+class _HoldingRefreshButtonState extends State<_HoldingRefreshButton> {
+  bool _busy = false;
+
+  Future<void> _refresh() async {
+    setState(() => _busy = true);
+    final ok = await widget.store.refreshHolding(widget.holding);
+    if (!mounted) return;
+    setState(() => _busy = false);
+    showAppToast(
+      context,
+      ok
+          ? widget.holding.updatedLabel
+          : 'Couldn’t get the latest price. Try again later.',
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => _busy
+      ? const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 14),
+          child: Center(
+            child: SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+        )
+      // Holding it names the button; a tooltip would also take the press.
+      : Semantics(
+          label: widget.holding.updateLabel,
+          child: GestureDetector(
+            onLongPress: () =>
+                showAppToast(context, widget.holding.updateLabel),
+            child: IconButton(
+              key: const Key('holding-refresh'),
+              icon: const Icon(Icons.refresh_rounded),
+              onPressed: _refresh,
+            ),
+          ),
+        );
+}
+
 /// Every broker with what it is worth, cash included.
 class PortfolioScreen extends StatelessWidget {
   const PortfolioScreen({
@@ -121,7 +171,7 @@ class PortfolioScreen extends StatelessWidget {
 
   Future<void> _addBroker(BuildContext context) async {
     final id = await Navigator.of(context)
-        .push(FeatureRoute<int>(SelectPlaceScreen(accounts: accounts)));
+        .push(FeatureRoute<int>(AddBrokerScreen(accounts: accounts)));
     if (id != null && context.mounted) {
       await Navigator.of(context).push(
         FeatureRoute<void>(
@@ -236,6 +286,7 @@ class _CurrencySummary extends StatelessWidget {
         value: value,
         cost: cost,
         funds: cash,
+        showFunds: brokers.any((b) => b.place?.holdsCash ?? true),
         foreign: foreign,
       ),
     );
@@ -344,29 +395,23 @@ class _BrokerTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 6),
-                Row(
-                  children: [
-                    if (cost > 0)
-                      Flexible(
-                        child: Text(
-                          '${_signed(gain, broker)} (${_percent(gain / cost)})',
-                          overflow: TextOverflow.ellipsis,
-                          style: text.bodySmall?.copyWith(
-                            color: _gainColor(context, gain),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    if (cost > 0) const SizedBox(width: 12),
-                    Flexible(
-                      child: Text(
-                        'Funds ${_money(broker.balanceMinor, broker)}',
-                        overflow: TextOverflow.ellipsis,
-                        style: text.bodySmall,
-                      ),
+                if (cost > 0)
+                  Text(
+                    '${_signed(gain, broker)} (${_percent(gain / cost)})',
+                    overflow: TextOverflow.ellipsis,
+                    style: text.bodySmall?.copyWith(
+                      color: _gainColor(context, gain),
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
-                ),
+                  ),
+                if (broker.place?.holdsCash ?? true) ...[
+                  if (cost > 0) const SizedBox(height: 2),
+                  Text(
+                    'Funds ${_money(broker.balanceMinor, broker)}',
+                    overflow: TextOverflow.ellipsis,
+                    style: text.bodySmall,
+                  ),
+                ],
               ],
             ),
           ),
@@ -401,8 +446,13 @@ class BrokerScreen extends StatefulWidget {
 
 class _BrokerScreenState extends State<BrokerScreen>
     with SingleTickerProviderStateMixin {
-  late final TabController _tabs = TabController(length: 2, vsync: this)
-    ..addListener(() => setState(() {}));
+  // A place that keeps no cash has no transfers, so only the one tab.
+  late final TabController _tabs = TabController(
+    length: (widget.accounts.byId(widget.brokerId)?.place?.holdsCash ?? true)
+        ? 2
+        : 1,
+    vsync: this,
+  )..addListener(() => setState(() {}));
   final _search = TextEditingController();
 
   @override
@@ -570,6 +620,7 @@ class _BrokerView extends StatelessWidget {
                   total: value,
                   value: value,
                   cost: cost,
+                  showFunds: tabs.length == 2,
                   foreign: holdings.foreignTotals(broker),
                 ),
               ),
@@ -583,6 +634,7 @@ class _BrokerView extends StatelessWidget {
                   search: search,
                   onSearch: onSearch,
                   hint: holdingsTab ? 'Search holdings' : 'Search transfers',
+                  showTabs: tabs.length == 2,
                   background: Theme.of(context).scaffoldBackgroundColor,
                   textScaler: textScaler,
                 ),
@@ -619,30 +671,31 @@ class _BrokerView extends StatelessWidget {
                         ],
                       ),
               ),
-              _TabList(
-                name: 'transfers',
-                empty: searching
-                    ? 'No transfers match.'
-                    : 'No deposits or withdrawals yet.',
-                child: entries.isEmpty
-                    ? null
-                    : Column(
-                        children: [
-                          for (final (day, items) in groupByDay(
-                            entries,
-                            (t) => t.date,
-                          ))
-                            TransactionDayGroup(
-                              date: day,
-                              padding: const EdgeInsets.only(bottom: 22),
-                              rows: [
-                                for (final t in items)
-                                  _entryRow(context, t, broker),
-                              ],
-                            ),
-                        ],
-                      ),
-              ),
+              if (tabs.length == 2)
+                _TabList(
+                  name: 'transfers',
+                  empty: searching
+                      ? 'No transfers match.'
+                      : 'No deposits or withdrawals yet.',
+                  child: entries.isEmpty
+                      ? null
+                      : Column(
+                          children: [
+                            for (final (day, items) in groupByDay(
+                              entries,
+                              (t) => t.date,
+                            ))
+                              TransactionDayGroup(
+                                date: day,
+                                padding: const EdgeInsets.only(bottom: 22),
+                                rows: [
+                                  for (final t in items)
+                                    _entryRow(context, t, broker),
+                                ],
+                              ),
+                          ],
+                        ),
+                ),
             ],
           ),
         ),
@@ -712,13 +765,17 @@ class _HoldingRow extends StatelessWidget {
         : store.valueInOwnCurrency(holding, broker);
     final text = Theme.of(context).textTheme;
     return MenuRow(
-      icon: holding.kind == HoldingKind.fund
-          ? Icons.pie_chart_rounded
-          : Icons.candlestick_chart_rounded,
+      leading: HoldingLogo(
+        holdingLogoUrl(holding),
+        kind: holding.kind,
+        iconKey: holding.iconKey,
+      ),
+      icon: HoldingLogo.iconFor(holding.kind),
       title: holding.name,
       subtitle: position.isEmpty
           ? 'Sold out'
-          : '${formatUnits(position.unitsE6)} units'
+          : '${formatUnits(position.unitsE6)} '
+                '${holding.kind == HoldingKind.metal ? 'g' : 'units'}'
                 '${holding.lastPriceE4 == null ? ' · no price yet' : ''}',
       onTap: onTap,
       trailing: Column(
@@ -823,12 +880,18 @@ class HoldingScreen extends StatelessWidget {
       final held = !position.isEmpty;
       return FeaturePage(
         title: holding.name,
+        titleIcon: HoldingLogo(
+          holdingLogoUrl(holding),
+          kind: holding.kind,
+          size: 32,
+          iconKey: holding.iconKey,
+        ),
         actions: [
+          if (holdings.prices != null && holding.canFetchPrice)
+            _HoldingRefreshButton(store: holdings, holding: holding),
           MorePopupButton<String>(
             fitContent: true,
             items: [
-              if (holdings.prices != null)
-                const MorePopupItem(value: 'update', label: 'Update prices'),
               const MorePopupItem(value: 'price', label: 'Set price by hand'),
               const MorePopupItem(
                 value: 'delete',
@@ -838,10 +901,6 @@ class HoldingScreen extends StatelessWidget {
             ],
             onSelected: (action) {
               switch (action) {
-                case 'update':
-                  if (!holdings.refreshing) {
-                    refreshPricesWithMessage(context, holdings);
-                  }
                 case 'price':
                   showPriceSheet(
                     context,
@@ -865,13 +924,22 @@ class HoldingScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          '${holding.kind.label}'
-                          '${holding.symbol == null ? '' : ' · ${holding.symbol}'}'
-                          '${holding.exchange == null ? '' : ' · ${holding.exchange}'}',
-                          style: text.bodySmall,
-                        ),
-                        const SizedBox(height: 6),
+                        // A coin's id (`the-open-network`) reads as noise.
+                        if (holding.metalDetails != null) ...[
+                          Text(
+                            holding.metalDetails!.summary,
+                            style: text.bodySmall,
+                          ),
+                          const SizedBox(height: 6),
+                        ] else if (holding.kind != HoldingKind.crypto) ...[
+                          Text(
+                            '${holding.kind.label}'
+                            '${holding.symbol == null ? '' : ' · ${holding.symbol}'}'
+                            '${holding.exchange == null ? '' : ' · ${holding.exchange}'}',
+                            style: text.bodySmall,
+                          ),
+                          const SizedBox(height: 6),
+                        ],
                         Text(
                           value == null ? '—' : _money(value, broker),
                           style: text.headlineMedium?.copyWith(
@@ -895,7 +963,10 @@ class HoldingScreen extends StatelessWidget {
                             ),
                           ),
                         const SizedBox(height: 12),
-                        _StatRow('Units', formatUnits(position.unitsE6)),
+                        _StatRow(
+                          holding.kind == HoldingKind.metal ? 'Grams' : 'Units',
+                          formatUnits(position.unitsE6),
+                        ),
                         _StatRow(
                           'Average cost',
                           average == null
@@ -907,8 +978,10 @@ class HoldingScreen extends StatelessWidget {
                         ),
                         _StatRow(
                           holding.priceDate == null
-                              ? 'Unit price'
-                              : 'Unit price · ${DateFormat('d MMM').format(holding.priceDate!)}',
+                              ? (holding.kind == HoldingKind.metal
+                                    ? 'Price per gram'
+                                    : 'Unit price')
+                              : '${holding.kind == HoldingKind.metal ? 'Price per gram' : 'Unit price'} · ${DateFormat('d MMM').format(holding.priceDate!)}',
                           price == null
                               ? '—'
                               : formatPrice(price, broker, currency: code),
@@ -1001,6 +1074,7 @@ class _BrokerCard extends StatelessWidget {
   const _BrokerCard({
     this.title = 'Total value',
     this.funds,
+    this.showFunds = true,
     required this.broker,
     required this.total,
     required this.value,
@@ -1008,6 +1082,9 @@ class _BrokerCard extends StatelessWidget {
     required this.foreign,
   });
   final Account broker;
+
+  /// Whether to show the Funds line; not for a place that keeps no cash.
+  final bool showFunds;
   final int total, value, cost;
   final String title;
 
@@ -1083,7 +1160,8 @@ class _BrokerCard extends StatelessWidget {
             const SizedBox(height: 16),
             Divider(height: 1, color: scheme.outlineVariant),
             const SizedBox(height: 14),
-            _StatRow('Funds', _money(funds ?? broker.balanceMinor, broker)),
+            if (showFunds)
+              _StatRow('Funds', _money(funds ?? broker.balanceMinor, broker)),
             _StatRow('Invested', _money(cost, broker)),
             _StatRow(
               'Gain',
@@ -1144,6 +1222,7 @@ class _BrokerTabsHeader extends SliverPersistentHeaderDelegate {
     required this.hint,
     required this.background,
     required this.textScaler,
+    this.showTabs = true,
   });
   final TabController controller;
   final TextEditingController search;
@@ -1151,9 +1230,12 @@ class _BrokerTabsHeader extends SliverPersistentHeaderDelegate {
   final String hint;
   final Color background;
   final TextScaler textScaler;
+  final bool showTabs;
 
   @override
-  double get minExtent => textScaler.scale(18) + 34 + SearchField.height + 12;
+  double get minExtent => showTabs
+      ? textScaler.scale(18) + 34 + SearchField.height + 12
+      : SearchField.height + 16;
   @override
   double get maxExtent => minExtent;
 
@@ -1167,11 +1249,13 @@ class _BrokerTabsHeader extends SliverPersistentHeaderDelegate {
             padding: const EdgeInsets.fromLTRB(18, 8, 18, 4),
             child: Column(
               children: [
-                SegmentedPillTabBar(
-                  controller: controller,
-                  labels: const ['Holdings', 'Transfers'],
-                ),
-                const SizedBox(height: 10),
+                if (showTabs) ...[
+                  SegmentedPillTabBar(
+                    controller: controller,
+                    labels: const ['Holdings', 'Transfers'],
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 SearchField(
                   controller: search,
                   onChanged: onSearch,
@@ -1188,6 +1272,7 @@ class _BrokerTabsHeader extends SliverPersistentHeaderDelegate {
       old.controller != controller ||
       old.search != search ||
       old.hint != hint ||
+      old.showTabs != showTabs ||
       old.background != background ||
       old.textScaler != textScaler;
 }

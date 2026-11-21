@@ -5,13 +5,216 @@
   "packVersion": 1,
   "rules": [
     {
+      "id": "in.hdfc.cash_deposit_machine",
+      "bankId": "in.hdfc",
+      "bankName": "HDFC Bank",
+      "country": "IN",
+      "senders": [
+        "HDFCBANK",
+        "HDFCBK",
+        "HDFCBN"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "indian",
+        "exponents": {
+          "INR": 2,
+          "USD": 2,
+          "EUR": 2,
+          "GBP": 2
+        },
+        "denominations": {},
+        "currency": "INR"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "bill has been generated",
+              "ignore if already paid",
+              "converting your outstanding dues"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "all": [
+              "Amount Due Rs.",
+              "HDFC Bank Credit Card"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "all": [
+              "HDFC Bank Credit Card",
+              "statement:"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "all": [
+              "Reward Points",
+              "Credited:"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "all": [
+              "linked your bank A/c to UPI",
+              "card info"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "credit",
+      "channel": "other",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Deposited! INR"
+        },
+        {
+          "maxLength": 20,
+          "name": "amount",
+          "op": "capture_money"
+        },
+        {
+          "op": "match_literal",
+          "value": "in HDFC Bank A/c XX"
+        },
+        {
+          "maxLength": 10,
+          "minDigits": 4,
+          "name": "account",
+          "op": "capture_account"
+        },
+        {
+          "op": "match_literal",
+          "value": "On"
+        },
+        {
+          "maxLength": 20,
+          "name": "when",
+          "op": "capture_datetime"
+        },
+        {
+          "op": "match_literal",
+          "value": "At"
+        },
+        {
+          "excludeCharacters": "\n",
+          "maxLength": 60,
+          "name": "branch",
+          "op": "capture_text"
+        },
+        {
+          "op": "match_literal",
+          "value": "Via Cash Deposit Machine"
+        }
+      ],
+      "output": {
+        "accountLast4": {
+          "capture": "account",
+          "length": 4,
+          "operation": "extract_account_suffix"
+        },
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "value": "Cash deposit"
+        }
+      }
+    },
+    {
       "id": "in.hdfc.device002.card",
       "bankId": "in.hdfc",
       "bankName": "HDFC Bank",
       "country": "IN",
       "senders": [
         "HDFCBANK",
-        "HDFCBK"
+        "HDFCBK",
+        "HDFCBN"
       ],
       "defaults": {
         "case": "ascii_insensitive",
@@ -222,7 +425,8 @@
       "country": "IN",
       "senders": [
         "HDFCBANK",
-        "HDFCBK"
+        "HDFCBK",
+        "HDFCBN"
       ],
       "defaults": {
         "case": "ascii_insensitive",
@@ -433,7 +637,8 @@
       "country": "IN",
       "senders": [
         "HDFCBANK",
-        "HDFCBK"
+        "HDFCBK",
+        "HDFCBN"
       ],
       "defaults": {
         "case": "ascii_insensitive",
@@ -648,7 +853,8 @@
       "country": "IN",
       "senders": [
         "HDFCBANK",
-        "HDFCBK"
+        "HDFCBK",
+        "HDFCBN"
       ],
       "defaults": {
         "case": "ascii_insensitive",
@@ -835,7 +1041,8 @@
       "country": "IN",
       "senders": [
         "HDFCBANK",
-        "HDFCBK"
+        "HDFCBK",
+        "HDFCBN"
       ],
       "defaults": {
         "case": "ascii_insensitive",
@@ -1022,7 +1229,8 @@
       "country": "IN",
       "senders": [
         "HDFCBANK",
-        "HDFCBK"
+        "HDFCBK",
+        "HDFCBN"
       ],
       "defaults": {
         "case": "ascii_insensitive",
@@ -1207,13 +1415,197 @@
       }
     },
     {
+      "id": "in.hdfc.low_balance_charge",
+      "bankId": "in.hdfc",
+      "bankName": "HDFC Bank",
+      "country": "IN",
+      "senders": [
+        "HDFCBANK",
+        "HDFCBK",
+        "HDFCBN"
+      ],
+      "defaults": {
+        "case": "ascii_insensitive",
+        "digits": [
+          "ascii"
+        ],
+        "decimalMark": ".",
+        "grouping": "indian",
+        "exponents": {
+          "INR": 2,
+          "USD": 2,
+          "EUR": 2,
+          "GBP": 2
+        },
+        "denominations": {},
+        "currency": "INR"
+      },
+      "requires": [
+        {},
+        {}
+      ],
+      "classifiers": [
+        {
+          "classification": "security",
+          "when": {
+            "any": [
+              "your otp",
+              "Your OTP",
+              "otp is",
+              "verification code",
+              "one-time password"
+            ]
+          }
+        },
+        {
+          "classification": "promotional",
+          "when": {
+            "any": [
+              "apply now",
+              "exclusive offer",
+              "Exclusive offer",
+              "pre-approved",
+              "cashback offer"
+            ]
+          }
+        },
+        {
+          "classification": "failed",
+          "when": {
+            "any": [
+              "failed",
+              "declined",
+              "unsuccessful"
+            ]
+          }
+        },
+        {
+          "classification": "pending",
+          "when": {
+            "any": [
+              "pending"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "any": [
+              "will be debited",
+              "Will be debited",
+              "will be credited",
+              "to be debited",
+              "payment due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "statement generated",
+              "minimum amount due"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "any": [
+              "bill has been generated",
+              "ignore if already paid",
+              "converting your outstanding dues"
+            ]
+          }
+        },
+        {
+          "classification": "future",
+          "when": {
+            "all": [
+              "Amount Due Rs.",
+              "HDFC Bank Credit Card"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "all": [
+              "HDFC Bank Credit Card",
+              "statement:"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "all": [
+              "Reward Points",
+              "Credited:"
+            ]
+          }
+        },
+        {
+          "classification": "notice",
+          "when": {
+            "all": [
+              "linked your bank A/c to UPI",
+              "card info"
+            ]
+          }
+        }
+      ],
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "other",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Low Balance Alert! Rs."
+        },
+        {
+          "maxLength": 20,
+          "name": "amount",
+          "op": "capture_money"
+        },
+        {
+          "op": "match_literal",
+          "value": "+GST charged for low balance in your HDFC Bank A/c X"
+        },
+        {
+          "maxLength": 10,
+          "minDigits": 4,
+          "name": "account",
+          "op": "capture_account"
+        },
+        {
+          "op": "match_literal",
+          "value": ". Balance as of"
+        }
+      ],
+      "output": {
+        "accountLast4": {
+          "capture": "account",
+          "length": 4,
+          "operation": "extract_account_suffix"
+        },
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "value": "HDFC low balance charge"
+        }
+      }
+    },
+    {
       "id": "in.hdfc.template001",
       "bankId": "in.hdfc",
       "bankName": "HDFC Bank",
       "country": "IN",
       "senders": [
         "HDFCBANK",
-        "HDFCBK"
+        "HDFCBK",
+        "HDFCBN"
       ],
       "defaults": {
         "case": "ascii_insensitive",
@@ -1424,7 +1816,8 @@
       "country": "IN",
       "senders": [
         "HDFCBANK",
-        "HDFCBK"
+        "HDFCBK",
+        "HDFCBN"
       ],
       "defaults": {
         "case": "ascii_insensitive",
@@ -1652,7 +2045,8 @@
       "country": "IN",
       "senders": [
         "HDFCBANK",
-        "HDFCBK"
+        "HDFCBK",
+        "HDFCBN"
       ],
       "defaults": {
         "case": "ascii_insensitive",
@@ -1881,7 +2275,8 @@
       "country": "IN",
       "senders": [
         "HDFCBANK",
-        "HDFCBK"
+        "HDFCBK",
+        "HDFCBN"
       ],
       "defaults": {
         "case": "ascii_insensitive",
@@ -2115,7 +2510,8 @@
       "country": "IN",
       "senders": [
         "HDFCBANK",
-        "HDFCBK"
+        "HDFCBK",
+        "HDFCBN"
       ],
       "defaults": {
         "case": "ascii_insensitive",
@@ -2319,7 +2715,9 @@
       7,
       8,
       9,
-      10
+      10,
+      11,
+      12
     ],
     "HDFCBK": [
       0,
@@ -2332,7 +2730,24 @@
       7,
       8,
       9,
-      10
+      10,
+      11,
+      12
+    ],
+    "HDFCBN": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
     ]
   },
   "categoryRules": [

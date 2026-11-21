@@ -7,6 +7,10 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- READ_SMS/RECEIVE_SMS imply a required telephony feature, which would
+         hide the app from Wi-Fi-only tablets and other devices without a SIM.
+         SMS import is optional; everything else works without it. -->
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Debt due-date reminders survive a reboot. POST_NOTIFICATIONS comes

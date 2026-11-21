@@ -715,6 +715,67 @@
           "value": "Interest Credit"
         }
       }
+    },
+    {
+      "id": "in.idfc.fastag_toll",
+      "classification": "completed",
+      "direction": "debit",
+      "channel": "wallet",
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "INR "
+        },
+        {
+          "op": "capture_money",
+          "name": "amount",
+          "maxLength": 24
+        },
+        {
+          "op": "match_literal",
+          "value": " toll paid from IDFC FIRST Bank Tag "
+        },
+        {
+          "op": "capture_account",
+          "name": "account",
+          "maxLength": 32
+        },
+        {
+          "op": "match_literal",
+          "value": " for vehicle no. "
+        },
+        {
+          "op": "capture_text",
+          "name": "vehicle",
+          "maxLength": 32
+        },
+        {
+          "op": "match_literal",
+          "value": " at "
+        },
+        {
+          "op": "capture_text",
+          "name": "party",
+          "maxLength": 100
+        },
+        {
+          "op": "match_literal",
+          "value": " on "
+        }
+      ],
+      "output": {
+        "amount": {
+          "capture": "amount"
+        },
+        "accountLast4": {
+          "capture": "account",
+          "operation": "extract_account_suffix",
+          "length": 4
+        },
+        "counterparty": {
+          "capture": "party"
+        }
+      }
     }
   ]
 }

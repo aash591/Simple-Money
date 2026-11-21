@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:drift/drift.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
 
@@ -10,7 +11,10 @@ import '../../domain/account.dart';
 import '../../domain/app_icons.dart';
 import '../../domain/brand_icons.dart';
 import '../../domain/category.dart';
+import '../../domain/account_place.dart';
 import '../../domain/debt.dart';
+import '../../domain/holding.dart';
+import '../../domain/metal.dart';
 import '../../domain/loan.dart';
 import '../../domain/transaction.dart';
 import '../../state/sms_import_store.dart';
@@ -19,7 +23,9 @@ import '../db/app_database.dart';
 import '../reportable_sms.dart';
 import '../repositories/account_repository.dart';
 import '../repositories/category_repository.dart';
+import '../prices/price_service.dart';
 import '../repositories/debt_repository.dart';
+import '../repositories/holding_repository.dart';
 import '../repositories/loan_repository.dart';
 import '../repositories/recurring_payment_repository.dart';
 import '../repositories/sms_review_repository.dart';
@@ -27,6 +33,7 @@ import '../statements/statement_table.dart';
 import '../statements/upi_statement.dart';
 import 'agent_accounts.dart';
 import 'agent_loans.dart';
+import 'agent_portfolio.dart';
 import 'agent_sms_saver.dart';
 import 'agent_recurring.dart';
 import 'agent_rules.dart';
@@ -128,6 +135,12 @@ class AgentTools {
 
   late final AgentAccounts accounts = AgentAccounts(database);
 
+  late final AgentPortfolio portfolio = AgentPortfolio(database);
+
+  /// Where securities are searched for; replaced in tests so nothing goes
+  /// out to the network.
+  PriceService? priceService;
+
   /// The server instructions MCP's `initialize` sends.
   static const instructions =
       'SimpleMoney is the user\'s money manager, answered live by their phone. '
@@ -161,6 +174,13 @@ class AgentTools {
       'list_recurring_payments, then suggest_recurring_payments; to find '
       'them in the user\'s SMS and transactions, find_recurring_payments '
       'first and ask which to track. '
+      'The Portfolio (stocks, ETFs, mutual funds, crypto, gold and other '
+      'metals, held at a broker or in hand): list_portfolio first. To find '
+      'a security\'s symbol: find_security. Then suggest_portfolio_changes '
+      '(add a holding, record a buy, sell or dividend, set a price, edit, '
+      'archive or delete). The broker or in-hand place itself is an '
+      'account: suggest_account_changes with place. Money moved from a '
+      'bank to a broker is a transfer: suggest_transactions. '
       'To add, edit, rebalance, archive, merge or delete accounts: '
       'list_accounts, then suggest_account_changes; when SMS scanning made '
       'two accounts for one (a bank account and its debit card), merge them. '
@@ -240,6 +260,12 @@ class AgentTools {
               'institution': ?a.institution,
               'icon': ?a.icon,
               if (a.hasDebitCard) 'has_debit_card': true,
+              if (a.isBroker) ...{
+                'investment_account': true,
+                'place': (a.place ?? AccountPlace.broker).toolName,
+                if (a.place?.holdsCash ?? true)
+                  'balance_is': 'funds waiting to be invested',
+              },
               if (a.creditLimitMinor case final limit?)
                 'credit_limit': _amount(limit, a.digits),
               if (a.availableCreditLimitMinor case final available?)
@@ -1190,9 +1216,251 @@ class AgentTools {
             lastDigits: _string(item, 'last_digits'),
             institution: _rawString(item, 'institution'),
             icon: _string(item, 'icon'),
+            place: switch (_enum(item, 'place', [
+              for (final p in AccountPlace.selectable) p.toolName,
+            ])) {
+              final id? => AccountPlace.selectable.firstWhere(
+                (p) => p.toolName == id,
+              ),
+              null => null,
+            },
             balance: _money(item, 'balance'),
             creditLimit: _money(item, 'credit_limit'),
             availableCredit: _money(item, 'available_credit'),
+          ),
+          reason: _string(item, 'reason'),
+        );
+      });
+
+  // ── Portfolio. ──
+
+  /// An exact decimal from a scaled integer, trailing zeros dropped.
+  static String _scaledText(int value, int scale) {
+    final places = scale.toString().length - 1;
+    final whole = value ~/ scale;
+    final fraction = (value % scale).toString().padLeft(places, '0');
+    final trimmed = fraction.replaceFirst(RegExp(r'0+$'), '');
+    return trimmed.isEmpty ? '$whole' : '$whole.$trimmed';
+  }
+
+  Future<Object?> _listPortfolio(Map<String, Object?> args) async {
+    final archived = _bool(args, 'include_archived') ?? false;
+    final onlyAccount = _int(args, 'account_id');
+    final onlyHolding = _int(args, 'holding_id');
+    final withTrades =
+        (_bool(args, 'include_trades') ?? false) || onlyHolding != null;
+    final accounts = await AccountRepository(database).load();
+    final repository = HoldingRepository(database);
+    final holdings = await repository.loadHoldings();
+    final trades = await repository.loadTrades();
+    final places = <Map<String, Object?>>[];
+    for (final a in accounts) {
+      if (!a.isBroker || (a.isArchived && !archived)) continue;
+      if (onlyAccount != null && a.id != onlyAccount) continue;
+      final rows = <Map<String, Object?>>[];
+      var value = 0;
+      var cost = 0;
+      var valued = true;
+      for (final h in holdings) {
+        if (h.accountId != a.id) continue;
+        if (onlyHolding != null && h.id != onlyHolding) continue;
+        if (h.archivedAt != null && !archived) continue;
+        final own = trades.where((t) => t.holdingId == h.id).toList();
+        final position = positionOf(own, digits: a.digits);
+        final code = h.currencyIn(a.currency);
+        final price = h.lastPriceE4;
+        final worth = price == null || code != a.currency
+            ? null
+            : position.valueMinor(price, a.digits);
+        if (!position.isEmpty) {
+          cost += position.costMinor;
+          if (worth == null) {
+            valued = false;
+          } else {
+            value += worth;
+          }
+        }
+        final metal = h.metalDetails;
+        rows.add({
+          'holding_id': h.id,
+          'name': h.name,
+          'kind': h.kind.name,
+          if (h.symbol != null) 'symbol': h.symbol,
+          if (h.exchange != null) 'exchange': h.exchange,
+          if (metal != null) ...{
+            'metal': metal.metal.id,
+            'purity': metal.purityLabel,
+          },
+          'units': _scaledText(position.unitsE6, unitScale),
+          if (h.kind == HoldingKind.metal) 'units_are': 'grams',
+          'cost': _amount(position.costMinor, a.digits),
+          if (position.averagePriceE4(a.digits) case final avg?)
+            'average_price': _scaledText(avg, priceScale),
+          if (price != null) ...{
+            'price': _scaledText(price, priceScale),
+            'price_currency': code,
+            if (h.priceDate != null) 'price_as_of': _isoDay(h.priceDate!),
+          },
+          if (worth != null) 'value': _amount(worth, a.digits),
+          if (worth != null && position.costMinor > 0)
+            'gain': _amount(worth - position.costMinor, a.digits),
+          if (h.effectivePriceSource != null)
+            'price_source': h.effectivePriceSource,
+          if (position.realizedMinor != 0)
+            'realized_gain': _amount(position.realizedMinor, a.digits),
+          if (position.dividendsMinor != 0)
+            'dividends': _amount(position.dividendsMinor, a.digits),
+          if (h.archivedAt != null) 'archived': true,
+          if (withTrades)
+            'trades': [
+              for (final t in own.reversed.take(100))
+                {
+                  'trade_id': t.id,
+                  'type': t.type.name,
+                  'date': _isoDay(t.date),
+                  if (t.type != TradeType.dividend) ...{
+                    'units': _scaledText(t.unitsE6, unitScale),
+                    'price': _scaledText(t.priceE4, priceScale),
+                  },
+                  'amount': _amount(t.amountMinor, a.digits),
+                  if (t.feesMinor > 0) 'fees': _amount(t.feesMinor, a.digits),
+                  if (t.payAccountId != null)
+                    'paid_from_account_id': t.payAccountId,
+                  if (t.note != null) 'note': t.note,
+                },
+            ],
+        });
+      }
+      places.add({
+        'account_id': a.id,
+        'name': a.name,
+        'place': (a.place ?? AccountPlace.broker).toolName,
+        'currency': a.currency,
+        if (a.place?.holdsCash ?? true)
+          'funds': _amount(a.balanceMinor, a.digits),
+        if (onlyHolding == null) ...{
+          'invested': _amount(cost, a.digits),
+          if (valued) 'holdings_value': _amount(value, a.digits),
+        },
+        if (a.isArchived) 'archived': true,
+        'holdings': rows,
+      });
+    }
+    return {
+      'places': places,
+      'next': places.isEmpty
+          ? 'No broker or in-hand place yet. Add one with '
+                'suggest_account_changes (action create, place broker or '
+                'in_hand), then its holdings.'
+          : 'Prices are the last close or what the user typed; units of a '
+                'metal are grams. Nothing changes until '
+                'suggest_portfolio_changes is approved in SimpleMoney → '
+                'More → AI suggestions.',
+    };
+  }
+
+  Future<Object?> _findSecurity(Map<String, Object?> args) async {
+    final query = _requiredString(args, 'query');
+    final kind = HoldingKind.values.byName(
+      _enum(args, 'kind', [for (final k in HoldingKind.selectable) k.name]) ??
+          'stock',
+    );
+    if (kind == HoldingKind.metal) {
+      final q = query.toLowerCase();
+      return {
+        'results': [
+          for (final m in MetalType.values)
+            if (m.label.toLowerCase().contains(q) || q.length < 2)
+              {
+                'name': m.label,
+                'kind': 'metal',
+                'metal': m.id,
+                'common_purities': [
+                  for (final f in m.purities) m.purityLabel(f),
+                ],
+                'price_source': PriceSourceId.metalWorld,
+              },
+        ],
+        'next':
+            'Use add_holding with kind metal, metal and purity (e.g. 22K or '
+            '916). Units are grams; the price is the international one in the '
+            'account\'s currency.',
+      };
+    }
+    var currency = _string(args, 'currency')?.toUpperCase();
+    if (currency == null) {
+      final id = _int(args, 'account_id');
+      final all = await AccountRepository(database).load();
+      currency =
+          all.where((a) => a.id == id).firstOrNull?.currency ??
+          all.where((a) => a.isBroker).firstOrNull?.currency ??
+          'USD';
+    }
+    final client = priceService == null ? http.Client() : null;
+    try {
+      final hits = await (priceService ?? PriceService(client!)).search(
+        query,
+        currency: currency,
+        kind: kind,
+      );
+      return {
+        'results': [
+          for (final h in hits.take(15))
+            {
+              'name': h.name,
+              'kind': h.kind.name,
+              'symbol': h.symbol,
+              if (h.exchange != null) 'exchange': h.exchange,
+              if (h.priceSource != null) 'price_source': h.priceSource,
+            },
+        ],
+        'next': hits.isEmpty
+            ? 'Nothing found. Try another spelling, or the ticker. Funds in '
+                  'India are found by name (AMFI); other funds need their '
+                  'exact name.'
+            : 'Use add_holding with the name, symbol, exchange and '
+                  'price_source of the right one (ask the user if unsure). '
+                  'kind must match what it is: stock, etf, fund or crypto.',
+      };
+    } finally {
+      client?.close();
+    }
+  }
+
+  Future<Object?> _suggestPortfolioChanges(Map<String, Object?> args) =>
+      _suggest(args, (item) {
+        final action =
+            AgentPortfolioAction.fromToolName(
+              _enum(item, 'action', [
+                for (final a in AgentPortfolioAction.values) a.toolName,
+              ]),
+            ) ??
+            (throw const _BadInput('Give action.'));
+        final kind = _enum(item, 'kind', [
+          for (final k in HoldingKind.selectable) k.name,
+        ]);
+        return portfolio.prepare(
+          action: action,
+          accountId: _int(item, 'account_id'),
+          holdingId: _int(item, 'holding_id'),
+          tradeId: _int(item, 'trade_id'),
+          fields: AgentPortfolioFields(
+            kind: kind == null ? null : HoldingKind.values.byName(kind),
+            name: _rawString(item, 'name'),
+            symbol: _string(item, 'symbol'),
+            exchange: _rawString(item, 'exchange'),
+            priceSource: _string(item, 'price_source'),
+            currency: _string(item, 'currency'),
+            metal: _string(item, 'metal'),
+            purity: _string(item, 'purity'),
+            icon: _string(item, 'icon'),
+            units: _money(item, 'units'),
+            price: _money(item, 'price'),
+            amount: _money(item, 'amount'),
+            fees: _money(item, 'fees'),
+            date: _optionalDay(item, 'date'),
+            payFromAccountId: _int(item, 'pay_from_account_id'),
+            note: _string(item, 'note'),
           ),
           reason: _string(item, 'reason'),
         );

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 import '../../../data/prices/price_service.dart';
 import '../../../domain/account.dart';
@@ -135,12 +136,56 @@ class _PriceSheetState extends State<_PriceSheet> {
             widget.holding.lastPriceE4! % priceScale == 0 ? 0 : 4,
           ),
   );
-  String? _error;
+  String? _error, _note;
+  bool _fetching = false;
+  DateTime? _fetchedDate;
 
   @override
   void dispose() {
     _price.dispose();
     super.dispose();
+  }
+
+  bool get _canFetch =>
+      widget.store.prices != null && widget.holding.canFetchPrice;
+
+  /// Asks the holding's own source for its latest price and fills it in; the
+  /// person still saves it.
+  Future<void> _fetch() async {
+    final service = widget.store.prices;
+    final h = widget.holding;
+    if (service == null || _fetching) return;
+    setState(() {
+      _fetching = true;
+      _error = null;
+      _note = null;
+    });
+    final quote = await service.quoteFor(
+      kind: h.kind,
+      symbol: h.symbol,
+      exchange: h.exchange,
+      priceSource: h.priceSource,
+      meta: h.meta,
+      currency: h.currency,
+    );
+    if (!mounted) return;
+    final want = h.currencyIn(widget.broker.currency);
+    setState(() {
+      _fetching = false;
+      if (quote == null) {
+        _error = 'Couldn’t get the latest price. Try again later.';
+      } else if (quote.currency != null && quote.currency != want) {
+        _error = 'The source prices it in ${quote.currency}, not $want.';
+      } else {
+        _price.text = (quote.priceE4 / priceScale).toStringAsFixed(
+          quote.priceE4 % priceScale == 0 ? 0 : 4,
+        );
+        _fetchedDate = quote.date;
+        _note =
+            '${h.sourceNote ?? 'Latest'} · '
+            '${DateFormat('d MMM').format(quote.date)}';
+      }
+    });
   }
 
   Future<void> _save() async {
@@ -150,7 +195,12 @@ class _PriceSheetState extends State<_PriceSheet> {
       return;
     }
     try {
-      await widget.store.setPrice(widget.holding, price, DateTime.now());
+      await widget.store.setPrice(
+        widget.holding,
+        price,
+        _fetchedDate ?? DateTime.now(),
+        overwrite: true,
+      );
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) setState(() => _error = _message(e));
@@ -162,13 +212,39 @@ class _PriceSheetState extends State<_PriceSheet> {
     return SheetPage(
       header: const SheetHeader('Latest price'),
       bodyPadding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      body: _Field(
-        label: widget.holding.kind == HoldingKind.fund
-            ? 'NAV per unit'
-            : 'Price per share',
-        controller: _price,
-        number: true,
-        suffix: widget.holding.currencyIn(widget.broker.currency),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _Field(
+            label: widget.holding.kind.priceName,
+            controller: _price,
+            number: true,
+            // Typing a price is a hand-set one, not the fetched day's.
+            onChanged: (_) => _fetchedDate = null,
+            suffix: widget.holding.currencyIn(widget.broker.currency),
+          ),
+          if (_canFetch) ...[
+            const SizedBox(height: 6),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                key: const Key('fetch-latest'),
+                onPressed: _fetching ? null : _fetch,
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: Text(_fetching ? 'Fetching…' : 'Fetch latest price'),
+              ),
+            ),
+            if (_note != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  _note!,
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: SheetColors.of(context).muted),
+                ),
+              ),
+          ],
+        ],
       ),
       actions: _SaveBar(label: 'Save price', error: _error, onPressed: _save),
     );

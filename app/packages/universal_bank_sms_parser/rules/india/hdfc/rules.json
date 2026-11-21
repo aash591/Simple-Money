@@ -3,7 +3,8 @@
   "name": "HDFC Bank",
   "senders": [
     "HDFCBANK",
-    "HDFCBK"
+    "HDFCBK",
+    "HDFCBN"
   ],
   "formats": [
     {
@@ -791,6 +792,119 @@
           "length": 4
         }
       }
+    },
+    {
+      "id": "in.hdfc.cash_deposit_machine",
+      "channel": "other",
+      "classification": "completed",
+      "defaults": {
+        "grouping": "indian"
+      },
+      "direction": "credit",
+      "output": {
+        "accountLast4": {
+          "capture": "account",
+          "length": 4,
+          "operation": "extract_account_suffix"
+        },
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "value": "Cash deposit"
+        }
+      },
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Deposited! INR"
+        },
+        {
+          "maxLength": 20,
+          "name": "amount",
+          "op": "capture_money"
+        },
+        {
+          "op": "match_literal",
+          "value": "in HDFC Bank A/c XX"
+        },
+        {
+          "maxLength": 10,
+          "minDigits": 4,
+          "name": "account",
+          "op": "capture_account"
+        },
+        {
+          "op": "match_literal",
+          "value": "On"
+        },
+        {
+          "maxLength": 20,
+          "name": "when",
+          "op": "capture_datetime"
+        },
+        {
+          "op": "match_literal",
+          "value": "At"
+        },
+        {
+          "excludeCharacters": "\n",
+          "maxLength": 60,
+          "name": "branch",
+          "op": "capture_text"
+        },
+        {
+          "op": "match_literal",
+          "value": "Via Cash Deposit Machine"
+        }
+      ]
+    },
+    {
+      "id": "in.hdfc.low_balance_charge",
+      "channel": "other",
+      "classification": "completed",
+      "defaults": {
+        "grouping": "indian"
+      },
+      "direction": "debit",
+      "output": {
+        "accountLast4": {
+          "capture": "account",
+          "length": 4,
+          "operation": "extract_account_suffix"
+        },
+        "amount": {
+          "capture": "amount"
+        },
+        "counterparty": {
+          "value": "HDFC low balance charge"
+        }
+      },
+      "tokens": [
+        {
+          "op": "match_literal",
+          "value": "Low Balance Alert! Rs."
+        },
+        {
+          "maxLength": 20,
+          "name": "amount",
+          "op": "capture_money"
+        },
+        {
+          "op": "match_literal",
+          "value": "+GST charged for low balance in your HDFC Bank A/c X"
+        },
+        {
+          "maxLength": 10,
+          "minDigits": 4,
+          "name": "account",
+          "op": "capture_account"
+        },
+        {
+          "op": "match_literal",
+          "value": ". Balance as of"
+        }
+      ]
     }
   ],
   "classifiers": [

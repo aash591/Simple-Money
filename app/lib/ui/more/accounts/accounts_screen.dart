@@ -38,7 +38,7 @@ class AccountsScreen extends StatelessWidget {
       );
   @override
   Widget build(BuildContext context) => FeaturePage(
-    title: archived ? 'Archived accounts' : 'Manage Accounts',
+    title: archived ? 'Archived accounts' : 'Accounts',
     actions: archived
         ? null
         : [
@@ -86,7 +86,13 @@ class AccountsScreen extends StatelessWidget {
             ),
           );
         }
-        final accounts = archived ? store.archivedAccounts : store.accounts;
+        final all = archived ? store.archivedAccounts : store.accounts;
+        // A place that keeps no cash (gold at home, a locker) has no balance to
+        // show here; it lives in Portfolio.
+        final accounts = [
+          for (final a in all)
+            if (a.place?.holdsCash ?? true) a,
+        ];
         if (archived && accounts.isEmpty) {
           return const EmptyState(
             icon: Icons.archive_outlined,
@@ -133,7 +139,7 @@ class AccountsScreen extends StatelessWidget {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              '${store.accounts.length} ${store.accounts.length == 1 ? 'account' : 'accounts'}',
+                              '${accounts.length} ${accounts.length == 1 ? 'account' : 'accounts'}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.end,
@@ -159,7 +165,11 @@ class AccountsScreen extends StatelessWidget {
           onReorderItem: (oldIndex, newIndex) async {
             if (archived) return;
             try {
-              await store.reorder(oldIndex, newIndex);
+              // The list leaves some accounts out; the store counts them all.
+              await store.reorder(
+                store.accounts.indexOf(accounts[oldIndex]),
+                store.accounts.indexOf(accounts[newIndex]),
+              );
             } catch (_) {
               if (context.mounted) {
                 showAppToast(
@@ -184,12 +194,17 @@ class AccountsScreen extends StatelessWidget {
                       : {
                           if (index > 0)
                             const CustomSemanticsAction(label: 'Move up'): () =>
-                                store.reorder(index, index - 1),
-                          if (index < store.accounts.length - 1)
+                                store.reorder(
+                                  store.accounts.indexOf(accounts[index]),
+                                  store.accounts.indexOf(accounts[index - 1]),
+                                ),
+                          if (index < accounts.length - 1)
                             const CustomSemanticsAction(
                               label: 'Move down',
-                            ): () =>
-                                store.reorder(index, index + 1),
+                            ): () => store.reorder(
+                              store.accounts.indexOf(accounts[index]),
+                              store.accounts.indexOf(accounts[index + 1]),
+                            ),
                         },
                   child: AccountCard(
                     account: account,

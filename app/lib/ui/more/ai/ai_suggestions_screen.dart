@@ -1,6 +1,7 @@
 import 'ai_assistant_guide.dart';
 import 'loan_suggestion_card.dart';
 import 'account_suggestion_card.dart';
+import 'portfolio_suggestion_card.dart';
 import 'recurring_suggestion_card.dart';
 import 'share_fix_prompt.dart';
 import '../../../data/community/community_fixes.dart';
@@ -477,6 +478,12 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen>
               }),
       );
     }
+    if (s.kind == AgentSuggestionKind.portfolio) {
+      return PortfolioSuggestionPreview.maybe(
+        payload: s.payload,
+        detail: s.detail,
+      );
+    }
     if (s.kind == AgentSuggestionKind.account) {
       if (!_stores) return null;
       // Archived accounts too: restoring names one.
@@ -776,6 +783,7 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen>
                         bare:
                             s.kind == AgentSuggestionKind.transactionAdd ||
                             s.kind == AgentSuggestionKind.parserRule ||
+                            s.kind == AgentSuggestionKind.portfolio ||
                             (s.kind == AgentSuggestionKind.account && _stores),
                         // Rejected ones can still be applied, from their tab.
                         onApprove: _busy ? null : () => _approve(s),
@@ -905,6 +913,7 @@ class _SuggestionCard extends StatelessWidget {
     AgentSuggestionKind.transactionAdd => Icons.add_card_rounded,
     AgentSuggestionKind.recurringPayment => Icons.autorenew_rounded,
     AgentSuggestionKind.account => Icons.account_balance_wallet_outlined,
+    AgentSuggestionKind.portfolio => Icons.show_chart_rounded,
   };
 
   @override

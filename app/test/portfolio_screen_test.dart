@@ -178,32 +178,19 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('adding an account first asks where it is held', (
-    tester,
-  ) async {
+  testWidgets('adding an account goes straight to its details', (tester) async {
     await openAddInvestment(tester);
-    expect(find.text('Account type'), findsOneWidget);
-    // An intro fills the top half; the choices start at the middle.
-    expect(find.text('Where do you hold it?'), findsOneWidget);
-    final screenMiddle = tester.view.physicalSize.height / 2;
-    expect(
-      tester.getCenter(find.text('Where do you hold it?')).dy,
-      lessThan(screenMiddle),
-    );
-    expect(
-      tester.getTopLeft(find.byKey(const Key('place-broker'))).dy,
-      greaterThan(screenMiddle),
-    );
-    // Only the broker place exists so far, with what it holds.
-    expect(find.text('Broker or app'), findsOneWidget);
-    expect(find.text('Stocks, ETFs and mutual funds'), findsOneWidget);
-    expect(find.text('Cash in this account'), findsNothing);
-
-    await tester.tap(find.byKey(const Key('place-broker')));
-    await tester.pumpAndSettle();
-    // Then the account's details, and on saving, its own screen.
+    expect(find.text('Account type'), findsNothing);
     expect(find.text('Add account'), findsWidgets);
-    expect(find.text('Cash in this account'), findsOneWidget);
+    expect(find.byKey(const Key('broker-cash')), findsOneWidget);
+    // A switch picks where it is kept; an in-hand place keeps no cash.
+    await tester.tap(find.text('In hand or wallet'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('broker-cash')), findsNothing);
+    await tester.tap(find.text('Broker or exchange'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('broker-cash')), findsOneWidget);
+    // On saving, the account's own screen opens.
     await saveBroker(tester, 'Groww');
     expect(find.byTooltip('Add holding'), findsOneWidget);
     expect(find.text('Nothing held here yet.'), findsNothing);
@@ -380,10 +367,8 @@ void main() {
     tester,
   ) async {
     await openAddInvestment(tester);
-    await tester.tap(find.byKey(const Key('place-broker')));
-    await tester.pumpAndSettle();
     expect(find.text('Add account'), findsWidgets);
-    expect(find.text('Cash in this account'), findsOneWidget);
+    expect(find.byKey(const Key('broker-cash')), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('broker-name')), 'Groww');
     await tester.enterText(find.byKey(const Key('broker-cash')), '2500');
@@ -416,7 +401,10 @@ void main() {
         home: AddBrokerScreen(accounts: accounts),
       ),
     );
-    await tester.enterText(find.byKey(const Key('broker-name')), 'Zerodha Kite');
+    await tester.enterText(
+      find.byKey(const Key('broker-name')),
+      'Zerodha Kite',
+    );
     await tester.enterText(find.byKey(const Key('broker-cash')), '10');
     await tester.pump();
     await tester.tap(
@@ -432,7 +420,11 @@ void main() {
     final saved = accounts.accounts.firstWhere((a) => a.name == 'Zerodha Kite');
     expect(saved.icon, brandIconKey('zerodha'));
     for (final typed in ['zerodha', 'ZERODHA', '  Zerodha ', 'Zerodha Kite']) {
-      expect(matchingInstitutionIcon(typed), brandIconKey('zerodha'), reason: typed);
+      expect(
+        matchingInstitutionIcon(typed),
+        brandIconKey('zerodha'),
+        reason: typed,
+      );
     }
     expect(matchingInstitutionIcon('My Own Broker'), isNull);
     expect(matchingInstitutionIcon('Zer'), isNull);

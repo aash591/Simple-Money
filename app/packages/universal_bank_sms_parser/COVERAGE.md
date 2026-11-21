@@ -4,7 +4,8 @@
 The collection contains **289 Indian formats**, **278 migrated movements**, **278 variable-field examples**, and **46 legacy rejected literals**.
 
 55 additional rules cover sanitized templates seen during physical-device
-inbox testing across several Indian banks. Their synthetic fixtures are
+inbox testing across several Indian banks. Protean APY, IDFC FASTag tolls and IDBI SMS charges, plus
+HDFC, MMSCCS and Sreekrishnapuram SCB formats promoted from the community pack came from user SMS reports (fixtures `reported.json`). Their synthetic fixtures are
 tracked separately from migrated upstream movements and variable examples.
 
 Each family additionally has nine generated rejection cases covering security,
@@ -87,7 +88,7 @@ merchant rules live in country JSON and are returned by the parser.
 Core validation covers independent bank-pack parsing, shared conformance,
 ambiguity handling, and bounded-search checks; no legacy checkout is required.
 Run `dart test` and `dart analyze` from `engines/dart`. All 56 country/bank sources and packs
-and 1,246 shared cases are checked by the conformance audit. The unsigned
+and 2,824 shared cases are checked by the conformance audit. The unsigned
 development manifest matches compiled pack hashes and byte counts.
 
 A Windows x64 Dart 3.13.4 JIT benchmark over 10,000 warm parses measured
