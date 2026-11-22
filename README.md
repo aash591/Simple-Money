@@ -2,7 +2,16 @@
 
 **A free, private expense manager and budget planner for Android. No account, works offline, and your data stays on your phone.**
 
-[Get it on Google Play](https://play.google.com/store/apps/details?id=com.aash591.SimpleMoney) · [Website and guides](https://simplemoney.aashglobal.in) · [Privacy policy](https://simplemoney.aashglobal.in/privacy)
+<p>
+  <a href="https://play.google.com/store/apps/details?id=com.aash591.SimpleMoney"><img alt="Get it on Google Play" src="https://img.shields.io/badge/Get_it_on-Google_Play-3DDC84?style=for-the-badge&logo=googleplay&logoColor=white"></a>
+  <a href="https://simplemoney.aashglobal.in"><img alt="Website and guides" src="https://img.shields.io/badge/Website-Guides_and_FAQ-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white"></a>
+  <a href="https://simplemoney.aashglobal.in/privacy"><img alt="Privacy policy" src="https://img.shields.io/badge/Privacy-Policy-555555?style=for-the-badge&logo=databricks&logoColor=white"></a>
+</p>
+
+![Platform: Android](https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white)
+![Built with Flutter](https://img.shields.io/badge/built_with-Flutter-02569B?logo=flutter&logoColor=white)
+![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)
+![No account needed](https://img.shields.io/badge/no_account-offline_first-success)
 
 SimpleMoney is built around one small idea. Every transaction answers two questions, and the app keeps them apart:
 
