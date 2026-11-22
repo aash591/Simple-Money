@@ -2,7 +2,7 @@
 // which installs a separate app with its own sample ledger:
 //
 //   flutter drive --profile --driver=test/test_driver/integration_driver.dart \
-//     --target=integration_test/home_scroll_perf_test.dart
+//     --target=test/integration/home_scroll_perf.dart
 // Add --dart-define=BIG_LEDGER=true for about 20,000 transactions.
 import 'dart:ui';
 

@@ -1,5 +1,8 @@
 // Run on Android with SMS_TEST_DENIED=true for the denied-access check, then
 // run normally for inbox scanning and review. The ledger is in memory.
+//
+//   flutter test test/integration/sms_inbox.dart -d <device>
+// Not named *_test.dart on purpose, so a plain `flutter test` skips it.
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
