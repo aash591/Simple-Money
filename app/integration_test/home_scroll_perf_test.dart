@@ -1,7 +1,7 @@
 // Frame timings for scrolling Home on a real phone. Run in profile mode,
 // which installs a separate app with its own sample ledger:
 //
-//   flutter drive --profile --driver=test_driver/integration_test.dart \
+//   flutter drive --profile --driver=test/test_driver/integration_driver.dart \
 //     --target=integration_test/home_scroll_perf_test.dart
 // Add --dart-define=BIG_LEDGER=true for about 20,000 transactions.
 import 'dart:ui';
