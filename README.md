@@ -1,112 +1,97 @@
 # SimpleMoney
 
-A simple, private, offline-first money manager for Android, built with Flutter.
+**A free, private expense manager and budget planner for Android. No account, works offline, and your data stays on your phone.**
 
-The idea is small: every transaction answers two questions, kept apart.
+[Get it on Google Play](https://play.google.com/store/apps/details?id=com.aash591.SimpleMoney) · [Website and guides](https://simplemoney.aashglobal.in) · [Privacy policy](https://simplemoney.aashglobal.in/privacy)
 
-- **What was it for?** → Category (Food, Fuel, Bills…)
-- **Where did the money come from?** → Account (Cash, bank, card, wallet…)
+SimpleMoney is built around one small idea. Every transaction answers two questions, and the app keeps them apart:
 
-Food paid from Cash and Food paid from a bank are both just **Food**.
-A transfer between your own accounts is not spending.
+- **What was it for?** That is the **category** (Food, Fuel, Bills…).
+- **Where did the money come from?** That is the **account** (Cash, bank, card, wallet…).
 
-Adding an expense should take a few seconds: amount, category, account, save.
-Everything else stays under "More options".
+Food paid from Cash and Food paid from a bank are both just **Food**. Moving money between your own accounts is a transfer, not spending.
 
-## What it does
+Adding an expense takes a few seconds: amount, category, account, save. Everything else waits under "More options".
 
-- **Transactions**: expense, income and transfer, with search, filters and history.
-- **Accounts and categories**: any currency, reorderable, with 3D category icons and real bank and brand logos.
-- **Budgets**: monthly total and per category.
-- **Home**: month summary, spending by category, balances, recent items.
-- **Debts and loans**: money lent or borrowed, loan EMIs and payoff progress.
-- **Recurring payments**: subscriptions, rent, premiums, SIPs, with reminders.
-- **Portfolio**: brokers and holdings, with prices.
-- **Bank SMS import**: reads bank messages on the phone and queues them for review. Works for any country.
-- **Statement import**: map a bank statement's columns once, reuse it.
-- **UPI**: scan a QR and record the payment.
-- **AI assistant**: Claude, ChatGPT and other MCP apps can look at your data through a relay and *suggest* changes. Nothing changes until you approve it in More › AI assistant. See [relay/](relay/README.md).
-- **Community fixes**: SMS formats and statement layouts fixed with the AI can be shared, with no messages, amounts or names in them. See [community/](community/README.md).
-- **Backup**: optional Google Drive backup, automatic or manual, and restore on a new phone.
-- **Multi-currency**: set a main currency for combined totals. Daily rates are fetched only if you use two or more currencies, and cached rates work offline.
-- **Also**: light and dark mode, app lock, export and import, activity log.
+## What you can do
+
+### Track
+- Record **expenses, income and transfers**, then search, filter and browse the history.
+- Keep any number of **accounts** in any currency: cash, bank, card, wallet or a broker.
+- Organize with **categories** and sub-categories, with soft 3D icons and real bank and brand logos.
+- Set a **monthly budget**, overall and per category, and see how much is left.
+- Read the **Home** screen at a glance: this month's summary, spending by category, balances and recent items. Arrange it your way.
+- Use **multiple currencies** with a main currency for combined totals. Exchange rates are fetched only if you actually use two or more currencies, and cached rates work offline.
+
+### Stop typing it in
+- **Bank SMS import.** SimpleMoney reads your bank messages on the phone and queues them for you to review. It is built to work for any country, with ready-made rules for India, the UK, the USA, UAE, Saudi Arabia, Germany, France, Turkey, Nigeria, Kenya, Pakistan, Bangladesh, Sri Lanka, Thailand and more. Messages are read on the device and never uploaded.
+- **Teach it a new bank.** If your bank's message isn't recognised, mark the amount, account and merchant once and the app learns the format.
+- **Statement import.** Open a bank or UPI statement (PDF or file), map its columns once, and reuse the layout next time.
+- **UPI.** Scan a QR code and record the payment.
+
+### Know where you stand
+- **Debts.** Track money you lent or borrowed, person by person.
+- **Loans.** See EMIs, what you have paid and how close you are to being done.
+- **Recurring payments.** Subscriptions, rent, premiums and SIPs, with reminders before they are due.
+- **Portfolio.** Record stocks, ETFs, mutual funds, crypto and gold at a broker or in hand, with prices.
+
+### Ask an AI, stay in control
+- Connect **Claude, ChatGPT or any MCP app** and ask questions about your own money: "what did I spend on food last month?"
+- The AI can only **suggest** changes: new transactions, category fixes, budgets, loans. **Nothing changes until you approve it** in More › AI assistant.
+- Fixes you teach the app (SMS formats, statement layouts) can optionally be shared with the community, with no messages, amounts or names in them.
+
+### Back up and protect
+- **Google Drive backup**, automatic or manual, into your own Drive. Backups can be encrypted with a PIN that is never stored, and you can restore on a new phone.
+- **App lock** with fingerprint or PIN.
+- **Export and import** your data, and an **activity log** of what changed.
+- **Light and dark** looks, with colors and styles you can customize.
+
+## Free and Pro
+
+Tracking your money is free, forever. **SimpleMoney Pro** is an optional one-time purchase or subscription that adds unlimited budgets, all looks and colors, the AI assistant, and removes ads. It helps keep the app going.
 
 ## Privacy
 
-No login, no custom backend, data stays on the device. The network is used only for optional Drive backup, exchange rates, price lookups, and the AI session or community sharing when you turn them on.
+- No sign-up and no login.
+- Your data lives on your device. There is no server holding your transactions.
+- The internet is used only for things you switch on: Drive backup, exchange rates, price lookups, the AI connection and community sharing.
+- Bank SMS is read locally and not uploaded.
 
-## Repository layout
+Read the full [privacy policy](https://simplemoney.aashglobal.in/privacy).
 
-| Folder | What it is |
-|---|---|
-| `app/` | The Flutter Android app (`lib/`, `assets/`, `test/`, `android/`) |
-| `app/packages/` | Local packages: `universal_bank_sms_parser`, `drive_authorization` |
-| `relay/` | Cloudflare Worker for the AI (MCP) connection |
-| `community/` | Cloudflare Worker + D1 for shared SMS and statement fixes |
-| `WebDoc/` | Public website and privacy/terms pages |
-| `sms/` | SMS restore and collector tools ([RESTORE.md](sms/RESTORE.md)) |
-| `readme/` | Icon workflow, ADB over Tailscale notes |
-| `assets_raw/`, `icons/` | Source artwork for icons and logos |
-| `tool/`, `build.ps1` | Setup and build scripts |
+## Built with
 
-## Get started
+Flutter and Dart on Android, with a local SQLite database (Drift). Amounts are stored as exact integer minor units, so totals never drift. Dependencies are kept minimal.
 
-On a fresh Windows PC, run `SetupEnvironment.bat` from the repo root. It installs the missing tools in their standard locations and restores all dependencies.
+## Run it from source
 
-Then:
+You need the [Flutter SDK](https://docs.flutter.dev/get-started/install) and the Android SDK.
 
 ```sh
 cd app
 flutter pub get
-flutter analyze
 flutter test
 flutter run
 ```
 
-In Android Studio, **Run on all Android devices** builds one debug APK and installs it on every connected phone and emulator.
+Optional online features read settings from `app/.env` (copy `app/.env.example`). Without them the app still builds and runs. Release builds need your own signing key.
 
-Release builds need `secrets/android/key.properties` and are made from the root:
+| Folder | What it is |
+|---|---|
+| `app/` | The Flutter app |
+| `app/packages/universal_bank_sms_parser/` | The bank SMS parser, with per-country rules |
+| `app/packages/drive_authorization/` | Google Drive sign-in package |
+| `WebDoc/` | The website, privacy policy and terms |
+| `readme/` | Developer notes |
 
-```sh
-build app:play      # bumps the version, builds the Play Store bundle
-```
+## Contributing
 
-## Code layout (`app/lib/`)
+Bug reports and pull requests are welcome. Please run `flutter analyze` and `flutter test` first, and keep the main rule in mind: **prefer simplicity.** If a feature makes everyday money tracking slower or more confusing, it belongs under advanced options.
 
-```text
-data/      database (Drift/SQLite), repositories, backup, prices, AI tools
-domain/    models and business rules
-state/     per-feature stores
-ui/
-  components/   shared widgets (empty state, search, charts…)
-  theme/        colors, type, spacing, motion
-  home/  transactions/  budgets/  sms/  upi/  welcome/
-  more/         everything the More tab opens (accounts, categories,
-                debts, loans, recurring, portfolio, ai, settings…)
-```
-
-Amounts are stored as integer minor units. Totals are computed in the database, not in memory. Reuse the shared components instead of building one-off versions.
-
-## Stack
-
-Flutter and Dart, Drift (SQLite), shared_preferences, workmanager, Google Drive API, Cloudflare Workers for the relay and community.
-
-Keep dependencies minimal.
-
-## Design
-
-Calm and modern: soft shadows, rounded corners, one accent blue, off-white and charcoal backgrounds, big readable amounts, generous spacing, subtle motion. Light and dark are equally supported.
-
-## Icons and logos
-
-Category icons (soft 3D) and brand/bank logos have a step-by-step workflow in [IconCreationWorkflow.md](readme/IconCreationWorkflow.md).
-
-## Main rule
-
-Prefer simplicity. If a feature makes normal money tracking slower or more confusing, hide it under advanced options.
+Never post real bank messages, statements, account numbers or names in an issue or pull request. Black them out first.
 
 ## License
 
-Licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
+Made by Aash Global. Licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
 
 You can use, change and share this code. If you distribute it, or run a modified version as a network service, you must publish your full source under the same license. Copyright and license notices must stay.
