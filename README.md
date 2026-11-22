@@ -95,7 +95,7 @@ Food paid from Cash and Food paid from a bank are both just **Food**. Moving mon
 - ☁️ **Encrypted Backup** — Optional Google Drive backup into your own account, encrypted with a PIN that is never stored, then restore on a new phone
 - 🎨 **Looks** — Light, dark, true black and the Aurora glass style, with accent colors and your own wallpaper
 - 🔐 **App Lock** — Fingerprint or PIN
-- 🚀 **Quick Add** — Home-screen shortcuts to add an expense, an income or scan a QR
+- 🚀 **Quick Add** — Home-screen shortcuts to add an expense, an income or scan a QR in a couple of seconds
 - 📤 **Your Data** — Export and import, plus an activity log of what changed
 ## AI assistant
 
