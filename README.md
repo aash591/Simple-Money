@@ -88,7 +88,7 @@ Food paid from Cash and Food paid from a bank are both just **Food**. Moving mon
 - 🔁 **Recurring Payments** — Subscriptions, rent, premiums and SIPs, with a six-month forecast and reminders before they are due
 - 📥 **Statement Import** — UPI app PDFs (including password-protected ones), CSV and Excel exports; map the columns once and reuse the layout
 - 📷 **UPI QR** — Scan a QR code and record the payment
-- 📈 **Portfolio** — Stocks, ETFs, mutual funds, crypto and gold, at a broker or in hand, with prices
+- 📈 **Portfolio** — Stocks, ETFs, mutual funds, crypto, forex and gold, at a broker or in hand, with prices
 
 **More Features**
 
