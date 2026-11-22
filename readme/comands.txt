@@ -12,3 +12,5 @@ git add -A; git commit -m "Sync local working tree to match this PC"; git push -
 # (discards local commits and uncommitted changes on this branch)
 git fetch origin; git reset --hard "@{u}"
 
+
+

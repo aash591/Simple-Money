@@ -59,7 +59,9 @@ abstract class PriceSource {
   /// Whether this source finds holdings of [kind], so a search only asks the
   /// sources that can answer it.
   bool offers(HoldingKind kind) =>
-      kind != HoldingKind.crypto && kind != HoldingKind.metal;
+      kind != HoldingKind.crypto &&
+      kind != HoldingKind.metal &&
+      kind != HoldingKind.forex;
 }
 
 int? _toE4(num? value) {
@@ -532,6 +534,49 @@ class CoinGeckoSource extends PriceSource {
     } catch (_) {
       return const [];
     }
+  }
+}
+
+/// Foreign currency held as a holding. The symbol is its code (`USD`) and the
+/// price is one unit of it in the holding's own currency (the account's),
+/// from Yahoo's exchange rates (`USDINR=X`). Holding a currency in the
+/// account's own currency has no rate, so nothing is fetched.
+class ForexSource extends PriceSource {
+  @override
+  String get id => PriceSourceId.forexRate;
+
+  @override
+  bool offers(HoldingKind kind) => false;
+
+  /// The Yahoo pair for [code] priced in [currency], or null when they are
+  /// the same or either isn't a three-letter code.
+  static String? pair(String code, String currency) {
+    final from = code.trim().toUpperCase(), to = currency.trim().toUpperCase();
+    final ok = RegExp(r'^[A-Z]{3}$');
+    if (from == to || !ok.hasMatch(from) || !ok.hasMatch(to)) return null;
+    return '$from$to=X';
+  }
+
+  @override
+  Future<Map<int, PriceQuote>> quotes(
+    http.Client client,
+    List<Holding> holdings,
+  ) async {
+    final found = <int, PriceQuote>{};
+    for (final h in holdings) {
+      final currency = h.currency ?? 'USD';
+      final symbol = pair(h.symbol!, currency);
+      if (symbol == null) continue;
+      final quote = await YahooQuotes.quote(client, symbol);
+      if (quote != null) {
+        found[h.id] = PriceQuote(
+          priceE4: quote.priceE4,
+          date: quote.date,
+          currency: currency,
+        );
+      }
+    }
+    return found;
   }
 }
 

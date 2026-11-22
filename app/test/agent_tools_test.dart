@@ -7,6 +7,7 @@ import 'package:simple_money/data/agent/agent_suggestion_repository.dart';
 import 'package:simple_money/data/agent/agent_tools.dart';
 import 'package:simple_money/data/db/app_database.dart';
 import 'package:simple_money/data/repositories/account_repository.dart';
+import 'package:simple_money/data/repositories/budget_repository.dart';
 import 'package:simple_money/data/repositories/category_repository.dart';
 import 'package:simple_money/data/repositories/sms_review_repository.dart';
 import 'package:simple_money/data/repositories/sms_import_repository.dart';
@@ -279,6 +280,250 @@ void main() {
       containsPair('other_account', 'HDFC'),
     );
     expect((activity['notes'] as List).first, contains('Cash can’t be below'));
+  });
+
+
+  group('Fixing saved transactions', () {
+    late int kotak;
+    late AgentSuggestionRepository repository;
+
+    Future<int> balance(int account) async => (await db
+            .customSelect('SELECT balance_minor FROM accounts WHERE id = $account')
+            .getSingle())
+        .read<int>('balance_minor');
+
+    /// Approves every pending suggestion.
+    Future<void> approveAll() async {
+      for (final s in await repository.load(
+        statuses: {AgentSuggestionStatus.pending},
+      )) {
+        expect(await repository.apply(s.id), isNull, reason: s.summary);
+      }
+    }
+
+    setUp(() async {
+      kotak = await AccountRepository(db).save(
+        name: 'Kotak',
+        currency: 'INR',
+        digits: 2,
+        openingBalance: 0,
+      );
+      repository = AgentSuggestionRepository(db);
+    });
+
+    test('An expense that was money moved becomes a transfer, and back', () async {
+      final id = await expense(500000, 'Groceries', title: 'To Kotak');
+      final result = await call('suggest_transaction_edits', {
+        'items': [
+          {'transaction_id': id, 'type': 'transfer', 'to_account_id': kotak},
+        ],
+      });
+      expect(result['suggested'], 1, reason: '$result');
+      final [suggestion] = await repository.load();
+      expect(suggestion.detail, ['Type: expense → transfer', 'To: — → Kotak']);
+      await approveAll();
+      final moved = await row(id);
+      expect(moved['type'], 'transfer');
+      expect(moved['to_account_id'], kotak);
+      expect(moved['category_id'], isNull);
+      expect(await balance(hdfc), 1000000 - 500000);
+      expect(await balance(kotak), 500000);
+
+      expect(await repository.undo(suggestion.id), isNull);
+      final back = await row(id);
+      expect(back['type'], 'expense');
+      expect(back['category_id'], category['Groceries']);
+      expect(back['title'], 'To Kotak');
+      expect(await balance(kotak), 0);
+      expect(await balance(hdfc), 1000000 - 500000);
+
+      // A transfer back to an expense needs its category.
+      await call('suggest_transaction_edits', {
+        'items': [
+          {'transaction_id': id, 'type': 'transfer', 'to_account_id': kotak},
+        ],
+      });
+      await approveAll();
+      final noCategory = await call('suggest_transaction_edits', {
+        'items': [
+          {'transaction_id': id, 'type': 'expense'},
+        ],
+      });
+      expect(
+        ((noCategory['rejected'] as List).single as Map)['error'],
+        contains('needs a category'),
+      );
+    });
+
+    test('One change for many, and amount and date', () async {
+      final ids = [
+        for (final title in ['A', 'B', 'C'])
+          await expense(10000, 'Groceries', title: title),
+      ];
+      final bulk = await call('suggest_transaction_edits', {
+        'items': [
+          {'transaction_ids': ids, 'category_id': category['Restaurants']},
+          {'transaction_id': ids.first, 'amount': '120.50', 'date': '2026-10-10'},
+        ],
+      });
+      // The first one's two changes are one edit.
+      expect(bulk['suggested'], 3, reason: '$bulk');
+      await approveAll();
+      for (final id in ids) {
+        expect((await row(id))['category_id'], category['Restaurants']);
+      }
+      final first = await row(ids.first);
+      expect(first['amount_minor'], 12050);
+      final day = DateTime.fromMillisecondsSinceEpoch(first['date'] as int);
+      expect((day.year, day.month, day.day, day.hour), (2026, 10, 10, 13));
+      expect(await balance(hdfc), 1000000 - 12050 - 20000);
+    });
+
+    test('A duplicate is deleted, and undo puts it back as it was', () async {
+      final id = await expense(25000, 'Groceries', title: 'Twice');
+      final deleted = await call('suggest_transaction_edits', {
+        'items': [
+          {'transaction_id': id, 'delete': true, 'reason': 'Saved twice'},
+        ],
+      });
+      expect(deleted['suggested'], 1);
+      final mixed = await call('suggest_transaction_edits', {
+        'items': [
+          {'transaction_id': id, 'delete': true, 'title': 'x'},
+        ],
+      });
+      expect(
+        ((mixed['rejected'] as List).single as Map)['error'],
+        contains('give nothing else'),
+      );
+      final [suggestion] = await repository.load();
+      await approveAll();
+      expect(
+        await db.customSelect('SELECT 1 FROM transactions WHERE id = $id').get(),
+        isEmpty,
+      );
+      expect(await balance(hdfc), 1000000);
+
+      expect(await repository.undo(suggestion.id), isNull);
+      final back = await row(id);
+      expect(back['title'], 'Twice');
+      expect(back['amount_minor'], 25000);
+      expect(await balance(hdfc), 1000000 - 25000);
+    });
+
+    test('A transfer can be added', () async {
+      final added = await call('suggest_transactions', {
+        'items': [
+          {
+            'type': 'transfer',
+            'amount': '300.00',
+            'account_id': hdfc,
+            'to_account_id': kotak,
+            'date': '2026-10-12',
+          },
+          {
+            'type': 'transfer',
+            'amount': '10.00',
+            'account_id': hdfc,
+            'to_account_id': usd,
+          },
+          {
+            'type': 'transfer',
+            'amount': '10.00',
+            'account_id': hdfc,
+            'to_account_id': kotak,
+            'category_id': category['Groceries'],
+          },
+        ],
+      });
+      expect(added['suggested'], 1, reason: '$added');
+      expect((added['rejected'] as List).map((r) => (r as Map)['error']), [
+        contains('received_amount'),
+        'A transfer has no category or title.',
+      ]);
+      await approveAll();
+      expect(await balance(kotak), 30000);
+      expect(await balance(hdfc), 1000000 - 30000);
+    });
+
+    test('Duplicates are found by their UPI reference', () async {
+      Future<int> saved(
+        int account,
+        TransactionType type,
+        int minor,
+        String note,
+      ) => TransactionRepository(db).addExpenseOrIncome(
+        type: type,
+        amountMinor: minor,
+        accountId: account,
+        categoryId: category[type == TransactionType.income
+            ? 'Salary'
+            : 'Groceries']!,
+        note: note,
+        date: DateTime(2026, 10, 12, 13),
+      );
+      final now = DateTime.now();
+      final today = '${now.year}-${'${now.month}'.padLeft(2, '0')}-'
+          '${'${now.day}'.padLeft(2, '0')}';
+      // The same payment twice.
+      final a = await saved(hdfc, TransactionType.expense, 9000,
+          'UPI Ref 629920840430');
+      final b = await saved(hdfc, TransactionType.expense, 9000,
+          'UPI ref: 629920840430');
+      // Two teas of one price: each its own reference.
+      await saved(hdfc, TransactionType.expense, 2000, 'UPI Ref 111111111111');
+      await saved(hdfc, TransactionType.expense, 2000, 'UPI Ref 222222222222');
+      // One transfer saved by each bank.
+      final out = await saved(hdfc, TransactionType.expense, 50000,
+          'UPI Ref 333333333333');
+      final into = await saved(kotak, TransactionType.income, 50000,
+          'UPI Ref 333333333333');
+      final found = await call('find_duplicates', {
+        'from': '2026-10-01',
+        'to': today,
+      });
+      final [group] = found['duplicates'] as List;
+      expect((group as Map)['evidence'], startsWith('same UPI reference'));
+      expect([for (final t in group['transactions'] as List) (t as Map)['id']],
+          [a, b]);
+      expect(found['left_out'], startsWith('1 sets'));
+      final [pair] = found['transfers_saved_twice'] as List;
+      expect(((pair as Map)['out'] as Map)['id'], out);
+      expect((pair['in'] as Map)['id'], into);
+    });
+
+    test('Budgets show what is set, spent and left', () async {
+      final now = DateTime.now();
+      await BudgetRepository(db).saveTotal(
+        currency: 'INR',
+        digits: 2,
+        fromMonth: DateTime(now.year, now.month),
+        amountMinor: 500000,
+      );
+      await TransactionRepository(db).addExpenseOrIncome(
+        type: TransactionType.expense,
+        amountMinor: 120000,
+        accountId: hdfc,
+        categoryId: category['Groceries']!,
+        date: now,
+      );
+      final budgets = await call('list_budgets');
+      final [inr] = budgets['by_currency'] as List;
+      expect((inr as Map)['currency'], 'INR');
+      expect(inr['total_budget'], {
+        'limit': '5000.00',
+        'spent': '1200.00',
+        'left': '3800.00',
+      });
+    });
+
+    test('The tool list fits what the relay accepts', () {
+      final size = jsonEncode({
+        'tools': tools.definitions,
+        'instructions': AgentTools.instructions,
+      }).length;
+      expect(size, lessThan(256 * 1024));
+    });
   });
 
   test('Bad input comes back as an error the AI app can read', () async {

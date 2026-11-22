@@ -394,4 +394,127 @@ void main() {
     expect(parseTableAmount('6514.34(Cr)'), (minor: 651434, out: false));
     expect(parseTableAmount('1,52,430.01CR'), (minor: 15243001, out: false));
   });
+
+  group('amount columns line up on any edge', () {
+    // Money out, money in and the balance, each four rows: short and long
+    // amounts in each, so their edges differ unless they line up.
+    List<List<PdfWord>> statement(double Function(double x, String text) at) {
+      List<PdfWord> row(double y, String date, String text,
+          {String? debit, String? credit, required String balance}) =>
+          _line(1, y, [
+            (30, date),
+            (100, text),
+            if (debit != null) (at(320, debit), debit),
+            if (credit != null) (at(390, credit), credit),
+            (at(460, balance), balance),
+          ]);
+      return [
+        _line(1, 80, [
+          (30, 'Date'),
+          (100, 'Narration'),
+          (300, 'Debit'),
+          (370, 'Credit'),
+          (440, 'Balance'),
+        ]),
+        row(100, '01/04/26', 'SHOP A', debit: '90.00', balance: '7,414.41'),
+        row(120, '02/04/26', 'SALARY', credit: '16,800.00',
+            balance: '24,214.41'),
+        row(140, '03/04/26', 'RENT', debit: '23,500.00', balance: '714.41'),
+        row(160, '04/04/26', 'TEA', debit: '14.00', balance: '700.41'),
+      ];
+    }
+
+    double width(String text) => text.length * _char;
+    for (final (name, at) in [
+      ('left', (double x, String t) => x - 20),
+      ('right', (double x, String t) => r(x + 22)),
+      ('centred', (double x, String t) => x - width(t) / 2),
+    ]) {
+      test(name, () {
+        final rows = _table(statement(at));
+        final header = rows.indexWhere((r) => r.contains('Narration'));
+        expect(rows[header], ['Date', 'Narration', 'Debit', 'Credit', 'Balance']);
+        final result = _parse(rows);
+        expect(result.statement.rows, hasLength(4));
+        expect(result.balanceBreaks, 0);
+      });
+    }
+
+    test('columns close enough to touch are still told apart', () {
+      // Money in right-aligned so close to money out that a long amount
+      // reaches under it.
+      final rows = _table([
+        _line(1, 80, [
+          (30, 'Date'),
+          (100, 'Narration'),
+          (300, 'Debit'),
+          (345, 'Credit'),
+          (420, 'Balance'),
+        ]),
+        _line(1, 100, [(30, '01/04/26'), (100, 'SHOP A'),
+          (r(340), '90.00'), (r(470), '7,414.41')]),
+        _line(1, 120, [(30, '02/04/26'), (100, 'SALARY'),
+          (r(380), '1,16,800.00'), (r(470), '1,24,214.41')]),
+        _line(1, 140, [(30, '03/04/26'), (100, 'RENT'),
+          (r(340), '23,500.00'), (r(470), '1,00,714.41')]),
+        _line(1, 160, [(30, '04/04/26'), (100, 'TEA'),
+          (r(380), '14.00'), (r(470), '1,00,728.41')]),
+      ]);
+      final header = rows.indexWhere((r) => r.contains('Narration'));
+      expect(rows[header], ['Date', 'Narration', 'Debit', 'Credit', 'Balance']);
+      expect(_parse(rows).balanceBreaks, 0);
+    });
+  });
+
+  test('a narration split by a wide space, or run into an amount, is one '
+      'cell; an amount inside it stays', () {
+    final rows = _table([
+      _line(1, 80, [
+        (30, 'Date'),
+        (100, 'Narration'),
+        (360, 'Debit'),
+        (430, 'Credit'),
+        (510, 'Balance'),
+      ]),
+      // "DEP TFR", a wide space, then the rest; it wraps across that space.
+      _line(1, 100, [(30, '01/04/26'), (100, 'DEP TFR'),
+        (150, 'UPI/CR/1/ANITHA'), (r(470), '2,500.00'), (r(550), '3,500.00')]),
+      _line(1, 112, [(100, 'UPI/CR/1/ANITHA/OKAXIS/REF')]),
+      _line(1, 130, [(30, '02/04/26'), (100, 'WDL TFR'),
+        (150, 'UPI/DR/2/GROCERY'), (r(400), '500.00'), (r(550), '3,000.00')]),
+      _line(1, 142, [(100, 'UPI/DR/2/GROCERY/YBL/REF')]),
+      _line(1, 160, [(30, '03/04/26'), (100, 'REFUND 500.00 FROM SHOP'),
+        (r(470), '100.00'), (r(550), '3,100.00')]),
+      // A narration so long it runs up to the money-out column.
+      _line(1, 180, [(30, '04/04/26'),
+        (r(400), 'UPI/DR/4/SHOPKEEPERNAMEISLONG 12.00'), (r(550), '3,088.00')]),
+    ]);
+    final header = rows.indexWhere((r) => r.contains('Narration'));
+    expect(rows[header], ['Date', 'Narration', 'Debit', 'Credit', 'Balance']);
+    final body = rows.skip(header + 1).toList();
+    expect(body[0][1], 'DEP TFR UPI/CR/1/ANITHA UPI/CR/1/ANITHA/OKAXIS/REF');
+    expect(body[2][1], 'REFUND 500.00 FROM SHOP');
+    expect(body[3].sublist(1), [
+      'UPI/DR/4/SHOPKEEPERNAMEISLONG',
+      '12.00',
+      '',
+      '3,088.00',
+    ]);
+    final result = _parse(rows);
+    expect(result.statement.rows, hasLength(4));
+    expect(result.balanceBreaks, 0);
+  });
+
+  test('a column of D and C is the direction, not the description', () {
+    final rows = _table([
+      _line(1, 80, [(30, 'Date'), (100, 'Transaction Details'),
+        (330, 'Amount')]),
+      _line(1, 100, [(30, '03 Sep 26'), (100, 'WED INN MALL'),
+        (r(380), '5,000.00'), (400, 'D')]),
+      _line(1, 120, [(30, '07 Sep 26'), (100, 'PAYMENT RECEIVED'),
+        (r(380), '36,854.00'), (400, 'C')]),
+    ]);
+    final header = rows.indexWhere((r) => r.contains('Date'));
+    expect(rows[header], ['Date', 'Transaction Details', 'Amount', 'Dr/Cr']);
+  });
 }

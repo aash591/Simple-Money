@@ -1,5 +1,5 @@
+import '../data/platform_info.dart';
 import 'dart:async';
-import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -21,7 +21,7 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
           engine ??
           SyncEngine(
             repository,
-            progress: Platform.isAndroid ? SyncNotifications() : null,
+            progress: isAndroidPlatform ? SyncNotifications() : null,
           );
   final SyncRepository repository;
   final SyncEngine engine;
@@ -47,7 +47,7 @@ class SyncController extends ChangeNotifier with WidgetsBindingObserver {
   /// Reloads whatever cached the ledger, after a restore replaced it.
   VoidCallback? onRestored;
   bool get uploading => _running != null;
-  bool get supported => Platform.isAndroid;
+  bool get supported => isAndroidPlatform;
   bool _disposed = false, _uploadsHeld = false;
 
   /// The check running now, if any.

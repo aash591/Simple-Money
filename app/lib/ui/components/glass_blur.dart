@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import '../../data/platform_info.dart';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -379,7 +379,7 @@ class ScreenAnchor extends StatelessWidget {
   static final _boundary = GlobalKey();
 
   /// Widget tests can't render real images; they keep the live blur.
-  static final _enabled = !Platform.environment.containsKey('FLUTTER_TEST');
+  static final _enabled = !isFlutterTest;
 
   /// The screen as last drawn, at full sharpness, with its logical size and
   /// pixel ratio; null where it can't be had.

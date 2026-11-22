@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
@@ -777,10 +778,14 @@ class _FrostedGlass extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BackdropFilter(
-    filter: ui.ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+    filter: ui.ImageFilter.blur(
+      sigmaX: kIsWeb ? 14 : 6,
+      sigmaY: kIsWeb ? 14 : 6,
+    ),
     child: DecoratedBox(
       decoration: ShapeDecoration(
-        color: color.withValues(alpha: .78),
+        // Browsers can't run the lens, so the frost must stay see-through.
+        color: color.withValues(alpha: kIsWeb ? .4 : .78),
         shape: StadiumBorder(
           side: BorderSide(
             color: Colors.white.withValues(alpha: dark ? .12 : .6),

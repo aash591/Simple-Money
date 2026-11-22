@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 
 import '../../../data/prices/price_sources.dart';
 import '../../../domain/account.dart';
+import '../../../domain/currency.dart';
+import '../../../domain/currency_digits.dart';
 import '../../../domain/holding.dart';
 import '../../../domain/markets.dart';
 import '../../../domain/metal.dart';
@@ -13,6 +15,7 @@ import '../../../state/holding_store.dart';
 import '../../components/action_buttons.dart';
 import '../../components/app_icon.dart';
 import '../../components/common.dart';
+import '../../components/currency_flag.dart';
 import '../../components/feature_page.dart';
 import '../../components/search_field.dart';
 import '../../components/segmented_pill.dart';
@@ -68,6 +71,31 @@ const List<_KindChoice> _kinds = [
     title: 'Metal',
     subtitle: 'Gold, silver and platinum',
   ),
+  (
+    kind: HoldingKind.forex,
+    icon: Icons.currency_exchange_rounded,
+    title: 'Forex',
+    subtitle: 'Dollars, euros and other currencies',
+  ),
+];
+
+/// The flag to show for currencies shared by many countries, or whose first
+/// country in the list isn't the one people think of.
+const _currencyFlags = {
+  'USD': 'US',
+  'EUR': 'EU',
+  'GBP': 'GB',
+  'AUD': 'AU',
+  'NZD': 'NZ',
+  'CHF': 'CH',
+  'XOF': 'SN',
+  'XAF': 'CM',
+  'XCD': 'AG',
+};
+
+/// Currencies suggested first when adding forex.
+const _popularCurrencies = [
+  'USD', 'EUR', 'GBP', 'AED', 'SGD', 'JPY', 'CAD', 'AUD', 'CHF', 'SAR', //
 ];
 
 /// Adding a holding to an investment account as a full-screen flow: what
@@ -125,13 +153,75 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
   bool get _fund => _kind == HoldingKind.fund;
   bool get _crypto => _kind == HoldingKind.crypto;
   bool get _metal => _kind == HoldingKind.metal;
+  bool get _forex => _kind == HoldingKind.forex;
 
-  /// Funds, coins and metals aren't listed on a stock exchange or market.
-  bool get _unlisted => _fund || _crypto || _metal;
+  /// Funds, coins, metals and currencies aren't listed on a stock exchange
+  /// or market.
+  bool get _unlisted => _fund || _crypto || _metal || _forex;
 
   MetalDetails get _metalDetails =>
       MetalDetails(metal: _metalType!, fineness: _fineness);
   bool get _canSearch => widget.store.prices != null;
+
+  // Names and flags for the currency list, and today's rate for each one
+  // shown, filled in as they arrive.
+  Map<String, Currency> _currencyInfo = const {};
+  final Map<String, PriceQuote?> _rates = {};
+  final Set<String> _rateAsked = {};
+
+  bool _currencyLoading = false;
+
+  /// Loads the names and flags the first time they are needed.
+  void _loadCurrencyInfo() {
+    if (_currencyLoading || _currencyInfo.isNotEmpty) return;
+    _currencyLoading = true;
+    Currency.load()
+        .then((all) {
+          if (!mounted) return;
+          // Reversed so the first country listed for a code wins.
+          setState(
+            () => _currencyInfo = {for (final c in all.reversed) c.code: c},
+          );
+        })
+        .catchError((_) {
+          _currencyLoading = false;
+        });
+  }
+
+  Widget _currencyFlag(String code, {double size = 36}) {
+    final territory = _currencyFlags[code] ?? _currencyInfo[code]?.territory;
+    return territory == null
+        ? HoldingLogo(null, kind: HoldingKind.forex, size: size)
+        : CurrencyFlag(
+            territory,
+            width: size,
+            height: size,
+            borderRadius: size * .28,
+          );
+  }
+
+  /// Asks for the rate of each of [codes] not asked for yet.
+  void _fetchRates(Iterable<String> codes) {
+    final pending = [
+      for (final c in codes)
+        if (_rateAsked.add(c)) c,
+    ];
+    if (pending.isEmpty || widget.store.prices == null) return;
+    final broker = widget.broker.currency;
+    for (final code in pending) {
+      widget.store.prices!
+          .quoteFor(
+            kind: HoldingKind.forex,
+            symbol: code,
+            priceSource: PriceSourceId.forexRate,
+            currency: broker,
+          )
+          .then((quote) {
+            if (mounted) setState(() => _rates[code] = quote);
+          })
+          .catchError((_) {});
+    }
+  }
 
   @override
   void dispose() {
@@ -182,8 +272,8 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
 
   void _onSearch(String text) {
     _searchDebounce?.cancel();
-    // The metals are a short list kept here, filtered as you type.
-    if (_metal) {
+    // The metals and currencies are short lists kept here, filtered as you type.
+    if (_metal || _forex) {
       setState(() {});
       return;
     }
@@ -238,6 +328,17 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
     _exchange.text = hit.kind == HoldingKind.fund && hit.exchange == 'AMFI'
         ? ''
         : hit.exchange ?? '';
+    _enterDetails();
+  }
+
+  /// A currency from the list: its code is the name and the symbol.
+  void _pickCurrency(String code) {
+    _picked = null;
+    _icon = null;
+    _nameEdited = false;
+    _name.text = code;
+    _symbol.text = code;
+    _exchange.clear();
     _enterDetails();
   }
 
@@ -315,6 +416,7 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
   /// kind.
   String? get _source {
     if (_metal) return _metalType == null ? PriceSourceId.manual : _metalSource;
+    if (_forex) return PriceSourceId.forexRate;
     final hit = _picked;
     final matches =
         hit != null && hit.kind == _kind && hit.symbol == _symbol.text.trim();
@@ -356,7 +458,7 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
       priceSource: _source,
       meta: _metal ? jsonEncode(_metalDetails.toJson()) : null,
       // Metal is bought in the account's own currency, so it is priced there.
-      currency: _metal ? widget.broker.currency : null,
+      currency: _metal || _forex ? widget.broker.currency : null,
     );
     if (!mounted || round != _quoteRound) return;
     setState(() {
@@ -391,6 +493,8 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
   Widget? _detailsLogo() {
     if (_icon != null) return AppIcon(_icon, size: 26);
     if (_metal) return const AppIcon('jewelry', size: 26);
+    if (_forex)
+      return _currencyFlag(_symbol.text.trim().toUpperCase(), size: 26);
     final symbol = _symbol.text.trim();
     final url = _crypto
         ? (_source != null ? _picked?.image : null)
@@ -433,7 +537,7 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
         symbol: _symbol.text,
         exchange: _unlisted ? '' : _exchange.text,
         priceSource: _source,
-        currency: _metal
+        currency: _metal || _forex
             ? widget.broker.currency
             : (other ? quoteCurrency : null),
         meta: _meta(),
@@ -490,19 +594,21 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        // The intro takes two parts and the list three, so five types fit
-        // without a wide gap between them.
+        // The types sit at the bottom at their own height; the intro is
+        // centered in the space above them.
         const Expanded(
-          flex: 2,
           child: StepIntro(
+            compact: true,
             title: 'What are you adding?',
             message: 'Choose a type, then find it by name.',
           ),
         ),
-        Expanded(
-          flex: 3,
+        SafeArea(
+          top: false,
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 0, 18, 32),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
             children: [
               MoneyCard(
                 padding: EdgeInsets.zero,
@@ -522,7 +628,7 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 18,
-                              vertical: 16,
+                              vertical: 11,
                             ),
                             child: Row(
                               children: [
@@ -677,8 +783,89 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
     );
   }
 
+  /// Currencies to pick, the popular ones first, narrowed by what is typed.
+  Widget _forexFindPage(BuildContext context) {
+    final theme = Theme.of(context);
+    final query = _search.text.trim().toUpperCase();
+    final codes =
+        [
+          ..._popularCurrencies,
+          for (final c in knownCurrencyCodes.toList()..sort())
+            if (!_popularCurrencies.contains(c)) c,
+        ].where((c) {
+          if (c == widget.broker.currency) return false;
+          return c.contains(query) ||
+              (_currencyInfo[c]?.name.toUpperCase().contains(query) ?? false);
+        }).toList();
+    final shown = codes;
+    _loadCurrencyInfo();
+    // After this frame: asking for rates changes state.
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _fetchRates(shown.take(14)),
+    );
+    return ListView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.fromLTRB(18, 0, 18, 32),
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: SearchField(
+            key: const Key('holding-search'),
+            controller: _search,
+            onChanged: _onSearch,
+            hintText: 'Search currencies, like USD',
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (codes.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Text(
+              'Nothing found.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          )
+        else
+          MoneyCard(
+            padding: EdgeInsets.zero,
+            child: Material(
+              type: MaterialType.transparency,
+              child: Column(
+                children: [
+                  for (final (i, code) in shown.indexed) ...[
+                    if (i > 0) const Divider(height: 1),
+                    ListTile(
+                      key: Key('hit-$code'),
+                      leading: _currencyFlag(code),
+                      title: Text(code),
+                      subtitle: Text(
+                        _currencyInfo[code]?.name ?? 'Currency',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: _rates[code] == null
+                          ? null
+                          : Text(
+                              _priceText(_rates[code]!),
+                              style: theme.textTheme.titleSmall,
+                            ),
+                      onTap: () => _pickCurrency(code),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _findPage(BuildContext context) {
     if (_metal) return _metalFindPage(context);
+    if (_forex) return _forexFindPage(context);
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final hits = _visibleHits;
@@ -930,6 +1117,8 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
                           ? 'e.g. Bitcoin'
                           : _metal
                           ? 'e.g. Wedding necklace'
+                          : _forex
+                          ? 'e.g. US dollars'
                           : 'e.g. Tata Consultancy Services',
                       controller: _name,
                       maxLength: 60,
@@ -954,11 +1143,15 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
                             ? 'Scheme code'
                             : _crypto
                             ? 'Coin ID'
+                            : _forex
+                            ? 'Currency code'
                             : 'Ticker',
                         hint: _fund
                             ? 'e.g. 122639'
                             : _crypto
                             ? 'e.g. bitcoin'
+                            : _forex
+                            ? 'e.g. USD'
                             : 'e.g. TCS.NS',
                         note: 'Optional · lets the price update by itself',
                         controller: _symbol,

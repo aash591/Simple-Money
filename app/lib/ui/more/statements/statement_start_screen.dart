@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../data/agent/agent_suggestion_repository.dart';
 import '../../../data/repositories/statement_import_repository.dart';
 import '../../../data/statements/pending_statement_files.dart';
 import '../../../data/statements/statement_table.dart';
@@ -7,6 +8,7 @@ import '../../../state/sync_controller.dart';
 import '../../components/common.dart';
 import '../../components/empty_state.dart';
 import '../../components/feature_page.dart';
+import 'statement_ai_help.dart';
 import 'statement_file.dart';
 
 /// The Import statement page: says which files can be read and opens the
@@ -31,6 +33,10 @@ class _StatementStartScreenState extends State<StatementStartScreen> {
   /// Files kept on the phone whose layout has since been set up.
   List<(PendingStatementFile, TableMapping)> _ready = const [];
 
+  /// Files waiting on the phone for a layout: the AI's suggestion for one
+  /// shows here to approve.
+  List<PendingStatementFile> _waiting = const [];
+
   @override
   void initState() {
     super.initState();
@@ -41,8 +47,18 @@ class _StatementStartScreenState extends State<StatementStartScreen> {
     try {
       final saved = await StatementImportRepository(widget.sync.repository.db)
           .knownMappings();
-      final ready = await PendingStatementFiles().ready(saved);
-      if (mounted) setState(() => _ready = ready);
+      final files = PendingStatementFiles();
+      final ready = await files.ready(saved);
+      final waiting = [
+        for (final file in await files.load())
+          if (ready.every((r) => r.$1.signature != file.signature)) file,
+      ];
+      if (mounted) {
+        setState(() {
+          _ready = ready;
+          _waiting = waiting;
+        });
+      }
     } catch (_) {
       // Only a shortcut: the files can still be picked.
     }
@@ -66,6 +82,15 @@ class _StatementStartScreenState extends State<StatementStartScreen> {
   ) async {
     await importPendingStatement(context, widget.sync, file, mapping);
     await _loadReady();
+  }
+
+  /// The AI's layout for [file] was approved: import the file right away.
+  Future<void> _approved(PendingStatementFile file) async {
+    await _loadReady();
+    final ready = _ready
+        .where((r) => r.$1.signature == file.signature)
+        .firstOrNull;
+    if (ready != null && mounted) await _importReady(ready.$1, ready.$2);
   }
 
   Widget _readyCard(BuildContext context) {
@@ -109,10 +134,6 @@ class _StatementStartScreenState extends State<StatementStartScreen> {
           'card, Google Pay, PhonePe or Paytm. PDF, CSV or Excel. A payment '
           'that’s in two files, or already here, is added once.',
       actions: [
-        if (_ready.isNotEmpty) ...[
-          _readyCard(context),
-          const SizedBox(height: 12),
-        ],
         FilledButton.icon(
           // A second tap while reading is ignored by the import itself.
           onPressed: _choose,
@@ -129,6 +150,19 @@ class _StatementStartScreenState extends State<StatementStartScreen> {
               : const Icon(Icons.upload_file_rounded),
           label: Text(_reading ? 'Reading file…' : 'Choose files'),
         ),
+        // Below the button, so it stays where it is however many files wait.
+        if (_waiting.isNotEmpty || _ready.isNotEmpty)
+          const SizedBox(height: 12),
+        for (final file in _waiting)
+          StatementAiCard(
+            key: ValueKey(file.signature),
+            repository: AgentSuggestionRepository(widget.sync.repository.db),
+            signature: file.signature,
+            fileName: file.fileName,
+            onlyWhenReady: true,
+            onApproved: () => _approved(file),
+          ),
+        if (_ready.isNotEmpty) _readyCard(context),
       ],
     ),
   );

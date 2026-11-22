@@ -1,5 +1,5 @@
+import '../data/platform_info.dart';
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:in_app_update/in_app_update.dart';
@@ -40,7 +40,7 @@ class AppUpdate extends ChangeNotifier {
 
   StreamSubscription<InstallStatus>? _installs;
 
-  bool get _supported => !kIsWeb && Platform.isAndroid;
+  bool get _supported => isAndroidPlatform;
 
   void _set(AppUpdateStage stage) {
     if (_stage == stage) return;

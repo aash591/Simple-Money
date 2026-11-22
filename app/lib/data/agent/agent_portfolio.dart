@@ -138,7 +138,7 @@ class AgentPortfolio {
         final kind = fields.kind ?? (throw ArgumentError('Give kind.'));
         if (!HoldingKind.selectable.contains(kind)) {
           throw ArgumentError(
-            'kind must be stock, etf, fund, crypto or metal.',
+            'kind must be stock, etf, fund, crypto, metal or forex.',
           );
         }
         final name = _name(fields.name);
@@ -170,6 +170,16 @@ class AgentPortfolio {
           priceSource ??= PriceSourceId.metalWorld;
           // Metal is bought in the account's own currency.
           currency = null;
+        } else if (kind == HoldingKind.forex) {
+          if (symbol == null || !RegExp(r'^[A-Za-z]{3}$').hasMatch(symbol)) {
+            throw ArgumentError(
+              'Give symbol: the three-letter currency code, like USD.',
+            );
+          }
+          symbol = symbol.toUpperCase();
+          // Priced in the account's own currency.
+          currency = place.currency;
+          priceSource ??= PriceSourceId.forexRate;
         } else {
           if (symbol == null) {
             throw ArgumentError(
@@ -849,6 +859,7 @@ class AgentPortfolio {
       PriceSourceId.amfi,
       PriceSourceId.coingecko,
       PriceSourceId.metalWorld,
+      PriceSourceId.forexRate,
       PriceSourceId.manual,
     ];
     if (!known.contains(clean)) {

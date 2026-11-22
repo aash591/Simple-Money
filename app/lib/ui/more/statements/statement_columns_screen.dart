@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../data/agent/agent_suggestion_repository.dart';
 import '../../../data/agent/statement_samples.dart';
 
 import '../../../data/repositories/statement_import_repository.dart';
@@ -35,6 +37,7 @@ class StatementColumnsScreen extends StatefulWidget {
     this.source = UpiStatementSource.csv,
     this.remembered = false,
     this.step,
+    this.pagePictures,
   });
   final SyncController sync;
   final List<List<String>> rows;
@@ -49,6 +52,9 @@ class StatementColumnsScreen extends StatefulWidget {
 
   /// Where this file is among several imported together ("2 of 4").
   final String? step;
+
+  /// A PDF's first pages as pictures, for the user's AI if they allow it.
+  final Future<List<Uint8List>> Function()? pagePictures;
 
   @override
   State<StatementColumnsScreen> createState() => _StatementColumnsScreenState();
@@ -211,6 +217,18 @@ class _StatementColumnsScreenState extends State<StatementColumnsScreen> {
     );
   }
 
+  /// The AI's layout was approved: read this file with it.
+  Future<void> _useSavedLayout() async {
+    try {
+      final saved = await StatementImportRepository(widget.sync.repository.db)
+          .knownMappings();
+      final found = findSavedMapping(rows, saved);
+      if (found != null && mounted) _update(found);
+    } catch (_) {
+      // The columns stay as they were; the user can still set them.
+    }
+  }
+
   Future<void> _continue() async {
     final statement = result.statement;
     try {
@@ -269,22 +287,22 @@ class _StatementColumnsScreenState extends State<StatementColumnsScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                if (!widget.remembered) ...[
-                  MoneyCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'New layout? Your AI can set it up',
-                          style: theme.textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        const StatementAiHelp(),
-                      ],
-                    ),
+                // Shown for a saved layout too: one saved wrong is fixed
+                // the same way.
+                StatementAiCard(
+                  repository: AgentSuggestionRepository(
+                    widget.sync.repository.db,
                   ),
-                  const SizedBox(height: 12),
-                ],
+                  signature: tableSignature(_header),
+                  fileName: widget.fileName,
+                  onApproved: _useSavedLayout,
+                  pagePictures: widget.pagePictures,
+                  saved: widget.remembered,
+                  // A saved layout's file was taken off the AI's list.
+                  onAsk: () =>
+                      rememberNewLayout(widget.fileName, rows, widget.source),
+                ),
+                const SizedBox(height: 12),
                 if (widget.source == UpiStatementSource.bank) ...[
                   _statementCard(),
                   const SizedBox(height: 12),
@@ -626,8 +644,9 @@ Future<StatementImportResult?> openStatementColumns(
   SyncController sync,
   List<List<String>> rows,
   String fileName,
-  UpiStatementSource source,
-) async {
+  UpiStatementSource source, {
+  Future<List<Uint8List>> Function()? pagePictures,
+}) async {
   if (rows.every((r) => r.every((c) => c.trim().isEmpty))) {
     showAppToast(
       context,
@@ -650,6 +669,7 @@ Future<StatementImportResult?> openStatementColumns(
         source: source,
         initial: remembered ?? guessMapping(rows),
         remembered: remembered != null,
+        pagePictures: pagePictures,
       ),
     ),
   );

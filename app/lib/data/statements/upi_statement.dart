@@ -241,6 +241,14 @@ final _honorificGap = RegExp(
   r'^((?:mr|mrs|ms|miss|shri|smt)\.?)\s+',
   caseSensitive: false,
 );
+final _accountName = RegExp(
+  r'^(?:.*\s)?(?:account|a/c)\s+(?:holder\s+)?name\s*:\s*([^:()]+?)\s*$',
+  caseSensitive: false,
+);
+final _statementOf = RegExp(
+  r'\bstatement\s+of\s+([^:()]+?)\s*\(',
+  caseSensitive: false,
+);
 final _plainName = RegExp(r"^[A-Za-z][A-Za-z.' ]{1,40}$");
 const _notNames = {
   'account',
@@ -280,12 +288,30 @@ StatementOwner statementOwnerIn(
   final names = <String>{};
   final handles = <String>{};
   bool plausible(String line) {
+    // A PDF can space letters unevenly ("ASHIQUE   M"): one space between
+    // words, whatever it printed.
+    line = line.replaceAll(RegExp(r'\s+'), ' ');
     final name = StatementOwner.normalizeName(line);
     return _plainName.hasMatch(line.trim()) &&
         name.contains(' ') &&
         name.split(' ').length <= 4 &&
         !name.split(' ').any(_notNames.contains);
   }
+
+  // Where a statement says outright whose it is: "Account Name : Mr. X" or
+  // "Statement of Mr. X (A/c …)". Surer than a name printed near the top,
+  // which can be an address line or a joint holder.
+  final stated = <String>{};
+  for (final line in lines) {
+    final flat = line.replaceAll(RegExp(r'\s+'), ' ').trim();
+    for (final pattern in [_accountName, _statementOf]) {
+      final raw = pattern.firstMatch(flat)?[1];
+      if (raw != null && plausible(raw)) {
+        stated.add(StatementOwner.normalizeName(raw.replaceAll(RegExp(r'\s+'), ' ')));
+      }
+    }
+  }
+  if (stated.isNotEmpty) names.addAll(stated);
 
   for (final (i, line) in lines.indexed) {
     for (final m in _email.allMatches(line)) {
@@ -306,7 +332,7 @@ StatementOwner statementOwnerIn(
     for (final m in _phone.allMatches(line)) {
       handles.add(m[1]!);
     }
-    if (_honorific.hasMatch(line)) {
+    if (stated.isEmpty && _honorific.hasMatch(line)) {
       // "MR  HARIKRISHNA P": a PDF can set the title apart from the name.
       final name = line
           .replaceFirstMapped(_honorificGap, (m) => '${m[1]} ')

@@ -6,17 +6,25 @@ import '../../theme/app_theme.dart' show usesGlass;
 /// The top half of a choice screen: the artwork the Portfolio's empty page uses,
 /// and one line on what this step is for.
 class StepIntro extends StatelessWidget {
-  const StepIntro({super.key, required this.title, required this.message});
+  const StepIntro({
+    super.key,
+    required this.title,
+    required this.message,
+    this.compact = false,
+  });
   final String title, message;
+
+  /// A smaller picture, for a step with a long list beneath it.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final art = usesGlass(context)
-        ? const EmptyArtwork(EmptyArt.chart, size: 112)
-        : const GlassLens(
-            size: 112,
-            child: EmptyArtwork(EmptyArt.chart, size: 60),
+        ? EmptyArtwork(EmptyArt.chart, size: compact ? 72 : 112)
+        : GlassLens(
+            size: compact ? 72 : 112,
+            child: EmptyArtwork(EmptyArt.chart, size: compact ? 40 : 60),
           );
     return Center(
       child: SingleChildScrollView(

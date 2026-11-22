@@ -53,6 +53,24 @@ Future<List<PdfWord>> extractPdfWords(Uint8List bytes, {String? password}) =>
       ];
     });
 
+/// The first [count] pages of the PDF in [bytes] as JPEG pictures, drawn on
+/// the device by PdfBox. Throws as [extractPdfText].
+Future<List<Uint8List>> renderPdfPages(
+  Uint8List bytes, {
+  String? password,
+  int count = 2,
+}) => _read(() async {
+  final pages = await _channel.invokeMethod<List<Object?>>('pages', {
+    'bytes': bytes,
+    'password': password,
+    'count': count,
+  });
+  return [
+    for (final page in pages ?? const <Object?>[])
+      if (page is Uint8List) page,
+  ];
+});
+
 Future<T> _read<T>(Future<T> Function() read) async {
   try {
     return await read();

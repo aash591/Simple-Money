@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import '../../../data/platform_info.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +50,7 @@ class HoldingLogo extends StatelessWidget {
     HoldingKind.fund => Icons.pie_chart_rounded,
     HoldingKind.crypto => Icons.currency_bitcoin_rounded,
     HoldingKind.metal => Icons.diamond_outlined,
+    HoldingKind.forex => Icons.currency_exchange_rounded,
     _ => Icons.candlestick_chart_rounded,
   };
 
@@ -71,7 +72,7 @@ class HoldingLogo extends StatelessWidget {
       child: Icon(iconFor(kind), size: size * .55, color: scheme.primary),
     );
     // Widget tests have no cache folder or network, so they show the icon.
-    if (url == null || Platform.environment.containsKey('FLUTTER_TEST')) {
+    if (url == null || isFlutterTest) {
       return fallback;
     }
     return ClipRRect(

@@ -252,21 +252,48 @@ extension _AgentToolDefinitions on AgentTools {
       name: 'suggest_transaction_edits',
       title: 'Suggest transaction edits',
       description:
-          'Proposes a new category, account, title or note for saved '
-          'transactions (ids from search_transactions). Amounts and dates '
-          'can\'t be changed this way. A new account must use the same '
-          'currency. loan_id makes one a payment to that loan (list_loans), '
-          'even one saved as income because the bank said "credited to your '
-          'loan account". Changes nothing until approved.',
+          'Proposes changes to saved transactions (ids from '
+          'search_transactions or find_duplicates): category, account, '
+          'title, note, amount, date, or type: an expense or income that was '
+          'really money moved between the user\'s own accounts becomes a '
+          'transfer (type transfer, account_id the one it left, '
+          'to_account_id the one it reached), and back (give a category). '
+          'delete removes one, such as a duplicate. transaction_ids gives '
+          'many the same change in one item. loan_id makes one a payment to '
+          'that loan (list_loans). What a loan, debt or recurring payment '
+          'owns is changed from there. Changes nothing until approved; each '
+          'can be undone.',
       readOnly: false,
       inputSchema: AgentTools._items(
         {
           'transaction_id': {'type': 'integer'},
+          'transaction_ids': {
+            'type': 'array',
+            'items': {'type': 'integer'},
+            'description': 'The same change for each of these.',
+          },
+          'type': {
+            'type': 'string',
+            'enum': ['expense', 'income', 'transfer'],
+          },
           'category_id': {'type': 'integer'},
           'category_name': {'type': 'string'},
-          'account_id': {'type': 'integer'},
+          'account_id': {
+            'type': 'integer',
+            'description': 'Its account; for a transfer, where it left from.',
+          },
+          'to_account_id': {
+            'type': 'integer',
+            'description': 'For a transfer: where the money went.',
+          },
+          'amount': {'type': 'string', 'description': 'e.g. 250.00'},
+          'date': AgentTools._date,
           'title': {'type': 'string', 'maxLength': 80},
           'note': {'type': 'string'},
+          'delete': {
+            'type': 'boolean',
+            'description': 'Remove it. Give nothing else with it.',
+          },
           'loan_id': {
             'type': 'integer',
             'description':
@@ -274,7 +301,7 @@ extension _AgentToolDefinitions on AgentTools {
           },
           'reason': AgentTools._reasonField,
         },
-        required: ['transaction_id'],
+        required: const [],
       ),
       handler: _suggestTransactionEdits,
     ),
@@ -282,10 +309,13 @@ extension _AgentToolDefinitions on AgentTools {
       name: 'suggest_transactions',
       title: 'Suggest new transactions',
       description:
-          'Proposes new expenses or income to add (from a receipt, a '
-          'statement line, or what the user tells you). Give the account '
-          '(list_accounts), the amount in that account\'s currency, and a '
-          'category by id or name. The date defaults to today. Refuses one '
+          'Proposes new expenses, income or transfers to add (from a '
+          'receipt, a statement line, or what the user tells you). Give the '
+          'account (list_accounts), the amount in that account\'s currency, '
+          'and a category by id or name. A transfer (money moved between the '
+          'user\'s own accounts, such as a bank to a broker) has no category: '
+          'give to_account_id, and received_amount when that account uses '
+          'another currency. The date defaults to today. Refuses one '
           'that looks already saved. Changes nothing until approved. Leave '
           'reason out unless something needs the user\'s attention (a guessed '
           'category, an unclear date or amount): with several transactions '
@@ -296,14 +326,26 @@ extension _AgentToolDefinitions on AgentTools {
         {
           'type': {
             'type': 'string',
-            'enum': ['expense', 'income'],
+            'enum': ['expense', 'income', 'transfer'],
             'default': 'expense',
           },
           'amount': {
             'type': 'string',
             'description': 'Decimal amount, e.g. 250.00',
           },
-          'account_id': {'type': 'integer'},
+          'account_id': {
+            'type': 'integer',
+            'description': 'Its account; for a transfer, where it left from.',
+          },
+          'to_account_id': {
+            'type': 'integer',
+            'description': 'For a transfer: where the money went.',
+          },
+          'received_amount': {
+            'type': 'string',
+            'description':
+                'For a transfer into another currency: what arrived.',
+          },
           'category_id': {'type': 'integer'},
           'category_name': {'type': 'string'},
           'title': {'type': 'string', 'maxLength': 80},
@@ -323,6 +365,45 @@ extension _AgentToolDefinitions on AgentTools {
       handler: _suggestTransactions,
     ),
 
+    AgentTool(
+      name: 'find_duplicates',
+      title: 'Find duplicate transactions',
+      description:
+          'Transactions saved twice (the same kind, account and amount, a '
+          'day or so apart), with whether they quote the same UPI '
+          'reference, and transfers saved as an expense in one account and '
+          'an income in another. Fix them with suggest_transaction_edits.',
+      inputSchema: AgentTools._schema({
+        'from': {
+          ...AgentTools._date,
+          'description': 'Default: 90 days before to',
+        },
+        'to': {...AgentTools._date, 'description': 'Default: today'},
+        'account_id': {'type': 'integer'},
+        'days': {
+          'type': 'integer',
+          'minimum': 0,
+          'maximum': 7,
+          'default': 1,
+          'description': 'How many days apart copies may be.',
+        },
+      }),
+      handler: _findDuplicates,
+    ),
+    AgentTool(
+      name: 'list_budgets',
+      title: 'List budgets',
+      description:
+          'The month\'s budgets: the total and each category budget, with '
+          'what is set, spent and left, per currency.',
+      inputSchema: AgentTools._schema({
+        'month': {
+          'type': 'string',
+          'description': 'YYYY-MM. Default: this month',
+        },
+      }),
+      handler: _listBudgets,
+    ),
     AgentTool(
       name: 'list_payees_to_categorize',
       title: 'List payees to categorize',
@@ -552,9 +633,27 @@ extension _AgentToolDefinitions on AgentTools {
       title: 'List statement layouts to map',
       description:
           'Statement files the app couldn\'t read by itself: each one\'s id, '
-          'column names and a few rows. Map one with map_statement.',
+          'column names and a few rows. Map one with map_statement. When '
+          'has_page_pictures is true, look at the pages first with '
+          'view_statement_pages.',
       inputSchema: AgentTools._schema({}),
       handler: _listStatementsToMap,
+    ),
+    AgentTool(
+      name: 'view_statement_pages',
+      title: 'View statement pages',
+      description:
+          'Pictures of the first pages of a PDF statement from '
+          'list_statements_to_map, as the user sees it, with the columns the '
+          'app split it into. Compare the two: where the app split one real '
+          'column in two, join them with map_statement’s join.',
+      inputSchema: AgentTools._schema(
+        {
+          'statement_id': {'type': 'string'},
+        },
+        required: ['statement_id'],
+      ),
+      handler: _viewStatementPages,
     ),
     AgentTool(
       name: 'map_statement',
@@ -564,7 +663,8 @@ extension _AgentToolDefinitions on AgentTools {
           'list_statements_to_map. Use names from column_names. Give date, '
           'description, and either amount or debit and credit. Each call '
           'adds to the one before ("none" clears a field). The app previews '
-          'the rows and suggests the layout for the user to approve.',
+          'the rows and suggests the layout for the user to approve. A PDF’s '
+          'columns can come split: join puts the pieces back together.',
       readOnly: false,
       inputSchema: AgentTools._schema(
         {
@@ -590,6 +690,15 @@ extension _AgentToolDefinitions on AgentTools {
             'type': 'string',
             'enum': ['auto', 'day_first', 'month_first', 'year_first'],
             'default': 'auto',
+          },
+          'join': {
+            'type': 'object',
+            'description':
+                'Columns that are part of another, as column name → the '
+                'column it belongs to, e.g. {"Column 3": "Description", '
+                '"Amount": "Credit"}. Text reads together, left to right; '
+                'an amount from whichever has one. Replaces earlier joins.',
+            'additionalProperties': {'type': 'string'},
           },
         },
         required: ['statement_id', 'date'],
@@ -920,6 +1029,7 @@ extension _AgentToolDefinitions on AgentTools {
               PriceSourceId.amfi,
               PriceSourceId.coingecko,
               PriceSourceId.metalWorld,
+              PriceSourceId.forexRate,
               PriceSourceId.manual,
             ],
             'description': 'Left out, it follows from kind and symbol',

@@ -9,7 +9,8 @@ import 'confirmation_alert.dart';
 /// trimmed text (empty if cleared), or null if canceled or dismissed.
 ///
 /// [subject] is what the question is about, such as a file name, shown under
-/// the message.
+/// the message. [checkLabel] adds a tick box under the field, holding
+/// [checked].
 Future<String?> showTextEntryAlert(
   BuildContext context, {
   required String title,
@@ -23,6 +24,8 @@ Future<String?> showTextEntryAlert(
   bool multiline = false,
   bool allowEmpty = false,
   TextInputType? keyboardType,
+  String? checkLabel,
+  ValueNotifier<bool>? checked,
 }) async {
   var text = initialValue;
   // Not disposed here: the alert is still on screen while it fades out.
@@ -40,6 +43,8 @@ Future<String?> showTextEntryAlert(
       multiline: multiline,
       allowEmpty: allowEmpty,
       keyboardType: keyboardType,
+      checkLabel: checkLabel,
+      checked: checked,
       onChanged: (value) {
         text = value;
         filled.value = allowEmpty || value.trim().isNotEmpty;
@@ -65,6 +70,8 @@ class _AlertTextField extends StatefulWidget {
     required this.multiline,
     required this.allowEmpty,
     required this.keyboardType,
+    this.checkLabel,
+    this.checked,
   });
   final String initialValue;
   final ValueChanged<String> onChanged;
@@ -72,6 +79,8 @@ class _AlertTextField extends StatefulWidget {
   final int maxLength;
   final bool sensitive, multiline, allowEmpty;
   final TextInputType? keyboardType;
+  final String? checkLabel;
+  final ValueNotifier<bool>? checked;
 
   @override
   State<_AlertTextField> createState() => _AlertTextFieldState();
@@ -199,6 +208,45 @@ class _AlertTextFieldState extends State<_AlertTextField> {
             ),
           ),
         ),
+        if ((widget.checkLabel, widget.checked) case (
+          final label?,
+          final checked?,
+        ))
+          ValueListenableBuilder<bool>(
+            valueListenable: checked,
+            builder: (context, value, _) => InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: () => checked.value = !value,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  children: [
+                    // Flush with the field's left edge.
+                    SizedBox.square(
+                      dimension: 20,
+                      child: Checkbox(
+                        value: value,
+                        onChanged: (v) => checked.value = v ?? false,
+                        materialTapTargetSize:
+                            MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: textColor.withValues(alpha: .85),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }

@@ -1,4 +1,4 @@
-import 'package:drift/native.dart';
+import '../../data/db/memory_executor.dart';
 import 'package:flutter/foundation.dart' show ChangeNotifier;
 
 import '../../data/db/app_database.dart';
@@ -101,7 +101,7 @@ class HomePreviewData {
     final paceNow = DateTime(month.year, month.month, 12);
     final monthLength = DateTime(month.year, month.month + 1, 0).day;
     final previousLength = DateTime(month.year, month.month, 0).day;
-    final database = AppDatabase(NativeDatabase.memory(), false);
+    final database = AppDatabase(memoryExecutor(), false);
 
     // ------------------------------------------------------------ accounts
     final accountStore = AccountStore(AccountRepository(database))

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:drift/drift.dart';
 import 'package:http/http.dart' as http;
@@ -21,7 +22,11 @@ import '../../state/sms_import_store.dart';
 import '../bank_sms_parser.dart';
 import '../db/app_database.dart';
 import '../reportable_sms.dart';
+import '../../domain/budget.dart';
+import '../ledger_match.dart';
 import '../repositories/account_repository.dart';
+import '../repositories/budget_repository.dart';
+import '../statements/statement_reconciliation.dart';
 import '../repositories/category_repository.dart';
 import '../prices/price_service.dart';
 import '../repositories/debt_repository.dart';
@@ -39,11 +44,20 @@ import 'agent_recurring.dart';
 import 'agent_rules.dart';
 import 'agent_suggestion_repository.dart';
 import 'sms_labeler.dart';
+import '../statements/pending_statement_files.dart';
 import 'statement_samples.dart';
 
 part 'agent_tool_definitions.dart';
 
 /// One tool an AI app can call, described the way MCP's `tools/list` wants.
+/// A tool's answer with pictures for the AI to look at, sent after the
+/// answer's JSON. JPEGs.
+class AgentToolAnswer {
+  const AgentToolAnswer(this.json, this.images);
+  final Object? json;
+  final List<Uint8List> images;
+}
+
 class AgentTool {
   const AgentTool({
     required this.name,
@@ -106,6 +120,7 @@ class AgentTools {
     'label_sms',
     'list_statements_to_map',
     'map_statement',
+    'view_statement_pages',
     'get_parser_rules',
     'test_parser_rule',
     'suggest_parser_rule',
@@ -180,7 +195,13 @@ class AgentTools {
       '(add a holding, record a buy, sell or dividend, set a price, edit, '
       'archive or delete). The broker or in-hand place itself is an '
       'account: suggest_account_changes with place. Money moved from a '
-      'bank to a broker is a transfer: suggest_transactions. '
+      'bank to a broker is a transfer: suggest_transactions with type '
+      'transfer. To fix saved transactions (a category, the account, the '
+      'amount or date, an expense or income that was really a transfer '
+      'between the user\'s accounts): suggest_transaction_edits, with '
+      'transaction_ids to change many at once. Duplicates and transfers '
+      'saved twice: find_duplicates, then suggest_transaction_edits (delete '
+      'a copy, or make one leg a transfer). Budgets: list_budgets. '
       'To add, edit, rebalance, archive, merge or delete accounts: '
       'list_accounts, then suggest_account_changes; when SMS scanning made '
       'two accounts for one (a bank account and its debit card), merge them. '
@@ -194,6 +215,9 @@ class AgentTools {
       'suggest_parser_rule.';
 
   static const _maxItems = 200;
+
+  /// Transactions one bulk edit (transaction_ids) may reach.
+  static const _maxBulk = 500;
 
   late final List<AgentTool> tools = _createTools();
 
@@ -224,6 +248,20 @@ class AgentTools {
         () => tool.handler(arguments),
         zoneValues: {AgentSuggestionRepository.clientKey: client},
       );
+      if (answer is AgentToolAnswer) {
+        return {
+          'content': [
+            {'type': 'text', 'text': jsonEncode(answer.json)},
+            for (final image in answer.images)
+              {
+                'type': 'image',
+                'data': base64Encode(image),
+                'mimeType': 'image/jpeg',
+              },
+          ],
+          'isError': false,
+        };
+      }
       return _result(jsonEncode(answer), false);
     } on _BadInput catch (error) {
       return _result(error.message, true);
@@ -349,6 +387,8 @@ class AgentTools {
     final rows = await database
         .customSelect(
           '''SELECT t.*, a.name AS account_name, a.currency, a.digits,
+            EXISTS (SELECT 1 FROM sms_imports s
+              WHERE s.transaction_id = t.id) AS from_sms,
             ta.name AS to_account_name, ta.currency AS to_currency,
             ta.digits AS to_digits, c.name AS category_name,
             p.name AS parent_name
@@ -407,6 +447,7 @@ class AgentTools {
                   r.read<String>('category_name'),
                 ),
               },
+            if (r.read<bool>('from_sms')) 'from_bank_sms': true,
             if (notes) 'note': ?r.readNullable<String>('note'),
           },
       ],
@@ -887,29 +928,109 @@ class AgentTools {
     ),
   );
 
-  Future<Object?> _suggestTransactionEdits(Map<String, Object?> args) =>
-      _suggest(
-        args,
-        (item) => suggestions.prepareTransactionEdit(
+  Future<Object?> _suggestTransactionEdits(Map<String, Object?> args) async {
+    final items = args['items'];
+    if (items is! List || items.isEmpty) {
+      throw const _BadInput('Give a non-empty items array.');
+    }
+    // One change for many transactions: an item with transaction_ids is the
+    // same item for each of them. Each keeps the index of the item it came
+    // from, so a rejection names the item the AI sent.
+    final expanded = <(int, Map<String, Object?>)>[];
+    final rejected = <Map<String, Object?>>[];
+    for (final (index, item) in items.indexed) {
+      if (item is! Map) {
+        rejected.add({'index': index, 'error': 'Each item must be an object.'});
+        continue;
+      }
+      final one = Map<String, Object?>.from(item);
+      if (one.remove('transaction_ids') case final List ids) {
+        for (final id in ids) {
+          expanded.add((index, {...one, 'transaction_id': id}));
+        }
+      } else {
+        expanded.add((index, one));
+      }
+    }
+    if (expanded.length > _maxBulk) {
+      throw const _BadInput('Send at most $_maxBulk transactions at a time.');
+    }
+
+    Future<AgentSuggestionDraft> prepare(Map<String, Object?> item) =>
+        suggestions.prepareTransactionEdit(
           transactionId:
               _int(item, 'transaction_id') ??
-              (throw const _BadInput('Give transaction_id.')),
+              (throw const _BadInput(
+                'Give transaction_id or transaction_ids.',
+              )),
           categoryId: _int(item, 'category_id'),
           categoryName: _string(item, 'category_name'),
           accountId: _int(item, 'account_id'),
           title: _rawString(item, 'title'),
           note: _rawString(item, 'note'),
           loanId: _int(item, 'loan_id'),
+          type: switch (_enum(item, 'type', const [
+            'expense',
+            'income',
+            'transfer',
+          ])) {
+            final type? => TransactionTypeStorage.fromStorage(type),
+            null => null,
+          },
+          toAccountId: _int(item, 'to_account_id'),
+          amount: _money(item, 'amount'),
+          date: _optionalDay(item, 'date'),
+          delete: _bool(item, 'delete') ?? false,
           reason: _string(item, 'reason'),
-        ),
-      );
+        );
+    String describe(Object error) =>
+        error is _BadInput ? error.message : describeAgentError(error);
+
+    // Each item is checked on its own. A transaction has one pending edit
+    // at a time, so items for the same one (a bulk category, then its own
+    // amount) become one edit, the later winning where they overlap, and
+    // that edit is checked as a whole.
+    final drafts = <int, (Map<String, Object?>, AgentSuggestionDraft)>{};
+    for (final (index, item) in expanded) {
+      try {
+        final draft = await prepare(item);
+        final id = _int(item, 'transaction_id')!;
+        if (drafts[id] case (final earlier, _)) {
+          final both = {...earlier, ...item};
+          drafts[id] = (both, await prepare(both));
+        } else {
+          drafts[id] = (item, draft);
+        }
+      } catch (error) {
+        rejected.add({
+          'index': index,
+          if (item['transaction_id'] case final id?) 'transaction_id': id,
+          'error': describe(error),
+        });
+      }
+    }
+    if (drafts.isNotEmpty) {
+      await suggestions.add([for (final (_, draft) in drafts.values) draft]);
+      onSuggestionsChanged?.call();
+    }
+    return {
+      'suggested': drafts.length,
+      if (rejected.isNotEmpty) 'rejected': rejected,
+      'next': drafts.isEmpty
+          ? 'Nothing was suggested. Fix the rejected items and try again.'
+          : 'Nothing has changed yet. Ask the user to open SimpleMoney → '
+                'More → AI suggestions to approve or reject these.',
+    };
+  }
 
   Future<Object?> _suggestTransactions(Map<String, Object?> args) => _suggest(
     args,
     (item) => suggestions.prepareTransactionAdd(
       type: TransactionTypeStorage.fromStorage(
-        _enum(item, 'type', ['expense', 'income']) ?? 'expense',
+        _enum(item, 'type', ['expense', 'income', 'transfer']) ?? 'expense',
       ),
+      toAccountId: _int(item, 'to_account_id'),
+      receivedAmount: _money(item, 'received_amount'),
       amount: _money(item, 'amount') ?? (throw const _BadInput('Give amount.')),
       accountId:
           _int(item, 'account_id') ??
@@ -923,6 +1044,193 @@ class AgentTools {
       reason: _string(item, 'reason'),
     ),
   );
+
+  // ── Duplicates and budgets. ──
+
+  /// Transactions saved twice, and transfers saved as an expense and an
+  /// income, for suggest_transaction_edits to delete or join.
+  Future<Object?> _findDuplicates(Map<String, Object?> args) async {
+    final now = DateTime.now();
+    final to = _optionalDay(args, 'to') ?? DateTime(now.year, now.month, now.day);
+    final from =
+        _optionalDay(args, 'from') ?? DateTime(to.year, to.month, to.day - 90);
+    final accountId = _int(args, 'account_id');
+    final days = (_int(args, 'days') ?? 1).clamp(0, 7);
+    final ledger = [
+      for (final t in await ledgerBetween(
+        database,
+        from,
+        DateTime(to.year, to.month, to.day + 1),
+      ))
+        if (accountId == null ||
+            t.accountId == accountId ||
+            t.toAccountId == accountId)
+          t,
+    ];
+    final accounts = {
+      for (final a in await AccountRepository(database).load()) a.id: a,
+    };
+    final fromSms = {
+      for (final r in await database
+          .customSelect(
+            'SELECT DISTINCT transaction_id FROM sms_imports '
+            'WHERE transaction_id IS NOT NULL',
+          )
+          .get())
+        r.read<int>('transaction_id'),
+    };
+    Map<String, Object?> shown(LedgerCandidate t) {
+      final account = accounts[t.accountId];
+      return {
+        'id': t.id,
+        'date': _isoDay(t.date),
+        'type': t.type.storageValue,
+        'amount': _amount(t.amountMinor, account?.digits ?? 2),
+        'currency': account?.currency,
+        'account': account?.name,
+        if (t.toAccountId case final to?) 'to_account': accounts[to]?.name,
+        'title': ?t.title,
+        if (fromSms.contains(t.id)) 'from_bank_sms': true,
+        // A loan, debt or recurring payment is built on it.
+        if (!t.free) 'linked': true,
+      };
+    }
+
+    // The same kind, account(s) and amount, a day or so apart.
+    final same = <String, List<LedgerCandidate>>{};
+    for (final t in ledger) {
+      same
+          .putIfAbsent(
+            '${t.type.storageValue} ${t.accountId} ${t.toAccountId} '
+            '${t.amountMinor}',
+            () => [],
+          )
+          .add(t);
+    }
+    DateTime day(DateTime d) => DateTime.utc(d.year, d.month, d.day);
+    final groups = <Map<String, Object?>>[];
+    var distinct = 0;
+    for (final list in same.values) {
+      if (list.length < 2) continue;
+      list.sort(
+        (a, b) => a.date != b.date
+            ? a.date.compareTo(b.date)
+            : a.id.compareTo(b.id),
+      );
+      var run = [list.first];
+      void close() {
+        if (run.length < 2) return;
+        final references = [for (final t in run) upiReferencesIn(t.references)];
+        final shared = <String>{};
+        for (var i = 0; i < references.length; i++) {
+          for (var j = i + 1; j < references.length; j++) {
+            shared.addAll(references[i].intersection(references[j]));
+          }
+        }
+        // Each quoting its own reference: separate payments of one amount.
+        if (shared.isEmpty && references.every((r) => r.isNotEmpty)) {
+          distinct++;
+          return;
+        }
+        groups.add({
+          'evidence': shared.isNotEmpty
+              ? 'same UPI reference: the same payment'
+              : 'same amount and day only: may be two real payments',
+          'transactions': [for (final t in run) shown(t)],
+        });
+      }
+
+      for (final t in list.skip(1)) {
+        if (day(t.date).difference(day(run.last.date)).inDays <= days) {
+          run.add(t);
+        } else {
+          close();
+          run = [t];
+        }
+      }
+      close();
+    }
+    // Sure ones first.
+    bool sure(Map<String, Object?> g) =>
+        (g['evidence'] as String).startsWith('same UPI');
+    groups.sort((a, b) => (sure(b) ? 1 : 0) - (sure(a) ? 1 : 0));
+    final legs = recordedTransferLegs(ledger);
+    return {
+      'from': _isoDay(from),
+      'to': _isoDay(to),
+      'duplicates': groups.take(100).toList(),
+      if (groups.length > 100) 'more_duplicates': groups.length - 100,
+      if (distinct > 0)
+        'left_out': '$distinct sets of equal amounts each quote their own '
+            'UPI reference: separate payments, not duplicates.',
+      'transfers_saved_twice': [
+        for (final pair in legs.take(100))
+          {'out': shown(pair.out), 'in': shown(pair.into)},
+      ],
+      'next':
+          'For a duplicate, keep one (prefer the one from_bank_sms) and '
+          'suggest_transaction_edits with delete for the others. When the '
+          'evidence is the amount and day only, ask the user first. For a '
+          'transfer saved twice, make "out" a transfer (type transfer, '
+          'to_account_id the "in" account) and delete "in". Never touch a '
+          'linked one: it belongs to a loan, debt or recurring payment.',
+    };
+  }
+
+  Future<Object?> _listBudgets(Map<String, Object?> args) async {
+    final now = DateTime.now();
+    final month = switch (_string(args, 'month')) {
+      final m? => DateTime.tryParse('$m-01') ??
+          (throw const _BadInput('month must look like 2026-11.')),
+      null => DateTime(now.year, now.month),
+    };
+    final categories = {
+      for (final c in await CategoryRepository(database).load()) c.id: c,
+    };
+    final currencies = {
+      for (final a in await AccountRepository(database).load())
+        if (!a.isArchived) (a.currency, a.digits),
+    };
+    final budgets = BudgetRepository(database);
+    Map<String, Object?> line(BudgetLine b, int digits) => {
+      'limit': _amount(b.limit, digits),
+      'spent': _amount(b.spent, digits),
+      'left': _amount(b.limit - b.spent, digits),
+    };
+    return {
+      'month': DateFormat('yyyy-MM').format(month),
+      'by_currency': [
+        for (final (currency, digits) in currencies)
+          if (await budgets.loadMonth(month, currency, digits) case final m
+              when !m.isEmpty)
+            {
+              'currency': currency,
+              if (m.allSpending case final total?)
+                'total_budget': line(total, digits),
+              'budgets': [
+                for (final b in m.budgets)
+                  {
+                    'id': b.id,
+                    'name':
+                        b.name ??
+                        b.categoryIds
+                            .map((id) => categories[id]?.name)
+                            .nonNulls
+                            .join(' + '),
+                    'categories': [
+                      for (final id in b.categoryIds)
+                        {'id': id, 'name': categories[id]?.name},
+                    ],
+                    ...line(b, digits),
+                  },
+              ],
+            },
+      ],
+      'next':
+          'Spending counts expenses only, never transfers. Budgets are set '
+          'in the app: SimpleMoney → Budgets.',
+    };
+  }
 
   // ── Loans and debts. ──
 
@@ -2263,21 +2571,84 @@ class AgentTools {
   /// map_statement's columns so far, per statement, for this session.
   final _mapped = <String, Map<TableField, int>>{};
 
+  /// map_statement's joined columns so far, per statement.
+  final _joined = <String, Map<int, int>>{};
+
   late final _statements = StatementSampleRepository();
+
+  /// The page pictures the user allowed for [signature]; none where the
+  /// phone keeps no files (tests).
+  Future<List<Uint8List>> _pagePictures(String signature) async {
+    try {
+      return await PendingStatementFiles().pictures(signature);
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  Future<Object?> _viewStatementPages(Map<String, Object?> args) async {
+    final id = _string(args, 'statement_id') ?? '';
+    final sample = (await _statements.load())
+        .where((s) => s.id == id)
+        .firstOrNull;
+    if (sample == null) {
+      throw ArgumentError(
+        'No statement has the id “$id”. Call list_statements_to_map and use '
+        'an id from it.',
+      );
+    }
+    final pictures = await _pagePictures(sample.signature);
+    final columns = {
+      'app_columns': [
+        for (final c in sample.header)
+          if (c.trim().isNotEmpty) c,
+      ],
+      'app_rows': sample.rows,
+    };
+    if (pictures.isEmpty) {
+      return {
+        ...columns,
+        'pages': 0,
+        'next':
+            'The user hasn’t shared pictures of this file. Map it from '
+            'app_rows, or ask them to tap Ask my AI on the statement and '
+            'allow pictures.',
+      };
+    }
+    return AgentToolAnswer(
+      {
+        ...columns,
+        'pages': pictures.length,
+        'next':
+            'The pictures show the statement as printed. Check each printed '
+            'column against app_columns: where the app split one column in '
+            'two (wrapped text, an amount out of line), join them with '
+            'map_statement’s join. Then map date, description and amounts.',
+      },
+      pictures,
+    );
+  }
 
   Future<Object?> _listStatementsToMap(Map<String, Object?> args) async {
     final samples = await _statements.load();
+    // Read once for every statement listed: each file can be large.
+    final kept = await _keptFiles();
     return {
       'statements': [
         for (final s in samples)
           {
             'id': s.id,
             'file': s.fileName,
+            if ((await _pagePictures(s.signature)).isNotEmpty)
+              'has_page_pictures': true,
             'column_names': [
               for (final c in s.header)
                 if (c.trim().isNotEmpty) c,
             ],
             'example_rows': s.rows,
+            // A column empty in the examples may still be used further down.
+            if (_columnUse(s, kept) case final use?)
+              'rows_with_value_per_column': use,
             'app_guess': {
               for (final e in guessMapping([
                 s.header,
@@ -2297,7 +2668,9 @@ class AgentTools {
       if (samples.isEmpty)
         'next':
             'Nothing to map. A file shows up here when the user imports a '
-            'statement the app can\'t read by itself (More → Statements).',
+            'statement the app can\'t read by itself, or taps Ask my AI on '
+            'a statement\'s columns screen when one reads wrong (More → '
+            'Statements, then pick the file).',
     };
   }
 
@@ -2326,6 +2699,24 @@ class AgentTools {
       null => false,
     };
     final sides = named('debit') || named('credit');
+    // Columns the PDF table split in two, read as one: {"Column 3":
+    // "Description"}. Given again, they replace the ones before.
+    if (args['join'] case final Map join) {
+      final joins = <int, int>{};
+      for (final MapEntry(:key, :value) in join.entries) {
+        final from = _columnNamed(sample, '$key');
+        final into = _columnNamed(sample, '$value');
+        if (from == null || into == null || from == into) {
+          throw ArgumentError(
+            'Can’t join “$key” to “$value”. Use two different names from '
+            'column_names: ${sample.header.where((c) => c.trim().isNotEmpty).join(', ')}.',
+          );
+        }
+        joins[from] = into;
+      }
+      _joined[id] = joins;
+    }
+    final joins = _joined[id] ?? const <int, int>{};
     for (final MapEntry(key: field, value: key) in _mapArgs.entries) {
       final name = _string(args, key);
       if (name == null) continue;
@@ -2398,6 +2789,7 @@ class AgentTools {
       final column = guess[field];
       if (given.containsKey(field) || column == null) continue;
       if (given.containsValue(column) || filled.containsValue(column)) continue;
+      if (joins.containsKey(column)) continue;
       filled[field] = column;
     }
     final mapping = TableMapping(
@@ -2409,6 +2801,7 @@ class AgentTools {
         'year_first' => DateOrder.yearFirst,
         _ => DateOrder.auto,
       },
+      joins: joins,
     );
     if (!mapping.isComplete) {
       final missing = [
@@ -2463,8 +2856,14 @@ class AgentTools {
         : null;
     final hasOut = mapping.columns.containsKey(TableField.debit);
     final hasIn = mapping.columns.containsKey(TableField.credit);
+    final whole = await _checkWholeFile(sample, mapping);
+    final gaps = whole?['rows_missing_amount_or_balance'];
     // The one thing to fix next, plainly; null once it all reads.
-    final fix = hasOut != hasIn
+    final fix = gaps != null
+        ? '$gaps rows in the whole file have no amount or no balance in the '
+              'columns you gave: their_amounts shows where those sit. Join '
+              'that column with map_statement’s join, then call again.'
+        : hasOut != hasIn
         ? 'Call map_statement again with just '
               '${hasOut ? 'credit: the money-in' : 'debit: the money-out'} '
               'column. The rest is kept.'
@@ -2492,7 +2891,7 @@ class AgentTools {
         summary: 'Statement layout · ${sample.fileName}',
         detail: [
           for (final e in mapping.columns.entries)
-            '${e.key.label}: ${sample.header[e.value]}',
+            '${e.key.label}: ${mapping.partsOf(e.value).map((c) => sample.header[c]).join(' + ')}',
           'Reads ${rows.length} of $dated sample rows, e.g. ${preview.first}',
         ],
         reason: reason,
@@ -2506,6 +2905,7 @@ class AgentTools {
         'skipped':
             '${sample.rows.length - dated} without a date (totals, notes)',
       'preview': preview,
+      'whole_file': ?whole,
       if (filled.isNotEmpty)
         'filled_in': {
           for (final e in filled.entries) e.key.name: sample.header[e.value],
@@ -2515,6 +2915,102 @@ class AgentTools {
           fix ??
           'Done. Ask the user to approve it in SimpleMoney → More → AI '
               'suggestions, then import the file again.',
+    };
+  }
+
+  /// The whole file [sample] came from, kept on the phone: its header row
+  /// then every row under it. Null when it isn't kept (or in tests).
+  Future<List<List<String>>?> _wholeTable(StatementSample sample) async =>
+      _tableIn(sample, await _keptFiles());
+
+  /// The statement files kept on the phone; none where it keeps none
+  /// (tests).
+  Future<List<PendingStatementFile>> _keptFiles() async {
+    try {
+      return await PendingStatementFiles().load();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  static List<List<String>>? _tableIn(
+    StatementSample sample,
+    List<PendingStatementFile> files,
+  ) {
+    final file = files
+        .where((f) => f.signature == sample.signature)
+        .firstOrNull;
+    if (file == null) return null;
+    return file.rows.sublist(guessHeaderRow(file.rows));
+  }
+
+  /// How [mapping] reads the whole file, not just the sample rows: a column
+  /// split by the PDF can be empty in the first rows and hold amounts later.
+  /// Only amounts leave the phone, never a row's text.
+  Future<Map<String, Object?>?> _checkWholeFile(
+    StatementSample sample,
+    TableMapping mapping,
+  ) async {
+    final table = await _wholeTable(sample);
+    if (table == null || table.length < 2) return null;
+    final header = table.first;
+    bool has(List<String> row, TableField field) => switch (mapping[field]) {
+      final column? => mapping
+          .partsOf(column)
+          .any((c) => (row.elementAtOrNull(c) ?? '').trim().isNotEmpty),
+      null => false,
+    };
+    final dateColumn = mapping[TableField.date]!;
+    var missing = 0;
+    final examples = <Map<String, String>>[];
+    for (final row in table.skip(1)) {
+      if (parseTableDate(row.elementAtOrNull(dateColumn), mapping.dateOrder) ==
+          null) {
+        continue;
+      }
+      final money =
+          has(row, TableField.amount) ||
+          has(row, TableField.debit) ||
+          has(row, TableField.credit);
+      final balance =
+          mapping[TableField.balance] == null || has(row, TableField.balance);
+      if (money && balance) continue;
+      missing++;
+      if (examples.length < 3) {
+        examples.add({
+          for (final (i, cell) in row.indexed)
+            if (i != dateColumn &&
+                i < header.length &&
+                parseTableAmount(cell) != null)
+              header[i].trim().isEmpty ? 'Column ${i + 1}' : header[i]: cell,
+        });
+      }
+    }
+    final parsed = parseStatementTable(table, mapping);
+    return {
+      'rows': parsed.statement.rows.length,
+      'balance_breaks': parsed.balanceBreaks ?? 0,
+      if (missing > 0) ...{
+        'rows_missing_amount_or_balance': missing,
+        'their_amounts': examples,
+      },
+    };
+  }
+
+  /// How many rows of the whole file have something in each column.
+  static Map<String, int>? _columnUse(
+    StatementSample sample,
+    List<PendingStatementFile> files,
+  ) {
+    final table = _tableIn(sample, files);
+    if (table == null || table.isEmpty) return null;
+    return {
+      for (final (i, name) in table.first.indexed)
+        if (name.trim().isNotEmpty)
+          name: table
+              .skip(1)
+              .where((r) => (r.elementAtOrNull(i) ?? '').trim().isNotEmpty)
+              .length,
     };
   }
 

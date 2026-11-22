@@ -256,26 +256,45 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen>
 
   /// [t] with the fields in [values] (a suggestion's payload, or what it
   /// replaced) put in.
-  MoneyTransaction _with(MoneyTransaction t, Map<String, Object?> values) =>
-      MoneyTransaction(
-        id: t.id,
-        type: t.type,
-        amountMinor: t.amountMinor,
-        accountId: values['accountId'] as int? ?? t.accountId,
-        toAccountId: t.toAccountId,
-        toAmountMinor: t.toAmountMinor,
-        categoryId: values.containsKey('categoryId')
-            ? values['categoryId'] as int?
-            : t.categoryId,
-        title: values.containsKey('title')
-            ? values['title'] as String?
-            : t.title,
-        note: values.containsKey('note') ? values['note'] as String? : t.note,
-        date: t.date,
-        icon: t.icon,
-        badgeIcon: t.badgeIcon,
-        isCreditCard: t.isCreditCard,
-      );
+  MoneyTransaction _with(MoneyTransaction t, Map<String, Object?> values) {
+    final type = switch (values['type']) {
+      final String stored => TransactionTypeStorage.fromStorage(stored),
+      _ => t.type,
+    };
+    // A transfer has no category or title; one that stops being a transfer
+    // has no destination.
+    final transfer = type == TransactionType.transfer;
+    return MoneyTransaction(
+      id: t.id,
+      type: type,
+      amountMinor: values['amountMinor'] as int? ?? t.amountMinor,
+      accountId: values['accountId'] as int? ?? t.accountId,
+      toAccountId: transfer
+          ? (values.containsKey('toAccountId')
+                ? values['toAccountId'] as int?
+                : t.toAccountId)
+          : null,
+      toAmountMinor: transfer ? t.toAmountMinor : null,
+      categoryId: transfer
+          ? null
+          : values.containsKey('categoryId')
+          ? values['categoryId'] as int?
+          : t.categoryId,
+      title: transfer
+          ? null
+          : values.containsKey('title')
+          ? values['title'] as String?
+          : t.title,
+      note: values.containsKey('note') ? values['note'] as String? : t.note,
+      date: switch (values['date']) {
+        final int ms => DateTime.fromMillisecondsSinceEpoch(ms),
+        _ => t.date,
+      },
+      icon: t.icon,
+      badgeIcon: t.badgeIcon,
+      isCreditCard: t.isCreditCard,
+    );
+  }
 
   Account? _account(int? id) =>
       _accounts.accounts.where((a) => a.id == id).firstOrNull;
@@ -559,6 +578,23 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen>
     final current = _transactionOf(s);
     if (current == null) return null;
     final applied = s.status == AgentSuggestionStatus.applied;
+    if (s.payload['delete'] == true) {
+      final theme = Theme.of(context);
+      return _EditPreview(
+        beforeLabel: 'Now',
+        afterLabel: 'If approved',
+        before: _row(current),
+        after: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+          child: Text(
+            'Deleted. Undo puts it back.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.error,
+            ),
+          ),
+        ),
+      );
+    }
     final newCategory = s.payload['categoryName'] as String?;
     final before = applied && s.before != null
         ? _with(current, s.before!)

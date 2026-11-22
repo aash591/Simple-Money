@@ -112,6 +112,13 @@ class PendingStatementFiles {
     final folder = await _folder();
     final files = <PendingStatementFile>[];
     await for (final entry in folder.list()) {
+      // Pictures go with their file, and on their own once a month old.
+      if (entry is File && entry.path.endsWith('.jpg')) {
+        if (DateTime.now().difference(await entry.lastModified()) > _maxAge) {
+          await entry.delete();
+        }
+        continue;
+      }
       if (entry is! File || !entry.path.endsWith('.json')) continue;
       final file = await () async {
         try {
@@ -141,8 +148,47 @@ class PendingStatementFiles {
   ];
 
   Future<void> remove(String signature) async {
-    final file = _file(await _folder(), signature);
+    final folder = await _folder();
+    final file = _file(folder, signature);
     if (await file.exists()) await file.delete();
+    await _removePictures(folder, signature);
+  }
+
+  // ── Page pictures: only once the user allows their AI to see them. ──
+
+  File _picture(Directory folder, String signature, int page) => File(
+    '${folder.path}/${signature.hashCode.toUnsigned(32).toRadixString(36)}'
+    '.p$page.jpg',
+  );
+
+  static const _maxPictures = 2;
+
+  /// Keeps [pictures] of the file with [signature]'s first pages.
+  Future<void> savePictures(String signature, List<Uint8List> pictures) async {
+    final folder = await _folder();
+    await _removePictures(folder, signature);
+    for (final (i, picture) in pictures.take(_maxPictures).indexed) {
+      await _picture(folder, signature, i + 1).writeAsBytes(picture);
+    }
+  }
+
+  /// The pictures kept for [signature], first page first; empty when the
+  /// user didn't allow them.
+  Future<List<Uint8List>> pictures(String signature) async {
+    final folder = await _folder();
+    return [
+      for (var page = 1; page <= _maxPictures; page++)
+        if (_picture(folder, signature, page) case final file
+            when await file.exists())
+          await file.readAsBytes(),
+    ];
+  }
+
+  Future<void> _removePictures(Directory folder, String signature) async {
+    for (var page = 1; page <= _maxPictures; page++) {
+      final file = _picture(folder, signature, page);
+      if (await file.exists()) await file.delete();
+    }
   }
 }
 

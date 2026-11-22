@@ -47,6 +47,7 @@ class PriceService {
     YahooSource(),
     CoinGeckoSource(),
     MetalWorldSource(),
+    ForexSource(),
   ];
 
   static String _day(DateTime t) => '${t.year}-${t.month}-${t.day}';

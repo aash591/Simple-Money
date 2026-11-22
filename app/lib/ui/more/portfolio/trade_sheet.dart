@@ -152,7 +152,7 @@ class _TradeSheetState extends State<TradeSheet> {
     final text = (units / unitScale)
         .toStringAsFixed(_unitDecimals)
         .replaceFirst(RegExp(r'\.?0+$'), '');
-    return '$text ${_kind.unitsAfter(units)}';
+    return '$text ${_kind.unitsAfter(units)}'.trim();
   }
 
   String get _priceLabel {
@@ -226,6 +226,8 @@ class _TradeSheetState extends State<TradeSheet> {
 
   String get _noun => _kind == HoldingKind.metal
       ? 'grams'
+      : _kind == HoldingKind.forex
+      ? 'units of currency'
       : _fund
       ? 'units'
       : 'shares';
@@ -467,6 +469,7 @@ class _TradeSheetState extends State<TradeSheet> {
           question: switch (_kind) {
             HoldingKind.fund => 'At what NAV per unit?',
             HoldingKind.metal => 'At what price per gram?',
+            HoldingKind.forex => 'At what rate per unit?',
             _ => 'At what price per share?',
           },
           summary: _summary([_unitsLabel]),

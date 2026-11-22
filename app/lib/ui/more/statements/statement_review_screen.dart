@@ -52,9 +52,15 @@ class StatementReviewScreen extends StatefulWidget {
     required this.sync,
     required this.statement,
     this.step,
+    this.onLooksWrong,
   });
   final SyncController sync;
   final UpiStatement statement;
+
+  /// For a file the app read by itself: opens its columns so the user (or
+  /// their AI) can fix them. Its result ends this review the same way.
+  final Future<StatementImportResult?> Function(BuildContext context)?
+  onLooksWrong;
 
   /// Where this file is among several imported together ("2 of 4"). A
   /// file with nothing new then moves on instead of stopping.
@@ -762,8 +768,10 @@ class _StatementReviewScreenState extends State<StatementReviewScreen> {
                   [
                     '$fresh new',
                     if (transfers > 0)
-                      '$transfers transfer${transfers == 1 ? '' : 's'} '
-                          'to link',
+                      // The other side is already here, on another of the
+                      // user's accounts: the two become one transfer.
+                      '$transfers ${transfers == 1 ? 'is a transfer' : 'are transfers'} '
+                          'between your accounts',
                     '$matched already in SimpleMoney',
                   ].join(' · '),
                   style: theme.textTheme.bodySmall,
@@ -824,6 +832,7 @@ class _StatementReviewScreenState extends State<StatementReviewScreen> {
       'range' => _pickPeriod(),
       'type' => _pickType(),
       'category' => _pickCategoryFilter(),
+      'wrong' => _looksWrong(),
       _ => _pickAccountFilter(),
     },
     items: [
@@ -833,8 +842,28 @@ class _StatementReviewScreenState extends State<StatementReviewScreen> {
       // A statement for one account has nothing to choose between.
       if (_linkedAccounts.length > 1)
         const MorePopupItem(value: 'account', label: 'Select account'),
+      if (widget.onLooksWrong != null)
+        const MorePopupItem(value: 'wrong', label: 'Looks wrong?'),
     ],
   );
+
+  Future<void> _looksWrong() async {
+    final open = widget.onLooksWrong;
+    if (open == null) return;
+    StatementImportResult? done;
+    try {
+      done = await open(context);
+    } catch (_) {
+      if (mounted) {
+        showAppToast(
+          context,
+          'Could not open the columns.',
+          icon: Icons.error_outline_rounded,
+        );
+      }
+    }
+    if (done != null && mounted) Navigator.pop(context, done);
+  }
 
   Future<void> _pickPeriod() => pickPeriod(context, period);
 

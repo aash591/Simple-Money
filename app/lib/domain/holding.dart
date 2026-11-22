@@ -29,6 +29,10 @@ enum HoldingKind {
   crypto('Crypto'),
   metal('Metal'),
 
+  /// Foreign currency held: the symbol is its code (`USD`), the units are how
+  /// much of it, and the price is one unit in the account's own currency.
+  forex('Forex'),
+
   /// Any kind this version doesn't know. Never offered when adding.
   other('Other');
 
@@ -36,7 +40,7 @@ enum HoldingKind {
   final String label;
 
   /// The kinds a person can choose from when adding a holding.
-  static const selectable = [stock, etf, fund, crypto, metal];
+  static const selectable = [stock, etf, fund, crypto, metal, forex];
 
   static HoldingKind parse(String? id) =>
       values.where((k) => k.name == id).firstOrNull ?? other;
@@ -59,6 +63,10 @@ abstract final class PriceSourceId {
   /// metal futures, turned into a price per gram.
   static const metalWorld = 'metal_world';
 
+  /// Currency exchange rates from Yahoo, as the price of one unit of the
+  /// held currency in the account's currency.
+  static const forexRate = 'forex_rate';
+
   /// The person types the price in; nothing is ever fetched.
   static const manual = 'manual';
 
@@ -70,6 +78,7 @@ abstract final class PriceSourceId {
     if (kind == HoldingKind.other) return null;
     if (kind == HoldingKind.crypto) return coingecko;
     if (kind == HoldingKind.metal) return metalWorld;
+    if (kind == HoldingKind.forex) return forexRate;
     final code = symbol?.trim() ?? '';
     return kind == HoldingKind.fund && RegExp(r'^\d+$').hasMatch(code)
         ? amfi
@@ -172,6 +181,7 @@ class Holding {
       PriceSourceId.yahoo => 'Source: Yahoo Finance',
       PriceSourceId.amfi => 'Source: AMFI',
       PriceSourceId.coingecko => 'Source: CoinGecko',
+      PriceSourceId.forexRate => 'Source: Yahoo Finance exchange rate',
       PriceSourceId.metalWorld =>
         'Source: international ${metal ?? 'metal'} price, Yahoo Finance',
       _ => null,
@@ -186,6 +196,7 @@ class Holding {
       PriceSourceId.yahoo => 'Update from Yahoo Finance',
       PriceSourceId.amfi => 'Update from AMFI',
       PriceSourceId.coingecko => 'Update from CoinGecko',
+      PriceSourceId.forexRate => 'Update exchange rate',
       PriceSourceId.metalWorld => 'Update from world ${metal ?? 'metal'} price',
       _ => 'Update price',
     };
@@ -365,12 +376,14 @@ extension HoldingWording on HoldingKind {
   String get unitsName => switch (this) {
     HoldingKind.fund => 'Units',
     HoldingKind.metal => 'Grams',
+    HoldingKind.forex => 'Amount',
     _ => 'Shares',
   };
 
   String get priceName => switch (this) {
     HoldingKind.fund => 'NAV per unit',
     HoldingKind.metal => 'Price per gram',
+    HoldingKind.forex => 'Rate per unit',
     _ => 'Price per share',
   };
 
@@ -378,6 +391,7 @@ extension HoldingWording on HoldingKind {
   String unitsAfter(int unitsE6) => switch (this) {
     HoldingKind.fund => 'units',
     HoldingKind.metal => 'g',
+    HoldingKind.forex => '',
     _ => unitsE6 == unitScale ? 'share' : 'shares',
   };
 }

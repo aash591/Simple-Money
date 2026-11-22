@@ -184,7 +184,8 @@ String describeImport(StatementImportResult result) {
   String plural(int n, String noun) => '$n $noun${n == 1 ? '' : 's'}';
   return [
     if (result.added > 0) 'Added ${plural(result.added, 'transaction')}',
-    if (result.linked > 0) 'Linked ${plural(result.linked, 'transfer')}',
+    if (result.linked > 0)
+      '${plural(result.linked, 'transfer')} between your accounts',
     if (result.already > 0) '${result.already} already here',
   ].join(' · ');
 }

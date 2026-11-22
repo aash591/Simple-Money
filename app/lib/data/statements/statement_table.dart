@@ -183,10 +183,16 @@ class TableMapping {
     this.columns = const {},
     this.dateOrder = DateOrder.auto,
     this.fallback = UpiStatementDirection.debit,
+    this.joins = const {},
   });
   final int headerRow;
   final Map<TableField, int> columns;
   final DateOrder dateOrder;
+
+  /// Columns that are part of another: a PDF table can split one column in
+  /// two where its text wraps or an amount sits out of line. Column → the
+  /// column it belongs to, read together with it.
+  final Map<int, int> joins;
 
   /// The direction of a row nothing else gives one.
   final UpiStatementDirection fallback;
@@ -225,17 +231,27 @@ class TableMapping {
     Map<TableField, int>? columns,
     DateOrder? dateOrder,
     UpiStatementDirection? fallback,
+    Map<int, int>? joins,
   }) => TableMapping(
     headerRow: headerRow ?? this.headerRow,
     columns: columns ?? this.columns,
     dateOrder: dateOrder ?? this.dateOrder,
     fallback: fallback ?? this.fallback,
+    joins: joins ?? this.joins,
   );
+
+  /// [column] and the columns joined to it, left to right.
+  List<int> partsOf(int column) => {
+    column,
+    ...joins.keys.where((k) => joins[k] == column),
+  }.toList()..sort();
 
   Map<String, Object> toJson() => {
     'columns': {for (final e in columns.entries) e.key.name: e.value},
     'dateOrder': dateOrder.name,
     'fallback': fallback.name,
+    if (joins.isNotEmpty)
+      'joins': {for (final e in joins.entries) '${e.key}': e.value},
   };
 
   /// A saved mapping for a header found at [headerRow].
@@ -260,6 +276,13 @@ class TableMapping {
       fallback: json['fallback'] == UpiStatementDirection.credit.name
           ? UpiStatementDirection.credit
           : UpiStatementDirection.debit,
+      joins: {
+        if (json['joins'] case final Map saved)
+          for (final e in saved.entries)
+            if (int.tryParse('${e.key}') case final from?)
+              if (e.value case final int into when into >= 0 && from >= 0)
+                from: into,
+      },
     );
   }
 }
@@ -863,9 +886,25 @@ TableParseResult parseStatementTable(
   TableMapping mapping, {
   UpiStatementSource source = UpiStatementSource.csv,
 }) {
+  // A column joined to another reads with it: text runs on, an amount is
+  // whichever part has one.
+  const amounts = {
+    TableField.amount,
+    TableField.debit,
+    TableField.credit,
+    TableField.balance,
+  };
   String cell(List<String> row, TableField field) {
     final column = mapping[field];
-    return column == null ? '' : (row.elementAtOrNull(column) ?? '').trim();
+    if (column == null) return '';
+    final parts = [
+      for (final c in mapping.partsOf(column))
+        if ((row.elementAtOrNull(c) ?? '').trim() case final v
+            when v.isNotEmpty)
+          v,
+    ];
+    if (parts.isEmpty) return '';
+    return amounts.contains(field) ? parts.first : parts.join(' ');
   }
 
   final body = rows.skip(mapping.headerRow + 1).toList();

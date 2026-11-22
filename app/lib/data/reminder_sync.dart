@@ -1,5 +1,5 @@
+import 'platform_info.dart';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -36,7 +36,7 @@ const _launchQuiet = Duration(seconds: 4);
 /// Waits out the launch window, so callers can coalesce the burst of loads
 /// that arrives meanwhile. Only on a device: tests must not leave timers.
 Future<void> afterLaunch() async {
-  if (!Platform.isAndroid) return;
+  if (!isAndroidPlatform) return;
   final wait = _launchQuiet - _sinceLaunch.elapsed;
   if (wait > Duration.zero) await Future<void>.delayed(wait);
 }

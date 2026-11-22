@@ -12,6 +12,8 @@ import 'package:simple_money/data/agent/statement_samples.dart';
 import 'package:simple_money/data/db/app_database.dart';
 import 'package:simple_money/data/reportable_sms.dart';
 import 'package:simple_money/data/repositories/statement_import_repository.dart';
+import 'package:simple_money/data/statements/pending_statement_files.dart';
+import 'package:simple_money/data/statements/upi_statement.dart';
 import 'package:simple_money/state/sms_import_store.dart';
 import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
 
@@ -300,6 +302,96 @@ void main() {
       expect(await layouts.columnMappings(), isEmpty);
     },
   );
+
+  test('A PDF column split in two is joined back by the AI', () async {
+    // As the app rebuilt an SBI PDF: the narration wraps into a second
+    // column, and one credit sits out of line in a column of its own.
+    await StatementSampleRepository().add('sbi.pdf', [
+      ['Txn Date', 'Column 2', 'Description', 'Debit', 'Amount', 'Credit',
+        'Balance'],
+      ['01-04-2026', 'WDL TFR UPI/DR/6091/ADWAITH', '0097 AT', '1,000.00',
+        '', '', '4,914.41'],
+      ['03-04-2026', 'DEP TFR UPI/CR/6091/ASHIQUE', '0099 AT', '', '',
+        '2,500.00', '7,414.41'],
+      ['03-04-2026', 'DEP TFR UPI/CR/6092/SHAFEER', '0098 AT', '', '90.00',
+        '', '7,504.41'],
+    ], 0);
+    final id =
+        (((await call('list_statements_to_map'))['statements'] as List).single
+            as Map)['id'];
+    final pages = await call('view_statement_pages', {'statement_id': id});
+    expect(pages['pages'], 0);
+    expect(pages['next'], contains('allow pictures'));
+
+    final bad = await call('map_statement', {
+      'statement_id': id,
+      'date': 'Txn Date',
+      'join': {'Nothing': 'Description'},
+    });
+    expect(bad['error'], contains('Can’t join'));
+
+    final mapped = await call('map_statement', {
+      'statement_id': id,
+      'date': 'Txn Date',
+      'description': 'Description',
+      'debit': 'Debit',
+      'credit': 'Credit',
+      'balance': 'Balance',
+      'join': {'Column 2': 'Description', 'Amount': 'Credit'},
+    });
+    expect(mapped['reads'], '3 of 3 sample rows', reason: '$mapped');
+    // Both halves of the narration, and the stray 90.00 as money in.
+    expect(mapped['preview'], [
+      startsWith('2026-04-01 · 1000.00 debit · ADWAITH 0097'),
+      startsWith('2026-04-03 · 2500.00 credit · ASHIQUE 0099'),
+      startsWith('2026-04-03 · 90.00 credit · SHAFEER 0098'),
+    ]);
+  });
+
+  test('Map statement checks the whole file, not just the examples', () async {
+    final folder = await Directory.systemTemp.createTemp('pending_');
+    PendingStatementFiles.defaultDirectory = () async => folder;
+    addTearDown(() => folder.delete(recursive: true));
+    // A PDF table where a short balance ("940.00") lands in a column of its
+    // own, empty in the first rows.
+    final rows = [
+      ['Txn Date', 'Description', 'Debit', 'Credit', 'Column 5', 'Balance'],
+      for (var day = 1; day <= 6; day++)
+        ['0$day-04-2026', 'UPI/DR/$day/SHOP', '10.00', '', '',
+          '${2000 - day * 10}.00'],
+      ['07-04-2026', 'UPI/DR/7/SHOP', '1,000.00', '', '940.00', ''],
+      ['08-04-2026', 'UPI/CR/8/SALARY', '', '5,000.00', '', '5,940.00'],
+    ];
+    await PendingStatementFiles().save('sbi.pdf', rows, UpiStatementSource.bank);
+    await StatementSampleRepository().add('sbi.pdf', rows, 0);
+    final listed =
+        ((await call('list_statements_to_map'))['statements'] as List).single
+            as Map;
+    expect(listed['rows_with_value_per_column'], containsPair('Column 5', 1));
+
+    final args = {
+      'statement_id': listed['id'],
+      'date': 'Txn Date',
+      'description': 'Description',
+      'debit': 'Debit',
+      'credit': 'Credit',
+      'balance': 'Balance',
+    };
+    final first = await call('map_statement', args);
+    final whole = first['whole_file'] as Map;
+    expect(whole['rows_missing_amount_or_balance'], 1, reason: '$first');
+    expect(whole['their_amounts'], [
+      {'Debit': '1,000.00', 'Column 5': '940.00'},
+    ]);
+    expect(first['next'], contains('join'));
+
+    final joined = await call('map_statement', {
+      ...args,
+      'join': {'Column 5': 'Balance'},
+    });
+    expect(joined['whole_file'], {'rows': 8, 'balance_breaks': 0});
+    expect(joined['next'], startsWith('Done'));
+  });
 
   test('A short-code description is pointed at the narration', () async {
     await StatementSampleRepository().add('fincare.xlsx', [

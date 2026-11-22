@@ -1,3 +1,4 @@
+import '../../data/platform_info.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
@@ -149,7 +150,7 @@ class _SnapshotBackdropState extends State<_SnapshotBackdrop> {
   static final _frosts = <(Object, Size, double), FrostImages>{};
 
   /// Widget tests can't wait on real timers; they get the live backdrop.
-  static final _enabled = !Platform.environment.containsKey('FLUTTER_TEST');
+  static final _enabled = !isFlutterTest;
 
   final _boundary = GlobalKey();
   (Object, Size, double)? _key;

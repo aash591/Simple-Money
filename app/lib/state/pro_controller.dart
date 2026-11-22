@@ -1,5 +1,5 @@
+import '../data/platform_info.dart';
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -73,7 +73,7 @@ class ProController extends ChangeNotifier {
   static bool debugPro =
       kDebugMode &&
       MonetizationConfig.debugPro &&
-      !Platform.environment.containsKey('FLUTTER_TEST');
+      !isFlutterTest;
 
   /// Whether the free plan's limits (budgets, accent colours) are open: for
   /// Pro, and for everyone while [enforceLimits] is off. [isPro] stays the

@@ -66,13 +66,6 @@ List<List<String>>? pdfStatementTable(List<PdfWord> words) {
   ];
   if (rowLines.length < 2) return null;
 
-  final columns = _columns([for (final i in rowLines) lines[i]], unit);
-  if (columns.length < 2) return null;
-  final dateColumn = [
-    for (final (i, c) in columns.indexed)
-      if (!c.rightAligned) (i, (c.anchor - dateLeft).abs()),
-  ].reduce((a, b) => a.$2 <= b.$2 ? a : b).$1;
-
   // Which row each line between two row lines belongs to.
   final owner = List<int?>.filled(lines.length, null);
   for (final (n, i) in rowLines.indexed) {
@@ -131,6 +124,22 @@ List<List<String>>? pdfStatementTable(List<PdfWord> words) {
     }
   }
 
+  // The columns, found from the row lines; text the rows wrap onto shows
+  // which text columns are one.
+  final columns = _joinRunOns(
+    _columns([for (final i in rowLines) lines[i]], unit),
+    [
+      for (final (i, line) in lines.indexed)
+        if (owner[i] != null) line,
+    ],
+    unit,
+  );
+  if (columns.length < 2) return null;
+  final dateColumn = [
+    for (final (i, c) in columns.indexed)
+      if (!c.amounts) (i, (c.anchor - dateLeft).abs()),
+  ].reduce((a, b) => a.$2 <= b.$2 ? a : b).$1;
+
   final cells = [
     for (final _ in rowLines)
       List<List<String>>.generate(columns.length, (_) => []),
@@ -140,7 +149,9 @@ List<List<String>>? pdfStatementTable(List<PdfWord> words) {
     final n = owner[i];
     if (n == null || _summary.hasMatch(line.text)) continue;
     final placed = [
-      for (final p in line.phrases) (p, _place(p, columns, unit)),
+      for (final p in line.phrases)
+        for (final part in _splitAmounts(p, columns, unit))
+          (part, _place(part, columns, unit)),
     ];
     // A line that isn't the row's own but brings an amount where the row
     // has one is a line of its own: an opening balance, a total. Nor does a
@@ -253,7 +264,7 @@ bool _isHeading(_Line line) =>
 enum _Kind { date, amount, text }
 
 class _Phrase {
-  _Phrase(this.left, this.right, this.text)
+  _Phrase(this.left, this.right, this.text, [this.words = const []])
     : kind = _amount.hasMatch(text)
           ? _Kind.amount
           : text.length <= 19 && parseTableDate(text, DateOrder.auto) != null
@@ -262,6 +273,9 @@ class _Phrase {
   final double left, right;
   final String text;
   final _Kind kind;
+
+  /// The words it was joined from.
+  final List<PdfWord> words;
 }
 
 class _Line {
@@ -320,74 +334,216 @@ Iterable<_Phrase> _phrases(List<PdfWord> line) sync* {
       words.first.left,
       words.last.right,
       words.map((w) => w.text.trim()).join(' '),
+      words,
     );
     start = i;
   }
 }
 
-/// A column: where its cells line up — text on the left, amounts on the
-/// right — and how far they reach.
+/// Where a column's cells line up: text on the left; amounts on the right as
+/// most banks print them, on the left (SBI) or centred.
+enum _Edge { left, right, centre }
+
+double _edgeOf(_Phrase p, _Edge edge) => switch (edge) {
+  _Edge.left => p.left,
+  _Edge.right => p.right,
+  _Edge.centre => (p.left + p.right) / 2,
+};
+
+/// A column: whether it holds amounts, the edge its cells line up on and
+/// where, and how far they reach.
 class _Column {
-  _Column(this.rightAligned, this.anchor, this.left, this.right);
-  final bool rightAligned;
+  _Column(this.amounts, this.edge, this.anchor, this.left, this.right);
+  final bool amounts;
+  final _Edge edge;
   final double anchor, left, right;
+
+  static _Column of(bool amounts, _Edge edge, List<_Phrase> phrases) =>
+      _Column(
+        amounts,
+        edge,
+        _median([for (final p in phrases) _edgeOf(p, edge)]),
+        phrases.map((p) => p.left).reduce(math.min),
+        phrases.map((p) => p.right).reduce(math.max),
+      );
 }
 
 /// The columns the row lines' cells line up in. An edge only a few rows
 /// share is a narration that ran long, not a column.
 List<_Column> _columns(List<_Line> rows, double unit) {
-  final lefts = <double>[], rights = <double>[];
+  final texts = <_Phrase>[], amounts = <_Phrase>[];
   for (final row in rows) {
     for (final p in row.phrases) {
-      (p.kind == _Kind.amount ? rights : lefts).add(
-        p.kind == _Kind.amount ? p.right : p.left,
-      );
+      (p.kind == _Kind.amount ? amounts : texts).add(p);
     }
+  }
+  final enough = math.max(2, rows.length ~/ 10);
+  final columns = <_Column>[];
+  for (final cluster in _cluster([for (final p in texts) p.left], 1.2 * unit)) {
+    if (cluster.length < enough) continue;
+    final anchor = _median(cluster);
+    columns.add(
+      _Column.of(false, _Edge.left, [
+        for (final p in texts)
+          if ((p.left - anchor).abs() <= 1.2 * unit) p,
+      ]),
+    );
   }
   // An amount on a dated row is always a column's, however rarely that
   // column is used: money out in a statement of mostly receipts.
-  final enough = math.max(2, rows.length ~/ 10);
-  final columns = <_Column>[];
-  for (final (aligned, edges) in [(false, lefts), (true, rights)]) {
-    for (final cluster in _cluster(edges, 1.2 * unit)) {
-      if (!aligned && cluster.length < enough) continue;
-      final anchor = _median(cluster);
-      final phrases = [
-        for (final row in rows)
-          for (final p in row.phrases)
-            if ((p.kind == _Kind.amount) == aligned &&
-                ((aligned ? p.right : p.left) - anchor).abs() <= 1.2 * unit)
-              p,
-      ];
-      columns.add(
-        _Column(
-          aligned,
-          anchor,
-          phrases.map((p) => p.left).reduce(math.min),
-          phrases.map((p) => p.right).reduce(math.max),
-        ),
-      );
-    }
-  }
+  columns.addAll(_amountColumns(amounts, unit));
   return columns..sort((a, b) => a.left.compareTo(b.left));
 }
 
-/// The column a body phrase is in: an amount by its right edge, text by the
-/// column it starts in.
+/// Text columns that are one: text never runs across a column's edge, so
+/// where a cell's text keeps running from one text column into the next,
+/// the gap between them was only a wide space inside a cell ("DEP TFR" set
+/// apart from the "UPI/CR/…" after it).
+List<_Column> _joinRunOns(List<_Column> columns, List<_Line> lines, double unit) {
+  final phrases = lines.expand((l) => l.phrases).toList();
+  // A date column is never part of another: what runs across it is the
+  // page's own (a footer, the next page's heading), not a cell.
+  bool dates(_Column c) {
+    final starting = [
+      for (final p in phrases)
+        if ((p.left - c.anchor).abs() <= unit) p,
+    ];
+    return starting.where((p) => p.kind == _Kind.date).length * 2 >=
+        starting.length;
+  }
+
+  final joined = [...columns];
+  for (var i = 0; i + 1 < joined.length; i++) {
+    final (a, b) = (joined[i], joined[i + 1]);
+    if (a.amounts || b.amounts || dates(a) || dates(b)) continue;
+    final across = phrases
+        .where(
+          (p) =>
+              p.kind == _Kind.text &&
+              (p.left - a.anchor).abs() <= unit &&
+              p.right > b.anchor + unit,
+        )
+        .length;
+    if (across < 2) continue;
+    joined[i] = _Column(
+      false,
+      _Edge.left,
+      a.anchor,
+      math.min(a.left, b.left),
+      math.max(a.right, b.right),
+    );
+    joined.removeAt(i + 1);
+    i--;
+  }
+  return joined;
+}
+
+/// Amount columns. A column's amounts overlap one another whichever edge
+/// they line up on, while its neighbours' stay clear of it, so overlapping
+/// amounts start as one column. Short and long amounts then end (or start)
+/// at different places, which is no reason to split them.
+List<_Column> _amountColumns(List<_Phrase> amounts, double unit) {
+  final sorted = [...amounts]..sort((a, b) => a.left.compareTo(b.left));
+  final groups = <List<_Phrase>>[];
+  var reach = double.negativeInfinity;
+  for (final p in sorted) {
+    if (groups.isEmpty || p.left > reach) {
+      groups.add([p]);
+      reach = p.right;
+    } else {
+      groups.last.add(p);
+      reach = math.max(reach, p.right);
+    }
+  }
+  return [for (final group in groups) ..._aligned(group, unit)];
+}
+
+/// [group] as one column when some edge lines all of it up; otherwise
+/// columns crowded close enough to touch, split on the edge that lines them
+/// up into the fewest columns. Right first: most banks align amounts there.
+List<_Column> _aligned(List<_Phrase> group, double unit) {
+  const edges = [_Edge.right, _Edge.left, _Edge.centre];
+  double spread(_Edge edge) {
+    final values = [for (final p in group) _edgeOf(p, edge)];
+    return values.reduce(math.max) - values.reduce(math.min);
+  }
+
+  final tightest = edges.reduce((a, b) => spread(b) < spread(a) ? b : a);
+  if (spread(tightest) <= 1.2 * unit) {
+    return [_Column.of(true, tightest, group)];
+  }
+  final split = {
+    for (final edge in edges)
+      edge: _cluster([for (final p in group) _edgeOf(p, edge)], 1.2 * unit),
+  };
+  final edge = edges.reduce(
+    (a, b) => split[b]!.length < split[a]!.length ? b : a,
+  );
+  return [
+    for (final cluster in split[edge]!)
+      _Column.of(true, edge, [
+        for (final p in group)
+          if (_edgeOf(p, edge) >= cluster.first &&
+              _edgeOf(p, edge) <= cluster.last)
+            p,
+      ]),
+  ];
+}
+
+/// [p] in parts: an amount a long narration ran into, too close to set
+/// apart ("AJINSHA 12.00"), is its own where it lines up with an amount
+/// column. An amount that is part of the narration ("REFUND 500.00") lines
+/// up with none and stays.
+List<_Phrase> _splitAmounts(_Phrase p, List<_Column> columns, double unit) {
+  if (p.kind == _Kind.amount || p.words.length < 2) return [p];
+  bool lines(_Phrase a) => columns.any(
+    (c) => c.amounts && (_edgeOf(a, c.edge) - c.anchor).abs() <= 1.2 * unit,
+  );
+  _Phrase join(List<PdfWord> words) => _Phrase(
+    words.first.left,
+    words.last.right,
+    words.map((w) => w.text.trim()).join(' '),
+    words,
+  );
+  final parts = <_Phrase>[];
+  var text = <PdfWord>[];
+  final words = p.words;
+  for (var i = 0; i < words.length; i++) {
+    // An amount with its Dr or Cr after it, or alone.
+    final candidates = [
+      if (i + 1 < words.length) words.sublist(i, i + 2),
+      words.sublist(i, i + 1),
+    ];
+    final amount = candidates
+        .map(join)
+        .where((a) => a.kind == _Kind.amount && lines(a))
+        .firstOrNull;
+    if (amount == null) {
+      text.add(words[i]);
+      continue;
+    }
+    if (text.isNotEmpty) parts.add(join(text));
+    text = [];
+    parts.add(amount);
+    i += amount.words.length - 1;
+  }
+  if (text.isNotEmpty) parts.add(join(text));
+  return parts.length == 1 ? [p] : parts;
+}
+
+/// The column a body phrase is in: an amount by the edge its column lines
+/// up on, text by the column it starts in.
 int _place(_Phrase p, List<_Column> columns, double unit) {
+  final amount = p.kind == _Kind.amount;
   final aligned = [
     for (final (i, c) in columns.indexed)
-      if (c.rightAligned == (p.kind == _Kind.amount)) i,
+      if (c.amounts == amount) i,
   ];
   if (aligned.isEmpty) return _nearest(p, columns);
-  if (p.kind == _Kind.amount) {
-    return aligned.reduce(
-      (a, b) =>
-          (columns[a].anchor - p.right).abs() <=
-              (columns[b].anchor - p.right).abs()
-          ? a
-          : b,
-    );
+  if (amount) {
+    double distance(int i) =>
+        (columns[i].anchor - _edgeOf(p, columns[i].edge)).abs();
+    return aligned.reduce((a, b) => distance(a) <= distance(b) ? a : b);
   }
   return aligned.lastWhere(
     (i) => columns[i].anchor <= p.left + unit,
@@ -436,7 +592,7 @@ List<String> _nameColumns(
 
   final amounts = [
     for (final i in unnamed)
-      if (columns[i].rightAligned && names[i].isEmpty) i,
+      if (columns[i].amounts && names[i].isEmpty) i,
   ];
   var balance = names.indexWhere((n) => n.toLowerCase().contains('balance'));
   if (balance < 0 &&
@@ -457,11 +613,28 @@ List<String> _nameColumns(
     names[amounts.single] = 'Amount';
   }
 
+  // A column of only "D"/"C" or "Dr"/"Cr" says which way each amount went.
+  final sides = RegExp(r'^(?:dr|cr|d|c)\.?$', caseSensitive: false);
+  for (final i in unnamed) {
+    final cells = [
+      for (final r in body)
+        if (r[i].trim().isNotEmpty) r[i].trim(),
+    ];
+    if (names[i].isEmpty &&
+        !columns[i].amounts &&
+        cells.isNotEmpty &&
+        cells.every(sides.hasMatch)) {
+      names[i] = 'Dr/Cr';
+    }
+  }
+
   final text = [
     for (final i in unnamed)
-      if (names[i].isEmpty && !columns[i].rightAligned) i,
+      if (names[i].isEmpty && !columns[i].amounts) i,
   ];
-  if (text.isNotEmpty && !named('description') && !named('narration')) {
+  if (text.isNotEmpty &&
+      !['description', 'narration', 'details', 'particulars', 'remarks']
+          .any(named)) {
     int length(int c) => body.fold(0, (sum, r) => sum + r[c].length);
     final widest = text.reduce((a, b) => length(a) >= length(b) ? a : b);
     names[widest] = 'Description';

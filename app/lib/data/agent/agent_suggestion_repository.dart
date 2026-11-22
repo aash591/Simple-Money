@@ -385,6 +385,11 @@ class AgentSuggestionRepository {
     );
   }
 
+  /// A change to a saved transaction, made the way the transaction screen
+  /// makes it: its category, accounts, title, note, amount, date or kind
+  /// (an expense or income can become a transfer between the user's
+  /// accounts, and back), or its removal ([delete]), as for a duplicate.
+  /// What a loan, debt or recurring payment owns stays theirs.
   Future<AgentSuggestionDraft> prepareTransactionEdit({
     required int transactionId,
     int? categoryId,
@@ -393,92 +398,238 @@ class AgentSuggestionRepository {
     String? title,
     String? note,
     int? loanId,
+    TransactionType? type,
+    int? toAccountId,
+    String? amount,
+    DateTime? date,
+    bool delete = false,
     String? reason,
   }) async {
     final current = await _transaction(transactionId);
     final accounts = await AccountRepository(database).load();
     final categories = await CategoryRepository(database).load();
-    final transfer = current.type == TransactionType.transfer;
+    final transactions = TransactionRepository(database);
+    final changes = [
+      categoryId,
+      categoryName,
+      accountId,
+      title,
+      note,
+      type,
+      toAccountId,
+      amount,
+      date,
+    ].any((v) => v != null);
     if (loanId != null) {
+      if (changes || delete) {
+        throw ArgumentError('Give loan_id on its own.');
+      }
       return _prepareLoanPayment(current, loanId, accounts, categories, reason);
     }
-    if (transfer &&
-        (categoryId != null ||
-            categoryName != null ||
-            accountId != null ||
-            title != null)) {
-      throw ArgumentError(
-        'A transfer has no category or title, and its accounts can only be '
-        'changed in the app. Only its note can be suggested.',
+    final account = accounts.firstWhere((a) => a.id == current.accountId);
+    final summary =
+        '${formatAccountMoney(current.amountMinor, digits: account.digits, currency: account.currency)}'
+        ' · ${_describe(current, accounts, categories)}'
+        ' · ${_day(current.date)}';
+    final link = await transactions.link(transactionId);
+    if (delete) {
+      if (changes) {
+        throw ArgumentError(
+          'delete removes the transaction: give nothing else.',
+        );
+      }
+      if (link != null) {
+        throw ArgumentError(
+          'It belongs to ${link.name}. Remove it from there in the app.',
+        );
+      }
+      return AgentSuggestionDraft(
+        kind: AgentSuggestionKind.transactionEdit,
+        target: '$transactionId',
+        payload: const {'delete': true},
+        // Undo puts it back as it was, with the same id.
+        before: {..._snapshot(current), 'restore': true},
+        summary: summary,
+        detail: const ['Delete this transaction'],
+        reason: _reason(reason),
       );
     }
-    final locks =
-        (await TransactionRepository(database).link(transactionId))?.locks ??
-        const TransactionLocks();
+
+    final locks = link?.locks ?? const TransactionLocks();
+    final next = type ?? current.type;
+    final transfer = next == TransactionType.transfer;
     final payload = <String, Object?>{};
-    final before = <String, Object?>{};
     final detail = <String>[];
-    if (categoryId != null || categoryName != null) {
-      final choice = await _categoryChoice(
-        categories,
-        current.type == TransactionType.income
-            ? CategoryType.income
-            : CategoryType.expense,
-        categoryId,
-        categoryName,
-      );
-      if (choice.id == null || choice.id != current.categoryId) {
-        if (locks.category) throw ArgumentError(_managed);
-        payload.addAll(choice.payload);
-        before['categoryId'] = current.categoryId;
-        detail.add(
-          'Category: ${_categoryPath(categories, current.categoryId)} → ${choice.label}',
-        );
-      }
+    void lock(bool locked) {
+      if (locked) throw ArgumentError(_managed);
     }
-    if (accountId != null && accountId != current.accountId) {
-      if (locks.accounts) throw ArgumentError(_managed);
-      final account = _sameCurrencyAccount(accounts, accountId, current);
-      payload['accountId'] = account.id;
-      before['accountId'] = current.accountId;
+
+    if (next != current.type) {
+      lock(locks.type || (transfer && locks.transfer));
+      payload['type'] = next.storageValue;
+      detail.add('Type: ${current.type.name} → ${next.name}');
+    }
+    if (transfer &&
+        (categoryId != null || categoryName != null || title != null)) {
+      throw ArgumentError('A transfer has no category or title.');
+    }
+    if (!transfer && toAccountId != null) {
+      throw ArgumentError('to_account_id is only for a transfer.');
+    }
+
+    final from = accountId ?? current.accountId;
+    if (from != current.accountId) {
+      lock(locks.accounts);
+      final chosen = _sameCurrencyAccount(accounts, from, current);
+      payload['accountId'] = chosen.id;
       detail.add(
-        'Account: ${_accountName(accounts, current.accountId)} → ${account.name}',
+        '${transfer ? 'From' : 'Account'}: '
+        '${_accountName(accounts, current.accountId)} → ${chosen.name}',
       );
     }
-    if (title != null) {
-      final clean = title.trim();
-      if (clean.length > 80) {
-        throw ArgumentError('Keep the title to 80 characters.');
+    if (transfer) {
+      final to = toAccountId ?? current.toAccountId;
+      if (to == null) {
+        throw ArgumentError('Give to_account_id: the account it went to.');
       }
-      if (clean != (current.title ?? '')) {
-        payload['title'] = clean.isEmpty ? null : clean;
-        before['title'] = current.title;
+      if (to == from) {
+        throw ArgumentError('A transfer needs two different accounts.');
+      }
+      if (to != current.toAccountId) {
+        lock(locks.accounts);
+        final chosen = _sameCurrencyAccount(accounts, to, current);
+        payload['toAccountId'] = chosen.id;
         detail.add(
-          'Title: ${current.title ?? '—'} → ${clean.isEmpty ? '—' : clean}',
+          'To: ${_accountName(accounts, current.toAccountId)} → ${chosen.name}',
         );
+      }
+    }
+
+    if (amount != null) {
+      final minor = parseAccountAmount(
+        amount.replaceAll(',', ''),
+        account.digits,
+      );
+      if (minor == null || minor <= 0) {
+        throw ArgumentError('amount must be an amount like 250.00.');
+      }
+      if (minor != current.amountMinor) {
+        lock(locks.amount);
+        payload['amountMinor'] = minor;
+        String money(int m) => formatAccountMoney(
+          m,
+          digits: account.digits,
+          currency: account.currency,
+        );
+        detail.add('Amount: ${money(current.amountMinor)} → ${money(minor)}');
+      }
+    }
+    if (date != null) {
+      final now = DateTime.now();
+      final day = DateTime(date.year, date.month, date.day);
+      if (day.isAfter(DateTime(now.year, now.month, now.day))) {
+        throw ArgumentError('The date can’t be in the future.');
+      }
+      final was = DateTime(
+        current.date.year,
+        current.date.month,
+        current.date.day,
+      );
+      if (day != was) {
+        lock(locks.date);
+        // The same time of day, on the new day.
+        payload['date'] = DateTime(
+          day.year,
+          day.month,
+          day.day,
+          current.date.hour,
+          current.date.minute,
+          current.date.second,
+        ).millisecondsSinceEpoch;
+        detail.add('Date: ${_day(current.date)} → ${_day(day)}');
+      }
+    }
+
+    if (!transfer) {
+      final wanted = next == TransactionType.income
+          ? CategoryType.income
+          : CategoryType.expense;
+      final kept = categories
+          .where((c) => c.id == current.categoryId && c.type == wanted)
+          .firstOrNull;
+      if (categoryId != null || categoryName != null) {
+        final choice = await _categoryChoice(
+          categories,
+          wanted,
+          categoryId,
+          categoryName,
+        );
+        if (choice.id == null || choice.id != current.categoryId) {
+          lock(locks.category);
+          payload.addAll(choice.payload);
+          detail.add(
+            'Category: ${_categoryPath(categories, current.categoryId)} → ${choice.label}',
+          );
+        }
+      } else if (kept == null) {
+        throw ArgumentError(
+          'As ${next == TransactionType.income ? 'income' : 'an expense'} it '
+          'needs a category: give category_id or category_name.',
+        );
+      }
+      if (title != null) {
+        final clean = title.trim();
+        if (clean.length > 80) {
+          throw ArgumentError('Keep the title to 80 characters.');
+        }
+        if (clean != (current.title ?? '')) {
+          payload['title'] = clean.isEmpty ? null : clean;
+          detail.add(
+            'Title: ${current.title ?? '—'} → ${clean.isEmpty ? '—' : clean}',
+          );
+        }
       }
     }
     if (note != null && note.trim() != (current.note ?? '').trim()) {
       final clean = note.trim();
       payload['note'] = clean.isEmpty ? null : clean;
-      before['note'] = current.note;
       detail.add('Note: ${clean.isEmpty ? 'removed' : 'updated'}');
     }
     if (payload.isEmpty) throw ArgumentError('Nothing would change.');
-    final account = accounts.firstWhere((a) => a.id == current.accountId);
     return AgentSuggestionDraft(
       kind: AgentSuggestionKind.transactionEdit,
       target: '$transactionId',
       payload: payload,
-      before: before,
-      summary:
-          '${formatAccountMoney(current.amountMinor, digits: account.digits, currency: account.currency)}'
-          ' · ${current.title ?? _categoryPath(categories, current.categoryId)}'
-          ' · ${_day(current.date)}',
+      // Undo puts every field back, whatever changed.
+      before: _snapshot(current),
+      summary: summary,
       detail: detail,
       reason: _reason(reason),
     );
   }
+
+  /// Everything an edit can change, to put back on undo.
+  static Map<String, Object?> _snapshot(MoneyTransaction t) => {
+    'type': t.type.storageValue,
+    'accountId': t.accountId,
+    'toAccountId': t.toAccountId,
+    'toAmountMinor': t.toAmountMinor,
+    'amountMinor': t.amountMinor,
+    'date': t.date.millisecondsSinceEpoch,
+    'categoryId': t.categoryId,
+    'title': t.title,
+    'note': t.note,
+  };
+
+  /// "Swiggy", its category, or for a transfer "Kotak → SBI".
+  static String _describe(
+    MoneyTransaction t,
+    List<Account> accounts,
+    List<Category> categories,
+  ) => t.type == TransactionType.transfer
+      ? '${_accountName(accounts, t.accountId)} → '
+            '${_accountName(accounts, t.toAccountId)}'
+      : t.title ?? _categoryPath(categories, t.categoryId);
 
   /// A saved transaction that is really a payment to loan [loanId]: a bank
   /// SMS that said "credited to your loan account" and went in as income.
@@ -561,10 +712,27 @@ class AgentSuggestionRepository {
     String? note,
     DateTime? date,
     bool ignoreDuplicates = false,
+    int? toAccountId,
+    String? receivedAmount,
     String? reason,
   }) async {
     if (type == TransactionType.transfer) {
-      throw ArgumentError('Only expenses and income can be added this way.');
+      if (categoryId != null || categoryName != null || title != null) {
+        throw ArgumentError('A transfer has no category or title.');
+      }
+      return _prepareTransferAdd(
+        amount: amount,
+        accountId: accountId,
+        toAccountId: toAccountId,
+        received: receivedAmount,
+        note: note,
+        date: date,
+        ignoreDuplicates: ignoreDuplicates,
+        reason: reason,
+      );
+    }
+    if (toAccountId != null) {
+      throw ArgumentError('to_account_id is only for a transfer.');
     }
     final accounts = await AccountRepository(database).load();
     final account = accounts.where((a) => a.id == accountId).firstOrNull;
@@ -668,11 +836,133 @@ class AgentSuggestionRepository {
     );
   }
 
+  /// Money moved between two of the user's accounts: from a bank to a
+  /// broker, a card bill paid from savings. Accounts in two currencies need
+  /// what reached the other side ([received]).
+  Future<AgentSuggestionDraft> _prepareTransferAdd({
+    required String amount,
+    required int accountId,
+    required int? toAccountId,
+    String? received,
+    String? note,
+    DateTime? date,
+    required bool ignoreDuplicates,
+    String? reason,
+  }) async {
+    final accounts = await AccountRepository(database).load();
+    Account active(int? id, String field) =>
+        accounts.where((a) => a.id == id && !a.isArchived).firstOrNull ??
+        (throw ArgumentError(
+          id == null
+              ? 'Give $field.'
+              : 'Account $id isn’t an active account.',
+        ));
+    final from = active(accountId, 'account_id');
+    final to = active(toAccountId, 'to_account_id: where the money went');
+    if (from.id == to.id) {
+      throw ArgumentError('A transfer needs two different accounts.');
+    }
+    final minor = parseAccountAmount(amount.replaceAll(',', ''), from.digits);
+    if (minor == null || minor <= 0) {
+      throw ArgumentError('amount must be an amount like 250.00.');
+    }
+    final sameCurrency =
+        from.currency == to.currency && from.digits == to.digits;
+    int? toMinor;
+    if (!sameCurrency) {
+      toMinor = received == null
+          ? null
+          : parseAccountAmount(received.replaceAll(',', ''), to.digits);
+      if (toMinor == null || toMinor <= 0) {
+        throw ArgumentError(
+          '${to.name} is in ${to.currency}: give received_amount, what '
+          'reached it.',
+        );
+      }
+    }
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = date == null
+        ? today
+        : DateTime(date.year, date.month, date.day);
+    if (day.isAfter(today)) {
+      throw ArgumentError('The date can’t be in the future.');
+    }
+    final cleanNote = note?.trim() ?? '';
+    if (!ignoreDuplicates) {
+      final same = await database
+          .customSelect(
+            "SELECT id FROM transactions WHERE type = 'transfer' AND "
+            'account_id = ? AND to_account_id = ? AND amount_minor = ? AND '
+            'date >= ? AND date < ? LIMIT 1',
+            variables: [
+              Variable(from.id),
+              Variable(to.id),
+              Variable(minor),
+              Variable(day.millisecondsSinceEpoch),
+              Variable(
+                DateTime(day.year, day.month, day.day + 1)
+                    .millisecondsSinceEpoch,
+              ),
+            ],
+          )
+          .getSingleOrNull();
+      if (same != null) {
+        throw ArgumentError(
+          'This transfer is already saved (id ${same.read<int>('id')}). Send '
+          'ignore_duplicates true if this is a different one.',
+        );
+      }
+    }
+    String money(int m, Account a) =>
+        formatAccountMoney(m, digits: a.digits, currency: a.currency);
+    return AgentSuggestionDraft(
+      kind: AgentSuggestionKind.transactionAdd,
+      target: jsonEncode([
+        'transfer',
+        from.id,
+        to.id,
+        minor,
+        day.toIso8601String(),
+        cleanNote.toLowerCase(),
+      ]),
+      payload: {
+        'type': TransactionType.transfer.storageValue,
+        'amount': minor,
+        'accountId': from.id,
+        'toAccountId': to.id,
+        'toAmount': ?toMinor,
+        'note': cleanNote.isEmpty ? null : cleanNote,
+        'date': day.toIso8601String(),
+      },
+      summary:
+          'Add transfer · ${money(minor, from)} · ${from.name} → ${to.name}'
+          ' · ${_day(day)}',
+      detail: [
+        'From ${from.name} to ${to.name}',
+        if (toMinor != null) '${to.name} receives ${money(toMinor, to)}',
+        if (cleanNote.isNotEmpty) 'Note: $cleanNote',
+      ],
+      reason: _reason(reason),
+    );
+  }
+
   /// Adds the transaction. Returns what undoing needs.
   Future<Map<String, Object?>> _applyTransactionAdd(
     Map<String, Object?> payload,
   ) async {
     final type = TransactionTypeStorage.fromStorage(payload['type'] as String);
+    if (type == TransactionType.transfer) {
+      final id = await TransactionRepository(database).addTransfer(
+        amountMinor: payload['amount'] as int,
+        fromAccountId: payload['accountId'] as int,
+        toAccountId: payload['toAccountId'] as int,
+        toAmountMinor: payload['toAmount'] as int?,
+        note: payload['note'] as String?,
+        date: DateTime.parse(payload['date'] as String),
+      );
+      return {'transactionId': id};
+    }
     final category = await _resolveCategory(
       type == TransactionType.income
           ? CategoryType.income
@@ -1603,35 +1893,62 @@ class AgentSuggestionRepository {
     );
   }
 
+  /// Makes an approved edit, or (undoing one) puts back what [payload]
+  /// recorded. Only the fields it names change; the rest stay as they are.
   Future<void> _applyTransactionEdit(
     int id,
     Map<String, Object?> payload,
   ) async {
-    final current = await _transaction(id);
-    var categoryId = current.categoryId;
-    if (payload.containsKey('categoryId') ||
-        payload.containsKey('categoryName')) {
-      categoryId = (await _resolveCategory(
-        current.type == TransactionType.income
-            ? CategoryType.income
-            : CategoryType.expense,
-        payload,
-      )).id;
+    final transactions = TransactionRepository(database);
+    if (payload['delete'] == true) {
+      if (await transactions.link(id) case final link?) {
+        throw StateError(
+          'It belongs to ${link.name} now. Remove it from there.',
+        );
+      }
+      await transactions.delete(id);
+      return;
     }
+    if (payload['restore'] == true) {
+      await _restoreTransaction(id, payload);
+      return;
+    }
+    final current = await _transaction(id);
+    final type = switch (payload['type']) {
+      final String stored => TransactionTypeStorage.fromStorage(stored),
+      _ => current.type,
+    };
+    final transfer = type == TransactionType.transfer;
+    final accounts = await AccountRepository(database).load();
     var accountId = current.accountId;
     if (payload['accountId'] case final int next when next != accountId) {
-      accountId = _sameCurrencyAccount(
-        await AccountRepository(database).load(),
-        next,
-        current,
-      ).id;
+      accountId = _sameCurrencyAccount(accounts, next, current).id;
     }
-    await TransactionRepository(database).edit(
+    int? toAccountId;
+    if (transfer) {
+      toAccountId = payload.containsKey('toAccountId')
+          ? payload['toAccountId'] as int?
+          : current.toAccountId;
+      if (toAccountId != null && toAccountId != current.toAccountId) {
+        toAccountId = _sameCurrencyAccount(accounts, toAccountId, current).id;
+      }
+    }
+    int? categoryId;
+    if (!transfer) {
+      final wanted = type == TransactionType.income
+          ? CategoryType.income
+          : CategoryType.expense;
+      categoryId =
+          payload['categoryId'] != null || payload['categoryName'] != null
+          ? (await _resolveCategory(wanted, payload)).id
+          : current.categoryId;
+    }
+    await transactions.edit(
       id: id,
-      type: current.type,
-      amountMinor: current.amountMinor,
+      type: type,
+      amountMinor: payload['amountMinor'] as int? ?? current.amountMinor,
       accountId: accountId,
-      toAccountId: current.toAccountId,
+      toAccountId: toAccountId,
       categoryId: categoryId,
       title: payload.containsKey('title')
           ? payload['title'] as String?
@@ -1639,7 +1956,50 @@ class AgentSuggestionRepository {
       note: payload.containsKey('note')
           ? payload['note'] as String?
           : current.note,
-      date: current.date,
+      date: switch (payload['date']) {
+        final int ms => DateTime.fromMillisecondsSinceEpoch(ms),
+        _ => current.date,
+      },
+    );
+  }
+
+  /// Puts a deleted transaction back as [before] recorded it, under its old
+  /// id, so whatever pointed at it (the bank SMS it came from) does again.
+  Future<void> _restoreTransaction(int id, Map<String, Object?> before) async {
+    final taken = await database
+        .customSelect(
+          'SELECT 1 FROM transactions WHERE id = ?',
+          variables: [Variable(id)],
+        )
+        .getSingleOrNull();
+    if (taken != null) return;
+    final transactions = TransactionRepository(database);
+    final type = TransactionTypeStorage.fromStorage(before['type'] as String);
+    final date = DateTime.fromMillisecondsSinceEpoch(before['date'] as int);
+    final amount = before['amountMinor'] as int;
+    final added = type == TransactionType.transfer
+        ? await transactions.addTransfer(
+            amountMinor: amount,
+            fromAccountId: before['accountId'] as int,
+            toAccountId: before['toAccountId'] as int,
+            toAmountMinor: before['toAmountMinor'] as int?,
+            note: before['note'] as String?,
+            date: date,
+          )
+        : await transactions.addExpenseOrIncome(
+            type: type,
+            amountMinor: amount,
+            accountId: before['accountId'] as int,
+            categoryId:
+                before['categoryId'] as int? ??
+                (throw StateError('Its category was deleted.')),
+            title: before['title'] as String?,
+            note: before['note'] as String?,
+            date: date,
+          );
+    await database.customUpdate(
+      'UPDATE transactions SET id = ? WHERE id = ?',
+      variables: [Variable(id), Variable(added)],
     );
   }
 
