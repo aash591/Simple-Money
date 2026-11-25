@@ -909,7 +909,7 @@ class _WelcomeContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'See where your money goes and stay on top of your budget.',
+                  'Build better money habits and move toward financial freedom.',
                   textAlign: TextAlign.center,
                   style: text.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
