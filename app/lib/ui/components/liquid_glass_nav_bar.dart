@@ -10,6 +10,7 @@ import '../../data/device_performance.dart';
 import '../theme/app_theme.dart' show AppChrome, usesAurora, usesGlass;
 import 'glass_button.dart' show GlassRim;
 import 'inner_glow.dart' show rasterCachingEnabled, rasterScaleOf;
+import 'nav_icon_motion.dart';
 
 /// Aurora in dark mode, but not the true-black variant, which keeps the
 /// plain black pill.
@@ -27,7 +28,12 @@ class LiquidGlassDestination {
     required this.selectedIcon,
     required this.label,
     this.dot = false,
+    this.motion,
   });
+
+  /// A drawn icon that animates when the tab gains focus, used instead of
+  /// [icon] and [selectedIcon].
+  final NavIconMotion? motion;
   final IconData icon;
   final IconData selectedIcon;
   final String label;
@@ -690,11 +696,14 @@ class _Tab extends StatelessWidget {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              Icon(
-                lit ? destination.selectedIcon : destination.icon,
-                size: 24,
-                color: color,
-              ),
+              if (destination.motion case final motion?)
+                NavIconMotionIcon(motion: motion, active: lit, color: color)
+              else
+                Icon(
+                  lit ? destination.selectedIcon : destination.icon,
+                  size: 24,
+                  color: color,
+                ),
               if (destination.dot)
                 Positioned(
                   right: -1,

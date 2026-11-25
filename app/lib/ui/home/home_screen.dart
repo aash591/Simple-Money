@@ -21,6 +21,7 @@ import '../components/common.dart';
 import '../components/review_prompt_alert.dart';
 import '../../state/review_prompt.dart';
 import '../components/liquid_glass_nav_bar.dart';
+import '../components/nav_icon_motion.dart';
 import '../../state/account_store.dart';
 import '../../state/holding_store.dart';
 import '../../state/budget_store.dart';
@@ -578,21 +579,25 @@ class _HomeScreenState extends State<HomeScreen>
                 icon: Icons.home_outlined,
                 selectedIcon: Icons.home_rounded,
                 label: 'Home',
+                motion: NavIconMotion.home,
               ),
               const LiquidGlassDestination(
                 icon: Icons.list_alt_outlined,
                 selectedIcon: Icons.list_alt_rounded,
                 label: 'Transactions',
+                motion: NavIconMotion.list,
               ),
               const LiquidGlassDestination(
                 icon: Icons.bar_chart_rounded,
                 selectedIcon: Icons.bar_chart_rounded,
                 label: 'Budgets',
+                motion: NavIconMotion.bars,
               ),
               LiquidGlassDestination(
                 icon: Icons.more_horiz_rounded,
                 selectedIcon: Icons.more_horiz_rounded,
                 label: 'More',
+                motion: NavIconMotion.dots,
                 dot: _ai.pendingSuggestions > 0,
               ),
             ],
