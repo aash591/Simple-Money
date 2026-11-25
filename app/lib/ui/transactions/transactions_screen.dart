@@ -1763,7 +1763,7 @@ class TransactionsScreenState extends State<TransactionsScreen>
       fontFeatures: const [FontFeature.tabularFigures()],
     );
     // The eye that hides the balance sits beside it, inside the same block.
-    const eye = 30.0, foldedScale = 22 / 28;
+    const eye = 30.0, baseFoldedScale = 22 / 28, minFoldedScale = 16 / 28;
     final titleH = _measure(context, 'Ag', titleStyle).height;
     final detailH = detail.isEmpty
         ? 0.0
@@ -1798,6 +1798,12 @@ class TransactionsScreenState extends State<TransactionsScreen>
                 // Row mode: the name keeps at least a little room beside the
                 // balance. Otherwise the balance stays under the name.
                 const nameMin = 72.0, between = 10.0;
+                // A long balance shrinks a little more rather than leaving
+                // the card stuck on two rows when folded.
+                final foldedScale = ((avail - between - nameMin) / blockW).clamp(
+                  minFoldedScale,
+                  baseFoldedScale,
+                );
                 final foldedW = blockW * foldedScale;
                 final rowMode = foldedW + between + nameMin <= avail;
                 // Two phases, so it never looks half-way between two
