@@ -21,7 +21,7 @@ const smsImportGuide = InfoGuide(
     GuideStep(
       'Pick your accounts',
       'Tap a card to select it, then create. Try it:',
-      path: ['Home', 'Needs your review', 'Review'],
+      path: ['Home', 'Review'],
       example: _ExampleAccount(),
     ),
     GuideStep(

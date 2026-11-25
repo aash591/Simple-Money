@@ -33,17 +33,15 @@ class SmsReviewCard extends StatelessWidget {
   /// Banks whose messages carry no account number to match.
   final int unlinked;
 
-  static const title = 'Needs your review';
   static const previewRows = 2;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
     final number = NumberFormat.decimalPattern();
     final waiting = store.pendingCount;
     final rows = store.pending.take(previewRows).toList();
-    final subtitle = waiting > 0
+    final title = waiting > 0
         ? '${number.format(waiting)} bank '
               '${waiting == 1 ? 'message needs' : 'messages need'} a category'
         : '${number.format(unlinked)} '
@@ -54,41 +52,28 @@ class SmsReviewCard extends StatelessWidget {
         Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 34,
+              height: 34,
               decoration: BoxDecoration(
                 color: orange.withValues(alpha: .14),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(11),
               ),
               child: const Icon(
                 Icons.mark_chat_unread_outlined,
-                size: 22,
+                size: 18,
                 color: orange,
               ),
             ),
             const SizedBox(width: 12),
+            // The cause is the title: what is waiting, and what it needs.
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+              child: Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],

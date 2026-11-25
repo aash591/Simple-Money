@@ -1244,8 +1244,7 @@ void main() {
         ),
       ),
     );
-    // A few of the waiting messages are listed, under the card's own title.
-    expect(find.text(SmsReviewCard.title), findsOneWidget);
+    // A few of the waiting messages are listed, under what they need.
     expect(
       find.byType(SmsCompactTile),
       findsNWidgets(SmsReviewCard.previewRows),
