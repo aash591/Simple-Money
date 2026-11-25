@@ -112,11 +112,6 @@ class MoreScreen extends StatelessWidget {
     Widget row() => MenuRow(
       icon: Icons.sms_rounded,
       title: 'Smart tracking',
-      subtitle: switch (smsStore) {
-        final sms? when sms.supported =>
-          sms.enabled ? 'Reading bank SMS' : 'Off · no SMS are read',
-        _ => 'Fixes shared by other people',
-      },
       onTap: () => Navigator.of(context).push(
         FeatureRoute<void>(
           SmartTrackingScreen(
@@ -141,7 +136,6 @@ class MoreScreen extends StatelessWidget {
       return MenuRow(
         icon: Icons.task_alt_rounded,
         title: 'AI suggestions',
-        subtitle: count == 0 ? 'Nothing waiting' : '$count to review',
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -229,7 +223,6 @@ class MoreScreen extends StatelessWidget {
                       MenuRow(
                         icon: Icons.autorenew_rounded,
                         title: 'Recurring payments',
-                        subtitle: 'Subscriptions and bills',
                         onTap: () => Navigator.of(context).push(
                           FeatureRoute<void>(
                             RecurringPaymentsScreen(
@@ -242,7 +235,6 @@ class MoreScreen extends StatelessWidget {
                       MenuRow(
                         icon: Icons.handshake_rounded,
                         title: 'Debts',
-                        subtitle: 'Lent and borrowed',
                         onTap: () => Navigator.of(context).push(
                           FeatureRoute<void>(DebtsScreen(store: debtStore!)),
                         ),
@@ -285,7 +277,6 @@ class MoreScreen extends StatelessWidget {
                       MenuRow(
                         icon: Icons.file_download_rounded,
                         title: 'Import statement',
-                        subtitle: 'UPI app PDF, or any CSV or Excel export',
                         onTap: () => Navigator.of(context).push(
                           FeatureRoute<void>(
                             StatementStartScreen(
@@ -298,7 +289,6 @@ class MoreScreen extends StatelessWidget {
                     MenuRow(
                       icon: Icons.auto_awesome_rounded,
                       title: 'Claude / ChatGPT',
-                      subtitle: 'Connect through MCP',
                       onTap: () => _openAi(context),
                     ),
                     _suggestionsRow(context),
@@ -311,7 +301,6 @@ class MoreScreen extends StatelessWidget {
                     MenuRow(
                       icon: Icons.settings_rounded,
                       title: 'Settings',
-                      subtitle: 'Sync, customization, security, help and about',
                       onTap: () => Navigator.of(context).push(
                         FeatureRoute<void>(
                           SettingsScreen(
@@ -326,7 +315,6 @@ class MoreScreen extends StatelessWidget {
                     MenuRow(
                       icon: Icons.history_rounded,
                       title: 'History',
-                      subtitle: 'Every added, edited and deleted transaction',
                       onTap: () => Navigator.of(context).push(
                         FeatureRoute<void>(
                           ActivityLogScreen(
@@ -347,9 +335,6 @@ class MoreScreen extends StatelessWidget {
                         tint: const Color(0xfff2a900),
                         highlight: true,
                         title: 'SimpleMoney Pro',
-                        subtitle: ProController.instance.isPro
-                            ? 'Thank you for supporting SimpleMoney'
-                            : 'AI assistant, unlimited budgets and more',
                         onTap: () =>
                             Navigator.of(context)
                                 .push(FeatureRoute<void>(const ProScreen())),
