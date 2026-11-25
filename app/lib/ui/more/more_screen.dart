@@ -15,7 +15,6 @@ import 'recurring/recurring_payments_screen.dart';
 import '../../state/transaction_store.dart';
 import '../../state/sync_controller.dart';
 import '../../state/home_layout.dart';
-import '../../state/pro_controller.dart';
 import '../../state/upi_settings.dart';
 import '../components/common.dart';
 import '../components/menu_list.dart';
@@ -204,16 +203,11 @@ class MoreScreen extends StatelessWidget {
                   child: _ProfileCard(sync: syncController, text: text),
                 ),
                 const SizedBox(height: appCardGap),
-                // A slim row under the profile while Pro is on offer; once
-                // bought, it moves down to the App group.
-                ListenableBuilder(
-                  listenable: ProController.instance,
-                  builder: (context, _) => ProController.instance.isPro
-                      ? const SizedBox.shrink()
-                      : Padding(
-                          padding: const EdgeInsets.only(bottom: 24),
-                          child: MenuGroup(children: [_proRow(context)]),
-                        ),
+                // Pro always sits in its own slim row under the profile,
+                // bought or not.
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: MenuGroup(children: [_proRow(context)]),
                 ),
                 MenuGroup(
                   label: 'Money',
@@ -347,12 +341,6 @@ class MoreScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ),
-                    ListenableBuilder(
-                      listenable: ProController.instance,
-                      builder: (context, _) => ProController.instance.isPro
-                          ? _proRow(context)
-                          : const SizedBox.shrink(),
                     ),
                   ],
                 ),
