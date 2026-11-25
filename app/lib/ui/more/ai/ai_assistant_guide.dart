@@ -71,7 +71,7 @@ const aiAssistantGuide = InfoGuide(
     GuideStep(
       'Copy the address',
       'Tap the address to copy it.',
-      path: ['More', 'Claude / ChatGPT', 'Address'],
+      path: ['More', 'Claude / ChatGPT (MCP)', 'Address'],
     ),
     GuideStep(
       'Add it in Claude',
@@ -86,12 +86,12 @@ const aiAssistantGuide = InfoGuide(
     GuideStep(
       'When it asks for a code, come back',
       'Only then get the code. It’s copied and a session starts. Paste it in Claude or ChatGPT.',
-      path: ['More', 'Claude / ChatGPT', 'Get pairing code'],
+      path: ['More', 'Claude / ChatGPT (MCP)', 'Get pairing code'],
     ),
     GuideStep(
       'Ask away',
       'A session ends on its own. Next time, just tap Start.',
-      path: ['More', 'Claude / ChatGPT', 'Start'],
+      path: ['More', 'Claude / ChatGPT (MCP)', 'Start'],
     ),
     GuideStep(
       'Approve or skip fixes',
@@ -175,7 +175,7 @@ const aiAssistantGuide = InfoGuide(
         Icons.link_off_rounded,
         'Disconnect an AI app anytime',
         'Tap the unlink icon next to it.',
-        ['More', 'Claude / ChatGPT', 'Connected apps'],
+        ['More', 'Claude / ChatGPT (MCP)', 'Connected apps'],
       ),
     ]),
   ],

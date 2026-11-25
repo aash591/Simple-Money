@@ -148,7 +148,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: _ai,
     builder: (context, _) => FeaturePage(
-      title: 'Claude / ChatGPT',
+      title: 'Claude / ChatGPT (MCP)',
       actions: const [InfoGuideButton(aiAssistantGuide)],
       child: ListView(
         padding: const EdgeInsets.fromLTRB(18, 8, 18, 40),

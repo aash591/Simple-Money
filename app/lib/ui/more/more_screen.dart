@@ -302,7 +302,7 @@ class MoreScreen extends StatelessWidget {
                       ),
                     MenuRow(
                       icon: Icons.auto_awesome_rounded,
-                      title: 'Claude / ChatGPT',
+                      title: 'Claude / ChatGPT (MCP)',
                       onTap: () => _openAi(context),
                     ),
                     _suggestionsRow(context),

@@ -38,7 +38,7 @@ void main() {
       ),
     );
     expect(find.text('AI suggestions'), findsOneWidget);
-    expect(find.text('Claude / ChatGPT'), findsOneWidget);
+    expect(find.text('Claude / ChatGPT (MCP)'), findsOneWidget);
     // Pro is offered in one slim row under the profile card.
     expect(find.text('SimpleMoney Pro'), findsOneWidget);
     // Shared fixes now lives in Settings, not here.

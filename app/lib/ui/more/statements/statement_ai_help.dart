@@ -237,7 +237,7 @@ class _StatementAiCardState extends State<StatementAiCard> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Needs a session: More › Claude / ChatGPT',
+              'Needs a session: More › Claude / ChatGPT (MCP)',
               style: theme.textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -344,7 +344,7 @@ class StatementAiHelp extends StatelessWidget {
         ] else ...[
           const SizedBox(height: 6),
           Text(
-            'Start a session: More › Claude / ChatGPT',
+            'Start a session: More › Claude / ChatGPT (MCP)',
             style: theme.textTheme.bodySmall?.copyWith(
               fontWeight: FontWeight.w600,
             ),
