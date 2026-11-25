@@ -393,45 +393,62 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             : 0);
   }
 
+  /// The welcome fills the page: the hero floats in the space above, the
+  /// setup list rests at the bottom, and a small screen or a big font just
+  /// scrolls.
+  Widget _welcomePage() => CustomScrollView(
+    slivers: [
+      SliverFillRemaining(
+        hasScrollBody: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+          child: _WelcomeContent(
+            currency: _steps!.contains(_Step.currency),
+            backup: _steps!.contains(_Step.backup),
+            sms: _steps!.contains(_Step.sms),
+          ),
+        ),
+      ),
+    ],
+  );
+
   Widget _page(BuildContext context, _Step step) => Column(
     children: [
       _header(step),
       Expanded(
-        child: LayoutBuilder(
-          builder: (context, box) => Scrollbar(
-            controller: step == _Step.accounts ? _scroll : null,
-            // The balances list is long: keep its handle on show.
-            thumbVisibility: step == _Step.accounts,
-            thickness: 5,
-            radius: const Radius.circular(3),
-            child: SingleChildScrollView(
-              controller: step == _Step.accounts ? _scroll : null,
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: box.maxHeight),
-                // Pictures sit at the top, so they stay put from page to page;
-                // only the accounts step, which has none, is centred.
-                child: Align(
-                  alignment: step == _Step.accounts
-                      ? Alignment.center
-                      : const Alignment(0, -1),
-                  child: switch (step) {
-                    _Step.welcome => _WelcomeContent(
-                      currency: _steps!.contains(_Step.currency),
-                      backup: _steps!.contains(_Step.backup),
-                      sms: _steps!.contains(_Step.sms),
+        child: step == _Step.welcome
+            ? _welcomePage()
+            : LayoutBuilder(
+                builder: (context, box) => Scrollbar(
+                  controller: step == _Step.accounts ? _scroll : null,
+                  // The balances list is long: keep its handle on show.
+                  thumbVisibility: step == _Step.accounts,
+                  thickness: 5,
+                  radius: const Radius.circular(3),
+                  child: SingleChildScrollView(
+                    controller: step == _Step.accounts ? _scroll : null,
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: box.maxHeight),
+                      // Pictures sit at the top, so they stay put from page to page;
+                      // only the accounts step, which has none, is centred.
+                      child: Align(
+                        alignment: step == _Step.accounts
+                            ? Alignment.center
+                            : const Alignment(0, -1),
+                        child: switch (step) {
+                          _Step.welcome => const SizedBox.shrink(),
+                          _Step.currency => _currencyContent(context),
+                          _Step.backup => const BackupWelcomeContent(),
+                          _Step.sms => _SmsContent(denied: _smsDenied),
+                          _Step.accounts => _accountsContent(context),
+                          _Step.save => _saveContent(context),
+                        },
+                      ),
                     ),
-                    _Step.currency => _currencyContent(context),
-                    _Step.backup => const BackupWelcomeContent(),
-                    _Step.sms => _SmsContent(denied: _smsDenied),
-                    _Step.accounts => _accountsContent(context),
-                    _Step.save => _saveContent(context),
-                  },
+                  ),
                 ),
               ),
-            ),
-          ),
-        ),
       ),
       switch (step) {
         _Step.welcome => _welcomeBar(),
@@ -871,27 +888,39 @@ class _WelcomeContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final text = theme.textTheme;
+    // The hero floats a little above the middle of the free space, and the
+    // setup list rests at the bottom.
     return Column(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const HeroSlot(child: AppLogoTile(size: 110)),
-        const SizedBox(height: 24),
-        Text(
-          'Welcome to Simple Money',
-          textAlign: TextAlign.center,
-          style: text.headlineMedium,
-        ),
-        const SizedBox(height: 10),
-        Text(
-          'Know where your money goes. Your data stays on your phone.',
-          textAlign: TextAlign.center,
-          style: text.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-            height: 1.5,
+        Expanded(
+          child: Align(
+            alignment: const Alignment(0, -.25),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const HeroSlot(child: AppLogoTile(size: 120)),
+                const SizedBox(height: 28),
+                Text(
+                  'Welcome to Simple Money',
+                  textAlign: TextAlign.center,
+                  style: text.headlineMedium,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Know where your money goes. Your data stays on your phone.',
+                  textAlign: TextAlign.center,
+                  style: text.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 24),
         MenuGroup(
           label: 'Quick setup',
           children: [
@@ -921,6 +950,8 @@ class _WelcomeContent extends StatelessWidget {
               ),
           ],
         ),
+        // Air between the list and the button below.
+        const SizedBox(height: 12),
       ],
     );
   }
