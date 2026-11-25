@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -78,12 +81,41 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
   void initState() {
     super.initState();
     widget.sync?.addListener(_load);
-    _load();
+    _loadAfterTransition();
+  }
+
+  Animation<double>? _routeAnimation;
+  AnimationStatusListener? _routeListener;
+
+  /// Reading the history and building its rows while the page is still
+  /// sliding in makes the slide stutter, so the first load waits for it.
+  void _loadAfterTransition() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final animation = ModalRoute.of(context)?.animation;
+      if (animation == null || animation.isCompleted) {
+        _load();
+        return;
+      }
+      _routeAnimation = animation;
+      _routeListener = (status) {
+        if (status == AnimationStatus.completed ||
+            status == AnimationStatus.dismissed) {
+          animation.removeStatusListener(_routeListener!);
+          _routeListener = null;
+          if (mounted) _load();
+        }
+      };
+      animation.addStatusListener(_routeListener!);
+    });
   }
 
   @override
   void dispose() {
     widget.sync?.removeListener(_load);
+    if (_routeListener != null) {
+      _routeAnimation?.removeStatusListener(_routeListener!);
+    }
     super.dispose();
   }
 
@@ -320,12 +352,27 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
         groups.last.$2.add(item);
       }
     }
-    return ListView(
+    // An ungrouped list (by amount) would be one card of every row; cut it
+    // into cards of a screenful so they can be built as they scroll into view.
+    const cardRows = 20;
+    final cards = <(DateTime?, List<Object>)>[
+      for (final (day, items) in groups)
+        if (day == null && items.length > cardRows)
+          for (var i = 0; i < items.length; i += cardRows)
+            (null, items.sublist(i, math.min(i + cardRows, items.length)))
+        else
+          (day, items),
+    ];
+    final empty = cards.isEmpty ? 1 : 0;
+    // Built lazily: a long history would otherwise build every row on
+    // opening the page, and stutter the transition.
+    return ListView.builder(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
-      children: [
-        if (groups.isEmpty)
-          Padding(
+      itemCount: empty + cards.length + (_more ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (empty == 1 && index == 0) {
+          return Padding(
             padding: const EdgeInsets.only(top: 48),
             child: Text(
               filter == _Filter.all
@@ -336,43 +383,46 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-          ),
-        for (final (day, items) in groups)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 22),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (day != null) TransactionDayHeader(date: day),
-                MoneyCard(
-                  padding: EdgeInsets.zero,
-                  child: Material(
-                    type: MaterialType.transparency,
-                    child: Column(
-                      children: [
-                        for (final (i, item) in items.indexed) ...[
-                          if (i > 0) const Divider(height: 1),
-                          switch (item) {
-                            RecordChange change => _changeRow(change),
-                            SyncActivity event => _EventRow(event: event),
-                            _ => const SizedBox.shrink(),
-                          },
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        if (_more)
-          Center(
+          );
+        }
+        final at = index - empty;
+        if (at >= cards.length) {
+          return Center(
             child: TextButton(
               onPressed: _loadOlder,
               child: const Text('Show older changes'),
             ),
+          );
+        }
+        final (day, items) = cards[at];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 22),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (day != null) TransactionDayHeader(date: day),
+              MoneyCard(
+                padding: EdgeInsets.zero,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Column(
+                    children: [
+                      for (final (i, item) in items.indexed) ...[
+                        if (i > 0) const Divider(height: 1),
+                        switch (item) {
+                          RecordChange change => _changeRow(change),
+                          SyncActivity event => _EventRow(event: event),
+                          _ => const SizedBox.shrink(),
+                        },
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-      ],
+        );
+      },
     );
   }
 
