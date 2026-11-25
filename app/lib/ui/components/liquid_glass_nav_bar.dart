@@ -530,17 +530,15 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                     // A lit hairline, brightest along the top, like the
                     // glass discs; it fades with the pill under a press.
                     child: aurora && press < 1
-                        ? Opacity(
-                            opacity: 1 - press,
-                            child: DecoratedBox(
-                              position: DecorationPosition.foreground,
-                              decoration: GlassRim(
-                                dark: true,
-                                solid: false,
-                                radius: BorderRadius.circular(_pillRadius),
-                              ),
-                              child: const SizedBox.expand(),
+                        ? DecoratedBox(
+                            position: DecorationPosition.foreground,
+                            decoration: GlassRim(
+                              dark: true,
+                              solid: false,
+                              opacity: 1 - press,
+                              radius: BorderRadius.circular(_pillRadius),
                             ),
+                            child: const SizedBox.expand(),
                           )
                         : null,
                   ),

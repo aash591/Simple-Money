@@ -267,10 +267,14 @@ class GlassRim extends Decoration {
     required this.dark,
     required this.solid,
     required this.radius,
+    this.opacity = 1,
   });
   final bool dark;
   final bool solid;
   final BorderRadius radius;
+
+  /// Fades the whole rim without an offscreen layer.
+  final double opacity;
 
   @override
   BoxPainter createBoxPainter([VoidCallback? onChanged]) =>
@@ -291,10 +295,11 @@ class _GlassRimPainter extends BoxPainter {
         ? (.05, .16, .06, .04)
         : (.08, .6, .18, .22);
     // The falloff of an 8dp stroke blurred by sigma 4, clipped to the pill.
+    final fade = rim.opacity;
     paintInnerGlow(
       canvas,
       shape,
-      opacity: glow,
+      opacity: glow * fade,
       falloff: const [.67, .56, .39, .22, .11, .04],
     );
     canvas.drawRRect(
@@ -306,9 +311,9 @@ class _GlassRimPainter extends BoxPainter {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Colors.white.withValues(alpha: top),
-            Colors.white.withValues(alpha: middle),
-            Colors.white.withValues(alpha: bottom),
+            Colors.white.withValues(alpha: top * fade),
+            Colors.white.withValues(alpha: middle * fade),
+            Colors.white.withValues(alpha: bottom * fade),
           ],
           stops: const [0, .5, 1],
         ).createShader(rect),

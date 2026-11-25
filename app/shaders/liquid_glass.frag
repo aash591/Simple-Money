@@ -90,12 +90,15 @@ vec4 backdrop(vec2 coord) {
   const mat2 golden = mat2(-0.7373688, 0.6754903, -0.6754903, -0.7373688);
   vec4 sum = vec4(0.0);
   float total = 0.0;
+  // exp(-d^2 / 2) with d = sqrt(t) * 2.5 sigmas, t = (i + 0.5) / 16. Each
+  // weight is the last one times a constant step, so no exp in the loop.
+  const float falloff = 0.822580;  // exp(-3.125 / 16)
+  float weight = 0.906961;         // exp(-3.125 * 0.5 / 16)
   for (int i = 0; i < 16; i++) {
     float t = (float(i) + 0.5) / 16.0;
-    // exp(-d^2 / 2) with d = sqrt(t) * 2.5 sigmas.
-    float weight = exp(-3.125 * t);
     sum += texture(u_backdrop, uv + dir * sqrt(t) * reach) * weight;
     total += weight;
+    weight *= falloff;
     dir = golden * dir;
   }
   return sum / total;

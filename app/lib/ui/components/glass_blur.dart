@@ -74,7 +74,7 @@ class FrostImages {
   factory FrostImages.of(ui.Image backdrop, Size size, double ratio) =>
       FrostImages._(
         size,
-        blurredCopy(backdrop, ratio, cardSigma),
+        blurredCopyExact(backdrop, ratio, cardSigma, scale: .25),
         blurredCopy(backdrop, ratio, controlSigma),
       );
 
