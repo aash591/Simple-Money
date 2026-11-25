@@ -909,7 +909,7 @@ class _WelcomeContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Know where your money goes. Your data stays on your phone.',
+                  'See where your money goes and stay on top of your budget.',
                   textAlign: TextAlign.center,
                   style: text.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
