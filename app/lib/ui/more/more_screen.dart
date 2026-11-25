@@ -393,16 +393,14 @@ class _ProfileCard extends StatelessWidget {
         _Avatar(pictureUrl: picture),
         const SizedBox(height: 18),
         Text(name ?? 'Your profile', style: text.titleLarge),
-        const SizedBox(height: 7),
-        Text(
-          email ??
-              (loading
-                  ? 'Your money stays on this device'
-                  : 'Sign in to keep a live backup of your data '
-                        'in Google Drive'),
-          textAlign: TextAlign.center,
-          style: text.bodySmall?.copyWith(fontSize: 13, height: 1.5),
-        ),
+        if (email != null) ...[
+          const SizedBox(height: 7),
+          Text(
+            email,
+            textAlign: TextAlign.center,
+            style: text.bodySmall?.copyWith(fontSize: 13, height: 1.5),
+          ),
+        ],
         const SizedBox(height: 16),
         Material(
           color: Colors.transparent,
