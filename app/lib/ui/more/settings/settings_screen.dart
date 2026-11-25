@@ -47,40 +47,53 @@ class SettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(18, 24, 18, 32),
         children: [
           MenuGroup(
-            label: 'General',
+            label: 'Preferences',
             children: [
-              ListenableBuilder(
-                listenable: VibrationSettings.instance,
-                builder: (context, _) => MenuSwitchRow(
-                  icon: Icons.vibration_rounded,
-                  title: 'Vibrations',
-                  subtitle: VibrationSettings.instance.enabled
-                      ? 'Enabled'
-                      : 'Disabled',
-                  value: VibrationSettings.instance.enabled,
-                  onChanged: VibrationSettings.instance.saving
-                      ? null
-                      : (value) async {
-                          try {
-                            await VibrationSettings.instance.setEnabled(value);
-                          } catch (_) {
-                            if (context.mounted) {
-                              showAppToast(
-                                context,
-                                'Could not save this setting. Try again.',
-                              );
-                            }
-                          }
-                        },
+              if (MainCurrencyScope.maybeOf(context) case final currency?)
+                MenuRow(
+                  icon: Icons.currency_exchange_rounded,
+                  title: 'Main currency',
+                  subtitle: currency.code,
+                  onTap: () => Navigator.of(context).push(
+                    FeatureRoute<void>(
+                      MainCurrencyScreen(controller: currency),
+                    ),
+                  ),
                 ),
+              if (currentHomeLayout != null)
+                ListenableBuilder(
+                  listenable: currentHomeLayout,
+                  builder: (context, _) => MenuRow(
+                    icon: Icons.dashboard_customize_rounded,
+                    title: 'Home screen cards',
+                    subtitle:
+                        '${currentHomeLayout.visible.length} of '
+                        '${currentHomeLayout.order.length} shown',
+                    onTap: () => Navigator.of(context).push(
+                      FeatureRoute<void>(
+                        HomeLayoutScreen(layout: currentHomeLayout),
+                      ),
+                    ),
+                  ),
+                ),
+              MenuRow(
+                icon: Icons.palette_rounded,
+                title: 'Customization',
+                onTap: () => _openCustomization(context),
               ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          MenuGroup(
+            label: 'Alerts & shortcuts',
+            children: [
               ListenableBuilder(
                 listenable: DailyReminders.instance,
                 builder: (context, _) => MenuSwitchRow(
                   icon: Icons.notifications_active_rounded,
                   title: 'Daily reminders',
                   subtitle: DailyReminders.instance.enabled
-                      ? 'Every day at 8 pm and 10 pm'
+                      ? '8 pm and 10 pm'
                       : 'Off',
                   value: DailyReminders.instance.enabled,
                   onChanged: DailyReminders.instance.saving
@@ -99,15 +112,34 @@ class SettingsScreen extends StatelessWidget {
                         },
                 ),
               ),
+              ListenableBuilder(
+                listenable: VibrationSettings.instance,
+                builder: (context, _) => MenuSwitchRow(
+                  icon: Icons.vibration_rounded,
+                  title: 'Vibrations',
+                  value: VibrationSettings.instance.enabled,
+                  onChanged: VibrationSettings.instance.saving
+                      ? null
+                      : (value) async {
+                          try {
+                            await VibrationSettings.instance.setEnabled(value);
+                          } catch (_) {
+                            if (context.mounted) {
+                              showAppToast(
+                                context,
+                                'Could not save this setting. Try again.',
+                              );
+                            }
+                          }
+                        },
+                ),
+              ),
               if (currentUpiSettings != null)
                 ListenableBuilder(
                   listenable: currentUpiSettings,
                   builder: (context, _) => MenuSwitchRow(
                     icon: Icons.qr_code_scanner_rounded,
                     title: 'Google Pay option',
-                    subtitle:
-                        'Adds an option to launch Google Pay from the '
-                        'transaction menu',
                     value: currentUpiSettings.enabled,
                     onChanged:
                         currentUpiSettings.loading || currentUpiSettings.saving
@@ -126,41 +158,6 @@ class SettingsScreen extends StatelessWidget {
                           },
                   ),
                 ),
-              if (MainCurrencyScope.maybeOf(context) case final currency?)
-                MenuRow(
-                  icon: Icons.currency_exchange_rounded,
-                  title: 'Main currency',
-                  subtitle:
-                      '${currency.code} · Combined balances and summaries',
-                  onTap: () => Navigator.of(context).push(
-                    FeatureRoute<void>(
-                      MainCurrencyScreen(controller: currency),
-                    ),
-                  ),
-                ),
-              if (currentHomeLayout != null)
-                ListenableBuilder(
-                  listenable: currentHomeLayout,
-                  builder: (context, _) => MenuRow(
-                    icon: Icons.dashboard_customize_rounded,
-                    title: 'Home screen cards',
-                    subtitle:
-                        'Reorder, show or hide cards and charts · '
-                        '${currentHomeLayout.visible.length} of '
-                        '${currentHomeLayout.order.length} shown',
-                    onTap: () => Navigator.of(context).push(
-                      FeatureRoute<void>(
-                        HomeLayoutScreen(layout: currentHomeLayout),
-                      ),
-                    ),
-                  ),
-                ),
-              MenuRow(
-                icon: Icons.palette_rounded,
-                title: 'Customization',
-                subtitle: 'Theme, dark mode style and accent color',
-                onTap: () => _openCustomization(context),
-              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -170,7 +167,6 @@ class SettingsScreen extends StatelessWidget {
               MenuRow(
                 icon: Icons.cloud_rounded,
                 title: 'Sync',
-                subtitle: 'Keep your data safe on Google Drive',
                 onTap: () => Navigator.of(context).push(
                   FeatureRoute<void>(SyncScreen(controller: syncController)),
                 ),
@@ -178,7 +174,6 @@ class SettingsScreen extends StatelessWidget {
               MenuRow(
                 icon: Icons.folder_rounded,
                 title: 'Your data',
-                subtitle: 'Export, import or delete your data',
                 onTap: () => Navigator.of(context).push(
                   FeatureRoute<void>(DataScreen(controller: syncController)),
                 ),
@@ -186,7 +181,6 @@ class SettingsScreen extends StatelessWidget {
               MenuRow(
                 icon: Icons.lock_rounded,
                 title: 'Security',
-                subtitle: 'Protect your app with device authentication',
                 onTap: () =>
                     Navigator.of(context)
                         .push(FeatureRoute<void>(const SecurityScreen())),
@@ -200,7 +194,6 @@ class SettingsScreen extends StatelessWidget {
               MenuRow(
                 icon: Icons.help_rounded,
                 title: 'Help',
-                subtitle: 'FAQ, reports and community',
                 onTap: () =>
                     Navigator.of(context)
                         .push(FeatureRoute<void>(const HelpScreen())),
@@ -208,7 +201,6 @@ class SettingsScreen extends StatelessWidget {
               MenuRow(
                 icon: Icons.info_rounded,
                 title: 'About SimpleMoney',
-                subtitle: 'Simple by design. Yours by default.',
                 onTap: () =>
                     Navigator.of(context)
                         .push(FeatureRoute<void>(const AboutScreen())),
