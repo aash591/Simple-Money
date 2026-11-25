@@ -207,7 +207,6 @@ class MoreScreen extends StatelessWidget {
                     MenuRow(
                       icon: Icons.account_balance_wallet_rounded,
                       title: 'Accounts',
-                      subtitle: 'Cash, banks, and everything in between',
                       onTap: () => Navigator.of(context).push(
                         FeatureRoute<void>(
                           AccountsScreen(
@@ -220,7 +219,6 @@ class MoreScreen extends StatelessWidget {
                     MenuRow(
                       icon: Icons.category_rounded,
                       title: 'Categories',
-                      subtitle: 'Give every transaction a place',
                       onTap: () => Navigator.of(context).push(
                         FeatureRoute<void>(
                           CategoriesScreen(store: categoryStore),
@@ -231,7 +229,7 @@ class MoreScreen extends StatelessWidget {
                       MenuRow(
                         icon: Icons.autorenew_rounded,
                         title: 'Recurring payments',
-                        subtitle: 'Netflix, gym, and everything that renews',
+                        subtitle: 'Subscriptions and bills',
                         onTap: () => Navigator.of(context).push(
                           FeatureRoute<void>(
                             RecurringPaymentsScreen(
@@ -244,7 +242,7 @@ class MoreScreen extends StatelessWidget {
                       MenuRow(
                         icon: Icons.handshake_rounded,
                         title: 'Debts',
-                        subtitle: 'Who owes you, and who you owe',
+                        subtitle: 'Lent and borrowed',
                         onTap: () => Navigator.of(context).push(
                           FeatureRoute<void>(DebtsScreen(store: debtStore!)),
                         ),
@@ -253,7 +251,6 @@ class MoreScreen extends StatelessWidget {
                       MenuRow(
                         icon: Icons.account_balance_rounded,
                         title: 'Loans',
-                        subtitle: 'EMIs, interest, and what is left to pay',
                         onTap: () => Navigator.of(context).push(
                           FeatureRoute<void>(LoansScreen(store: loanStore!)),
                         ),
@@ -262,7 +259,6 @@ class MoreScreen extends StatelessWidget {
                       MenuRow(
                         icon: Icons.show_chart_rounded,
                         title: 'Portfolio',
-                        subtitle: 'Your long-term assets, by account',
                         onTap: () => Navigator.of(context).push(
                           FeatureRoute<void>(
                             PortfolioScreen(
