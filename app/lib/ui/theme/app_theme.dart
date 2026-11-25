@@ -12,8 +12,8 @@ bool usesAurora(BuildContext context) =>
 bool usesGlass(BuildContext context) =>
     Theme.of(context).extension<AppChrome>()?.style != AppStyle.simple;
 
-/// Ink: the app is neutral, and the primary action is black (white on dark).
-const accent = Color(0xff18181b);
+/// The brand purple.
+const accent = Color(0xff8055e8);
 const green = Color(0xff2f9e6e);
 const coral = Color(0xffe5484d);
 
@@ -75,11 +75,8 @@ ThemeData appTheme(
   bool black = false,
   AppStyle style = AppStyle.glassy,
 }) {
+  final accent = accentColor;
   final dark = brightness == Brightness.dark;
-  // A near-black accent would vanish on a dark page, so it flips to white.
-  final accent = dark && accentColor.computeLuminance() < .05
-      ? const Color(0xfff2f2f4)
-      : accentColor;
   final simple = style == AppStyle.simple;
   // Aurora's dark surfaces lean navy with a breath of the accent, so sheets,
   // pills and discs belong to the same page as the glowing backdrop instead

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const lightPageBackground = Color(0xfff5f5f6);
+const lightPageBackground = Color(0xffececef);
 const appCardRadius = 24.0;
 const appCardGap = 28.0;
 
