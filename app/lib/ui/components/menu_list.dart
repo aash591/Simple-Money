@@ -5,7 +5,7 @@ import '../theme/app_theme.dart' show usesAurora;
 import 'empty_art.dart';
 import 'glass_surface.dart';
 
-const _tileSize = 40.0;
+const _tileSize = 36.0;
 const _rowPadding = 16.0;
 const _tileGap = 14.0;
 
@@ -139,7 +139,7 @@ class MenuRow extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: _rowPadding,
-            vertical: subtitle == null ? 14 : 13,
+            vertical: subtitle == null ? 10 : 11,
           ),
           child: Row(
             children: [
