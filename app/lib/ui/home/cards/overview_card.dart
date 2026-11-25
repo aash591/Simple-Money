@@ -138,12 +138,15 @@ class OverviewCard extends StatelessWidget {
     } else {
       text =
           "Spent ${(data.spent / income * 100).round()}% of this month's income";
-      color = net >= 0 ? green : coral;
+      // Quiet grey while on track; only an overspend gets a colour.
+      color = net >= 0 ? theme.colorScheme.onSurfaceVariant : coral;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: .14),
+        color: color == coral
+            ? color.withValues(alpha: .10)
+            : theme.colorScheme.onSurface.withValues(alpha: .06),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -216,10 +219,11 @@ class OverviewCard extends StatelessWidget {
                 if (spentShare > 0)
                   Expanded(
                     flex: (spentShare * 1000).round().clamp(1, 1000),
-                    child: const DecoratedBox(
+                    child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: coral,
-                        borderRadius: BorderRadius.all(Radius.circular(3)),
+                        // Ink while on track, coral only once it passes the income.
+                        color: spent > income ? coral : colors.onSurface,
+                        borderRadius: const BorderRadius.all(Radius.circular(3)),
                       ),
                     ),
                   ),
@@ -227,10 +231,10 @@ class OverviewCard extends StatelessWidget {
                 if (spentShare < 1)
                   Expanded(
                     flex: ((1 - spentShare) * 1000).round().clamp(1, 1000),
-                    child: const DecoratedBox(
+                    child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: green,
-                        borderRadius: BorderRadius.all(Radius.circular(3)),
+                        color: colors.onSurface.withValues(alpha: .10),
+                        borderRadius: const BorderRadius.all(Radius.circular(3)),
                       ),
                     ),
                   ),
@@ -357,7 +361,8 @@ class _Flow extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: color),
+            // Neutral: the figures carry the meaning, not the arrows.
+            Icon(icon, size: 14, color: theme.colorScheme.onSurfaceVariant),
             const SizedBox(width: 4),
             Flexible(
               child: Text(
