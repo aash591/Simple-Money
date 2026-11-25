@@ -9,6 +9,9 @@ const _tileSize = 36.0;
 const _rowPadding = 16.0;
 const _tileGap = 14.0;
 
+/// Aurora's glass artwork, drawn bigger than the tile it sits in.
+const _artSize = 46.0;
+
 /// A card of [MenuRow]s under an optional small [label], with a divider
 /// between rows that starts where their text does.
 class MenuGroup extends StatelessWidget {
@@ -80,8 +83,12 @@ class MenuIconTile extends StatelessWidget {
     if (art != null) {
       return SizedBox.square(
         dimension: _tileSize,
-        child: Center(
-          child: EmptyArtwork(art, size: menuArtSize, tint: tint),
+        // The glass artwork has soft empty edges, so it is drawn larger than
+        // the tile; it overflows into the row's padding, not its height.
+        child: OverflowBox(
+          maxWidth: _artSize,
+          maxHeight: _artSize,
+          child: EmptyArtwork(art, size: _artSize, tint: tint),
         ),
       );
     }
