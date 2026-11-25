@@ -164,6 +164,15 @@ class MoreScreen extends StatelessWidget {
         : ListenableBuilder(listenable: session, builder: (_, _) => row());
   }
 
+  Widget _proRow(BuildContext context) => MenuRow(
+    icon: Icons.workspace_premium_rounded,
+    tint: const Color(0xfff2a900),
+    highlight: true,
+    title: 'SimpleMoney Pro',
+    onTap: () =>
+        Navigator.of(context).push(FeatureRoute<void>(const ProScreen())),
+  );
+
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
@@ -195,6 +204,17 @@ class MoreScreen extends StatelessWidget {
                   child: _ProfileCard(sync: syncController, text: text),
                 ),
                 const SizedBox(height: appCardGap),
+                // A slim row under the profile while Pro is on offer; once
+                // bought, it moves down to the App group.
+                ListenableBuilder(
+                  listenable: ProController.instance,
+                  builder: (context, _) => ProController.instance.isPro
+                      ? const SizedBox.shrink()
+                      : Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: MenuGroup(children: [_proRow(context)]),
+                        ),
+                ),
                 MenuGroup(
                   label: 'Money',
                   children: [
@@ -330,15 +350,9 @@ class MoreScreen extends StatelessWidget {
                     ),
                     ListenableBuilder(
                       listenable: ProController.instance,
-                      builder: (context, _) => MenuRow(
-                        icon: Icons.workspace_premium_rounded,
-                        tint: const Color(0xfff2a900),
-                        highlight: true,
-                        title: 'SimpleMoney Pro',
-                        onTap: () =>
-                            Navigator.of(context)
-                                .push(FeatureRoute<void>(const ProScreen())),
-                      ),
+                      builder: (context, _) => ProController.instance.isPro
+                          ? _proRow(context)
+                          : const SizedBox.shrink(),
                     ),
                   ],
                 ),
