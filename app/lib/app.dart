@@ -44,7 +44,6 @@ import 'dart:async' show unawaited;
 
 import 'data/daily_reminders.dart';
 import 'ui/components/empty_art.dart' show EmptyArtWarmup;
-import 'ui/components/scroll_edge_haptics.dart';
 import 'data/backup/sync_repository.dart';
 import 'ui/components/feature_page.dart';
 import 'ui/welcome/onboarding_screen.dart';
@@ -379,17 +378,15 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
               layout: _homeLayout,
               child: MainCurrencyScope(
                 controller: _mainCurrency,
-                child: ScrollEdgeHaptics(
-                  child: LoanStoreScope(
-                    store: _loans,
-                    child: DebtStoreScope(
-                      store: _debts,
-                      child: HoldingStoreScope(
-                        store: _holdings,
-                        child: AppLockGate(
-                          controller: _security,
-                          child: EmptyArtWarmup(child: child!),
-                        ),
+                child: LoanStoreScope(
+                  store: _loans,
+                  child: DebtStoreScope(
+                    store: _debts,
+                    child: HoldingStoreScope(
+                      store: _holdings,
+                      child: AppLockGate(
+                        controller: _security,
+                        child: EmptyArtWarmup(child: child!),
                       ),
                     ),
                   ),

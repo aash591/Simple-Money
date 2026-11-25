@@ -6,7 +6,6 @@ import 'package:simple_money/ui/components/menu_list.dart';
 import 'package:simple_money/state/vibration_settings.dart';
 import 'package:simple_money/ui/more/settings/settings_screen.dart';
 import 'package:simple_money/ui/components/number_keypad.dart';
-import 'package:simple_money/ui/components/scroll_edge_haptics.dart';
 
 void main() {
   final feedback = <Object?>[];
@@ -99,55 +98,4 @@ void main() {
     expect(digits, '12');
     expect(feedback, isEmpty);
   });
-
-  for (final physics in <ScrollPhysics>[
-    const ClampingScrollPhysics(),
-    const BouncingScrollPhysics(),
-  ]) {
-    testWidgets('scroll edges tick once with ${physics.runtimeType}', (
-      tester,
-    ) async {
-      final controller = ScrollController();
-      addTearDown(controller.dispose);
-      await tester.pumpWidget(
-        MaterialApp(
-          home: ScrollEdgeHaptics(
-            child: ListView.builder(
-              controller: controller,
-              physics: physics,
-              itemExtent: 60,
-              itemCount: 40,
-              itemBuilder: (_, index) => Text('Row $index'),
-            ),
-          ),
-        ),
-      );
-      controller.jumpTo(100);
-      await tester.pumpAndSettle();
-      expect(feedback, isEmpty);
-      final gesture = await tester.startGesture(const Offset(200, 200));
-      await gesture.moveBy(const Offset(0, 200));
-      await tester.pump();
-      await gesture.moveBy(const Offset(0, 60));
-      await tester.pump();
-      await gesture.up();
-      await tester.pumpAndSettle();
-      expect(feedback, ['softTick']);
-      controller.jumpTo(controller.position.maxScrollExtent);
-      await tester.pumpAndSettle();
-      expect(feedback.length, 1);
-      // Ticks closer than 600 ms (wall clock) are merged into one.
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 650)),
-      );
-      await tester.drag(find.byType(ListView), const Offset(0, -150));
-      await tester.pumpAndSettle();
-      expect(feedback.length, 2);
-      await VibrationSettings.instance.setEnabled(false);
-      feedback.clear();
-      await tester.drag(find.byType(ListView), const Offset(0, -150));
-      await tester.pumpAndSettle();
-      expect(feedback, isEmpty);
-    });
-  }
 }
