@@ -10,8 +10,8 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_money/data/issue_report.dart';
 import 'package:simple_money/ui/components/action_buttons.dart';
-import 'package:simple_money/ui/more/help/help_screen.dart';
-import 'package:simple_money/ui/more/help/report_issue_screen.dart';
+import 'package:simple_money/ui/more/settings/help/help_screen.dart';
+import 'package:simple_money/ui/more/settings/help/report_issue_screen.dart';
 import 'package:simple_money/ui/theme/app_theme.dart';
 
 base class _Picked extends PlatformFile {

@@ -23,13 +23,12 @@ import '../components/feature_page.dart';
 import '../components/status_bar_blur_scope.dart';
 import 'activity/activity_log_screen.dart';
 import 'debts/debts_screen.dart';
-import 'about/about_screen.dart';
 import '../../data/agent/ai_session.dart';
 import 'ai/ai_assistant_screen.dart';
 import 'ai/ai_suggestions_screen.dart';
-import 'help/help_screen.dart';
 import 'pro/pro_screen.dart';
 import 'settings/settings_screen.dart';
+import 'smart_tracking/smart_tracking_screen.dart';
 import '../../state/holding_store.dart';
 import 'accounts/accounts_screen.dart';
 import 'portfolio/portfolio_screens.dart';
@@ -89,22 +88,87 @@ class MoreScreen extends StatelessWidget {
   void _openAi(BuildContext context) => Navigator.of(context).push(
     FeatureRoute<void>(
       aiSession != null
-          ? AiAssistantScreen(
-              controller: aiSession!,
-              onLedgerChanged: onLedgerChanged,
-              onRulesChanged: onRulesChanged,
-              onLayoutApproved: _offerImport,
-              community: community,
-            )
-          : AiSuggestionsScreen(
-              database: transactionStore.repository.database,
-              onLedgerChanged: onLedgerChanged,
-              onRulesChanged: onRulesChanged,
-              onLayoutApproved: _offerImport,
-              community: community,
-            ),
+          ? AiAssistantScreen(controller: aiSession!)
+          : _suggestionsScreen(),
     ),
   );
+
+  Widget _suggestionsScreen() => AiSuggestionsScreen(
+    database: aiSession?.database ?? transactionStore.repository.database,
+    onLedgerChanged: onLedgerChanged,
+    onRulesChanged: onRulesChanged,
+    onLayoutApproved: _offerImport,
+    community: community,
+  );
+
+  /// More › AI suggestions: what Claude or ChatGPT suggested, waiting for a yes.
+  Future<void> _openSuggestions(BuildContext context) async {
+    await Navigator.of(context).push(FeatureRoute<void>(_suggestionsScreen()));
+    await aiSession?.refreshSuggestions();
+  }
+
+  /// More › Smart tracking, saying whether SMS reading is on.
+  Widget _trackingRow(BuildContext context) {
+    Widget row() => MenuRow(
+      icon: Icons.sms_rounded,
+      title: 'Smart tracking',
+      subtitle: switch (smsStore) {
+        final sms? when sms.supported =>
+          sms.enabled ? 'Reading bank SMS' : 'Off · no SMS are read',
+        _ => 'Fixes shared by other people',
+      },
+      onTap: () => Navigator.of(context).push(
+        FeatureRoute<void>(
+          SmartTrackingScreen(
+            smsStore: smsStore,
+            community: community,
+            database: transactionStore.repository.database,
+            onRulesChanged: onRulesChanged,
+            onTeach: () => _openAi(context),
+          ),
+        ),
+      ),
+    );
+    final sms = smsStore;
+    return sms == null
+        ? row()
+        : ListenableBuilder(listenable: sms, builder: (_, _) => row());
+  }
+
+  Widget _suggestionsRow(BuildContext context) {
+    Widget row() {
+      final count = aiSession?.pendingSuggestions ?? 0;
+      return MenuRow(
+        icon: Icons.task_alt_rounded,
+        title: 'AI suggestions',
+        subtitle: count == 0 ? 'Nothing waiting' : '$count to review',
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (count > 0) ...[
+              Badge.count(
+                count: count,
+                backgroundColor: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 6),
+            ],
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 22,
+              color: Theme.of(context).colorScheme.onSurfaceVariant
+                  .withValues(alpha: .8),
+            ),
+          ],
+        ),
+        onTap: () => _openSuggestions(context),
+      );
+    }
+
+    final session = aiSession;
+    return session == null
+        ? row()
+        : ListenableBuilder(listenable: session, builder: (_, _) => row());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -216,6 +280,11 @@ class MoreScreen extends StatelessWidget {
                 MenuGroup(
                   label: 'Tools',
                   children: [
+                    // Ways transactions come in, then the AI pair: the assistant
+                    // and the suggestions it leaves for a yes. The More tab's dot
+                    // says when one is waiting, wherever the row is.
+                    if (SmartTrackingScreen.offered(smsStore, community))
+                      _trackingRow(context),
                     if (syncController != null)
                       MenuRow(
                         icon: Icons.file_download_rounded,
@@ -232,10 +301,11 @@ class MoreScreen extends StatelessWidget {
                       ),
                     MenuRow(
                       icon: Icons.auto_awesome_rounded,
-                      title: 'AI assistant',
-                      subtitle: 'Claude and ChatGPT, with your approval',
+                      title: 'Claude / ChatGPT',
+                      subtitle: 'Connect through MCP',
                       onTap: () => _openAi(context),
                     ),
+                    _suggestionsRow(context),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -245,14 +315,14 @@ class MoreScreen extends StatelessWidget {
                     MenuRow(
                       icon: Icons.settings_rounded,
                       title: 'Settings',
-                      subtitle: 'Sync, customization, security and your data',
+                      subtitle: 'Sync, customization, security, help and about',
                       onTap: () => Navigator.of(context).push(
                         FeatureRoute<void>(
                           SettingsScreen(
                             syncController: syncController,
                             upiSettings: upi,
                             homeLayout: homeLayout,
-                            smsStore: smsStore,
+                            database: transactionStore.repository.database,
                           ),
                         ),
                       ),
@@ -273,26 +343,6 @@ class MoreScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ),
-                    MenuRow(
-                      icon: Icons.help_rounded,
-                      title: 'Help',
-                      subtitle: 'FAQ, reports and community',
-                      onTap: () => Navigator.of(context).push(
-                        FeatureRoute<void>(
-                          HelpScreen(
-                            database: transactionStore.repository.database,
-                          ),
-                        ),
-                      ),
-                    ),
-                    MenuRow(
-                      icon: Icons.info_rounded,
-                      title: 'About SimpleMoney',
-                      subtitle: 'Simple by design. Yours by default.',
-                      onTap: () =>
-                          Navigator.of(context)
-                              .push(FeatureRoute<void>(const AboutScreen())),
                     ),
                     ListenableBuilder(
                       listenable: ProController.instance,

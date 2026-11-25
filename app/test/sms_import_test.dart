@@ -466,7 +466,9 @@ void main() {
         await store.review.count(const SmsReviewFilter(search: 'Renamed bank')),
         1,
       );
-      await db.customStatement('UPDATE accounts SET archived_at=1 WHERE id=$bank');
+      await db.customStatement(
+        'UPDATE accounts SET archived_at=1 WHERE id=$bank',
+      );
       await store.reload();
       expect(store.readyCount, 0);
     },

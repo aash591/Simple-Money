@@ -386,8 +386,7 @@ class SyncEngine {
               (best.encryptionAt ?? 0, best.encryption!),
             );
       // The same choice: its smallest file, to read the key settings from.
-      if (order > 0 ||
-          (order == 0 && (file.rows ?? 0) < (best!.rows ?? 0))) {
+      if (order > 0 || (order == 0 && (file.rows ?? 0) < (best!.rows ?? 0))) {
         newest = file;
       }
     }
@@ -415,8 +414,7 @@ class SyncEngine {
     }
     final waiting = await repository.peerEncryption();
     BackupEncryption? config;
-    if (waiting != null &&
-        encryptionFingerprint(waiting.config) == theirs.$2) {
+    if (waiting != null && encryptionFingerprint(waiting.config) == theirs.$2) {
       config = waiting.config;
     } else {
       config = backupBatchEncryption(await transport.download(newest.id));

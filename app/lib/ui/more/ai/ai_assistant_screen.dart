@@ -1,5 +1,3 @@
-import '../../../data/community/community_fixes.dart';
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -16,31 +14,14 @@ import '../../components/info_guide.dart';
 import '../../components/segmented_pill.dart';
 import '../../components/text_entry_alert.dart';
 import 'ai_assistant_guide.dart';
-import 'ai_suggestions_screen.dart';
-import 'shared_fixes_screen.dart';
 import '../pro/pro_screen.dart';
 import '../../../state/pro_controller.dart';
 
-/// Connect Claude or ChatGPT, run a timed AI session, see connected apps,
-/// and get to the suggestions they made.
+/// Connect Claude or ChatGPT, run a timed AI session and see connected apps.
+/// What they suggest is reviewed from More › AI suggestions.
 class AiAssistantScreen extends StatefulWidget {
-  const AiAssistantScreen({
-    super.key,
-    required this.controller,
-    this.onLedgerChanged,
-    this.onRulesChanged,
-    this.onLayoutApproved,
-    this.community,
-  });
+  const AiAssistantScreen({super.key, required this.controller});
   final AiSessionController controller;
-  final VoidCallback? onLedgerChanged, onRulesChanged;
-
-  /// Offers to import the file an approved statement layout was made for.
-  final Future<void> Function(BuildContext context, String signature)?
-  onLayoutApproved;
-
-  /// Offers to share approved fixes, and lists the shared ones in use.
-  final CommunitySync? community;
 
   @override
   State<AiAssistantScreen> createState() => _AiAssistantScreenState();
@@ -167,7 +148,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: _ai,
     builder: (context, _) => FeaturePage(
-      title: 'AI assistant',
+      title: 'Claude / ChatGPT',
       actions: const [InfoGuideButton(aiAssistantGuide)],
       child: ListView(
         padding: const EdgeInsets.fromLTRB(18, 8, 18, 40),
@@ -196,12 +177,6 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
             SizedBox(height: appCardGap + (_settingUp ? 6 : 0)),
             if (_settingUp) _stepLabel(3, 'Start a session, then ask away'),
             MoneyCard(child: _session(context)),
-            const SizedBox(height: appCardGap),
-            _suggestions(context),
-            if (widget.community != null) ...[
-              const SizedBox(height: appCardGap),
-              _sharedFixes(context, widget.community!),
-            ],
           ],
           if (_error ?? _ai.error case final error?)
             Padding(
@@ -368,82 +343,6 @@ class _AiAssistantScreenState extends State<AiAssistantScreen>
       ],
     );
   }
-
-  Widget _suggestions(BuildContext context) {
-    final count = _ai.pendingSuggestions;
-    return MoneyCard(
-      padding: EdgeInsets.zero,
-      child: Material(
-        type: MaterialType.transparency,
-        borderRadius: BorderRadius.circular(appCardRadius),
-        clipBehavior: Clip.antiAlias,
-        child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 4,
-          ),
-          leading: const IconTile(Icons.auto_awesome_outlined, size: 38),
-          title: const Text('Suggestions'),
-          subtitle: Text(count == 0 ? 'Nothing waiting' : '$count to review'),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (count > 0)
-                Badge.count(
-                  count: count,
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                ),
-              const SizedBox(width: 6),
-              const Icon(Icons.chevron_right_rounded),
-            ],
-          ),
-          onTap: () async {
-            await Navigator.of(context).push(
-              FeatureRoute<void>(
-                AiSuggestionsScreen(
-                  database: _ai.database,
-                  onLedgerChanged: widget.onLedgerChanged,
-                  onRulesChanged: widget.onRulesChanged,
-                  onLayoutApproved: widget.onLayoutApproved,
-                  community: widget.community,
-                ),
-              ),
-            );
-            await _ai.refreshSuggestions();
-          },
-        ),
-      ),
-    );
-  }
-
-  /// Fixes other people shared, in use here.
-  Widget _sharedFixes(BuildContext context, CommunitySync community) =>
-      MoneyCard(
-        padding: EdgeInsets.zero,
-        child: Material(
-          type: MaterialType.transparency,
-          borderRadius: BorderRadius.circular(appCardRadius),
-          clipBehavior: Clip.antiAlias,
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 4,
-            ),
-            leading: const IconTile(Icons.groups_outlined, size: 38),
-            title: const Text('Shared fixes'),
-            subtitle: const Text('From other people, used here'),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => Navigator.of(context).push(
-              FeatureRoute<void>(
-                SharedFixesScreen(
-                  community: community,
-                  onRulesChanged: widget.onRulesChanged,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
 
   /// A step's title, outside and above its block.
   Widget _stepLabel(int number, String text) => Padding(

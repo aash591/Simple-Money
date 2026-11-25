@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 
 import '../../../data/daily_reminders.dart';
+import '../../../data/db/app_database.dart';
 import '../../../state/main_currency_controller.dart';
 import 'main_currency_screen.dart';
 
 import '../../../state/ad_gate.dart';
 import '../../../state/appearance_controller.dart';
 import '../../../state/home_layout.dart';
-import '../../../state/sms_import_store.dart';
 import '../../../state/sync_controller.dart';
 import '../../../state/upi_settings.dart';
 import '../../../state/vibration_settings.dart';
 import '../../components/app_toast.dart';
 import '../../components/menu_list.dart';
 import '../../components/feature_page.dart';
-import '../../welcome/onboarding_screen.dart';
 import '../home_layout_screen.dart';
+import 'about/about_screen.dart';
 import 'customization_screen.dart';
 import 'data/data_screen.dart';
+import 'help/help_screen.dart';
 import 'security_screen.dart';
 import 'sync/sync_screen.dart';
 
@@ -27,41 +28,14 @@ class SettingsScreen extends StatelessWidget {
     this.syncController,
     this.upiSettings,
     this.homeLayout,
-    this.smsStore,
+    this.database,
   });
   final SyncController? syncController;
   final UpiSettings? upiSettings;
   final HomeLayout? homeLayout;
 
-  /// The bank SMS reader; without it (or off Android) there is no switch.
-  final SmsImportStore? smsStore;
-
-  /// Turning it on says what is read, then asks Android. Turning it off stops
-  /// reading at once, including new messages.
-  Future<void> _setSms(
-    BuildContext context,
-    SmsImportStore sms,
-    bool on,
-  ) async {
-    if (!on) {
-      await sms.disable();
-      return;
-    }
-    // The same setup screen as the first run: what is read, the Android
-    // prompt, then the accounts found.
-    await Navigator.of(context).push(
-      FeatureRoute<void>(
-        Builder(
-          builder: (context) => OnboardingScreen(
-            database: sms.repository.database,
-            sms: sms,
-            smsOnly: true,
-            onDone: () => Navigator.of(context).pop(),
-          ),
-        ),
-      ),
-    );
-  }
+  /// The app's database, for screens that read messages with the saved rules.
+  final AppDatabase? database;
 
   @override
   Widget build(BuildContext context) {
@@ -125,21 +99,6 @@ class SettingsScreen extends StatelessWidget {
                         },
                 ),
               ),
-              if (smsStore case final sms? when sms.supported)
-                ListenableBuilder(
-                  listenable: sms,
-                  builder: (context, _) => MenuSwitchRow(
-                    icon: Icons.sms_rounded,
-                    title: 'Transactions from SMS',
-                    subtitle: sms.enabled
-                        ? 'Reading bank SMS to add transactions'
-                        : 'Off · no SMS are read',
-                    value: sms.enabled,
-                    onChanged: sms.busy
-                        ? null
-                        : (value) => _setSms(context, sms, value),
-                  ),
-                ),
               if (currentUpiSettings != null)
                 ListenableBuilder(
                   listenable: currentUpiSettings,
@@ -231,6 +190,28 @@ class SettingsScreen extends StatelessWidget {
                 onTap: () =>
                     Navigator.of(context)
                         .push(FeatureRoute<void>(const SecurityScreen())),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          MenuGroup(
+            label: 'Help & about',
+            children: [
+              MenuRow(
+                icon: Icons.help_rounded,
+                title: 'Help',
+                subtitle: 'FAQ, reports and community',
+                onTap: () =>
+                    Navigator.of(context)
+                        .push(FeatureRoute<void>(const HelpScreen())),
+              ),
+              MenuRow(
+                icon: Icons.info_rounded,
+                title: 'About SimpleMoney',
+                subtitle: 'Simple by design. Yours by default.',
+                onTap: () =>
+                    Navigator.of(context)
+                        .push(FeatureRoute<void>(const AboutScreen())),
               ),
             ],
           ),

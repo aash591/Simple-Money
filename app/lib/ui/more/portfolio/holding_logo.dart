@@ -4,8 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../data/prices/price_sources.dart';
+import '../../../domain/currency_digits.dart';
 import '../../../domain/holding.dart';
 import '../../components/app_icon.dart';
+import '../../components/currency_flag.dart';
 
 /// Where a holding's logo comes from, or null when there is none to find: a
 /// coin's saved logo, else a listed stock or ETF's by its ticker from
@@ -29,6 +31,25 @@ String tickerLogoUrl(String ticker) =>
     'https://financialmodelingprep.com/image-stock/'
     '${Uri.encodeComponent(ticker)}.png';
 
+/// The flag to show for a currency [code], or null when it has none.
+/// Currencies used in many countries get the one people think of: the
+/// first country listed for the dollar is American Samoa.
+String? currencyFlagTerritory(String? code) {
+  final c = code?.trim().toUpperCase() ?? '';
+  return switch (c) {
+    'USD' => 'US',
+    'EUR' => 'EU',
+    'GBP' => 'GB',
+    'AUD' => 'AU',
+    'NZD' => 'NZ',
+    'CHF' => 'CH',
+    'XOF' => 'SN',
+    'XAF' => 'CM',
+    'XCD' => 'AG',
+    _ => currencyTerritories[c]?.firstOrNull,
+  };
+}
+
 /// A holding's logo: a coin round, a company on a light tile. While it loads,
 /// offline, or if none exists it shows the icon for [kind].
 class HoldingLogo extends StatelessWidget {
@@ -38,8 +59,12 @@ class HoldingLogo extends StatelessWidget {
     required this.kind,
     this.size = 36,
     this.iconKey,
+    this.symbol,
   });
   final String? url;
+
+  /// The holding's symbol: for forex, the currency code whose flag is shown.
+  final String? symbol;
 
   /// An icon the person picked, drawn instead of any logo.
   final String? iconKey;
@@ -58,6 +83,16 @@ class HoldingLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     final key = iconKey ?? (kind == HoldingKind.metal ? 'jewelry' : null);
     if (key != null) return AppIcon(key, size: size);
+    if (kind == HoldingKind.forex) {
+      if (currencyFlagTerritory(symbol) case final territory?) {
+        return CurrencyFlag(
+          territory,
+          width: size,
+          height: size,
+          borderRadius: size * .28,
+        );
+      }
+    }
     final scheme = Theme.of(context).colorScheme;
     final coin = kind == HoldingKind.crypto;
     final radius = BorderRadius.circular(coin ? size / 2 : size * .28);

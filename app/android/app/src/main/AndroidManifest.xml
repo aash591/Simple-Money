@@ -43,6 +43,11 @@
             android:permission="android.permission.BROADCAST_SMS">
             <intent-filter><action android:name="android.provider.Telephony.SMS_RECEIVED" /></intent-filter>
         </receiver>
+        <service android:name=".NotificationCaptureService" android:exported="true"
+            android:label="Simple Money"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter><action android:name="android.service.notification.NotificationListenerService" /></intent-filter>
+        </service>
         <receiver android:name=".SmsCategoryReceiver" android:exported="false" />
         <receiver android:name=".UpiPaymentReceiver" android:exported="false" />
         <activity android:name=".SmsNotificationActivity" android:exported="false"

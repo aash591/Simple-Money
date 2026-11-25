@@ -115,8 +115,7 @@ List<DrivePhone> drivePhones(
       phone.legacy.add(file);
     }
   }
-  return phones.values.toList()
-    ..sort((a, b) => b.updated.compareTo(a.updated));
+  return phones.values.toList()..sort((a, b) => b.updated.compareTo(a.updated));
 }
 
 /// The last batch of an older version's unbroken chain from batch 1.

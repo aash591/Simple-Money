@@ -26,6 +26,7 @@ import '../../components/more_popup_button.dart';
 import '../../components/transactions/transaction_day_group.dart';
 import '../../components/transactions/transaction_list_row.dart';
 import '../../theme/sheet_colors.dart';
+import '../../transactions/adjust_balance_sheet.dart';
 import '../../transactions/transaction_sheet.dart';
 import '../../transactions/transaction_widgets.dart';
 import 'add_holding_screen.dart';
@@ -601,11 +602,26 @@ class _BrokerView extends StatelessWidget {
           if (holdings.prices != null) _RefreshButton(store: holdings),
           MorePopupButton<String>(
             fitContent: true,
-            items: const [
-              MorePopupItem(value: 'delete', label: 'Delete account'),
+            items: [
+              // The balance is the Funds figure, so only a place that keeps cash.
+              if (broker.place?.holdsCash ?? true)
+                const MorePopupItem(
+                  value: 'adjust',
+                  label: 'Adjust balance',
+                ),
+              const MorePopupItem(value: 'delete', label: 'Delete account'),
             ],
             onSelected: (action) {
-              if (action == 'delete') _delete(context, broker);
+              if (action == 'adjust') {
+                showAdjustBalanceSheet(
+                  context,
+                  accountStore: accounts,
+                  transactionStore: transactions,
+                  initialAccountId: broker.id,
+                );
+              } else if (action == 'delete') {
+                _delete(context, broker);
+              }
             },
           ),
         ],
@@ -769,6 +785,7 @@ class _HoldingRow extends StatelessWidget {
         holdingLogoUrl(holding),
         kind: holding.kind,
         iconKey: holding.iconKey,
+        symbol: holding.symbol,
       ),
       icon: HoldingLogo.iconFor(holding.kind),
       title: holding.name,
@@ -885,6 +902,7 @@ class HoldingScreen extends StatelessWidget {
           kind: holding.kind,
           size: 32,
           iconKey: holding.iconKey,
+          symbol: holding.symbol,
         ),
         actions: [
           if (holdings.prices != null && holding.canFetchPrice)
@@ -963,25 +981,34 @@ class HoldingScreen extends StatelessWidget {
                             ),
                           ),
                         const SizedBox(height: 12),
-                        _StatRow(
-                          holding.kind == HoldingKind.metal ? 'Grams' : 'Units',
-                          formatUnits(position.unitsE6),
-                        ),
+                        _StatRow(switch (holding.kind) {
+                          HoldingKind.metal => 'Grams',
+                          HoldingKind.forex => 'Amount',
+                          _ => 'Units',
+                        }, formatUnits(position.unitsE6)),
                         _StatRow(
                           'Average cost',
                           average == null
                               ? '—'
                               : formatPrice(
-                                  (average / 100).round() * 100,
+                                  // Whole paise, except a rate under one
+                                  // (a peso in rupees), which needs them all.
+                                  average < priceScale
+                                      ? average
+                                      : (average / 100).round() * 100,
                                   broker,
                                 ),
                         ),
                         _StatRow(
-                          holding.priceDate == null
-                              ? (holding.kind == HoldingKind.metal
-                                    ? 'Price per gram'
-                                    : 'Unit price')
-                              : '${holding.kind == HoldingKind.metal ? 'Price per gram' : 'Unit price'} · ${DateFormat('d MMM').format(holding.priceDate!)}',
+                          [
+                            switch (holding.kind) {
+                              HoldingKind.metal => 'Price per gram',
+                              HoldingKind.forex => 'Rate',
+                              _ => 'Unit price',
+                            },
+                            if (holding.priceDate != null)
+                              DateFormat('d MMM').format(holding.priceDate!),
+                          ].join(' · '),
                           price == null
                               ? '—'
                               : formatPrice(price, broker, currency: code),

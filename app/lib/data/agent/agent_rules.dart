@@ -116,6 +116,8 @@ class AgentRuleLab {
     required List<String> senders,
     required Map<String, dynamic> format,
     required List<RuleSample> samples,
+    // A rule the new one is to replace: left out of the clash check.
+    int? ignoringRuleId,
   }) async {
     if (samples.isEmpty || samples.length > 20) {
       throw ArgumentError('Give 1–20 sample messages.');
@@ -134,7 +136,10 @@ class AgentRuleLab {
     final bundled = await bundledSmsPacks(
       where: (text) => canonical.any((s) => text.contains('"$s"')),
     );
-    final saved = await UserSmsRuleRepository(database).load();
+    final saved = [
+      for (final r in await UserSmsRuleRepository(database).load())
+        if (r.id != ignoringRuleId) r,
+    ];
     final name = _bankName(canonical, bundled, saved, bankName);
     final clean = {...format}
       ..remove('id')
@@ -221,12 +226,20 @@ class AgentRuleLab {
     required Map<String, dynamic> format,
     required List<RuleSample> samples,
     String? reason,
+    // The user chose the account for this sender themselves, so it isn't left
+    // for review.
+    bool accountAssigned = false,
+    // A person teaching by hand may accept choosing the account and category
+    // in review each time; an AI app suggesting a rule may not.
+    bool allowChoosing = false,
+    int? ignoringRuleId,
   }) async {
     final trial = await this.trial(
       bankName: bankName,
       senders: senders,
       format: format,
       samples: samples,
+      ignoringRuleId: ignoringRuleId,
     );
     final missed = [
       for (final (index, r) in trial.results.indexed)
@@ -245,9 +258,9 @@ class AgentRuleLab {
     // suggesting.
     final category = first.category;
     final role = ruleSenderRole(trial.format);
-    final picks = userPicks(first, role);
+    final picks = userPicks(first, role, accountAssigned);
     final knowsCategory = !picks.contains('category');
-    if (picks.length == 2) {
+    if (picks.length == 2 && !allowChoosing) {
       throw ArgumentError(
         role.holdsMoney
             ? 'This SMS names no account and the app can’t tell its category '
@@ -314,6 +327,8 @@ class AgentRuleLab {
   static List<String> userPicks(
     SmsTransactionCandidate c, [
     SmsSenderRole role = SmsSenderRole.bank,
+    // The account was chosen up front, for every message from this sender.
+    bool accountKnown = false,
   ]) {
     final category = c.category;
     final knowsCategory =
@@ -321,7 +336,8 @@ class AgentRuleLab {
         !category.isFallback &&
         category.name.toLowerCase() != 'personal';
     return [
-      if (c.accountLast4 == null || !role.holdsMoney) 'account',
+      if (!accountKnown && (c.accountLast4 == null || !role.holdsMoney))
+        'account',
       if (!knowsCategory) 'category',
     ];
   }

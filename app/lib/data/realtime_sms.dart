@@ -10,6 +10,7 @@ import '../domain/category.dart';
 import '../domain/realtime_sms_category.dart';
 import '../state/sms_import_store.dart';
 import 'db/app_database.dart';
+import 'notification_access_platform.dart';
 import 'repositories/account_repository.dart';
 import 'repositories/category_repository.dart';
 import 'repositories/realtime_sms_repository.dart';
@@ -223,7 +224,11 @@ Future<void> processBackgroundSms() async {
     final data = jsonDecode(raw!) as Map;
     final message = BankSms(
       sender: data['sender'] as String,
-      body: data['body'] as String,
+      // An app's notification is read with a fixed word in front, as it was
+      // taught: see [notificationRuleAnchor].
+      body: data['notification'] == true
+          ? notificationRuleText(data['body'] as String)
+          : data['body'] as String,
       receivedAt: DateTime.fromMillisecondsSinceEpoch(
         data['receivedAt'] as int,
       ),
@@ -242,7 +247,11 @@ Future<void> processBackgroundSms() async {
       roles: await smsSenderRoles(db),
     );
     if (engine != null) {
-      final result = await RealtimeSmsRepository(db).receive(message, engine);
+      final result = await RealtimeSmsRepository(db).receive(
+        message,
+        engine,
+        fromNotification: data['notification'] == true,
+      );
       if (result != null) {
         await showSmsNotification(db, result);
       } else {

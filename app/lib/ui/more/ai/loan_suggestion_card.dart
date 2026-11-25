@@ -303,8 +303,7 @@ class _LoanSuggestionPreviewState extends State<LoanSuggestionPreview> {
             value: updates
                 ? 'Takes ${missing == 1 ? 'the missing payment' : '$missing missing payments'} '
                       'out of ${_paidFrom?.name ?? 'your account'}'
-                : 'Only tracked here. Balances and transactions stay '
-                      'untouched.',
+                : 'Only tracked here',
             on: updates,
             onChanged: widget.onUpdatesBalance,
           ),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import '../../components/common.dart';
-import '../../components/feature_page.dart';
-import '../../../state/app_update.dart';
-import '../../components/menu_list.dart';
-import '../../components/update_sheet.dart';
+import '../../../components/common.dart';
+import '../../../components/feature_page.dart';
+import '../../../../state/app_update.dart';
+import '../../../components/menu_list.dart';
+import '../../../components/update_sheet.dart';
 import 'legal_screen.dart';
 import 'privacy_policy_screen.dart';
 

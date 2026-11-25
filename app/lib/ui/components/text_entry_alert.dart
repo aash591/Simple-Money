@@ -227,8 +227,7 @@ class _AlertTextFieldState extends State<_AlertTextField> {
                       child: Checkbox(
                         value: value,
                         onChanged: (v) => checked.value = v ?? false,
-                        materialTapTargetSize:
-                            MaterialTapTargetSize.shrinkWrap,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         visualDensity: VisualDensity.compact,
                       ),
                     ),

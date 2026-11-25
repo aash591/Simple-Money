@@ -307,14 +307,42 @@ void main() {
     // As the app rebuilt an SBI PDF: the narration wraps into a second
     // column, and one credit sits out of line in a column of its own.
     await StatementSampleRepository().add('sbi.pdf', [
-      ['Txn Date', 'Column 2', 'Description', 'Debit', 'Amount', 'Credit',
-        'Balance'],
-      ['01-04-2026', 'WDL TFR UPI/DR/6091/ADWAITH', '0097 AT', '1,000.00',
-        '', '', '4,914.41'],
-      ['03-04-2026', 'DEP TFR UPI/CR/6091/ASHIQUE', '0099 AT', '', '',
-        '2,500.00', '7,414.41'],
-      ['03-04-2026', 'DEP TFR UPI/CR/6092/SHAFEER', '0098 AT', '', '90.00',
-        '', '7,504.41'],
+      [
+        'Txn Date',
+        'Column 2',
+        'Description',
+        'Debit',
+        'Amount',
+        'Credit',
+        'Balance',
+      ],
+      [
+        '01-04-2026',
+        'WDL TFR UPI/DR/6091/ADWAITH',
+        '0097 AT',
+        '1,000.00',
+        '',
+        '',
+        '4,914.41',
+      ],
+      [
+        '03-04-2026',
+        'DEP TFR UPI/CR/6091/ASHIQUE',
+        '0099 AT',
+        '',
+        '',
+        '2,500.00',
+        '7,414.41',
+      ],
+      [
+        '03-04-2026',
+        'DEP TFR UPI/CR/6092/SHAFEER',
+        '0098 AT',
+        '',
+        '90.00',
+        '',
+        '7,504.41',
+      ],
     ], 0);
     final id =
         (((await call('list_statements_to_map'))['statements'] as List).single
@@ -357,12 +385,22 @@ void main() {
     final rows = [
       ['Txn Date', 'Description', 'Debit', 'Credit', 'Column 5', 'Balance'],
       for (var day = 1; day <= 6; day++)
-        ['0$day-04-2026', 'UPI/DR/$day/SHOP', '10.00', '', '',
-          '${2000 - day * 10}.00'],
+        [
+          '0$day-04-2026',
+          'UPI/DR/$day/SHOP',
+          '10.00',
+          '',
+          '',
+          '${2000 - day * 10}.00',
+        ],
       ['07-04-2026', 'UPI/DR/7/SHOP', '1,000.00', '', '940.00', ''],
       ['08-04-2026', 'UPI/CR/8/SALARY', '', '5,000.00', '', '5,940.00'],
     ];
-    await PendingStatementFiles().save('sbi.pdf', rows, UpiStatementSource.bank);
+    await PendingStatementFiles().save(
+      'sbi.pdf',
+      rows,
+      UpiStatementSource.bank,
+    );
     await StatementSampleRepository().add('sbi.pdf', rows, 0);
     final listed =
         ((await call('list_statements_to_map'))['statements'] as List).single

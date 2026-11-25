@@ -63,7 +63,7 @@ Future<bool> showConfirmationAlert(
 }
 
 /// A dialog route that closes faster than it opens.
-class _AlertRoute<T> extends RawDialogRoute<T> {
+class _AlertRoute<T> extends RawDialogRoute<T> with FrostBeforeOpening<T> {
   _AlertRoute({
     required super.pageBuilder,
     super.barrierDismissible,

@@ -15,6 +15,7 @@ import '../../../state/holding_store.dart';
 import '../../components/action_buttons.dart';
 import '../../components/app_icon.dart';
 import '../../components/common.dart';
+import '../../components/app_toast.dart';
 import '../../components/currency_flag.dart';
 import '../../components/feature_page.dart';
 import '../../components/search_field.dart';
@@ -78,20 +79,6 @@ const List<_KindChoice> _kinds = [
     subtitle: 'Dollars, euros and other currencies',
   ),
 ];
-
-/// The flag to show for currencies shared by many countries, or whose first
-/// country in the list isn't the one people think of.
-const _currencyFlags = {
-  'USD': 'US',
-  'EUR': 'EU',
-  'GBP': 'GB',
-  'AUD': 'AU',
-  'NZD': 'NZ',
-  'CHF': 'CH',
-  'XOF': 'SN',
-  'XAF': 'CM',
-  'XCD': 'AG',
-};
 
 /// Currencies suggested first when adding forex.
 const _popularCurrencies = [
@@ -189,7 +176,7 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
   }
 
   Widget _currencyFlag(String code, {double size = 36}) {
-    final territory = _currencyFlags[code] ?? _currencyInfo[code]?.territory;
+    final territory = currencyFlagTerritory(code);
     return territory == null
         ? HoldingLogo(null, kind: HoldingKind.forex, size: size)
         : CurrencyFlag(
@@ -200,26 +187,101 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
           );
   }
 
+  /// How many of each currency a dollar buys, asked once each and shared by
+  /// every row, so a row needs one lookup rather than up to three.
+  final Map<String, Future<PriceQuote?>> _perDollar = {};
+
+  /// Lookups waiting their turn, and how many are running: a few at a time,
+  /// because a screenful at once gets refused.
+  final List<String> _rateWaiting = [];
+  int _rateRunning = 0;
+  static const _rateParallel = 4;
+
+  Future<PriceQuote?> _dollarRate(String code) {
+    final client = widget.store.prices!.client;
+    final future = _perDollar[code] ??= ForexSource.perDollar(client, code);
+    // A failed lookup is forgotten, so the next row that needs it asks again.
+    return future.then((q) {
+      if (q == null) _perDollar.remove(code);
+      return q;
+    });
+  }
+
+  /// Whether the one-request table answered. Until it has, or if it can't,
+  /// rows are priced one by one from Yahoo instead.
+  bool _tableLoading = false, _tableFailed = false;
+
+  /// Fills every row's rate from one request, and names where it came from.
+  Future<void> _loadRateTable() async {
+    final service = widget.store.prices;
+    if (service == null || _tableLoading) return;
+    _tableLoading = true;
+    final table = await ForexTable.load(service.client, widget.broker.currency);
+    _tableLoading = false;
+    if (!mounted) return;
+    setState(() {
+      if (table == null) {
+        _tableFailed = true;
+      } else {
+        for (final code in knownCurrencyCodes) {
+          if (table.rateOf(code) case final quote?) _rates[code] = quote;
+        }
+      }
+    });
+    showAppToast(
+      context,
+      table == null
+          ? 'Rates from Yahoo Finance'
+          : 'Rates from ${ForexTable.sourceName}',
+      icon: Icons.currency_exchange_rounded,
+    );
+  }
+
   /// Asks for the rate of each of [codes] not asked for yet.
   void _fetchRates(Iterable<String> codes) {
-    final pending = [
-      for (final c in codes)
-        if (_rateAsked.add(c)) c,
-    ];
-    if (pending.isEmpty || widget.store.prices == null) return;
-    final broker = widget.broker.currency;
-    for (final code in pending) {
-      widget.store.prices!
-          .quoteFor(
-            kind: HoldingKind.forex,
-            symbol: code,
-            priceSource: PriceSourceId.forexRate,
-            currency: broker,
-          )
-          .then((quote) {
-            if (mounted) setState(() => _rates[code] = quote);
+    if (widget.store.prices == null) return;
+    for (final c in codes) {
+      if (_rateAsked.add(c)) _rateWaiting.add(c);
+    }
+    _runRates();
+  }
+
+  /// Failed tries per code. Yahoo now and then refuses or drops a lookup, so
+  /// a failed one is tried again by itself after a short wait, a little
+  /// longer each time; a code it doesn't have stays blank after the last.
+  final Map<String, int> _rateTries = {};
+  static const _rateMaxTries = 4;
+
+  void _retryRate(String code) {
+    final tries = _rateTries[code] = (_rateTries[code] ?? 0) + 1;
+    if (tries >= _rateMaxTries) return;
+    Timer(Duration(milliseconds: 800 * tries), () {
+      if (!mounted) return;
+      _rateWaiting.add(code);
+      _runRates();
+    });
+  }
+
+  void _runRates() {
+    while (_rateRunning < _rateParallel && _rateWaiting.isNotEmpty) {
+      final code = _rateWaiting.removeAt(0);
+      _rateRunning++;
+      final broker = widget.broker.currency;
+      (_dollarRate(code), _dollarRate(broker)).wait
+          .then((pair) {
+            final (from, to) = pair;
+            final rate = from == null || to == null
+                ? null
+                : ForexSource.cross(from, to, broker);
+            if (!mounted) return;
+            if (rate == null) return _retryRate(code);
+            setState(() => _rates[code] = rate);
           })
-          .catchError((_) {});
+          .catchError((_) => _retryRate(code))
+          .whenComplete(() {
+            _rateRunning--;
+            if (mounted) _runRates();
+          });
     }
   }
 
@@ -266,6 +328,7 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
       _search.clear();
     });
     _go(_Step.find);
+    if (kind == HoldingKind.forex) _loadRateTable();
   }
 
   // ---- Find it --------------------------------------------------------------
@@ -784,8 +847,11 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
   }
 
   /// Currencies to pick, the popular ones first, narrowed by what is typed.
+  /// The list is built lazily, and a rate is only asked for once its row is
+  /// on screen, so opening it stays smooth with every currency in it.
   Widget _forexFindPage(BuildContext context) {
     final theme = Theme.of(context);
+    _loadCurrencyInfo();
     final query = _search.text.trim().toUpperCase();
     final codes =
         [
@@ -797,69 +863,97 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
           return c.contains(query) ||
               (_currencyInfo[c]?.name.toUpperCase().contains(query) ?? false);
         }).toList();
-    final shown = codes;
-    _loadCurrencyInfo();
-    // After this frame: asking for rates changes state.
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _fetchRates(shown.take(14)),
-    );
-    return ListView(
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: const EdgeInsets.fromLTRB(18, 0, 18, 32),
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: SearchField(
-            key: const Key('holding-search'),
-            controller: _search,
-            onChanged: _onSearch,
-            hintText: 'Search currencies, like USD',
-          ),
-        ),
-        const SizedBox(height: 8),
-        if (codes.isEmpty)
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Text(
-              'Nothing found.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          )
-        else
-          MoneyCard(
-            padding: EdgeInsets.zero,
-            child: Material(
-              type: MaterialType.transparency,
-              child: Column(
-                children: [
-                  for (final (i, code) in shown.indexed) ...[
-                    if (i > 0) const Divider(height: 1),
-                    ListTile(
-                      key: Key('hit-$code'),
-                      leading: _currencyFlag(code),
-                      title: Text(code),
-                      subtitle: Text(
-                        _currencyInfo[code]?.name ?? 'Currency',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: _rates[code] == null
-                          ? null
-                          : Text(
-                              _priceText(_rates[code]!),
-                              style: theme.textTheme.titleSmall,
-                            ),
-                      onTap: () => _pickCurrency(code),
-                    ),
-                  ],
-                ],
-              ),
+            padding: const EdgeInsets.only(top: 8),
+            child: SearchField(
+              key: const Key('holding-search'),
+              controller: _search,
+              onChanged: _onSearch,
+              hintText: 'Search currencies, like USD',
             ),
           ),
-      ],
+          const SizedBox(height: 8),
+          if (codes.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Text(
+                'Nothing found.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            )
+          else
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: MoneyCard(
+                  padding: EdgeInsets.zero,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(appCardRadius),
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: ListView.separated(
+                        // Remembers where it was scrolled to, so coming back
+                        // from a currency's details lands in the same place.
+                        key: const PageStorageKey('forex-list'),
+                        // A short search result keeps the card to its rows.
+                        shrinkWrap: codes.length <= 12,
+                        padding: EdgeInsets.zero,
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        itemCount: codes.length,
+                        separatorBuilder: (_, _) => const Divider(height: 1),
+                        itemBuilder: (context, i) =>
+                            _currencyTile(context, codes[i]),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Codes whose row has been built and whose rate is still to be asked.
+  final Set<String> _rateQueue = {};
+
+  /// One currency: its flag and name, and on the right what one unit of it
+  /// is in the account's currency.
+  Widget _currencyTile(BuildContext context, String code) {
+    final theme = Theme.of(context);
+    if (_tableFailed && !_rateAsked.contains(code) && _rateQueue.add(code)) {
+      // After this frame, all at once: asking changes state.
+      if (_rateQueue.length == 1) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final batch = _rateQueue.toList();
+          _rateQueue.clear();
+          if (mounted) _fetchRates(batch);
+        });
+      }
+    }
+    final rate = _rates[code];
+    return ListTile(
+      key: Key('hit-$code'),
+      leading: _currencyFlag(code),
+      title: Text(code),
+      subtitle: Text(
+        _currencyInfo[code]?.name ?? 'Currency',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: rate == null
+          ? null
+          : Text(_priceText(rate), style: theme.textTheme.titleSmall),
+      onTap: () => _pickCurrency(code),
     );
   }
 
@@ -1351,7 +1445,8 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
     final currency = quote.currency ?? widget.broker.currency;
     final price = NumberFormat.decimalPatternDigits(
       locale: currency == 'INR' ? 'en_IN' : 'en_US',
-      decimalDigits: 2,
+      // A rate under one (a yen in rupees) needs more places to say anything.
+      decimalDigits: quote.priceE4 < priceScale ? 4 : 2,
     ).format(quote.priceE4 / priceScale);
     return '${currencyPrefix(currency)} $price';
   }

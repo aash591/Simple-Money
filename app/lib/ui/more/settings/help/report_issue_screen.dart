@@ -1,12 +1,12 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import '../../../data/issue_report.dart';
-import '../../components/action_buttons.dart';
-import '../../components/common.dart';
-import '../../components/confirmation_alert.dart';
-import '../../components/feature_page.dart';
-import '../settings/sync/backup_widgets.dart' show ErrorBanner;
+import '../../../../data/issue_report.dart';
+import '../../../components/action_buttons.dart';
+import '../../../components/common.dart';
+import '../../../components/confirmation_alert.dart';
+import '../../../components/feature_page.dart';
+import '../sync/backup_widgets.dart' show ErrorBanner;
 
 /// Help › Send feedback: what went wrong or could be better, an optional file
 /// (a screenshot, say) up to 30 MB, and how to reach the user.

@@ -190,7 +190,8 @@ class ChangeHistoryRepository {
       await db.customStatement('DELETE FROM $table WHERE $where', key);
     } else {
       final columns = {
-        for (final c in await db.customSelect('PRAGMA table_info($table)').get())
+        for (final c
+            in await db.customSelect('PRAGMA table_info($table)').get())
           c.read<String>('name'),
       };
       final values = <String, Object?>{

@@ -137,40 +137,43 @@ void main() {
     expect(store.holdings, hasLength(1));
   });
 
-  test('a trade never overwrites the market close it is compared with', () async {
-    final broker = accounts.accounts.single;
-    final id = await store.saveHolding(
-      accountId: broker.id,
-      kind: HoldingKind.stock,
-      name: 'TCS',
-      symbol: 'TCS.NS',
-    );
-    await store.setPrice(store.byId(id)!, 35500000, DateTime(2026, 11, 19));
-    await store.addTrade(
-      holding: store.byId(id)!,
-      type: TradeType.buy,
-      date: DateTime(2026, 11, 20),
-      unitsE6: unitScale,
-      priceE4: 30000000, // paid ₹3,000, the market closed at ₹3,550
-      amountMinor: 300000,
-    );
-    expect(store.byId(id)!.lastPriceE4, 35500000);
+  test(
+    'a trade never overwrites the market close it is compared with',
+    () async {
+      final broker = accounts.accounts.single;
+      final id = await store.saveHolding(
+        accountId: broker.id,
+        kind: HoldingKind.stock,
+        name: 'TCS',
+        symbol: 'TCS.NS',
+      );
+      await store.setPrice(store.byId(id)!, 35500000, DateTime(2026, 11, 19));
+      await store.addTrade(
+        holding: store.byId(id)!,
+        type: TradeType.buy,
+        date: DateTime(2026, 11, 20),
+        unitsE6: unitScale,
+        priceE4: 30000000, // paid ₹3,000, the market closed at ₹3,550
+        amountMinor: 300000,
+      );
+      expect(store.byId(id)!.lastPriceE4, 35500000);
 
-    // With no close yet, the price paid stands in until one arrives.
-    final bare = await store.saveHolding(
-      accountId: broker.id,
-      kind: HoldingKind.stock,
-      name: 'Infosys',
-      symbol: 'INFY.NS',
-    );
-    await store.addTrade(
-      holding: store.byId(bare)!,
-      type: TradeType.buy,
-      date: DateTime(2026, 11, 20),
-      unitsE6: unitScale,
-      priceE4: 15000000,
-      amountMinor: 150000,
-    );
-    expect(store.byId(bare)!.lastPriceE4, 15000000);
-  });
+      // With no close yet, the price paid stands in until one arrives.
+      final bare = await store.saveHolding(
+        accountId: broker.id,
+        kind: HoldingKind.stock,
+        name: 'Infosys',
+        symbol: 'INFY.NS',
+      );
+      await store.addTrade(
+        holding: store.byId(bare)!,
+        type: TradeType.buy,
+        date: DateTime(2026, 11, 20),
+        unitsE6: unitScale,
+        priceE4: 15000000,
+        amountMinor: 150000,
+      );
+      expect(store.byId(bare)!.lastPriceE4, 15000000);
+    },
+  );
 }

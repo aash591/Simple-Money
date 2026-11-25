@@ -21,7 +21,7 @@ import 'package:simple_money/domain/category.dart';
 import 'package:simple_money/domain/transaction.dart';
 import 'package:simple_money/ui/components/glass_button.dart';
 import 'package:simple_money/ui/components/transactions/transaction_list_row.dart';
-import 'package:simple_money/ui/more/ai/shared_fixes_screen.dart';
+import 'package:simple_money/ui/more/smart_tracking/shared_fixes_screen.dart';
 
 const _body =
     'Refund for Cotton Kurti of Rs.499 is successfully processed to your '

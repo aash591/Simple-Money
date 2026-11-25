@@ -853,9 +853,7 @@ class AgentSuggestionRepository {
     Account active(int? id, String field) =>
         accounts.where((a) => a.id == id && !a.isArchived).firstOrNull ??
         (throw ArgumentError(
-          id == null
-              ? 'Give $field.'
-              : 'Account $id isn’t an active account.',
+          id == null ? 'Give $field.' : 'Account $id isn’t an active account.',
         ));
     final from = active(accountId, 'account_id');
     final to = active(toAccountId, 'to_account_id: where the money went');
@@ -901,8 +899,11 @@ class AgentSuggestionRepository {
               Variable(minor),
               Variable(day.millisecondsSinceEpoch),
               Variable(
-                DateTime(day.year, day.month, day.day + 1)
-                    .millisecondsSinceEpoch,
+                DateTime(
+                  day.year,
+                  day.month,
+                  day.day + 1,
+                ).millisecondsSinceEpoch,
               ),
             ],
           )

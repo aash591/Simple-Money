@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:simple_money/ui/more/help/report_sms_screen.dart';
+import 'package:simple_money/ui/more/smart_tracking/sms/teach_missed_sms_screen.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -59,7 +59,7 @@ void main() {
       reports++;
       return null;
     });
-    await tester.pumpWidget(const MaterialApp(home: ReportSmsScreen()));
+    await tester.pumpWidget(const MaterialApp(home: TeachMissedSmsScreen()));
     await tester.pumpAndSettle();
     expect(find.text('Allow SMS access'), findsWidgets);
     expect(find.text('Open app settings'), findsOneWidget);
@@ -75,7 +75,7 @@ void main() {
       sent.add((call.arguments as Map)['messages'] as List);
       return 1;
     });
-    await tester.pumpWidget(const MaterialApp(home: ReportSmsScreen()));
+    await tester.pumpWidget(const MaterialApp(home: TeachMissedSmsScreen()));
     // The real rule packs load and parse on an isolate; give them wall time.
     for (
       var i = 0;

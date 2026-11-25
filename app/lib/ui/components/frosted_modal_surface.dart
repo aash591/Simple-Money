@@ -21,10 +21,27 @@ class FrostedModalSurface extends StatelessWidget {
     super.key,
     required this.borderRadius,
     required this.child,
-    this.blurSigma = 28,
+    this.blurSigma = defaultBlurSigma,
     this.shadows,
     this.airy = false,
   });
+
+  static const defaultBlurSigma = 28.0;
+
+  /// Whether this surface frosts the screen with a [ScreenFrost] in
+  /// [context]: glass looks, on phones that blur and inside the app.
+  static bool frostsScreen(BuildContext context) =>
+      usesGlass(context) &&
+      !DevicePerformance.lowEnd &&
+      !NativeModalBlur.enabled;
+
+  /// Starts frosting the screen as it is now, for a surface about to open
+  /// over it (see [ScreenFrost.prepare]). Null when there is nothing to
+  /// frost, or no way to.
+  static Future<void>? prepareFrost(BuildContext? context) =>
+      context != null && frostsScreen(context)
+      ? ScreenFrost.prepare(defaultBlurSigma)
+      : null;
 
   /// A clearer glass with a light tint, so the blurred page behind it shows
   /// its own colours through (used by the More menu).
@@ -284,4 +301,30 @@ class _GlassRim extends CustomPainter {
       radius != oldDelegate.radius ||
       dark != oldDelegate.dark ||
       opacity != oldDelegate.opacity;
+}
+
+/// For a route that opens a [FrostedModalSurface]: when it is pushed, the
+/// screen (still as it was) is frosted first, and the route only starts
+/// opening once that is done, or after [frostWait] at most. So the capture
+/// and the blur never land in the middle of the opening motion.
+mixin FrostBeforeOpening<T> on TransitionRoute<T> {
+  /// The longest the route waits; the copy then arrives while it opens, as
+  /// it used to.
+  static const frostWait = Duration(milliseconds: 120);
+
+  @override
+  TickerFuture didPush() {
+    final frost = FrostedModalSurface.prepareFrost(navigator?.context);
+    final pushed = super.didPush();
+    final controller = this.controller;
+    if (frost == null || controller == null) return pushed;
+    controller.stop();
+    frost.timeout(frostWait, onTimeout: () {}).whenComplete(() {
+      // Unless it was closed, or already set moving, in the meantime.
+      if (isActive && controller.value == 0 && !controller.isAnimating) {
+        controller.forward();
+      }
+    });
+    return pushed;
+  }
 }

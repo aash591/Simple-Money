@@ -358,14 +358,13 @@ class _Column {
   final _Edge edge;
   final double anchor, left, right;
 
-  static _Column of(bool amounts, _Edge edge, List<_Phrase> phrases) =>
-      _Column(
-        amounts,
-        edge,
-        _median([for (final p in phrases) _edgeOf(p, edge)]),
-        phrases.map((p) => p.left).reduce(math.min),
-        phrases.map((p) => p.right).reduce(math.max),
-      );
+  static _Column of(bool amounts, _Edge edge, List<_Phrase> phrases) => _Column(
+    amounts,
+    edge,
+    _median([for (final p in phrases) _edgeOf(p, edge)]),
+    phrases.map((p) => p.left).reduce(math.min),
+    phrases.map((p) => p.right).reduce(math.max),
+  );
 }
 
 /// The columns the row lines' cells line up in. An edge only a few rows
@@ -399,7 +398,11 @@ List<_Column> _columns(List<_Line> rows, double unit) {
 /// where a cell's text keeps running from one text column into the next,
 /// the gap between them was only a wide space inside a cell ("DEP TFR" set
 /// apart from the "UPI/CR/…" after it).
-List<_Column> _joinRunOns(List<_Column> columns, List<_Line> lines, double unit) {
+List<_Column> _joinRunOns(
+  List<_Column> columns,
+  List<_Line> lines,
+  double unit,
+) {
   final phrases = lines.expand((l) => l.phrases).toList();
   // A date column is never part of another: what runs across it is the
   // page's own (a footer, the next page's heading), not a cell.
@@ -633,8 +636,13 @@ List<String> _nameColumns(
       if (names[i].isEmpty && !columns[i].amounts) i,
   ];
   if (text.isNotEmpty &&
-      !['description', 'narration', 'details', 'particulars', 'remarks']
-          .any(named)) {
+      ![
+        'description',
+        'narration',
+        'details',
+        'particulars',
+        'remarks',
+      ].any(named)) {
     int length(int c) => body.fold(0, (sum, r) => sum + r[c].length);
     final widest = text.reduce((a, b) => length(a) >= length(b) ? a : b);
     names[widest] = 'Description';

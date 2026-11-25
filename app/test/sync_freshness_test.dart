@@ -44,13 +44,10 @@ class LaggingDrive extends SharedDrive implements ChangeFeed {
   Future<(List<MirrorFile>, String)> changesSince(String token) async {
     final changed = log.skip(int.parse(token)).toSet();
     return (
-      fakeListing(
-        {
-          for (final id in changed)
-            if (files[id] case final batch?) id: batch,
-        },
-        (id) => modified[id]!,
-      ),
+      fakeListing({
+        for (final id in changed)
+          if (files[id] case final batch?) id: batch,
+      }, (id) => modified[id]!),
       '${log.length}',
     );
   }
@@ -154,57 +151,60 @@ void main() {
     expect(await phone.engine.run(), isTrue);
   });
 
-  test("Drive's change log is read page by page, SimpleMoney files only", () async {
-    final pages = <String?>[];
-    final client = DriveClient(
-      'token',
-      client: MockClient((request) async {
-        pages.add(request.url.queryParameters['pageToken']);
-        Map<String, Object?> file(String id, {bool trashed = false}) => {
-          'id': id,
-          'modifiedTime': '2026-11-19T10:00:00.000Z',
-          'trashed': trashed,
-          'appProperties': {
-            'format': sectionFileFormat,
-            'mirrorId': 'm1',
-            'sequence': '7',
-            'section': 'accounts',
-            'enc': 'off',
-            'encAt': '0',
-          },
-        };
-        final body = request.url.queryParameters['pageToken'] == '5'
-            ? {
-                'nextPageToken': '6',
-                'changes': [
-                  {'removed': false, 'file': file('a')},
-                  {'removed': true},
-                  {
-                    'removed': false,
-                    'file': {
-                      'id': 'other',
-                      'modifiedTime': '2026-11-19T10:00:00.000Z',
-                      'appProperties': {'format': 'something-else'},
+  test(
+    "Drive's change log is read page by page, SimpleMoney files only",
+    () async {
+      final pages = <String?>[];
+      final client = DriveClient(
+        'token',
+        client: MockClient((request) async {
+          pages.add(request.url.queryParameters['pageToken']);
+          Map<String, Object?> file(String id, {bool trashed = false}) => {
+            'id': id,
+            'modifiedTime': '2026-11-19T10:00:00.000Z',
+            'trashed': trashed,
+            'appProperties': {
+              'format': sectionFileFormat,
+              'mirrorId': 'm1',
+              'sequence': '7',
+              'section': 'accounts',
+              'enc': 'off',
+              'encAt': '0',
+            },
+          };
+          final body = request.url.queryParameters['pageToken'] == '5'
+              ? {
+                  'nextPageToken': '6',
+                  'changes': [
+                    {'removed': false, 'file': file('a')},
+                    {'removed': true},
+                    {
+                      'removed': false,
+                      'file': {
+                        'id': 'other',
+                        'modifiedTime': '2026-11-19T10:00:00.000Z',
+                        'appProperties': {'format': 'something-else'},
+                      },
                     },
-                  },
-                ],
-              }
-            : {
-                'newStartPageToken': '9',
-                'changes': [
-                  {'removed': false, 'file': file('b')},
-                  {'removed': false, 'file': file('c', trashed: true)},
-                ],
-              };
-        return http.Response(jsonEncode(body), 200);
-      }),
-    );
-    final (files, next) = await client.changesSince('5');
-    expect(pages, ['5', '6']);
-    expect(files.map((f) => f.id), ['a', 'b']);
-    expect(files.first.section, 'accounts');
-    expect(files.first.sequence, 7);
-    expect(next, '9');
-    client.close();
-  });
+                  ],
+                }
+              : {
+                  'newStartPageToken': '9',
+                  'changes': [
+                    {'removed': false, 'file': file('b')},
+                    {'removed': false, 'file': file('c', trashed: true)},
+                  ],
+                };
+          return http.Response(jsonEncode(body), 200);
+        }),
+      );
+      final (files, next) = await client.changesSince('5');
+      expect(pages, ['5', '6']);
+      expect(files.map((f) => f.id), ['a', 'b']);
+      expect(files.first.section, 'accounts');
+      expect(files.first.sequence, 7);
+      expect(next, '9');
+      client.close();
+    },
+  );
 }

@@ -31,7 +31,11 @@ void main() {
       126250,
     );
     expect(
-      tradeAmountMinor(unitsE6: 3 * unitScale, priceE4: 250 * priceScale, digits: 0),
+      tradeAmountMinor(
+        unitsE6: 3 * unitScale,
+        priceE4: 250 * priceScale,
+        digits: 0,
+      ),
       750,
     );
   });
@@ -46,7 +50,15 @@ void main() {
 
   test('buys add up cost with fees; value and gain follow the price', () {
     final p = positionOf([
-      trade(1, TradeType.buy, 1, units: 10, price: 100, amount: 100000, fees: 100),
+      trade(
+        1,
+        TradeType.buy,
+        1,
+        units: 10,
+        price: 100,
+        amount: 100000,
+        fees: 100,
+      ),
       trade(2, TradeType.buy, 2, units: 10, price: 120, amount: 120000),
     ], digits: 2);
     expect(p.unitsE6, 20 * unitScale);
@@ -62,7 +74,15 @@ void main() {
     final p = positionOf([
       trade(1, TradeType.buy, 1, units: 10, price: 100, amount: 100000),
       trade(2, TradeType.buy, 2, units: 10, price: 120, amount: 120000),
-      trade(3, TradeType.sell, 3, units: 5, price: 150, amount: 75000, fees: 500),
+      trade(
+        3,
+        TradeType.sell,
+        3,
+        units: 5,
+        price: 150,
+        amount: 75000,
+        fees: 500,
+      ),
     ], digits: 2);
     expect(p.unitsE6, 15 * unitScale);
     expect(p.costMinor, 165000);
@@ -83,8 +103,15 @@ void main() {
     expect(positionOf([d], digits: 2).dividendsMinor, 2250);
     expect(d.cashEffectMinor, 2250);
     expect(
-      trade(2, TradeType.buy, 1, units: 1, price: 1, amount: 100, fees: 5)
-          .cashEffectMinor,
+      trade(
+        2,
+        TradeType.buy,
+        1,
+        units: 1,
+        price: 1,
+        amount: 100,
+        fees: 5,
+      ).cashEffectMinor,
       -105,
     );
   });

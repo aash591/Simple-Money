@@ -11,7 +11,8 @@ List<MirrorFile> fakeListing(
   DateTime? modifiedAfter,
 }) => [
   for (final batch in files.values)
-    if (modifiedAfter == null || modifiedOf(batch.fileId).isAfter(modifiedAfter))
+    if (modifiedAfter == null ||
+        modifiedOf(batch.fileId).isAfter(modifiedAfter))
       MirrorFile(
         id: batch.fileId,
         mirrorId: batch.mirrorId,

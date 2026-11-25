@@ -196,7 +196,7 @@ class Holding {
       PriceSourceId.yahoo => 'Update from Yahoo Finance',
       PriceSourceId.amfi => 'Update from AMFI',
       PriceSourceId.coingecko => 'Update from CoinGecko',
-      PriceSourceId.forexRate => 'Update exchange rate',
+      PriceSourceId.forexRate => 'Update from Yahoo Finance',
       PriceSourceId.metalWorld => 'Update from world ${metal ?? 'metal'} price',
       _ => 'Update price',
     };

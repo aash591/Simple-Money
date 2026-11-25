@@ -33,6 +33,43 @@ require(improvementToken.isEmpty() || improvementToken.matches(Regex("[0-9]+:[A-
 require(improvementChat.matches(Regex("-?[0-9]+")))
 val admobAppId = dartDefines["ADMOB_APP_ID"].orEmpty()
     .ifEmpty { "ca-app-pub-3940256099942544~3347511713" }
+// `build app:play` sets PLAY_BUILD: that bundle leaves the notification
+// listener out of its manifest, so Google Play never sees it. Every other
+// build (debug, profile, release APKs) keeps it.
+val playBuild = dartDefines["PLAY_BUILD"] == "true"
+
+// Takes the notification listener service out of the merged manifest.
+abstract class DropNotificationListener : DefaultTask() {
+    @get:InputFile
+    abstract val mergedManifest: RegularFileProperty
+
+    @get:OutputFile
+    abstract val updatedManifest: RegularFileProperty
+
+    @TaskAction
+    fun drop() {
+        val text = mergedManifest.get().asFile.readText()
+        val service = Regex(
+            "<service\\b[^>]*NotificationCaptureService[^>]*>.*?</service>",
+            RegexOption.DOT_MATCHES_ALL,
+        )
+        val without = text.replace(service, "")
+        check(!without.contains("NotificationCaptureService")) {
+            "The notification listener is still in the manifest"
+        }
+        updatedManifest.get().asFile.writeText(without)
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        if (!playBuild) return@onVariants
+        val drop = tasks.register<DropNotificationListener>("${variant.name}DropNotificationListener")
+        variant.artifacts.use(drop)
+            .wiredWithFiles(DropNotificationListener::mergedManifest, DropNotificationListener::updatedManifest)
+            .toTransform(com.android.build.api.artifact.SingleArtifact.MERGED_MANIFEST)
+    }
+}
 
 android {
     buildFeatures { buildConfig = true }

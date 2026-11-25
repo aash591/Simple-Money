@@ -594,7 +594,8 @@ class SyncRepository {
 
   // ---- Uploading this phone's sections -------------------------------------
 
-  static String _month(String ms) => "strftime('%Y-%m', $ms / 1000, 'unixepoch')";
+  static String _month(String ms) =>
+      "strftime('%Y-%m', $ms / 1000, 'unixepoch')";
   static String _day(String ms) =>
       "strftime('%Y-%m-%d', $ms / 1000, 'unixepoch')";
   static String _keyOf(String table, [String alias = 't']) =>
@@ -609,10 +610,11 @@ class SyncRepository {
         .customSelect('SELECT table_name, row_json, hlc FROM sync_outbox')
         .get();
     if (queued.isEmpty) return null;
-    final revision = (await db
-            .customSelect('SELECT revision FROM sync_state WHERE id = 1')
-            .getSingle())
-        .read<int>('revision');
+    final revision =
+        (await db
+                .customSelect('SELECT revision FROM sync_state WHERE id = 1')
+                .getSingle())
+            .read<int>('revision');
     final now = DateTime.now().toUtc();
     final sections = <String>{};
     var changes = 0;
@@ -628,7 +630,9 @@ class SyncRepository {
       sections.add(
         sectionOf(
           table,
-          json == null ? null : Map<String, Object?>.from(jsonDecode(json) as Map),
+          json == null
+              ? null
+              : Map<String, Object?>.from(jsonDecode(json) as Map),
           change.read<int>('hlc'),
           now,
         ),
@@ -636,9 +640,10 @@ class SyncRepository {
     }
     final today = dayOf(now.millisecondsSinceEpoch);
     final retire = <String, String>{};
-    for (final file in await db
-        .customSelect('SELECT section, file_id FROM sync_files')
-        .get()) {
+    for (final file
+        in await db
+            .customSelect('SELECT section, file_id FROM sync_files')
+            .get()) {
       final section = file.read<String>('section');
       final day = sectionDay(section);
       if (day == null || day == today) continue;
@@ -664,23 +669,25 @@ class SyncRepository {
         sections.add(table);
         continue;
       }
-      for (final row in await db
-          .customSelect(
-            'SELECT DISTINCT CASE WHEN ${_day(column)} = ? '
-            'THEN ${_day(column)} ELSE ${_month(column)} END AS s FROM $table',
-            variables: [Variable(today)],
-          )
-          .get()) {
+      for (final row
+          in await db
+              .customSelect(
+                'SELECT DISTINCT CASE WHEN ${_day(column)} = ? '
+                'THEN ${_day(column)} ELSE ${_month(column)} END AS s FROM $table',
+                variables: [Variable(today)],
+              )
+              .get()) {
         sections.add('$table/${row.read<String>('s')}');
       }
-      for (final row in await db
-          .customSelect(
-            'SELECT DISTINCT ${_month('(hlc >> 16)')} AS s FROM sync_row_meta '
-            'WHERE table_name = ? AND record_key NOT IN '
-            '(SELECT ${_keyOf(table)} FROM $table t)',
-            variables: [Variable(table)],
-          )
-          .get()) {
+      for (final row
+          in await db
+              .customSelect(
+                'SELECT DISTINCT ${_month('(hlc >> 16)')} AS s FROM sync_row_meta '
+                'WHERE table_name = ? AND record_key NOT IN '
+                '(SELECT ${_keyOf(table)} FROM $table t)',
+                variables: [Variable(table)],
+              )
+              .get()) {
         sections.add('$table/deleted/${row.read<String>('s')}');
       }
     }
@@ -690,10 +697,13 @@ class SyncRepository {
   /// The next upload number; each file this phone uploads gets its own, so
   /// the other phones can tell which files changed since they last merged.
   Future<int> nextSequence() => db.transaction(() async {
-    final sequence = (await db
-            .customSelect('SELECT next_sequence FROM sync_state WHERE id = 1')
-            .getSingle())
-        .read<int>('next_sequence');
+    final sequence =
+        (await db
+                .customSelect(
+                  'SELECT next_sequence FROM sync_state WHERE id = 1',
+                )
+                .getSingle())
+            .read<int>('next_sequence');
     await db.customStatement(
       'UPDATE sync_state SET next_sequence = ? WHERE id = 1',
       [sequence + 1],
@@ -722,14 +732,15 @@ class SyncRepository {
     final today = dayOf(DateTime.now().millisecondsSinceEpoch);
 
     Future<void> live(String where, List<Object?> args) async {
-      for (final row in await db
-          .customSelect(
-            'SELECT t.*, $key AS sync_key, m.hlc AS sync_hlc FROM $table t '
-            'LEFT JOIN sync_row_meta m ON m.table_name = ? '
-            'AND m.record_key = $key $where',
-            variables: [Variable(table), for (final a in args) Variable(a)],
-          )
-          .get()) {
+      for (final row
+          in await db
+              .customSelect(
+                'SELECT t.*, $key AS sync_key, m.hlc AS sync_hlc FROM $table t '
+                'LEFT JOIN sync_row_meta m ON m.table_name = ? '
+                'AND m.record_key = $key $where',
+                variables: [Variable(table), for (final a in args) Variable(a)],
+              )
+              .get()) {
         final data = Map<String, Object?>.from(row.data)
           ..remove('sync_key')
           ..remove('sync_hlc');
@@ -740,14 +751,15 @@ class SyncRepository {
     }
 
     Future<void> deleted(String where, List<Object?> args) async {
-      for (final row in await db
-          .customSelect(
-            'SELECT record_key, hlc FROM sync_row_meta '
-            'WHERE table_name = ? AND record_key NOT IN '
-            '(SELECT $key FROM $table t) $where',
-            variables: [Variable(table), for (final a in args) Variable(a)],
-          )
-          .get()) {
+      for (final row
+          in await db
+              .customSelect(
+                'SELECT record_key, hlc FROM sync_row_meta '
+                'WHERE table_name = ? AND record_key NOT IN '
+                '(SELECT $key FROM $table t) $where',
+                variables: [Variable(table), for (final a in args) Variable(a)],
+              )
+              .get()) {
         versions[row.read<String>('record_key')] = row.read<int>('hlc');
       }
     }
@@ -813,7 +825,10 @@ class SyncRepository {
         .getSingleOrNull();
     return row == null
         ? null
-        : (id: row.read<String>('file_id'), created: row.read<int>('created') == 1);
+        : (
+            id: row.read<String>('file_id'),
+            created: row.read<int>('created') == 1,
+          );
   }
 
   /// Saves the ID [section]'s file will be created with, before creating it.
@@ -830,16 +845,13 @@ class SyncRepository {
       );
 
   /// [section]'s file is gone from Drive (or was deleted on purpose).
-  Future<void> forgetFile(String section) => db.customStatement(
-    'DELETE FROM sync_files WHERE section = ?',
-    [section],
-  );
+  Future<void> forgetFile(String section) =>
+      db.customStatement('DELETE FROM sync_files WHERE section = ?', [section]);
 
   /// The IDs of this phone's files on Drive.
   Future<Set<String>> ownFileIds() async => {
-    for (final row in await db
-        .customSelect('SELECT file_id FROM sync_files')
-        .get())
+    for (final row
+        in await db.customSelect('SELECT file_id FROM sync_files').get())
       row.read<String>('file_id'),
   };
 
@@ -947,16 +959,13 @@ class SyncRepository {
       row.read<String>('mirror_id'): row.read<int>('newest'),
   };
 
-  Future<void> markMerged(
-    String mirrorId,
-    int sequence, {
-    int newest = 0,
-  }) => db.customStatement(
-    '''INSERT INTO sync_peers (mirror_id, applied, newest) VALUES (?, ?, ?)
+  Future<void> markMerged(String mirrorId, int sequence, {int newest = 0}) =>
+      db.customStatement(
+        '''INSERT INTO sync_peers (mirror_id, applied, newest) VALUES (?, ?, ?)
     ON CONFLICT(mirror_id) DO UPDATE SET applied = excluded.applied,
       newest = max(newest, excluded.newest)''',
-    [mirrorId, sequence, newest],
-  );
+        [mirrorId, sequence, newest],
+      );
 
   /// [accountId]'s base (balance less what its transactions add) and the HLC
   /// of the change that set it, or null when the account doesn't exist.
@@ -1284,9 +1293,8 @@ class SyncRepository {
   });
 
   /// The newest version among [snapshot]'s records.
-  static int newestIn(SyncBackup snapshot) => snapshot.versions.values
-      .expand((records) => records.values)
-      .fold(0, max);
+  static int newestIn(SyncBackup snapshot) =>
+      snapshot.versions.values.expand((records) => records.values).fold(0, max);
 
   /// The versions this phone knows of [table]'s [recordKeys].
   Future<Map<String, int>> _versionsOf(
@@ -1297,13 +1305,17 @@ class SyncRepository {
     final known = <String, int>{};
     for (var i = 0; i < keys.length; i += 500) {
       final chunk = keys.skip(i).take(500).toList();
-      for (final row in await db
-          .customSelect(
-            'SELECT record_key, hlc FROM sync_row_meta WHERE table_name = ? '
-            'AND record_key IN (${List.filled(chunk.length, '?').join(', ')})',
-            variables: [Variable(table), for (final k in chunk) Variable(k)],
-          )
-          .get()) {
+      for (final row
+          in await db
+              .customSelect(
+                'SELECT record_key, hlc FROM sync_row_meta WHERE table_name = ? '
+                'AND record_key IN (${List.filled(chunk.length, '?').join(', ')})',
+                variables: [
+                  Variable(table),
+                  for (final k in chunk) Variable(k),
+                ],
+              )
+              .get()) {
         known[row.read<String>('record_key')] = row.read<int>('hlc');
       }
     }
@@ -1319,9 +1331,10 @@ class SyncRepository {
     if (columns.length > 1) {
       // Only small link tables have composite keys.
       return {
-        for (final r in await db
-            .customSelect('SELECT ${_keyOf(table)} AS k FROM $table t')
-            .get())
+        for (final r
+            in await db
+                .customSelect('SELECT ${_keyOf(table)} AS k FROM $table t')
+                .get())
           r.read<String>('k'),
       };
     }
@@ -1332,13 +1345,14 @@ class SyncRepository {
     final present = <String>{};
     for (var i = 0; i < keys.length; i += 500) {
       final chunk = keys.skip(i).take(500).toList();
-      for (final row in await db
-          .customSelect(
-            'SELECT ${_keyOf(table)} AS k FROM $table t WHERE ${columns.single} '
-            'IN (${List.filled(chunk.length, '?').join(', ')})',
-            variables: [for (final (_, v) in chunk) Variable(v)],
-          )
-          .get()) {
+      for (final row
+          in await db
+              .customSelect(
+                'SELECT ${_keyOf(table)} AS k FROM $table t WHERE ${columns.single} '
+                'IN (${List.filled(chunk.length, '?').join(', ')})',
+                variables: [for (final (_, v) in chunk) Variable(v)],
+              )
+              .get()) {
         present.add(row.read<String>('k'));
       }
     }

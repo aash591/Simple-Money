@@ -224,9 +224,7 @@ void main() {
     );
 
     await targetKeys.forget('subject');
-    await fresh.customStatement(
-      "UPDATE accounts SET name = 'Changed'",
-    );
+    await fresh.customStatement("UPDATE accounts SET name = 'Changed'");
     final before = drive.files.length;
     expect(await targetEngine.run(force: true), isFalse);
     expect(drive.files, hasLength(before));

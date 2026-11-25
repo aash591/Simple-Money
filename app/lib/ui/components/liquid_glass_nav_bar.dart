@@ -26,10 +26,14 @@ class LiquidGlassDestination {
     required this.icon,
     required this.selectedIcon,
     required this.label,
+    this.dot = false,
   });
   final IconData icon;
   final IconData selectedIcon;
   final String label;
+
+  /// A small dot on the icon: something here is waiting for the person.
+  final bool dot;
 }
 
 /// A floating capsule tab bar made of refracting glass: whatever scrolls
@@ -685,10 +689,33 @@ class _Tab extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            lit ? destination.selectedIcon : destination.icon,
-            size: 24,
-            color: color,
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(
+                lit ? destination.selectedIcon : destination.icon,
+                size: 24,
+                color: color,
+              ),
+              if (destination.dot)
+                Positioned(
+                  right: -1,
+                  top: -1,
+                  child: Container(
+                    key: const Key('nav-dot'),
+                    width: 9,
+                    height: 9,
+                    decoration: BoxDecoration(
+                      color: scheme.primary,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: dark ? const Color(0xff202220) : Colors.white,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 2),
           if (lit)

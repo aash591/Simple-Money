@@ -118,6 +118,7 @@ class PortfolioSuggestionPreview extends StatelessWidget {
         holdingLogoUrl(holding),
         kind: holding.kind,
         iconKey: holding.iconKey,
+        symbol: holding.symbol,
       ),
       icon: HoldingLogo.iconFor(holding.kind),
       title: holding.name,

@@ -1,4 +1,5 @@
 import '../../data/platform_info.dart';
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
@@ -153,6 +154,12 @@ class _SnapshotBackdropState extends State<_SnapshotBackdrop> {
   static final _enabled = !isFlutterTest;
 
   final _boundary = GlobalKey();
+
+  /// The tallest the page has been at its current width. The keyboard only
+  /// shortens the page; the backdrop keeps this height, top-aligned and
+  /// clipped, so the glow or picture never squeezes, shifts or is
+  /// snapshotted again while the keyboard comes and goes.
+  double? _fullHeight, _forWidth;
   (Object, Size, double)? _key;
   ui.Image? _image;
   bool _ready = false;
@@ -272,28 +279,62 @@ class _SnapshotBackdropState extends State<_SnapshotBackdrop> {
     return IgnorePointer(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final size = constraints.biggest;
+          final size = _fixedSize(constraints.biggest);
           final live = RepaintBoundary(
             key: _boundary,
             child: widget.builder(_markReady),
           );
-          if (!_enabled || !size.isFinite || size.isEmpty) return live;
+          if (!_enabled || !size.isFinite || size.isEmpty) {
+            return _pinned(size, live);
+          }
           final key = (widget.id, size, ratio);
           final changed = _key != key;
           _show(key);
           final image = _image;
           if (image != null) {
-            return RawImage(
-              image: image,
-              width: size.width,
-              height: size.height,
-              fit: BoxFit.fill,
-              filterQuality: FilterQuality.low,
+            return _pinned(
+              size,
+              RawImage(
+                image: image,
+                width: size.width,
+                height: size.height,
+                fit: BoxFit.fill,
+                filterQuality: FilterQuality.low,
+              ),
             );
           }
           if (changed && _ready) _schedule(key);
-          return live;
+          return _pinned(size, live);
         },
+      ),
+    );
+  }
+
+  /// [size], but as tall as the page has been at this width (see
+  /// [_fullHeight]). A new width (the phone turned) starts over.
+  Size _fixedSize(Size size) {
+    if (!size.isFinite) return size;
+    if (_forWidth != size.width || _fullHeight == null) {
+      _forWidth = size.width;
+      _fullHeight = size.height;
+    } else if (size.height > _fullHeight!) {
+      _fullHeight = size.height;
+    }
+    return Size(size.width, _fullHeight!);
+  }
+
+  /// [child] laid out at [size] from the top, whatever the page's height
+  /// now; what falls below the page is clipped.
+  Widget _pinned(Size size, Widget child) {
+    if (!size.isFinite) return child;
+    return ClipRect(
+      child: OverflowBox(
+        alignment: Alignment.topCenter,
+        minWidth: size.width,
+        maxWidth: size.width,
+        minHeight: size.height,
+        maxHeight: size.height,
+        child: child,
       ),
     );
   }

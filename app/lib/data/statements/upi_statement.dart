@@ -307,7 +307,9 @@ StatementOwner statementOwnerIn(
     for (final pattern in [_accountName, _statementOf]) {
       final raw = pattern.firstMatch(flat)?[1];
       if (raw != null && plausible(raw)) {
-        stated.add(StatementOwner.normalizeName(raw.replaceAll(RegExp(r'\s+'), ' ')));
+        stated.add(
+          StatementOwner.normalizeName(raw.replaceAll(RegExp(r'\s+'), ' ')),
+        );
       }
     }
   }

@@ -18,6 +18,14 @@ final _balance = RegExp(
   r'\b(?:avl\.?|avail\.?|available|current|closing|clear)?\s*(?:balance\b|bal\.?)\s*(?:is\s*)?[:=.-]?\s*(?:INR|Rs\.?|₹)\s*([+-]?\d[\d,]*(?:\.\d{1,2})?)(?![\d,]|\.\d)',
   caseSensitive: false,
 );
+
+/// [body] with the balance it states hidden ("Bal Rs19949.27" becomes "Bal
+/// RsXXXXX"), for a message that leaves the phone. Nothing else changes.
+String maskBalance(String body) => body.replaceAllMapped(_balance, (m) {
+  final number = m.group(1)!;
+  final at = m.group(0)!.lastIndexOf(number);
+  return '${m.group(0)!.substring(0, at)}${'X' * 5}';
+});
 final _account = RegExp(
   r'(?:\ba\s*[/\\]\s*c|\bac\b|\baccount|\bacct|\b(?:one|credit|debit|super)\s*card|\bcard)\s*(?:(?:no\.?|number)\s*)?(?:ending\s*(?:with|in)?\s*)?[:.(\s]*[xX*•-]*(\d{4,})\b',
   caseSensitive: false,

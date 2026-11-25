@@ -1,7 +1,7 @@
 name: simple_money
 description: A simple, private, offline-first money manager.
 publish_to: 'none'
-version: 0.60.26+34
+version: 0.60.27+35
 
 environment:
   sdk: ^3.13.2

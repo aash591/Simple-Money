@@ -718,29 +718,6 @@ class _DebtSheetState extends State<DebtSheet> {
                     ? edit(() => _goTo(_Step.person))
                     : null,
               ),
-              TransactionSwitchRow(
-                icon: Icons.account_balance_wallet_outlined,
-                label: 'Update account balance',
-                value: account == null
-                    ? 'Only tracked here. Balances and transactions stay '
-                          'untouched.'
-                    : kind.paysOut
-                    ? 'Takes this out of your account'
-                    : 'Adds this to your account',
-                on: account != null,
-                onChanged: _saving ? null : _setUpdatesBalance,
-              ),
-              if (account != null)
-                TransactionDetailRow(
-                  leading: EntityIconTile(
-                    chosen: true,
-                    iconKey: account.icon,
-                    fallback: Icons.account_balance_wallet_outlined,
-                  ),
-                  label: kind.paysOut ? 'Paid from' : 'Received in',
-                  value: account.name,
-                  onTap: edit(_pickAccount),
-                ),
               TransactionDetailRow(
                 leading: const SheetIconTile(
                   icon: Icons.calendar_today_rounded,
@@ -772,6 +749,28 @@ class _DebtSheetState extends State<DebtSheet> {
                 // No rebuild needed: the field shows what's typed itself.
                 onChanged: (text) => _note = text,
               ),
+              TransactionSwitchRow(
+                icon: Icons.account_balance_wallet_outlined,
+                label: 'Update account balance',
+                value: account == null
+                    ? 'Only tracked here'
+                    : kind.paysOut
+                    ? 'Takes this out of your account'
+                    : 'Adds this to your account',
+                on: account != null,
+                onChanged: _saving ? null : _setUpdatesBalance,
+              ),
+              if (account != null)
+                TransactionDetailRow(
+                  leading: EntityIconTile(
+                    chosen: true,
+                    iconKey: account.icon,
+                    fallback: Icons.account_balance_wallet_outlined,
+                  ),
+                  label: kind.paysOut ? 'Paid from' : 'Received in',
+                  value: account.name,
+                  onTap: edit(_pickAccount),
+                ),
             ],
           ),
           if (_looksOld)
@@ -869,11 +868,50 @@ class _PersonPage extends StatefulWidget {
 
 class _PersonPageState extends State<_PersonPage> {
   final _search = TextEditingController();
+  final _searchFocus = FocusNode();
+  final _listKey = GlobalKey();
+
+  /// While searching, the people list is scrolled to the top so the question
+  /// and the contact rows give their room to it above the keyboard — until
+  /// the person scrolls it themselves.
+  bool _followList = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocus.addListener(() {
+      _followList = _searchFocus.hasFocus;
+      if (_followList) _revealList(animate: true);
+    });
+  }
 
   @override
   void dispose() {
     _search.dispose();
+    _searchFocus.dispose();
     super.dispose();
+  }
+
+  void _revealList({required bool animate}) {
+    final context = _listKey.currentContext;
+    if (context == null) return;
+    Scrollable.ensureVisible(
+      context,
+      duration: animate ? const Duration(milliseconds: 250) : Duration.zero,
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  bool _onScroll(Notification notification) {
+    if (notification is ScrollStartNotification &&
+        notification.dragDetails != null) {
+      // A drag by the person hands the list back to them.
+      _followList = false;
+    } else if (notification is ScrollMetricsNotification && _followList) {
+      // The keyboard is still sliding in: keep the list in place.
+      _revealList(animate: false);
+    }
+    return false;
   }
 
   @override
@@ -903,7 +941,7 @@ class _PersonPageState extends State<_PersonPage> {
           onTap: () => widget.onSelected(debts.person.id),
         ),
     ];
-    return SheetPage(
+    final page = SheetPage(
       header: SheetHeader(
         widget.title,
         onBack: widget.onBack,
@@ -938,15 +976,8 @@ class _PersonPageState extends State<_PersonPage> {
           ),
           if (widget.people.isNotEmpty || newPerson != null) ...[
             const SizedBox(height: 20),
-            if (widget.people.length > 5) ...[
-              SearchField(
-                controller: _search,
-                onChanged: (_) => setState(() {}),
-                hintText: 'Search people',
-              ),
-              const SizedBox(height: 12),
-            ],
             SheetCard(
+              key: _listKey,
               child: Column(
                 children: [
                   if (rows.isEmpty)
@@ -973,10 +1004,22 @@ class _PersonPageState extends State<_PersonPage> {
           ],
         ],
       ),
-      actions: ActionButtonBar(
-        secondaryLabel: 'Cancel',
-        onSecondary: widget.onCancel,
+      // Pinned below the scrolling list, like the category sheet's search.
+      actions: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+        child: SearchField(
+          controller: _search,
+          focusNode: _searchFocus,
+          onChanged: (_) => setState(() {}),
+          hintText: 'Search people',
+          fillColor: colors.card,
+        ),
       ),
+    );
+    // The page's own scroll view reports up through here.
+    return NotificationListener<Notification>(
+      onNotification: _onScroll,
+      child: page,
     );
   }
 }

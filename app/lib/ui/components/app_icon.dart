@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../data/custom_icons.dart';
 import '../../domain/app_icons.dart';
 import '../../domain/brand_dark_icons.dart';
 
@@ -29,6 +30,8 @@ ImageProvider? appIconImage(String? iconKey, Brightness brightness) {
     return AssetImage(brandIconAssetPath(brand.key, brightness));
   }
   if (resolveWordmarkBrand(iconKey) != null) return null;
+  final custom = CustomIcons.fileFor(iconKey);
+  if (custom != null) return FileImage(custom);
   return AssetImage(appIconAsset(iconKey));
 }
 
@@ -63,6 +66,18 @@ class AppIcon extends StatelessWidget {
         fit: BoxFit.contain,
       );
       return _BrandIcon(logo: logo, size: size);
+    }
+    final custom = CustomIcons.fileFor(iconKey);
+    if (custom != null) {
+      return _SizedIconEffect(
+        size: size,
+        child: Image.file(
+          custom,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.low,
+          gaplessPlayback: true,
+        ),
+      );
     }
     final wordmark = resolveWordmarkBrand(iconKey);
     if (wordmark != null) {

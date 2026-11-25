@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:simple_money/ui/more/help/help_screen.dart';
+import 'package:simple_money/ui/more/settings/help/help_screen.dart';
 import 'package:simple_money/ui/theme/app_theme.dart';
 
 void main() {
@@ -18,7 +18,7 @@ void main() {
     await open(tester, url: 'https://t.me/+example');
     expect(find.text('Join community'), findsOneWidget);
     expect(find.text('FAQ'), findsOneWidget);
-    expect(find.text('Report SMS'), findsOneWidget);
+    expect(find.text('Report SMS'), findsNothing);
   });
 
   testWidgets('without a link there is no community row', (tester) async {

@@ -1,14 +1,18 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import 'glass_surface.dart';
 
 import 'app_back_button.dart';
 
+import '../../data/custom_icons.dart';
 import '../../domain/app_icons.dart';
 import '../../domain/brand_icons.dart';
 import 'app_icon.dart';
 import 'app_toast.dart';
 import 'common.dart';
+import 'create_icon_screen.dart';
+import 'feature_page.dart';
 import 'empty_state.dart';
 import 'search_field.dart';
 import 'secondary_header.dart';
@@ -114,6 +118,12 @@ class _SelectIconScreenState extends State<SelectIconScreen>
     });
   }
 
+  Future<void> _createIcon() async {
+    final key = await Navigator.of(context)
+        .push<String>(FeatureRoute<String>(const CreateIconScreen()));
+    if (key != null && mounted) setState(() {});
+  }
+
   static int _tabFor(String? key) {
     final brand = resolveBrandIcon(key);
     if (brand == null) return 0;
@@ -137,6 +147,18 @@ class _SelectIconScreenState extends State<SelectIconScreen>
     },
     child: GlassPage(
       child: Scaffold(
+        // Only the 3D tab can grow: the other two are real logos.
+        floatingActionButton: kIsWeb
+            ? null
+            : ListenableBuilder(
+                listenable: _tabs,
+                builder: (context, _) => _tabs.index == 0 && !_searching
+                    ? AddFab(
+                        tooltip: 'Add your own icon',
+                        onPressed: _createIcon,
+                      )
+                    : const SizedBox.shrink(),
+              ),
         body: SafeArea(
           child: Column(
             children: [
@@ -180,11 +202,21 @@ class _SelectIconScreenState extends State<SelectIconScreen>
                     child: TabBarView(
                       controller: _tabs,
                       children: [
-                        _IconTab(
-                          storageKey: '3d',
-                          sections: [(title: null, keys: appIconKeys)],
-                          selectedKey: widget.selectedKey,
-                          query: _search.text.trim().toLowerCase(),
+                        ValueListenableBuilder<List<String>>(
+                          valueListenable: CustomIcons.keys,
+                          builder: (context, custom, _) => _IconTab(
+                            storageKey: '3d',
+                            sections: [
+                              if (custom.isNotEmpty)
+                                (title: 'Your icons', keys: custom),
+                              (
+                                title: custom.isNotEmpty ? 'Built in' : null,
+                                keys: appIconKeys,
+                              ),
+                            ],
+                            selectedKey: widget.selectedKey,
+                            query: _search.text.trim().toLowerCase(),
+                          ),
                         ),
                         _IconTab(
                           storageKey: 'brands',
@@ -249,7 +281,7 @@ class _IconTab extends StatelessWidget {
           final keys = section.keys.where((key) {
             final brand = resolveBrandIcon(key);
             final searchable = [
-              key.replaceAll('_', ' '),
+              key.replaceAll(RegExp('^custom:'), '').replaceAll('_', ' '),
               if (brand != null) brand.title,
               if (brand?.bankCountry != null) brand!.bankCountry!,
             ].join(' ').toLowerCase();
@@ -290,7 +322,10 @@ class _IconTab extends StatelessWidget {
                 (context, i) {
                   final key = section.keys[i];
                   final label =
-                      resolveBrandIcon(key)?.title ?? key.replaceAll('_', ' ');
+                      resolveBrandIcon(key)?.title ??
+                      (CustomIcons.isCustomKey(key)
+                          ? CustomIcons.label(key)
+                          : key.replaceAll('_', ' '));
                   return Semantics(
                     label: label,
                     child: _IconChoice(

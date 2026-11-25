@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 
 import 'package:http/http.dart' as http;
 
@@ -289,8 +290,17 @@ class YahooQuotes {
             headers: _headers,
           )
           .timeout(const Duration(seconds: 15));
-      return response.statusCode == 200 ? parseChart(response.body) : null;
-    } catch (_) {
+      if (response.statusCode != 200) {
+        // Only the ticker is logged: it says why a price didn't arrive.
+        developer.log(
+          '$yahooSymbol: HTTP ${response.statusCode}',
+          name: 'prices',
+        );
+        return null;
+      }
+      return parseChart(response.body);
+    } catch (e) {
+      developer.log('$yahooSymbol: $e', name: 'prices');
       return null;
     }
   }
@@ -537,6 +547,75 @@ class CoinGeckoSource extends PriceSource {
   }
 }
 
+/// Every currency's rate against one base, from Exchange Rate API's open
+/// endpoint: one request, no key, updated once a day. Used to fill the
+/// currency list at once; a saved holding is still priced from Yahoo. The
+/// service asks to be credited, and allows caching but not redistribution.
+class ForexTable {
+  const ForexTable._(this.base, this._perBase, this.fetched);
+  final String base;
+  final DateTime fetched;
+
+  /// How many of each currency one [base] buys.
+  final Map<String, double> _perBase;
+
+  static const sourceName = 'Exchange Rate API';
+  static const _maxAge = Duration(hours: 1);
+  static final Map<String, ForexTable> _cache = {};
+
+  /// Parses the `latest` reply, or null when it isn't a usable one.
+  static ForexTable? parse(String body, String base, {DateTime? now}) {
+    try {
+      final json = jsonDecode(body) as Map<String, dynamic>;
+      if (json['result'] != 'success') return null;
+      final rates = json['rates'] as Map<String, dynamic>;
+      final perBase = <String, double>{
+        for (final MapEntry(key: code, value: v) in rates.entries)
+          if (v is num && v.isFinite && v > 0) code: v.toDouble(),
+      };
+      return perBase.isEmpty
+          ? null
+          : ForexTable._(base, perBase, now ?? DateTime.now());
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// The table for [base], from the last hour's request when there is one.
+  static Future<ForexTable?> load(http.Client client, String base) async {
+    final code = base.trim().toUpperCase();
+    final kept = _cache[code];
+    if (kept != null && DateTime.now().difference(kept.fetched) < _maxAge) {
+      return kept;
+    }
+    try {
+      final response = await client
+          .get(Uri.https('open.er-api.com', '/v6/latest/$code'))
+          .timeout(const Duration(seconds: 15));
+      if (response.statusCode != 200) return null;
+      final table = parse(response.body, code);
+      if (table != null) _cache[code] = table;
+      return table;
+    } catch (e) {
+      developer.log('rates $code: $e', name: 'prices');
+      return null;
+    }
+  }
+
+  /// One unit of [code] in [base], or null when the table doesn't have it.
+  PriceQuote? rateOf(String code) {
+    final perBase = _perBase[code.trim().toUpperCase()];
+    if (perBase == null) return null;
+    final e4 = (priceScale / perBase).round();
+    if (e4 <= 0) return null;
+    return PriceQuote(
+      priceE4: e4,
+      date: DateTime(fetched.year, fetched.month, fetched.day),
+      currency: base,
+    );
+  }
+}
+
 /// Foreign currency held as a holding. The symbol is its code (`USD`) and the
 /// price is one unit of it in the holding's own currency (the account's),
 /// from Yahoo's exchange rates (`USDINR=X`). Holding a currency in the
@@ -557,6 +636,67 @@ class ForexSource extends PriceSource {
     return '$from$to=X';
   }
 
+  /// How many of [code] one US dollar buys (`USDSAR=X`), which Yahoo has for
+  /// every currency. One for the dollar itself.
+  static Future<PriceQuote?> perDollar(http.Client client, String code) async {
+    final c = code.trim().toUpperCase();
+    if (c == 'USD') {
+      return PriceQuote(priceE4: priceScale, date: DateTime.now());
+    }
+    return YahooQuotes.quote(client, 'USD$c=X');
+  }
+
+  /// One unit of [from] in [to] from how many of each a dollar buys.
+  static PriceQuote? cross(
+    PriceQuote fromPerUsd,
+    PriceQuote toPerUsd,
+    String to,
+  ) {
+    final e4 = (toPerUsd.priceE4 / fromPerUsd.priceE4 * priceScale).round();
+    if (e4 <= 0) return null;
+    final date = fromPerUsd.date.isBefore(toPerUsd.date)
+        ? fromPerUsd.date
+        : toPerUsd.date;
+    return PriceQuote(priceE4: e4, date: date, currency: to);
+  }
+
+  /// One unit of [code] in [currency]. Yahoo lists the main pairs directly
+  /// (`USDINR=X`) but not most others (`SARINR=X`), while it has every
+  /// currency against the dollar, so a missing pair is worked out through it.
+  static Future<PriceQuote?> rate(
+    http.Client client,
+    String code,
+    String currency,
+  ) async {
+    final from = code.trim().toUpperCase(), to = currency.trim().toUpperCase();
+    final symbol = pair(from, to);
+    if (symbol == null) return null;
+    final direct = await YahooQuotes.quote(client, symbol);
+    if (direct != null) {
+      return PriceQuote(
+        priceE4: direct.priceE4,
+        date: direct.date,
+        currency: to,
+      );
+    }
+    // Units of each side per dollar: null for the dollar itself, which is 1.
+    Future<PriceQuote?> side(String c) async =>
+        c == 'USD' ? null : perDollar(client, c);
+    final (a, b) = await (side(from), side(to)).wait;
+    if ((from != 'USD' && a == null) || (to != 'USD' && b == null)) return null;
+    final fromPerUsd = a == null ? 1.0 : a.priceE4 / priceScale;
+    final toPerUsd = b == null ? 1.0 : b.priceE4 / priceScale;
+    final e4 = (toPerUsd / fromPerUsd * priceScale).round();
+    if (e4 <= 0) return null;
+    // The older of the two days, as that is what the rate is really for.
+    final dates = [?a?.date, ?b?.date]..sort();
+    return PriceQuote(
+      priceE4: e4,
+      date: dates.isEmpty ? DateTime.now() : dates.first,
+      currency: to,
+    );
+  }
+
   @override
   Future<Map<int, PriceQuote>> quotes(
     http.Client client,
@@ -564,17 +704,8 @@ class ForexSource extends PriceSource {
   ) async {
     final found = <int, PriceQuote>{};
     for (final h in holdings) {
-      final currency = h.currency ?? 'USD';
-      final symbol = pair(h.symbol!, currency);
-      if (symbol == null) continue;
-      final quote = await YahooQuotes.quote(client, symbol);
-      if (quote != null) {
-        found[h.id] = PriceQuote(
-          priceE4: quote.priceE4,
-          date: quote.date,
-          currency: currency,
-        );
-      }
+      final quote = await rate(client, h.symbol!, h.currency ?? 'USD');
+      if (quote != null) found[h.id] = quote;
     }
     return found;
   }

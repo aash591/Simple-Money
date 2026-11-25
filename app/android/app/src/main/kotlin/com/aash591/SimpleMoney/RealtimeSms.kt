@@ -38,10 +38,12 @@ class TransactionSmsReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        fun enqueue(context: Context, sender: String, body: String, receivedAt: Long) {
+        /** [notification]: from an app's notification (a taught app), not an SMS. */
+        fun enqueue(context: Context, sender: String, body: String, receivedAt: Long,
+                    notification: Boolean = false) {
             val prefs = context.getSharedPreferences("realtime_sms", Context.MODE_PRIVATE)
             val payload = JSONObject().put("sender", sender).put("body", body)
-                .put("receivedAt", receivedAt).toString()
+                .put("receivedAt", receivedAt).put("notification", notification).toString()
             val key = MessageDigest.getInstance("SHA-256").digest(payload.toByteArray())
                 .joinToString("") { "%02x".format(it) }
             // Keep large multipart messages out of WorkManager's limited Data object.
@@ -60,7 +62,11 @@ class TransactionSmsWorker(context: Context, params: WorkerParameters) : Worker(
         val key = inputData.getString("key") ?: return Result.failure()
         val prefs = applicationContext.getSharedPreferences("realtime_sms", Context.MODE_PRIVATE)
         val raw = prefs.getString(key, null) ?: return Result.success()
-        if (!prefs.getBoolean("enabled", false)) {
+        // A notification follows the notification switch; an SMS, the SMS one.
+        val fromNotification = try { JSONObject(raw).optBoolean("notification") } catch (_: Exception) { false }
+        val on = if (fromNotification) NotificationCaptureStore(applicationContext).enabled
+            else prefs.getBoolean("enabled", false)
+        if (!on) {
             prefs.edit().remove(key).commit()
             return Result.success()
         }
@@ -155,7 +161,11 @@ object RealtimeSmsNotifications {
             }
     }
 
+    // TEMPORARY: transaction notifications are hidden in every build. Set to true to restore.
+    private const val SHOW_TRANSACTION_NOTIFICATIONS = false
+
     private fun show(context: Context, data: Map<String, Any>) {
+        if (!SHOW_TRANSACTION_NOTIFICATIONS) return
         if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(context,
                 Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
         val manager = context.getSystemService(NotificationManager::class.java)

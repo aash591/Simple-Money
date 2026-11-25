@@ -29,7 +29,7 @@ import '../../components/transactions/transaction_list_row.dart';
 import '../../theme/app_theme.dart';
 import '../../transactions/amount_typing.dart';
 import '../../transactions/transaction_sheet.dart';
-import '../help/report_sms_screen.dart';
+import 'sms/teach_missed_sms_screen.dart';
 
 /// Fixes other people shared that read something on this phone: for an SMS
 /// format, a message it read and the entry it made. One can be switched off

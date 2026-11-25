@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
@@ -469,6 +470,88 @@ class CommunitySync {
       );
     }
     return fixes;
+  }
+
+  static const sentRulesKey = 'community.sent_rules';
+  static const keptRulesKey = 'community.kept_rules';
+
+  /// New messages a rule taught on this phone must read before it's sent.
+  static const provenAfter = 2;
+
+  /// The same SMS rule, however it was written, gets the same key.
+  static String ruleKey(Map<String, Object?> fix) => sha256
+      .convert(
+        utf8.encode(
+          _canonical({
+            'bankName': fix['bankName'],
+            'senders': fix['senders'],
+            'format': fix['format'],
+          }),
+        ),
+      )
+      .toString();
+
+  /// Remembers SMS rules already sent ([sent]) or that the user chose not to
+  /// share ([kept]), so [shareProvenRules] leaves them alone.
+  static Future<void> noteRules(
+    Iterable<Map<String, Object?>> fixes, {
+    required bool sent,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = sent ? sentRulesKey : keptRulesKey;
+      await prefs.setStringList(
+        key,
+        {
+          ...?prefs.getStringList(key),
+          for (final fix in fixes) ruleKey(fix),
+        }.toList(),
+      );
+    } catch (_) {}
+  }
+
+  /// Sends the user's own SMS rules that have read at least [provenAfter]
+  /// new messages since they were taught, to wait on the dashboard until
+  /// checked. Only the format goes (fixed bank text and sender IDs), never
+  /// the messages, amounts, names or account digits it reads. Rules the user
+  /// chose not to share, and ones already sent, are skipped. Never throws.
+  Future<void> shareProvenRules() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final skip = {
+        ...?prefs.getStringList(sentRulesKey),
+        ...?prefs.getStringList(keptRulesKey),
+      };
+      final proven = <Map<String, Object?>>[];
+      for (final rule in await UserSmsRuleRepository(database).load()) {
+        final fix = <String, Object?>{
+          'bankName': rule.bankName,
+          'senders': rule.senders,
+          'format': rule.format,
+        };
+        if (skip.contains(ruleKey(fix))) continue;
+        final read = await database
+            .customSelect(
+              'SELECT count(*) AS n FROM sms_imports WHERE rule_id = ? '
+              "AND received_at > ? AND status != 'dismissed'",
+              variables: [
+                Variable(
+                  userSmsRuleId(
+                    rule.bankName,
+                    rule.id,
+                    country: ruleCountry(rule.format),
+                  ),
+                ),
+                Variable(rule.createdAt.millisecondsSinceEpoch),
+              ],
+            )
+            .getSingle();
+        if (read.read<int>('n') >= provenAfter) proven.add(fix);
+      }
+      if (proven.isEmpty) return;
+      await noteRules(proven, sent: true);
+      await share([for (final fix in proven) (CommunityKind.smsRule, fix)]);
+    } catch (_) {}
   }
 
   /// Shares fixes the user chose to share. They wait in a queue until the

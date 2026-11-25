@@ -14,6 +14,7 @@ import 'category_repository.dart';
 import '../../domain/category.dart';
 import '../db/app_database.dart';
 import '../bank_sms_parser.dart';
+import '../notification_access_platform.dart';
 import '../sms_inbox_platform.dart';
 import 'statement_import_repository.dart';
 import 'transaction_repository.dart';
@@ -704,6 +705,17 @@ class SmsImportRepository {
     );
   }
 
+  /// Every message of [bankKey] (see [smsBankKey]) goes to [accountId] from
+  /// now on, before any has arrived: for an app whose notifications carry no
+  /// account number, the account the user chose while teaching it.
+  Future<void> linkBank(String bankKey, int accountId, String currency) async {
+    await _account(accountId, currency);
+    await database.customStatement(
+      'INSERT OR REPLACE INTO sms_account_links(bank_key,account_id) VALUES (?,?)',
+      [bankKey, accountId],
+    );
+  }
+
   Future<List<PendingSmsImport>> pending({int? limit, int offset = 0}) async {
     final rows =
         (await database
@@ -867,6 +879,47 @@ class SmsImportRepository {
   /// The bank may never send its SMS (a refund to a wallet or the original
   /// card): the shop's message then stays in review for the user to pick the
   /// account.
+  /// A bank may send one payment as an SMS and as an app notification. When
+  /// exactly one of two messages is a taught app's (see
+  /// [isNotificationSender]) and the other has the same amount, currency and
+  /// direction within two minutes, they are one payment: the fingerprint of
+  /// the one that came first is returned, and the later one is dropped.
+  Future<String?> _otherChannelTwin(
+    String id,
+    BankSms sms,
+    Map<String, dynamic> candidate,
+  ) async {
+    // A corrected message is what the user said it is, not a twin.
+    if (candidate[correctedDirectionKey] != null) return null;
+    final app = isNotificationSender(sms.sender);
+    final at = sms.receivedAt.millisecondsSinceEpoch;
+    const window = Duration(minutes: 2);
+    final rows = await database
+        .customSelect(
+          "SELECT fingerprint,sender,candidate FROM sms_imports WHERE received_at BETWEEN ? AND ? AND status IN ('pending','imported') AND fingerprint<>? ORDER BY abs(received_at-?)",
+          variables: [
+            Variable(at - window.inMilliseconds),
+            Variable(at + window.inMilliseconds),
+            Variable(id),
+            Variable(at),
+          ],
+        )
+        .get();
+    for (final row in rows) {
+      if (isNotificationSender(row.read<String>('sender')) == app) continue;
+      final other = Map<String, dynamic>.from(
+        jsonDecode(row.read<String>('candidate')) as Map,
+      );
+      if (other['direction'] == candidate['direction'] &&
+          other['amountMinor'] == candidate['amountMinor'] &&
+          other['currencyCode'] == candidate['currencyCode'] &&
+          other['mergedInto'] == null) {
+        return row.read<String>('fingerprint');
+      }
+    }
+    return null;
+  }
+
   Future<String?> _reconcileTwin(
     String id,
     BankSms sms,
@@ -1018,6 +1071,24 @@ class SmsImportRepository {
           Variable(result.ruleId!),
           Variable(result.packVersion),
           Variable(transactionId),
+        ],
+      );
+      return;
+    }
+    final channelTwin = await _otherChannelTwin(id, sms, candidate);
+    if (channelTwin != null) {
+      // The same payment already arrived the other way (SMS or an app's
+      // notification): keep that one, and this one on record so a rescan
+      // doesn't bring it back.
+      await database.customInsert(
+        "INSERT OR IGNORE INTO sms_imports (fingerprint,sender,body,received_at,candidate,rule_id,pack_version,status) VALUES (?,?,NULL,?,?,?,?,'dismissed')",
+        variables: [
+          Variable(id),
+          Variable(sms.sender),
+          Variable(sms.receivedAt.millisecondsSinceEpoch),
+          Variable(jsonEncode({...candidate, 'mergedInto': channelTwin})),
+          Variable(result.ruleId!),
+          Variable(result.packVersion),
         ],
       );
       return;

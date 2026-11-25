@@ -23,8 +23,11 @@ void main() {
     accounts = AccountStore(AccountRepository(db));
     store = HoldingStore(HoldingRepository(db), accountStore: accounts);
     await accounts.save(
-      name: 'Zerodha', currency: 'INR', digits: 2,
-      openingBalance: 1000000, broker: true,
+      name: 'Zerodha',
+      currency: 'INR',
+      digits: 2,
+      openingBalance: 1000000,
+      broker: true,
     );
     await accounts.load();
     holdingId = await store.saveHolding(

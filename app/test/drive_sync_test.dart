@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+
 import 'fake_drive_listing.dart';
+
 import 'package:simple_money/ui/components/glass_button.dart';
 import 'package:simple_money/data/backup/drive_client.dart';
 import 'package:simple_money/data/backup/sync_engine.dart';
@@ -33,9 +35,13 @@ List<Map<String, dynamic>> rowsIn(SyncBatch batch, String table) => [
 ];
 
 /// [table]'s rows across every file in [files].
-List<Map<String, dynamic>> rowsAcross(Iterable<SyncBatch> files, String table) => [
+List<Map<String, dynamic>> rowsAcross(
+  Iterable<SyncBatch> files,
+  String table,
+) => [
   for (final file in files)
-    if ((decode(file)['tables'] as Map).containsKey(table)) ...rowsIn(file, table),
+    if ((decode(file)['tables'] as Map).containsKey(table))
+      ...rowsIn(file, table),
 ];
 
 /// A batch of the chain an older version of the app uploaded.
@@ -79,14 +85,13 @@ class FakeDrive implements MirrorTransport {
 
   /// The file holding [section] of [mirror]'s data (of the only phone, when
   /// null).
-  SyncBatch fileOf(String section, {String? mirror}) => files.values
-      .singleWhere(
+  SyncBatch fileOf(String section, {String? mirror}) =>
+      files.values.singleWhere(
         (f) => f.section == section && (mirror == null || f.mirrorId == mirror),
       );
 
   /// The phones with files here.
   Set<String> get mirrors => {for (final f in files.values) f.mirrorId};
-
 
   void addLegacy(SyncBatch batch) {
     files[batch.fileId] = batch;
@@ -527,10 +532,10 @@ void main() {
     );
     expect(await engine.run(), isTrue);
     final today = DateTime.now().toUtc().toIso8601String().substring(0, 10);
-    expect(
-      drive.uploads.map((u) => u.section).toSet(),
-      {'accounts', 'transactions/$today'},
-    );
+    expect(drive.uploads.map((u) => u.section).toSet(), {
+      'accounts',
+      'transactions/$today',
+    });
 
     // Deleting it: the deletion goes in this month's deletions file.
     drive.uploads.clear();
@@ -611,7 +616,13 @@ void main() {
     final sections = {for (final f in drive.files.values) f.section};
     expect(drive.files, hasLength(sections.length));
     expect(drive.allocated, drive.files.length);
-    expect(rowsIn(drive.files.values.firstWhere((f) => f.section == 'accounts'), 'accounts'), hasLength(2));
+    expect(
+      rowsIn(
+        drive.files.values.firstWhere((f) => f.section == 'accounts'),
+        'accounts',
+      ),
+      hasLength(2),
+    );
     expect((await repository.status()).pending, 0);
   });
 
@@ -661,8 +672,10 @@ void main() {
         );
       }
       expect(
-        rowsIn(drive.fileOf('budget_amounts'), 'budget_amounts')
-            .single['start_month'],
+        rowsIn(
+          drive.fileOf('budget_amounts'),
+          'budget_amounts',
+        ).single['start_month'],
         202610,
       );
     },
@@ -713,26 +726,29 @@ void main() {
     expect(rowsIn(last, 'accounts'), hasLength(1));
   });
 
-  test('A reserved file ID survives closing and reopening the database', () async {
-    final directory = await Directory.systemTemp.createTemp('money_sync_');
-    final file = File('${directory.path}/ledger.sqlite');
-    var diskDb = AppDatabase(NativeDatabase(file), false);
-    try {
-      var diskRepository = SyncRepository(diskDb);
-      await diskRepository.connect('test@example.com', 'user');
-      await diskRepository.reserveFile('accounts', 'persistent-id');
-      await diskDb.close();
-      diskDb = AppDatabase(NativeDatabase(file), false);
-      diskRepository = SyncRepository(diskDb);
-      final reopened = (await diskRepository.sectionFile('accounts'))!;
-      expect(reopened.id, 'persistent-id');
-      expect(reopened.created, isFalse);
-      expect((await diskRepository.status()).pending, greaterThan(0));
-    } finally {
-      await diskDb.close();
-      await directory.delete(recursive: true);
-    }
-  });
+  test(
+    'A reserved file ID survives closing and reopening the database',
+    () async {
+      final directory = await Directory.systemTemp.createTemp('money_sync_');
+      final file = File('${directory.path}/ledger.sqlite');
+      var diskDb = AppDatabase(NativeDatabase(file), false);
+      try {
+        var diskRepository = SyncRepository(diskDb);
+        await diskRepository.connect('test@example.com', 'user');
+        await diskRepository.reserveFile('accounts', 'persistent-id');
+        await diskDb.close();
+        diskDb = AppDatabase(NativeDatabase(file), false);
+        diskRepository = SyncRepository(diskDb);
+        final reopened = (await diskRepository.sectionFile('accounts'))!;
+        expect(reopened.id, 'persistent-id');
+        expect(reopened.created, isFalse);
+        expect((await diskRepository.status()).pending, greaterThan(0));
+      } finally {
+        await diskDb.close();
+        await directory.delete(recursive: true);
+      }
+    },
+  );
 
   test('v7 upgrade queues existing data without changing the ledger', () async {
     final directory = await Directory.systemTemp.createTemp(

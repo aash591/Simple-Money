@@ -265,6 +265,74 @@ void main() {
     expect(prefs.getStringList(CommunitySync.outboxKey), isEmpty);
   });
 
+  group('a rule taught here', () {
+    late int ruleId;
+    var read = 0;
+
+    Future<void> readsOne({bool dismissed = false, bool before = false}) {
+      read++;
+      final at = DateTime.now().add(Duration(hours: before ? -1 : 1));
+      return db.customStatement(
+        'INSERT INTO sms_imports (fingerprint, sender, body, received_at, '
+        'candidate, rule_id, pack_version, status) '
+        "VALUES (?, 'ZETAPY', ?, ?, '{}', ?, 1, ?)",
+        [
+          'f$read',
+          _other,
+          at.millisecondsSinceEpoch,
+          'user.zeta.r$ruleId',
+          dismissed ? 'dismissed' : 'pending',
+        ],
+      );
+    }
+
+    setUp(() async {
+      ruleId = await UserSmsRuleRepository(db).add(
+        bankName: 'Zeta',
+        senders: ['ZETAPY'],
+        format: _zeta(),
+        samples: [_sms],
+      );
+    });
+
+    test('is sent once it reads two new messages, then never again', () async {
+      final community = sync();
+      await readsOne(before: true);
+      await readsOne(dismissed: true);
+      await readsOne();
+      await community.shareProvenRules();
+      expect(server.submitted, isEmpty);
+
+      await readsOne();
+      await community.shareProvenRules();
+      final [sent] = server.submitted;
+      final [item] = sent['items']! as List;
+      expect((item as Map)['kind'], 'sms_rule');
+      expect(
+        (item['payload'] as Map).keys,
+        unorderedEquals(['bankName', 'senders', 'format']),
+      );
+
+      await readsOne();
+      await community.shareProvenRules();
+      expect(server.submitted, hasLength(1));
+    });
+
+    test('is not sent after the user said Not now', () async {
+      await CommunitySync.noteRules([
+        {
+          'bankName': 'Zeta',
+          'senders': ['ZETAPY'],
+          'format': _zeta(),
+        },
+      ], sent: false);
+      await readsOne();
+      await readsOne();
+      await sync().shareProvenRules();
+      expect(server.submitted, isEmpty);
+    });
+  });
+
   test('offline sharing waits and goes on the next try', () async {
     final community = sync();
     server.offline = true;

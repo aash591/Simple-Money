@@ -164,6 +164,8 @@ open class MainActivity : FlutterFragmentActivity() {
         UpiBridge(this, flutterEngine)
         people.attach(flutterEngine)
         smsInbox.attach(flutterEngine)
+        NotificationAccessBridge(this).attach(flutterEngine)
+        KeepAliveBridge(this).attach(flutterEngine)
         smsChanges = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "simple_money/sms_changes")
         RealtimeSmsNotifications.attach(this, flutterEngine)
         ImprovementBridge(this).attach(flutterEngine)

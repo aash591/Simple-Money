@@ -16,6 +16,14 @@ import '../sms_sender_role.dart';
 /// Persian and Thai.
 const _digit = '[0-9٠-٩۰-۹๐-๙]';
 
+/// Whitespace the way the rule engine reads it: any run of spaces, tabs,
+/// line breaks and non-breaking spaces is one space, with none at the ends.
+/// The engine reads every message this way and only accepts rule text
+/// already written this way, so a rule built from an SMS with a line break
+/// in it must be built from the message as the engine sees it.
+String ruleWhitespace(String text) =>
+    text.replaceAll(RegExp('[\u0009-\u000d \u00a0\u202f]+'), ' ').trim();
+
 /// How [amount], copied from an SMS, writes numbers, as rule defaults: the
 /// decimal mark, the grouping, and any digits other than ASCII. 1,250.00 and
 /// 1.250,00 and ١٬٢٥٠ all read. [currency]'s decimal places settle 1.250:
@@ -83,6 +91,11 @@ Map<String, Object?> buildLabeledFormat({
   String country = 'IN',
   String currency = 'INR',
 }) {
+  text = ruleWhitespace(text);
+  amount = ruleWhitespace(amount);
+  account = account == null ? null : ruleWhitespace(account);
+  payee = payee == null ? null : ruleWhitespace(payee);
+  reference = reference == null ? null : ruleWhitespace(reference);
   if (!RegExp(r'^[A-Z]{2}$').hasMatch(country)) {
     throw ArgumentError('country must be a two-letter code, such as IN or AE.');
   }

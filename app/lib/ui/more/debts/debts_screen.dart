@@ -314,52 +314,60 @@ class _PeopleList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final header = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              owedToYou ? 'People who owe you' : 'People you owe',
+              style: theme.textTheme.titleMedium,
+            ),
+          ),
+          if (people.isNotEmpty)
+            Text(
+              '${people.length}',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: SheetColors.of(context).muted,
+              ),
+            ),
+        ],
+      ),
+    );
+    if (people.isEmpty) {
+      // The message sits in the middle of the space under the heading.
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(18, 22, 18, 104),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            header,
+            Expanded(
+              child: Center(
+                child: Text(
+                  searching
+                      ? 'No one matches your search.'
+                      : owedToYou
+                      ? 'Nobody owes you anything right now.'
+                      : 'You don’t owe anyone.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return ListView(
       padding: const EdgeInsets.fromLTRB(18, 22, 18, 104),
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  owedToYou ? 'People who owe you' : 'People you owe',
-                  style: theme.textTheme.titleMedium,
-                ),
-              ),
-              if (people.isNotEmpty)
-                Text(
-                  '${people.length}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: SheetColors.of(context).muted,
-                  ),
-                ),
-            ],
-          ),
-        ),
+        header,
         const SizedBox(height: 10),
-        if (people.isEmpty)
-          MoneyCard(
-            padding: const EdgeInsets.all(22),
-            child: Text(
-              searching
-                  ? 'No one matches your search.'
-                  : owedToYou
-                  ? 'Nobody owes you anything right now.'
-                  : 'You don’t owe anyone.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          )
-        else
-          for (final person in people)
-            _PersonCard(
-              debts: person,
-              store: store,
-              onTap: () => onTap(person),
-            ),
+        for (final person in people)
+          _PersonCard(debts: person, store: store, onTap: () => onTap(person)),
       ],
     );
   }

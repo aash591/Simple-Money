@@ -114,7 +114,7 @@ Future<DateTime?> _showCalendarPickerPopup(
 
 /// A dialog route timed like the other popups: it eases open and closes
 /// quicker than it opened.
-class _PopupRoute<T> extends RawDialogRoute<T> {
+class _PopupRoute<T> extends RawDialogRoute<T> with FrostBeforeOpening<T> {
   _PopupRoute({
     required super.pageBuilder,
     super.barrierDismissible,

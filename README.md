@@ -5,7 +5,7 @@
 # SimpleMoney
 
 **A free, private expense manager and budget planner for Android.**<br>
-No account. Works offline. Reads your bank SMS. Your data stays on your phone.
+No account. Works offline. Reads your bank SMS. Your data stays on your phone unless you turn on Drive sync. Bank SMS is never uploaded, except encrypted reports you choose to send.
 
 <p>
   <a href="https://play.google.com/store/apps/details?id=com.aash591.SimpleMoney"><img alt="Get it on Google Play" src="https://img.shields.io/badge/Get_it_on-Google_Play-3DDC84?style=for-the-badge&logo=googleplay&logoColor=white"></a>
@@ -62,7 +62,7 @@ Food paid from Cash and Food paid from a bank are both just **Food**. Moving mon
 
 ### How it works
 
-1. **Your bank SMS arrives.** SimpleMoney reads it on your phone and turns it into a transaction waiting for review. Nothing is uploaded.
+1. **Your bank SMS arrives.** SimpleMoney reads it on your phone and turns it into a transaction waiting for review. The message is never uploaded.
 2. **You check it.** Confirm, fix the category, or skip. Prefer to type? Adding an expense is amount, category, account, save.
 3. **You see where you stand.** Budgets, balances, loans, bills due and net savings update on the Home screen.
 
@@ -70,7 +70,7 @@ Food paid from Cash and Food paid from a bank are both just **Food**. Moving mon
 
 **Key Differentiators**
 
-- 🔒 **Private by Design** — Your transactions stay on your phone; no sign-up, no login, no server holding your data. Bank SMS is read on the device and never uploaded. The internet is used only by features you switch on ([see Privacy](https://simplemoney.aashglobal.in/privacy))
+- 🔒 **Private by Design** — Your transactions stay on your phone unless you turn on Drive sync; no sign-up, no login, no server holding your data. Bank SMS is read on the device and never uploaded, except encrypted reports you choose to send. The internet is used only by the features listed under Privacy ([see Privacy](https://simplemoney.aashglobal.in/privacy))
 - ⚡ **Zero Setup** — Grant SMS permission and your first transactions appear for review; no account to create, works offline
 - 🌍 **Works in Your Country** — Ready-made bank SMS rules for 25 countries, and a way to teach the app any bank it doesn't know yet
 - 🤖 **AI That Asks First** — Connect Claude or ChatGPT to ask about your own money; the AI can only *suggest* changes, and nothing happens until you approve it
@@ -87,12 +87,13 @@ Food paid from Cash and Food paid from a bank are both just **Food**. Moving mon
 - 🤝 **Debts** — Money you lent or borrowed, person by person
 - 🔁 **Recurring Payments** — Subscriptions, rent, premiums and SIPs, with a six-month forecast and reminders before they are due
 - 📥 **Statement Import** — UPI app PDFs (including password-protected ones), CSV and Excel exports; map the columns once and reuse the layout
-- 📷 **UPI QR** — Scan a QR code and record the payment
+- 📷 **UPI QR** — Scan a QR code and record the payment. Remembers where you paid, with optional location permission, so you can see where and when later. Location stays on your device
 - 📈 **Portfolio** — Stocks, ETFs, mutual funds, crypto, forex and gold, at a broker or in hand, with prices
 
 **More Features**
 
-- ☁️ **Encrypted Backup** — Optional Google Drive backup into your own account, encrypted with a PIN that is never stored, then restore on a new phone
+- ☁️ **Backup and multi-device sync** — Optional. Syncs across your devices through your own Google Drive, encrypted with a PIN that is never stored, and restores on a new phone
+- 💬 **Feedback and Reports** — "Send feedback" and "Report SMS" send your message to the developer; SMS reports are encrypted
 - 🎨 **Looks** — Light, dark, true black and the Aurora glass style, with accent colors and your own wallpaper
 - 🔐 **App Lock** — Fingerprint or PIN
 - 🚀 **Quick Add** — Home-screen shortcuts to add an expense, an income or scan a QR in a couple of seconds
@@ -110,15 +111,40 @@ Fixes you teach the app, such as SMS formats and statement layouts, can optional
 ## Privacy
 
 - No sign-up and no login.
-- Your data lives on your device.
-- The internet is used only for things you switch on: Drive backup, exchange rates, price lookups, the AI connection and community sharing.
-- Bank SMS is read locally and not uploaded.
+- Your data lives on your device. It leaves only if you turn on Drive sync, which stores it encrypted in your own Google Drive.
+- Bank SMS is read locally and never uploaded. The one exception is an encrypted report you choose to send with **Report SMS**.
+- The free version shows ads through Google AdMob, which does not see your financial data or SMS.
+
+### Network calls
+
+| What | Where | What it sends |
+|---|---|---|
+| Currency rates | Public currency-rate API (jsDelivr and Cloudflare Pages), only with two or more currencies | The currency code. No personal data |
+| Stock and ETF prices | Yahoo Finance; AMFI for Indian mutual funds | Only the ticker or fund code |
+| Stock logos | Financial Modeling Prep | The ticker, to fetch its logo |
+| Community fixes | SimpleMoney community server | Only a taught SMS format's fixed words and sender ID, never messages, amounts, names or account digits |
+| AI assistant | Cloudflare relay, only while a session is on | Your AI app's questions and answers, plus changes it suggests, which wait for your approval |
+| Drive sync | Your own Google Drive | Your data, encrypted with your PIN |
+| Feedback and Report SMS | Developer | What you write, plus the SMS you select, encrypted |
+
+### Permissions
+
+| Permission | Why |
+|---|---|
+| SMS (read and receive) | Turn bank messages into transactions on your phone |
+| Camera | Scan UPI QR codes |
+| Location (optional) | Remember where a UPI payment was made |
+| Biometric | Fingerprint app lock |
+| Notifications | Reminders for bills and EMIs |
+| Internet | The network calls above |
 
 Read the full [privacy policy](https://simplemoney.aashglobal.in/privacy).
 
 ## SimpleMoney Pro
 
 Tracking your money is free, forever. **Pro** is an optional purchase that adds unlimited budgets, every look and accent color, the AI assistant, and removes ads. It helps keep SimpleMoney going.
+
+The free version shows occasional ads after actions like saving a budget or changing the theme, never during everyday use.
 
 ## Run it from source
 

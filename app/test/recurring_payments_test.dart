@@ -571,7 +571,7 @@ void main() {
       return recurringPayments;
     }
 
-    testWidgets('More lists Recurring payments, with Settings second to last', (
+    testWidgets('More lists Recurring payments, with Settings before History', (
       tester,
     ) async {
       final recurringPayments = await tester.runAsync(store);
@@ -594,7 +594,7 @@ void main() {
         'Categories',
         'Recurring payments',
         'Settings',
-        'About SimpleMoney',
+        'History',
       ];
       final tops = [
         for (final title in titles) tester.getTopLeft(find.text(title)).dy,

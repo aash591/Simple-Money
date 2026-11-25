@@ -20,6 +20,70 @@
     }
   }
 
+  // Home: reveal on scroll, header edge, and the SMS -> entry demo.
+  var still0 = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var rv = [].slice.call(document.querySelectorAll('.rv'));
+  if (rv.length) {
+    if (still0 || !('IntersectionObserver' in window)) {
+      rv.forEach(function (el) { el.classList.add('in'); });
+    } else {
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+      }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+      rv.forEach(function (el) { io.observe(el); });
+    }
+  }
+  var hbar = document.querySelector('.home .bar');
+  if (hbar) {
+    var onScroll = function () { hbar.classList.toggle('scrolled', window.scrollY > 8); };
+    addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+  var flow = document.getElementById('how');
+  if (flow && !still0 && 'IntersectionObserver' in window) {
+    var step = 0, timer = null;
+    var run = function () {
+      flow.setAttribute('data-step', String(step));
+      var wait = step === 2 ? 3200 : 1800;
+      step = (step + 1) % 3;
+      timer = setTimeout(run, wait);
+    };
+    new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting) { if (!timer) { step = 0; run(); } }
+      else { clearTimeout(timer); timer = null; flow.setAttribute('data-step', '2'); }
+    }, { threshold: 0.35 }).observe(flow);
+  }
+
+  // Mobile navigation drawer toggle for home
+  var bar = document.querySelector('.home .bar');
+  var toggle = document.querySelector('.home .menu-toggle');
+  if (bar && toggle) {
+    toggle.addEventListener('click', function () {
+      var open = bar.classList.toggle('menu-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!bar.contains(e.target) && bar.classList.contains('menu-open')) {
+        bar.classList.remove('menu-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && bar.classList.contains('menu-open')) {
+        bar.classList.remove('menu-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.focus();
+      }
+    });
+    var menuLinks = bar.querySelectorAll('.menu a');
+    for (var m = 0; m < menuLinks.length; m++) {
+      menuLinks[m].addEventListener('click', function () {
+        bar.classList.remove('menu-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      });
+    }
+  }
+
   // Guides: counts on the chips, search, and opening the guide named in the URL.
   var search = document.getElementById('search');
   if (!search) return;

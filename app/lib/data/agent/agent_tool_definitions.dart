@@ -264,45 +264,42 @@ extension _AgentToolDefinitions on AgentTools {
           'owns is changed from there. Changes nothing until approved; each '
           'can be undone.',
       readOnly: false,
-      inputSchema: AgentTools._items(
-        {
-          'transaction_id': {'type': 'integer'},
-          'transaction_ids': {
-            'type': 'array',
-            'items': {'type': 'integer'},
-            'description': 'The same change for each of these.',
-          },
-          'type': {
-            'type': 'string',
-            'enum': ['expense', 'income', 'transfer'],
-          },
-          'category_id': {'type': 'integer'},
-          'category_name': {'type': 'string'},
-          'account_id': {
-            'type': 'integer',
-            'description': 'Its account; for a transfer, where it left from.',
-          },
-          'to_account_id': {
-            'type': 'integer',
-            'description': 'For a transfer: where the money went.',
-          },
-          'amount': {'type': 'string', 'description': 'e.g. 250.00'},
-          'date': AgentTools._date,
-          'title': {'type': 'string', 'maxLength': 80},
-          'note': {'type': 'string'},
-          'delete': {
-            'type': 'boolean',
-            'description': 'Remove it. Give nothing else with it.',
-          },
-          'loan_id': {
-            'type': 'integer',
-            'description':
-                'The loan this transaction pays. Leave out other fields.',
-          },
-          'reason': AgentTools._reasonField,
+      inputSchema: AgentTools._items({
+        'transaction_id': {'type': 'integer'},
+        'transaction_ids': {
+          'type': 'array',
+          'items': {'type': 'integer'},
+          'description': 'The same change for each of these.',
         },
-        required: const [],
-      ),
+        'type': {
+          'type': 'string',
+          'enum': ['expense', 'income', 'transfer'],
+        },
+        'category_id': {'type': 'integer'},
+        'category_name': {'type': 'string'},
+        'account_id': {
+          'type': 'integer',
+          'description': 'Its account; for a transfer, where it left from.',
+        },
+        'to_account_id': {
+          'type': 'integer',
+          'description': 'For a transfer: where the money went.',
+        },
+        'amount': {'type': 'string', 'description': 'e.g. 250.00'},
+        'date': AgentTools._date,
+        'title': {'type': 'string', 'maxLength': 80},
+        'note': {'type': 'string'},
+        'delete': {
+          'type': 'boolean',
+          'description': 'Remove it. Give nothing else with it.',
+        },
+        'loan_id': {
+          'type': 'integer',
+          'description':
+              'The loan this transaction pays. Leave out other fields.',
+        },
+        'reason': AgentTools._reasonField,
+      }, required: const []),
       handler: _suggestTransactionEdits,
     ),
     AgentTool(

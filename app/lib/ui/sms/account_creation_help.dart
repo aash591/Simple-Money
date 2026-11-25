@@ -59,13 +59,13 @@ const smsImportGuide = InfoGuide(
         'Let AI fill in accounts and categories',
         'Claude or ChatGPT can pick them for SMS waiting in review. You approve '
             'each change.',
-        ['More', 'AI assistant'],
+        ['More', 'Claude / ChatGPT'],
       ),
       GuideTip(
         Icons.sms_failed_outlined,
         'A bank SMS was missed or read wrong?',
         'Send it to us so we can fix it.',
-        ['More', 'Help', 'Report SMS'],
+        ['More', 'Smart tracking', 'Teach a missed SMS'],
       ),
     ]),
   ],

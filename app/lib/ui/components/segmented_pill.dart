@@ -4,10 +4,19 @@ import 'package:flutter/services.dart';
 /// One option of a [SegmentedPill]. [tone] colours the label and icon while
 /// the segment is selected, such as green for Add and red for Subtract.
 class PillSegment<T extends Object> {
-  const PillSegment(this.value, this.label, {this.icon, this.tone});
+  const PillSegment(
+    this.value,
+    this.label, {
+    this.icon,
+    this.trailingIcon,
+    this.tone,
+  });
   final T value;
   final String label;
   final IconData? icon;
+
+  /// Shown after the label, such as an arrow to the next step.
+  final IconData? trailingIcon;
   final Color? tone;
 }
 
@@ -303,6 +312,15 @@ class _Segment extends StatelessWidget {
                   ),
                 ),
               ),
+              if (segment.trailingIcon != null) ...[
+                const SizedBox(width: 4),
+                TweenAnimationBuilder<Color?>(
+                  tween: ColorTween(end: color),
+                  duration: duration,
+                  builder: (context, color, _) =>
+                      Icon(segment.trailingIcon, size: 14, color: color),
+                ),
+              ],
             ],
           ),
         ),

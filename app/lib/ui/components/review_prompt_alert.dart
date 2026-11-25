@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/play_store.dart';
 import '../../state/review_prompt.dart';
-import '../more/help/report_issue_screen.dart';
+import '../more/settings/help/report_issue_screen.dart';
 import '../theme/sheet_colors.dart';
 import 'adaptive_sheet.dart';
 import 'feature_page.dart';

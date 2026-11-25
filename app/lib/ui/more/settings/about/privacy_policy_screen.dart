@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../components/common.dart';
-import '../../components/feature_page.dart';
+import '../../../components/common.dart';
+import '../../../components/feature_page.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
@@ -67,6 +67,11 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 'can open it, and it doesn’t appear in My Drive.\n'
                 '• Report SMS: only the messages you select, with any note '
                 'or contact you add, are sent securely to the developer.\n'
+                '• Taught SMS: once a format you taught reads two more '
+                'messages, the format alone (the bank’s fixed words and '
+                'sender ID) is sent, so others with that bank can get it '
+                'after a check. Never your messages, amounts, names or '
+                'account digits.\n'
                 '• Exchange rates: downloaded from a public currency '
                 'service. No personal data is sent.\n'
                 '• Portfolio prices: if you add stocks or funds, the app '

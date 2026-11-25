@@ -5,42 +5,50 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
 
-import '../../../data/db/app_database.dart';
-import '../../../data/reportable_sms.dart';
-import '../../../state/sms_import_store.dart';
-import '../../../domain/account.dart';
-import '../../../domain/realtime_sms_category.dart';
-import '../../components/action_buttons.dart';
-import '../../components/adaptive_sheet.dart';
-import '../../components/app_toast.dart';
-import '../../components/card_action.dart';
-import '../../components/common.dart';
-import '../../components/empty_state.dart';
-import '../../components/feature_page.dart';
-import '../../components/segmented_pill.dart';
-import '../../components/search_field.dart';
-import '../../components/text_entry_popup.dart';
-import '../../theme/app_theme.dart';
-import '../../theme/sheet_colors.dart';
+import '../../../../data/bank_sms_parser.dart';
+import '../../../../data/community/community_fixes.dart';
+import '../../../../data/db/app_database.dart';
+import '../../../../data/manual_sms_teacher.dart';
+import '../../../../data/reportable_sms.dart';
+import '../../../../state/sms_import_store.dart';
+import '../../../../domain/account.dart';
+import '../../../../domain/realtime_sms_category.dart';
+import '../../../components/action_buttons.dart';
+import '../../../components/adaptive_sheet.dart';
+import '../../../components/app_toast.dart';
+import '../../../components/card_action.dart';
+import '../../../components/common.dart';
+import '../../../components/empty_state.dart';
+import '../../../components/feature_page.dart';
+import '../../../components/segmented_pill.dart';
+import '../../../components/search_field.dart';
+import '../../../components/text_entry_popup.dart';
+import '../../../theme/app_theme.dart';
+import '../../../theme/sheet_colors.dart';
+import '../../ai/share_fix_prompt.dart';
+import 'teach_sms_sheet.dart';
 
 /// Bank and business SMS for the user to report: ones the parser missed, ones
 /// it read (perhaps wrongly) and the rest. Nothing is sent until they tap
 /// Report on a message (or Report all).
-class ReportSmsScreen extends StatefulWidget {
-  const ReportSmsScreen({super.key, this.database});
+class TeachMissedSmsScreen extends StatefulWidget {
+  const TeachMissedSmsScreen({super.key, this.database, this.onRulesChanged});
 
   /// Reads messages with the user's own and shared rules too, so a message
   /// one of them reads shows under Read, not Missed. Without it, only the
   /// bundled rules.
   final AppDatabase? database;
 
+  /// Reads the SMS inbox again after a message was taught by hand.
+  final VoidCallback? onRulesChanged;
+
   @override
-  State<ReportSmsScreen> createState() => _ReportSmsScreenState();
+  State<TeachMissedSmsScreen> createState() => _TeachMissedSmsScreenState();
 }
 
 enum _Tab { missed, detected, other, reported }
 
-class _ReportSmsScreenState extends State<ReportSmsScreen>
+class _TeachMissedSmsScreenState extends State<TeachMissedSmsScreen>
     with SingleTickerProviderStateMixin {
   late final _tabs = TabController(length: _Tab.values.length, vsync: this)
     ..addListener(() => setState(() {}));
@@ -138,7 +146,7 @@ class _ReportSmsScreenState extends State<ReportSmsScreen>
 
   List<ReportableSms> _visible(_Tab tab) {
     final query = _search.text.trim().toLowerCase();
-    return [
+    final shown = [
       for (final m in _messages)
         if ((tab == _Tab.reported
                 ? _reported.contains(m.id)
@@ -148,10 +156,76 @@ class _ReportSmsScreenState extends State<ReportSmsScreen>
                 m.sms.body.toLowerCase().contains(query)))
           m,
     ];
+    // Messages taught here come first in Read; the sort is stable.
+    if (tab == _Tab.detected) {
+      shown.sort((a, b) => (b.taught ? 1 : 0) - (a.taught ? 1 : 0));
+    }
+    return shown;
+  }
+
+  /// A taught message: its rule is offered for sharing, as an AI-taught rule
+  /// is, and the message with its sender goes along.
+  Future<void> _shareTaught(ReportableSms message) async {
+    final database = widget.database;
+    if (database == null || _busy) return;
+    setState(() => _sending.add(message.id));
+    try {
+      final rule = await ManualSmsTeacher(database).ruleReading(message.sms);
+      if (!mounted) return;
+      if (rule == null) {
+        showAppToast(
+          context,
+          'Nothing to share for this one',
+          icon: Icons.info_outline_rounded,
+        );
+        return;
+      }
+      final shared = await offerToShareRule(
+        context,
+        CommunitySync(database),
+        rule,
+        category: message.parsed?.category?.name,
+        withMessage: true,
+      );
+      if (!shared || !mounted) return;
+      // The message and its sender go with it, to be checked.
+      try {
+        await _repository.report([
+          // Its balance is hidden: the rule never needed it.
+          ReportableSms(
+            message.id,
+            BankSms(
+              sender: message.sms.sender,
+              body: maskBalance(message.sms.body),
+              receivedAt: message.sms.receivedAt,
+            ),
+            message.kind,
+            message.reason,
+            message.parsed,
+            bank: message.bank,
+            taught: message.taught,
+          ),
+        ], bank: rule.bankName);
+        if (mounted) setState(() => _reported.add(message.id));
+      } catch (_) {
+        if (mounted) {
+          showAppToast(
+            context,
+            'Fix shared. The message couldn’t be sent.',
+            icon: Icons.info_outline_rounded,
+          );
+        }
+      }
+    } finally {
+      if (mounted) setState(() => _sending.remove(message.id));
+    }
   }
 
   Future<void> _report(List<ReportableSms> messages) async {
     if (_busy || messages.isEmpty) return;
+    if (messages.length == 1 && messages.first.taught) {
+      return _shareTaught(messages.first);
+    }
     // One sender: ask which bank it is, so the report can be matched to it.
     final senders = {
       for (final m in messages)
@@ -197,6 +271,30 @@ class _ReportSmsScreenState extends State<ReportSmsScreen>
     }
   }
 
+  /// Teach the app [message] by hand. Once it's taught, the list is read
+  /// again, so it and others like it move to Read.
+  Future<void> _teach(ReportableSms message) async {
+    final database = widget.database;
+    if (database == null || _busy) return;
+    final read = await showTeachSmsSheet(
+      context,
+      database: database,
+      message: message.sms,
+      others: [
+        for (final m in _messages)
+          if (m.kind != ReportableKind.detected && m != message) m.sms,
+      ],
+    );
+    if (read == null || !mounted) return;
+    widget.onRulesChanged?.call();
+    showAppToast(
+      context,
+      read > 1 ? 'Taught · reads $read messages like it' : 'Taught',
+      icon: Icons.check_circle_rounded,
+    );
+    await _load();
+  }
+
   Future<void> _openSettings() async {
     try {
       await _repository.openSettings();
@@ -214,7 +312,7 @@ class _ReportSmsScreenState extends State<ReportSmsScreen>
   Widget build(BuildContext context) => PopScope(
     canPop: !_busy,
     child: FeaturePage(
-      title: 'Report SMS',
+      title: 'Teach a missed SMS',
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 620),
@@ -312,6 +410,14 @@ class _ReportSmsScreenState extends State<ReportSmsScreen>
                 reported: _reported.contains(message.id),
                 sending: _sending.contains(message.id),
                 onReport: _busy ? null : () => _report([message]),
+                // Only what the app doesn't read yet can be taught.
+                onTeach:
+                    widget.database == null ||
+                        (message.kind == ReportableKind.detected &&
+                            !message.taught) ||
+                        _busy
+                    ? null
+                    : () => _teach(message),
               ),
             );
           },
@@ -386,7 +492,7 @@ class ReportSmsDetails {
 
 /// The Report SMS sheet: what's wrong, the bank, details and contact. Null
 /// when cancelled. [intro] says where the report comes from, when it's not
-/// the Report SMS screen.
+/// the Teach a missed SMS screen.
 Future<ReportSmsDetails?> showReportSmsSheet(
   BuildContext context, {
   required int count,
@@ -592,10 +698,14 @@ class _MessageCard extends StatefulWidget {
     required this.reported,
     required this.sending,
     required this.onReport,
+    this.onTeach,
   });
   final ReportableSms message;
   final bool reported, sending;
   final VoidCallback? onReport;
+
+  /// Teach the app this message by hand; null hides the button.
+  final VoidCallback? onTeach;
 
   @override
   State<_MessageCard> createState() => _MessageCardState();
@@ -665,6 +775,15 @@ class _MessageCardState extends State<_MessageCard> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  if (widget.onTeach case final teach?) ...[
+                    CardAction(
+                      label: widget.message.taught ? 'Teach again' : 'Teach',
+                      icon: Icons.school_rounded,
+                      color: scheme.primary,
+                      onTap: teach,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                   if (!widget.reported) ...[
                     widget.sending
                         ? const Padding(

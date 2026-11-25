@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../theme/app_typography.dart';
 
@@ -94,12 +95,20 @@ class _StepSliderState extends State<StepSlider>
             setState(() => _outgoing = null);
           }
         });
+  late final _sizeProgress = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.fastOutSlowIn,
+  );
   GlobalKey _pageKey = GlobalKey();
   GlobalKey? _outgoingPageKey;
   Widget? _outgoing;
   Object? _outgoingKey;
   var _forward = true;
   var _modal = false;
+
+  /// The height shown when the current step began, which the slide eases
+  /// from.
+  double? _fromHeight;
 
   @override
   void didUpdateWidget(StepSlider oldWidget) {
@@ -115,23 +124,23 @@ class _StepSliderState extends State<StepSlider>
     _outgoingKey = oldWidget.stepKey;
     _forward = widget.forward;
     _modal = widget.modal;
+    final box = context.findRenderObject();
+    _fromHeight = box is RenderBox && box.hasSize ? box.size.height : null;
     _controller.forward(from: 0);
   }
 
   @override
   void dispose() {
+    _sizeProgress.dispose();
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) => ClipRect(
-    child: AnimatedSize(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : _duration,
-      curve: Curves.fastOutSlowIn,
-      alignment: Alignment.topCenter,
+    child: _StepSize(
+      progress: _sizeProgress,
+      fromHeight: _fromHeight,
       child: LayoutBuilder(
         builder: (context, constraints) => AnimatedBuilder(
           animation: _controller,
@@ -206,6 +215,83 @@ class _StepSliderState extends State<StepSlider>
       ),
     ),
   );
+}
+
+/// As tall as its child, except while a step slides in: then it eases from
+/// [fromHeight] to the new page's height by [progress].
+///
+/// Not an [AnimatedSize]: that eases every change in height, so when the
+/// keyboard closed the page lagged behind the sheet and the whole sheet
+/// dipped and came back. Here only a step change is eased; anything else
+/// (the keyboard, a search narrowing the list) follows at once.
+class _StepSize extends SingleChildRenderObjectWidget {
+  const _StepSize({
+    required this.progress,
+    required this.fromHeight,
+    super.child,
+  });
+  final Animation<double> progress;
+  final double? fromHeight;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderStepSize(progress, fromHeight);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderStepSize renderObject) =>
+      renderObject
+        ..progress = progress
+        ..fromHeight = fromHeight;
+}
+
+class _RenderStepSize extends RenderProxyBox {
+  _RenderStepSize(this._progress, this._fromHeight);
+
+  Animation<double> _progress;
+  set progress(Animation<double> value) {
+    if (value == _progress) return;
+    if (attached) {
+      _progress.removeListener(markNeedsLayout);
+      value.addListener(markNeedsLayout);
+    }
+    _progress = value;
+    markNeedsLayout();
+  }
+
+  double? _fromHeight;
+  set fromHeight(double? value) {
+    if (value == _fromHeight) return;
+    _fromHeight = value;
+    markNeedsLayout();
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    _progress.addListener(markNeedsLayout);
+  }
+
+  @override
+  void detach() {
+    _progress.removeListener(markNeedsLayout);
+    super.detach();
+  }
+
+  @override
+  void performLayout() {
+    final child = this.child;
+    if (child == null) {
+      size = constraints.smallest;
+      return;
+    }
+    child.layout(constraints, parentUsesSize: true);
+    var height = child.size.height;
+    final from = _fromHeight;
+    if (from != null && _progress.status == AnimationStatus.forward) {
+      height = from + (height - from) * _progress.value;
+    }
+    size = constraints.constrain(Size(child.size.width, height));
+  }
 }
 
 /// A tinted action card with its icon in a white circle, a title and an

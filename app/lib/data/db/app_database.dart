@@ -327,15 +327,24 @@ class AppDatabase extends GeneratedDatabase {
       if (from >= 34 && from < 56) {
         // New suggestion kinds (v45 recurring payments and accounts, v56
         // portfolio): SQLite can't change a CHECK, so the table
-        // is rebuilt with its rows.
-        await customStatement(
-          'ALTER TABLE agent_suggestions RENAME TO agent_suggestions_old',
-        );
-        await customStatement(_createAgentSuggestionsTable);
-        await customStatement(
-          'INSERT INTO agent_suggestions SELECT * FROM agent_suggestions_old',
-        );
-        await customStatement('DROP TABLE agent_suggestions_old');
+        // is rebuilt with its rows. A database without the table (a
+        // partial one) just gets the current one.
+        final hasTable = (await customSelect(
+          "SELECT 1 FROM sqlite_master WHERE type = 'table' "
+          "AND name = 'agent_suggestions'",
+        ).get()).isNotEmpty;
+        if (!hasTable) {
+          await customStatement(_createAgentSuggestionsTable);
+        } else {
+          await customStatement(
+            'ALTER TABLE agent_suggestions RENAME TO agent_suggestions_old',
+          );
+          await customStatement(_createAgentSuggestionsTable);
+          await customStatement(
+            'INSERT INTO agent_suggestions SELECT * FROM agent_suggestions_old',
+          );
+          await customStatement('DROP TABLE agent_suggestions_old');
+        }
       }
       if (from < 36) await _createTransactionDateIndex();
       if (from < 37) await customStatement(_createCommunityFixesTable);

@@ -414,9 +414,17 @@ class RealtimeSmsRepository {
     );
   }
 
-  Future<LiveSms?> receive(BankSms message, PortableSmsEngine engine) async {
+  /// [fromNotification]: an app's notification, which follows its own
+  /// switch (checked before it got here), not the SMS one.
+  Future<LiveSms?> receive(
+    BankSms message,
+    PortableSmsEngine engine, {
+    bool fromNotification = false,
+  }) async {
     await initialize();
-    if (!(await SmsImportRepository(db).state()).$1) return null;
+    if (!fromNotification && !(await SmsImportRepository(db).state()).$1) {
+      return null;
+    }
     final result = engine.parse(message);
     if (result.candidate == null || result.ruleId == null) return null;
     final id = sha256

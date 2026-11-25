@@ -167,11 +167,13 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  /// Sends fixes waiting to be shared, and about once a day fetches the ones
-  /// others shared. New SMS formats mean the inbox is read again.
+  /// Sends fixes waiting to be shared (and SMS rules taught here that have
+  /// since read new messages), and about once a day fetches the ones others
+  /// shared. New SMS formats mean the inbox is read again.
   Future<void> _syncCommunity() async {
     final community = widget.community;
     if (community == null) return;
+    await community.shareProvenRules();
     await community.flush();
     if (await community.refresh() && mounted) await _sms.rulesChanged();
   }
@@ -565,31 +567,36 @@ class _HomeScreenState extends State<HomeScreen>
             child: child,
           ),
         ),
-        child: LiquidGlassNavBar(
-          selectedIndex: selectedTab,
-          onDestinationSelected: _selectTab,
-          destinations: [
-            const LiquidGlassDestination(
-              icon: Icons.home_outlined,
-              selectedIcon: Icons.home_rounded,
-              label: 'Home',
-            ),
-            const LiquidGlassDestination(
-              icon: Icons.list_alt_outlined,
-              selectedIcon: Icons.list_alt_rounded,
-              label: 'Transactions',
-            ),
-            const LiquidGlassDestination(
-              icon: Icons.bar_chart_rounded,
-              selectedIcon: Icons.bar_chart_rounded,
-              label: 'Budgets',
-            ),
-            const LiquidGlassDestination(
-              icon: Icons.more_horiz_rounded,
-              selectedIcon: Icons.more_horiz_rounded,
-              label: 'More',
-            ),
-          ],
+        child: ListenableBuilder(
+          // The More tab shows a dot while suggestions are waiting.
+          listenable: _ai,
+          builder: (context, _) => LiquidGlassNavBar(
+            selectedIndex: selectedTab,
+            onDestinationSelected: _selectTab,
+            destinations: [
+              const LiquidGlassDestination(
+                icon: Icons.home_outlined,
+                selectedIcon: Icons.home_rounded,
+                label: 'Home',
+              ),
+              const LiquidGlassDestination(
+                icon: Icons.list_alt_outlined,
+                selectedIcon: Icons.list_alt_rounded,
+                label: 'Transactions',
+              ),
+              const LiquidGlassDestination(
+                icon: Icons.bar_chart_rounded,
+                selectedIcon: Icons.bar_chart_rounded,
+                label: 'Budgets',
+              ),
+              LiquidGlassDestination(
+                icon: Icons.more_horiz_rounded,
+                selectedIcon: Icons.more_horiz_rounded,
+                label: 'More',
+                dot: _ai.pendingSuggestions > 0,
+              ),
+            ],
+          ),
         ),
       ),
     );

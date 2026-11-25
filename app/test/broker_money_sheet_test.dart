@@ -20,8 +20,11 @@ void main() {
     final accounts = AccountStore(AccountRepository(db));
     final transactions = TransactionStore(TransactionRepository(db), accounts);
     await accounts.save(
-      name: 'Zerodha', currency: 'INR', digits: 2,
-      openingBalance: 0, broker: true,
+      name: 'Zerodha',
+      currency: 'INR',
+      digits: 2,
+      openingBalance: 0,
+      broker: true,
     );
     await accounts.load();
     tester.view.physicalSize = const Size(400, 900);

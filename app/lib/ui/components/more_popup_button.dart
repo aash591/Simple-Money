@@ -114,6 +114,9 @@ class _MorePopupButtonState<T> extends State<MorePopupButton<T>>
       },
     );
     ModalRoute.of(context)?.addLocalHistoryEntry(_history!);
+    // Frosted from the screen as it is now; not waited for, since a press
+    // opens the menu and scrubs its rows in one gesture.
+    FrostedModalSurface.prepareFrost(context);
     Overlay.of(context).insert(_entry!);
     _animation.forward(from: 0);
   }

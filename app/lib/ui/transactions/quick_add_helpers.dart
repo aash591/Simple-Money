@@ -31,7 +31,13 @@ List<ChoiceItem<int>> accountChoiceItems(
         value: account.id,
         icon: AppIcon(account.icon, size: 28),
         label: account.name,
-        subtitle: formatTransactionMoney(account.balanceMinor, account),
+        // The last digits first, when the account has them: two accounts of
+        // one bank are told apart by them.
+        subtitle: [
+          if (account.lastDigits?.isNotEmpty == true)
+            '•• ${account.lastDigits}',
+          formatTransactionMoney(account.balanceMinor, account),
+        ].join(' · '),
         chevron: true,
       ),
 ];

@@ -44,17 +44,22 @@ void main() {
 
   int cash(int id) => accounts.byId(id)!.balanceMinor;
 
-  Future<void> buy(Holding h, int units, int price, {int? from, int fees = 0}) =>
-      store.addTrade(
-        holding: h,
-        type: TradeType.buy,
-        date: DateTime(2026, 2, 1),
-        unitsE6: units * unitScale,
-        priceE4: price * priceScale,
-        amountMinor: units * price * 100,
-        feesMinor: fees,
-        payAccountId: from,
-      );
+  Future<void> buy(
+    Holding h,
+    int units,
+    int price, {
+    int? from,
+    int fees = 0,
+  }) => store.addTrade(
+    holding: h,
+    type: TradeType.buy,
+    date: DateTime(2026, 2, 1),
+    unitsE6: units * unitScale,
+    priceE4: price * priceScale,
+    amountMinor: units * price * 100,
+    feesMinor: fees,
+    payAccountId: from,
+  );
 
   test('a broker is flagged, and holdings only go under one', () async {
     expect(accounts.byId(broker)!.isBroker, isTrue);
@@ -108,37 +113,42 @@ void main() {
     expect(cash(broker), 1000000);
   });
 
-  test('cannot sell what was not bought, and deleting a buy is checked', () async {
-    final h = store.byId(
-      await store.saveHolding(
-        accountId: broker,
-        kind: HoldingKind.stock,
-        name: 'INFY',
-      ),
-    )!;
-    await buy(h, 2, 100);
-    await expectLater(
-      store.addTrade(
+  test(
+    'cannot sell what was not bought, and deleting a buy is checked',
+    () async {
+      final h = store.byId(
+        await store.saveHolding(
+          accountId: broker,
+          kind: HoldingKind.stock,
+          name: 'INFY',
+        ),
+      )!;
+      await buy(h, 2, 100);
+      await expectLater(
+        store.addTrade(
+          holding: h,
+          type: TradeType.sell,
+          date: DateTime(2026, 3, 1),
+          unitsE6: 3 * unitScale,
+          priceE4: 100 * priceScale,
+          amountMinor: 30000,
+        ),
+        throwsArgumentError,
+      );
+      await store.addTrade(
         holding: h,
         type: TradeType.sell,
         date: DateTime(2026, 3, 1),
-        unitsE6: 3 * unitScale,
+        unitsE6: 1 * unitScale,
         priceE4: 100 * priceScale,
-        amountMinor: 30000,
-      ),
-      throwsArgumentError,
-    );
-    await store.addTrade(
-      holding: h,
-      type: TradeType.sell,
-      date: DateTime(2026, 3, 1),
-      unitsE6: 1 * unitScale,
-      priceE4: 100 * priceScale,
-      amountMinor: 10000,
-    );
-    final buyTrade = store.tradesOf(h.id).firstWhere((t) => t.type == TradeType.buy);
-    await expectLater(store.deleteTrade(buyTrade), throwsArgumentError);
-  });
+        amountMinor: 10000,
+      );
+      final buyTrade = store
+          .tradesOf(h.id)
+          .firstWhere((t) => t.type == TradeType.buy);
+      await expectLater(store.deleteTrade(buyTrade), throwsArgumentError);
+    },
+  );
 
   test('deleting a holding gives all its cash back', () async {
     final h = store.byId(

@@ -34,6 +34,7 @@ class ReportableSms {
     this.reason,
     this.parsed, {
     this.bank,
+    this.taught = false,
   });
 
   /// Same identity as a queued import: sender, body and receive time.
@@ -50,6 +51,10 @@ class ReportableSms {
   /// The bank its sender belongs to, as far as the app knows: what the
   /// parser read, or the bank a rule registers the sender under.
   final String? bank;
+
+  /// Read only because of a rule added on this phone (taught by hand, by AI
+  /// or shared), not by the bundled packs. Can be taught again.
+  final bool taught;
 }
 
 String _fingerprint(BankSms sms) => sha256
@@ -66,6 +71,7 @@ String _fingerprint(BankSms sms) => sha256
 
 List<ReportableSms> _classify(
   PortableSmsEngine engine,
+  PortableSmsEngine? bundled,
   List<BankSms> messages,
 ) {
   final found = <ReportableSms>[];
@@ -91,6 +97,10 @@ List<ReportableSms> _classify(
         kind,
         result.reason,
         result.candidate,
+        taught:
+            kind == ReportableKind.detected &&
+            bundled != null &&
+            bundled.parse(sms).candidate == null,
         bank:
             result.candidate?.bankName ??
             (engine is BankSmsParser ? engine.bankFor(sms.sender) : null),
@@ -103,11 +113,13 @@ List<ReportableSms> _classify(
 
 /// Classifies pages of SMS on a background isolate that receives the engine
 /// once, replying to each page with its reportable messages.
-void _classifier((SendPort, PortableSmsEngine) setup) {
-  final (reply, engine) = setup;
+void _classifier((SendPort, PortableSmsEngine, PortableSmsEngine?) setup) {
+  final (reply, engine, bundled) = setup;
   final pages = ReceivePort();
   reply.send(pages.sendPort);
-  pages.listen((page) => reply.send(_classify(engine, page as List<BankSms>)));
+  pages.listen(
+    (page) => reply.send(_classify(engine, bundled, page as List<BankSms>)),
+  );
 }
 
 /// Lists business SMS for reporting, remembers which were reported or
@@ -117,11 +129,18 @@ class ReportableSmsRepository {
   /// what the shipped rules miss.
   ReportableSmsRepository({
     Future<PortableSmsEngine> Function()? engineLoader,
+    Future<PortableSmsEngine> Function()? bundledLoader,
     this._client,
     String? baseUrl,
   }) : _engineLoader = engineLoader ?? loadBundledSmsEngine,
+       _bundledLoader = engineLoader == null
+           ? null
+           : bundledLoader ?? loadBundledSmsEngine,
        _baseUrl = baseUrl ?? communityUrl;
   final Future<PortableSmsEngine> Function() _engineLoader;
+
+  /// The bundled rules alone, to tell which messages only an added rule reads.
+  final Future<PortableSmsEngine> Function()? _bundledLoader;
 
   /// For tests; otherwise each upload opens its own.
   final http.Client? _client;
@@ -144,8 +163,13 @@ class ReportableSmsRepository {
     var page = await inbox.readPage(afterId: 0, since: since);
     if (page.isEmpty) return;
     final engine = await _engineLoader();
+    final bundled = await _bundledLoader?.call();
     final replies = ReceivePort();
-    final worker = await Isolate.spawn(_classifier, (replies.sendPort, engine));
+    final worker = await Isolate.spawn(_classifier, (
+      replies.sendPort,
+      engine,
+      bundled,
+    ));
     final results = StreamIterator(replies);
     Future<List<InboxSms>>? next;
     try {
@@ -173,6 +197,11 @@ class ReportableSmsRepository {
     final prefs = await SharedPreferences.getInstance();
     return (prefs.getStringList(_reportedKey) ?? const []).toSet();
   }
+
+  /// Marks [messages] reported without sending them: for a taught message,
+  /// whose rule was shared instead.
+  Future<void> markReported(Iterable<ReportableSms> messages) =>
+      _add(_reportedKey, messages.map((m) => m.id));
 
   /// The contact given last time, offered again so it needn't be retyped.
   Future<String> savedContact() async =>

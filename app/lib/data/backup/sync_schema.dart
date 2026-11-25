@@ -154,9 +154,10 @@ Future<void> upgradeSyncSchemaToV49(GeneratedDatabase db) async {
   // Batches (and how far each phone's chain was read) are replaced by one
   // file per phone: everything goes up again as this phone's first file.
   final tables = {
-    for (final row in await db
-        .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
-        .get())
+    for (final row
+        in await db
+            .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
+            .get())
       row.read<String>('name'),
   };
   if (tables.contains('sync_batch')) {

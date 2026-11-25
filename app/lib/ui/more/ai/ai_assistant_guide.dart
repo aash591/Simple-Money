@@ -63,15 +63,15 @@ class AiLogos extends StatelessWidget {
 }
 
 const aiAssistantGuide = InfoGuide(
-  title: 'About AI assistant',
+  title: 'About Claude / ChatGPT',
   art: AiLogos(size: 56),
   headline: 'Ask Claude or ChatGPT about your money',
-  summary: 'Get answers and quick fixes. Nothing changes without your OK.',
+  summary: 'Connects through MCP, a standard way for AI apps to reach your data. Nothing changes without your OK.',
   steps: [
     GuideStep(
       'Copy the address',
       'Tap the address to copy it.',
-      path: ['More', 'AI assistant', 'Address'],
+      path: ['More', 'Claude / ChatGPT', 'Address'],
     ),
     GuideStep(
       'Add it in Claude',
@@ -86,17 +86,17 @@ const aiAssistantGuide = InfoGuide(
     GuideStep(
       'When it asks for a code, come back',
       'Only then get the code. It’s copied and a session starts. Paste it in Claude or ChatGPT.',
-      path: ['More', 'AI assistant', 'Get pairing code'],
+      path: ['More', 'Claude / ChatGPT', 'Get pairing code'],
     ),
     GuideStep(
       'Ask away',
       'A session ends on its own. Next time, just tap Start.',
-      path: ['More', 'AI assistant', 'Start'],
+      path: ['More', 'Claude / ChatGPT', 'Start'],
     ),
     GuideStep(
       'Approve or skip fixes',
       'You can undo them later.',
-      path: ['More', 'AI assistant', 'Suggestions'],
+      path: ['More', 'AI suggestions'],
     ),
   ],
   sections: [
@@ -175,7 +175,7 @@ const aiAssistantGuide = InfoGuide(
         Icons.link_off_rounded,
         'Disconnect an AI app anytime',
         'Tap the unlink icon next to it.',
-        ['More', 'AI assistant', 'Connected apps'],
+        ['More', 'Claude / ChatGPT', 'Connected apps'],
       ),
     ]),
   ],

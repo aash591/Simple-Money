@@ -993,7 +993,10 @@ class _TransactionSheetState extends State<TransactionSheet> {
       summary: _summary(),
       fillHeight: true,
       items: [
-        ..._shortcuts.items,
+        // Lend / borrow sits second, right after Transfer.
+        ..._shortcuts.items.take(1),
+        ..._debtItems,
+        ..._shortcuts.items.skip(1),
         for (final category in _shortcuts.topLevel(
           _categoriesOf(_categoryType),
         )) ...[
@@ -1016,7 +1019,6 @@ class _TransactionSheetState extends State<TransactionSheet> {
               chevron: true,
             ),
         ],
-        ..._debtItems,
       ],
       selected: null,
       onSelected: _chooseCategory,

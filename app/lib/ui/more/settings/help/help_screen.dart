@@ -1,27 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../../data/db/app_database.dart';
-
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../data/app_links.dart';
-import '../../components/app_toast.dart';
-import '../../components/feature_page.dart';
-import '../../components/menu_list.dart';
+import '../../../../data/app_links.dart';
+import '../../../components/app_toast.dart';
+import '../../../components/feature_page.dart';
+import '../../../components/menu_list.dart';
 import 'report_issue_screen.dart';
-import 'report_sms_screen.dart';
 
 final _faqUrl = Uri.parse('https://simplemoney.aashglobal.in/');
 
 class HelpScreen extends StatelessWidget {
-  const HelpScreen({
-    super.key,
-    this.communityUrl = AppLinks.community,
-    this.database,
-  });
-
-  /// For Report SMS, to read messages with the user's and shared rules.
-  final AppDatabase? database;
+  const HelpScreen({super.key, this.communityUrl = AppLinks.community});
 
   /// Where Join community goes; empty hides the row.
   final String communityUrl;
@@ -60,14 +50,6 @@ class HelpScreen extends StatelessWidget {
                   subtitle: 'Answers to common questions',
                   external: true,
                   onTap: () => _openFaq(context),
-                ),
-                MenuRow(
-                  icon: Icons.sms_failed_rounded,
-                  title: 'Report SMS',
-                  subtitle: 'Bank messages missed or read wrongly',
-                  onTap: () => Navigator.of(context).push(
-                    FeatureRoute<void>(ReportSmsScreen(database: database)),
-                  ),
                 ),
                 MenuRow(
                   icon: Icons.rate_review_outlined,

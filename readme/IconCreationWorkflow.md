@@ -70,6 +70,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File app/tool/slice_2x2_category_
 Copy the selected `haircut.webp` and `salon.webp` masters into
 `assets_raw/icon_packs_raw/3d/`, then run the category exporter.
 
+### User-made icons (in the app)
+On the 3D tab of the icon picker, the **+** button opens *Add your own icon*:
+the user types a name, copies the generated prompt (same style rules as above)
+into ChatGPT or another image AI, then uploads the picture. The app removes a
+plain background, crops, fits it to a transparent **128x128 PNG** (Flutter
+can't write WebP) and saves it on the device as `custom:<name>`
+(`app/lib/data/custom_icons.dart`). These are not bundled and not synced.
+
 ---
 
 ## 2. Service, brand, and bank account icon workflow (brands pack)

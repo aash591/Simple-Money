@@ -767,7 +767,12 @@ class TransactionsScreenState extends State<TransactionsScreen>
     if (!mounted) return;
     final selection = await pickAccountFilter(
       context,
-      accounts: widget.accountStore.accounts,
+      // Brokers and exchanges are managed under Portfolio, which lists their
+      // deposits and withdrawals itself.
+      accounts: [
+        for (final a in widget.accountStore.accounts)
+          if (!a.isBroker || a.id == _accountId) a,
+      ],
       selected: _accountId,
       unassigned: unassigned,
     );

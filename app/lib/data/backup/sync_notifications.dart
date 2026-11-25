@@ -54,7 +54,8 @@ class SyncNotifications implements UploadProgress {
   static const _channel = AndroidNotificationDetails(
     'drive_sync',
     'Google Drive sync',
-    channelDescription: 'Shows while your changes are being saved to Google '
+    channelDescription:
+        'Shows while your changes are being saved to Google '
         'Drive',
     importance: Importance.low,
     priority: Priority.low,

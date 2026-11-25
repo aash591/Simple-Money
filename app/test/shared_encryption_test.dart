@@ -40,41 +40,44 @@ void main() {
     await b.db.close();
   });
 
-  test('turned on on one phone: the other asks for the PIN, then follows', () async {
-    await a.engine.enableEncryption('Ab12x9');
-    await a.spend(cash, 900, title: 'Secret lunch');
-    await a.upload();
-    expect(encrypted(a, await a.repository.mirrorId()), isTrue);
+  test(
+    'turned on on one phone: the other asks for the PIN, then follows',
+    () async {
+      await a.engine.enableEncryption('Ab12x9');
+      await a.spend(cash, 900, title: 'Secret lunch');
+      await a.upload();
+      expect(encrypted(a, await a.repository.mirrorId()), isTrue);
 
-    // B can't read A's files: it says so instead of silently missing them.
-    await b.pull();
-    expect((await b.repository.status()).peerEncryption, isNotNull);
-    expect(await titles(b), isNot(contains('Secret lunch')));
-    // Its own changes still go up, and A gets them.
-    await b.spend(cash, 100, title: 'From B');
-    await b.upload();
-    await a.pull();
-    expect(await titles(a), contains('From B'));
+      // B can't read A's files: it says so instead of silently missing them.
+      await b.pull();
+      expect((await b.repository.status()).peerEncryption, isNotNull);
+      expect(await titles(b), isNot(contains('Secret lunch')));
+      // Its own changes still go up, and A gets them.
+      await b.spend(cash, 100, title: 'From B');
+      await b.upload();
+      await a.pull();
+      expect(await titles(a), contains('From B'));
 
-    await expectLater(
-      b.engine.joinEncryption('wrong1'),
-      throwsA(isA<BackupEncryptionException>()),
-    );
-    await b.engine.joinEncryption('Ab12x9');
-    final status = await b.repository.status();
-    expect(status.encryption, (await a.repository.status()).encryption);
-    expect(status.peerEncryption, isNull);
+      await expectLater(
+        b.engine.joinEncryption('wrong1'),
+        throwsA(isA<BackupEncryptionException>()),
+      );
+      await b.engine.joinEncryption('Ab12x9');
+      final status = await b.repository.status();
+      expect(status.encryption, (await a.repository.status()).encryption);
+      expect(status.peerEncryption, isNull);
 
-    // Now B merges A's files, and uploads its own with the same key.
-    await b.pull();
-    expect(await titles(b), contains('Secret lunch'));
-    await b.spend(cash, 50, title: 'After the PIN');
-    await b.upload();
-    expect(encrypted(b, await b.repository.mirrorId()), isTrue);
-    await a.pull();
-    expect(await titles(a), contains('After the PIN'));
-    expect((await a.account(cash)).balanceMinor, 100000 - 900 - 100 - 50);
-  });
+      // Now B merges A's files, and uploads its own with the same key.
+      await b.pull();
+      expect(await titles(b), contains('Secret lunch'));
+      await b.spend(cash, 50, title: 'After the PIN');
+      await b.upload();
+      expect(encrypted(b, await b.repository.mirrorId()), isTrue);
+      await a.pull();
+      expect(await titles(a), contains('After the PIN'));
+      expect((await a.account(cash)).balanceMinor, 100000 - 900 - 100 - 50);
+    },
+  );
 
   test('turned off on one phone: the others follow without a PIN', () async {
     await a.engine.enableEncryption('Ab12x9');
@@ -124,19 +127,22 @@ void main() {
     expect(await titles(b), contains('Both locked'));
   });
 
-  test('turning it on where the others already did asks for their PIN', () async {
-    await a.engine.enableEncryption('Ab12x9');
-    await a.upload();
-    await b.pull();
-    // "Turn on encryption" on B: the other phones' key, not a new one.
-    await expectLater(
-      b.engine.enableEncryption('Zz98yy'),
-      throwsA(isA<BackupEncryptionException>()),
-    );
-    await b.engine.enableEncryption('Ab12x9');
-    expect(
-      (await b.repository.status()).encryption,
-      (await a.repository.status()).encryption,
-    );
-  });
+  test(
+    'turning it on where the others already did asks for their PIN',
+    () async {
+      await a.engine.enableEncryption('Ab12x9');
+      await a.upload();
+      await b.pull();
+      // "Turn on encryption" on B: the other phones' key, not a new one.
+      await expectLater(
+        b.engine.enableEncryption('Zz98yy'),
+        throwsA(isA<BackupEncryptionException>()),
+      );
+      await b.engine.enableEncryption('Ab12x9');
+      expect(
+        (await b.repository.status()).encryption,
+        (await a.repository.status()).encryption,
+      );
+    },
+  );
 }

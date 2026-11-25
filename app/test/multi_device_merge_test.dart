@@ -3,7 +3,9 @@ import 'dart:typed_data';
 import 'package:drift/drift.dart' show Variable;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 import 'fake_drive_listing.dart';
+
 import 'package:simple_money/data/backup/backup_key_store.dart';
 import 'package:simple_money/data/backup/drive_client.dart';
 import 'package:simple_money/data/backup/sync_engine.dart';
@@ -28,14 +30,13 @@ class SharedDrive implements MirrorTransport {
 
   /// The file holding [section] of [mirror]'s data (of the only phone, when
   /// null).
-  SyncBatch fileOf(String section, {String? mirror}) => files.values
-      .singleWhere(
+  SyncBatch fileOf(String section, {String? mirror}) =>
+      files.values.singleWhere(
         (f) => f.section == section && (mirror == null || f.mirrorId == mirror),
       );
 
   /// The phones with files here.
   Set<String> get mirrors => {for (final f in files.values) f.mirrorId};
-
 
   @override
   Future<String> newFileId() async => 'file-${++_ids}';
@@ -315,9 +316,12 @@ void main() {
       await b.spend(cash, 200 + i);
       await b.upload();
     }
-    expect(drive.files, hasLength({
-      for (final f in drive.files.values) (f.mirrorId, f.section),
-    }.length));
+    expect(
+      drive.files,
+      hasLength(
+        {for (final f in drive.files.values) (f.mirrorId, f.section)}.length,
+      ),
+    );
     await a.pull();
     await b.pull();
     for (final phone in [a, b]) {
@@ -377,10 +381,7 @@ void main() {
       await c.spend(cash, 50, title: 'Later from C');
       await c.upload();
       await a.pull();
-      expect(
-        (await a.ledger()).map((t) => t.title),
-        contains('Later from C'),
-      );
+      expect((await a.ledger()).map((t) => t.title), contains('Later from C'));
       final peers = await a.repository.peers();
       final cMirror = await c.repository.mirrorId();
       expect(peers.keys.any((k) => k.startsWith('$cMirror/')), isTrue);

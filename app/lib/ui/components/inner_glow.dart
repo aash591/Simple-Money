@@ -1,4 +1,5 @@
 import '../../data/platform_info.dart';
+
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -93,8 +94,7 @@ double? debugScreenRatio;
 
 /// Whether drawings may be kept as images. Widget tests compare plain
 /// draws, so they keep drawing everything directly.
-bool rasterCachingEnabled =
-    !kIsWeb && !isFlutterTest;
+bool rasterCachingEnabled = !kIsWeb && !isFlutterTest;
 
 abstract final class _GlowCache {
   static bool get enabled => rasterCachingEnabled;

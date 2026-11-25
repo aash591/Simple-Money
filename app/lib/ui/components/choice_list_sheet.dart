@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 
 import '../theme/sheet_colors.dart';
 import 'adaptive_sheet.dart';
@@ -192,11 +193,63 @@ class ChoicePickerPage<T> extends StatefulWidget {
 
 class _ChoicePickerPageState<T> extends State<ChoicePickerPage<T>> {
   final _search = TextEditingController();
+  final _searchFocus = FocusNode();
+  final _scroll = ScrollController();
+  final _listKey = GlobalKey();
+
+  /// While searching, the list is scrolled up to the top so the summary and
+  /// heading give their room to it above the keyboard — until the person
+  /// scrolls it themselves.
+  bool _followList = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocus.addListener(() {
+      _followList = _searchFocus.hasFocus;
+      if (_followList) _revealList(animate: true);
+    });
+  }
 
   @override
   void dispose() {
     _search.dispose();
+    _searchFocus.dispose();
+    _scroll.dispose();
     super.dispose();
+  }
+
+  /// Scrolls so the list's card sits at the top of the visible area, as far
+  /// as the content allows.
+  void _revealList({required bool animate}) {
+    final box = _listKey.currentContext?.findRenderObject();
+    if (box == null || !_scroll.hasClients) return;
+    final viewport = RenderAbstractViewport.maybeOf(box);
+    if (viewport == null) return;
+    final position = _scroll.position;
+    final target = viewport
+        .getOffsetToReveal(box, 0)
+        .offset
+        .clamp(position.minScrollExtent, position.maxScrollExtent);
+    if ((target - position.pixels).abs() < .5) return;
+    if (animate) {
+      _scroll.animateTo(
+        target,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+      );
+    } else {
+      _scroll.jumpTo(target);
+    }
+  }
+
+  /// A drag by the person hands the list back to them.
+  bool _onScroll(ScrollNotification notification) {
+    if (notification is ScrollStartNotification &&
+        notification.dragDetails != null) {
+      _followList = false;
+    }
+    return false;
   }
 
   /// Keeps each top-level item together with its indented children: a
@@ -258,104 +311,117 @@ class _ChoicePickerPageState<T> extends State<ChoicePickerPage<T>> {
         widget.header,
         Flexible(
           fit: widget.fillHeight ? FlexFit.tight : FlexFit.loose,
-          child: SheetScrollIndicator(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (widget.summary != null) ...[
-                    widget.summary!,
-                    const SizedBox(height: 20),
-                  ],
-                  if (widget.heading != null) ...[
-                    SheetStepHeading(widget.heading!),
-                    const SizedBox(height: 14),
-                  ],
-                  SheetCard(
-                    child: Column(
-                      children: [
-                        if (items.isEmpty)
-                          Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Text(
-                              'No matches',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: colors.muted,
-                              ),
-                            ),
-                          ),
-                        for (var b = 0; b < blocks.length; b++) ...[
-                          if (b > 0)
-                            Divider(
-                              height: 1,
-                              thickness: 1,
-                              indent: 66,
-                              color: colors.divider,
-                            ),
-                          _row(blocks[b].first),
-                          AnimatedSize(
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeInOut,
-                            alignment: Alignment.topCenter,
-                            child: blocks[b].length == 1
-                                ? const SizedBox(width: double.infinity)
-                                : Column(
-                                    children: [
-                                      for (
-                                        var c = 1;
-                                        c < blocks[b].length;
-                                        c++
-                                      ) ...[
-                                        Divider(
-                                          height: 1,
-                                          thickness: 1,
-                                          indent: 84,
-                                          color: colors.divider,
-                                        ),
-                                        _row(blocks[b][c]),
-                                      ],
-                                    ],
-                                  ),
-                          ),
-                        ],
-                        if (canAdd) ...[
-                          Divider(
-                            height: 1,
-                            thickness: 1,
-                            color: colors.divider,
-                          ),
-                          ListTile(
-                            minTileHeight: 60,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                            ),
-                            horizontalTitleGap: 12,
-                            leading: const SheetIconTile(
-                              icon: Icons.add_rounded,
-                            ),
-                            title: Text(
-                              widget.addLabel!,
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: colors.primary,
-                              ),
-                            ),
-                            onTap: () async {
-                              final created = await widget.onAdd!(context);
-                              if (created != null && mounted) {
-                                widget.onSelected(created);
-                              }
-                            },
-                          ),
-                        ],
+          child: NotificationListener<ScrollNotification>(
+            onNotification: _onScroll,
+            child: NotificationListener<ScrollMetricsNotification>(
+              onNotification: (_) {
+                // The keyboard is still sliding in: keep the list in place.
+                if (_followList) _revealList(animate: false);
+                return false;
+              },
+              child: SheetScrollIndicator(
+                child: SingleChildScrollView(
+                  controller: _scroll,
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (widget.summary != null) ...[
+                        widget.summary!,
+                        const SizedBox(height: 20),
                       ],
-                    ),
+                      if (widget.heading != null) ...[
+                        SheetStepHeading(widget.heading!),
+                        const SizedBox(height: 14),
+                      ],
+                      SheetCard(
+                        key: _listKey,
+                        child: Column(
+                          children: [
+                            if (items.isEmpty)
+                              Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Text(
+                                  'No matches',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: colors.muted,
+                                  ),
+                                ),
+                              ),
+                            for (var b = 0; b < blocks.length; b++) ...[
+                              if (b > 0)
+                                Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  indent: 66,
+                                  color: colors.divider,
+                                ),
+                              _row(blocks[b].first),
+                              AnimatedSize(
+                                duration: const Duration(milliseconds: 200),
+                                curve: Curves.easeInOut,
+                                alignment: Alignment.topCenter,
+                                child: blocks[b].length == 1
+                                    ? const SizedBox(width: double.infinity)
+                                    : Column(
+                                        children: [
+                                          for (
+                                            var c = 1;
+                                            c < blocks[b].length;
+                                            c++
+                                          ) ...[
+                                            Divider(
+                                              height: 1,
+                                              thickness: 1,
+                                              indent: 84,
+                                              color: colors.divider,
+                                            ),
+                                            _row(blocks[b][c]),
+                                          ],
+                                        ],
+                                      ),
+                              ),
+                            ],
+                            if (canAdd) ...[
+                              Divider(
+                                height: 1,
+                                thickness: 1,
+                                color: colors.divider,
+                              ),
+                              ListTile(
+                                minTileHeight: 60,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                horizontalTitleGap: 12,
+                                leading: const SheetIconTile(
+                                  icon: Icons.add_rounded,
+                                ),
+                                title: Text(
+                                  widget.addLabel!,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: colors.primary,
+                                  ),
+                                ),
+                                onTap: () async {
+                                  final created = await widget.onAdd!(context);
+                                  if (created != null && mounted) {
+                                    widget.onSelected(created);
+                                  }
+                                },
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -364,6 +430,7 @@ class _ChoicePickerPageState<T> extends State<ChoicePickerPage<T>> {
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
           child: SearchField(
             controller: _search,
+            focusNode: _searchFocus,
             onChanged: (_) => setState(() {}),
             hintText: widget.searchHint,
             fillColor: colors.card,

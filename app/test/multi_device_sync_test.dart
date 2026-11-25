@@ -6,7 +6,9 @@ import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart' show Variable;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 import 'fake_drive_listing.dart';
+
 import 'package:simple_money/data/backup/drive_client.dart';
 import 'package:simple_money/data/backup/sync_engine.dart';
 import 'package:simple_money/data/backup/sync_repository.dart';
@@ -31,9 +33,9 @@ class MemoryDrive implements MirrorTransport {
   Future<List<MirrorFile>> listFiles({DateTime? modifiedAfter}) async =>
       fakeListing(
         files,
-        (id) => DateTime(2026).add(
-          Duration(minutes: files.keys.toList().indexOf(id)),
-        ),
+        (id) =>
+            DateTime(2026)
+                .add(Duration(minutes: files.keys.toList().indexOf(id))),
         legacy: legacy,
         modifiedAfter: modifiedAfter,
       );
@@ -48,10 +50,9 @@ class MemoryDrive implements MirrorTransport {
 Map<String, dynamic> decode(SyncBatch batch) =>
     jsonDecode(utf8.decode(gzip.decode(batch.payload))) as Map<String, dynamic>;
 
-Future<int> slotOf(AppDatabase db) async => (await db
-        .customSelect('SELECT id_slot FROM sync_state')
-        .getSingle())
-    .read<int>('id_slot');
+Future<int> slotOf(AppDatabase db) async =>
+    (await db.customSelect('SELECT id_slot FROM sync_state').getSingle())
+        .read<int>('id_slot');
 
 Future<int> clockOf(AppDatabase db) async =>
     (await db.customSelect('SELECT clock FROM sync_state').getSingle())
@@ -62,14 +63,17 @@ Future<int?> versionOf(AppDatabase db, String table, Object key) async =>
             .customSelect(
               'SELECT hlc FROM sync_row_meta '
               'WHERE table_name = ? AND record_key = ?',
-              variables: [Variable(table), Variable(jsonEncode([key]))],
+              variables: [
+                Variable(table),
+                Variable(jsonEncode([key])),
+              ],
             )
             .getSingleOrNull())
         ?.read<int>('hlc');
 
-Future<int> addAccount(AppDatabase db, String name) => AccountRepository(
-  db,
-).save(name: name, currency: 'INR', digits: 2, openingBalance: 0);
+Future<int> addAccount(AppDatabase db, String name) =>
+    AccountRepository(db)
+        .save(name: name, currency: 'INR', digits: 2, openingBalance: 0);
 
 void main() {
   late AppDatabase db;
@@ -77,24 +81,27 @@ void main() {
   tearDown(() => db.close());
 
   group('Row IDs', () {
-    test('grow in creation order, carry the device slot and fit in JSON', () async {
-      final slot = await slotOf(db);
-      expect(slot, inInclusiveRange(0, 2047));
-      final since2025 = DateTime.now()
-          .difference(DateTime.utc(2025))
-          .inMilliseconds;
-      final ids = [for (var i = 0; i < 20; i++) await addAccount(db, 'A$i')];
-      for (final id in ids) {
-        expect(id & 2047, slot);
-        expect(id, lessThan(1 << 53));
-        // The time part is close to now, so new IDs sort after all old ones.
-        expect((id >> 11) - since2025, inInclusiveRange(-5000, 60000));
-      }
-      // Created within the same millisecond or not, never equal, never back.
-      for (var i = 1; i < ids.length; i++) {
-        expect(ids[i], greaterThan(ids[i - 1]));
-      }
-    });
+    test(
+      'grow in creation order, carry the device slot and fit in JSON',
+      () async {
+        final slot = await slotOf(db);
+        expect(slot, inInclusiveRange(0, 2047));
+        final since2025 = DateTime.now()
+            .difference(DateTime.utc(2025))
+            .inMilliseconds;
+        final ids = [for (var i = 0; i < 20; i++) await addAccount(db, 'A$i')];
+        for (final id in ids) {
+          expect(id & 2047, slot);
+          expect(id, lessThan(1 << 53));
+          // The time part is close to now, so new IDs sort after all old ones.
+          expect((id >> 11) - since2025, inInclusiveRange(-5000, 60000));
+        }
+        // Created within the same millisecond or not, never equal, never back.
+        for (var i = 1; i < ids.length; i++) {
+          expect(ids[i], greaterThan(ids[i - 1]));
+        }
+      },
+    );
 
     test('two installations creating rows at once never collide', () async {
       final other = AppDatabase(NativeDatabase.memory(), false);
@@ -124,9 +131,12 @@ void main() {
       final other = AppDatabase(NativeDatabase.memory(), false);
       addTearDown(other.close);
       Future<List<Map<String, Object?>>> categories(AppDatabase d) async => [
-        for (final row in await d
-            .customSelect('SELECT id, name, parent_id FROM categories ORDER BY id')
-            .get())
+        for (final row
+            in await d
+                .customSelect(
+                  'SELECT id, name, parent_id FROM categories ORDER BY id',
+                )
+                .get())
           row.data,
       ];
       final mine = await categories(db);
@@ -137,27 +147,37 @@ void main() {
   });
 
   group('Change clock', () {
-    test('stamps every change, newest last, and the upload carries it', () async {
-      await SyncRepository(db).connect('a@example.com', 'subject');
-      final before = await clockOf(db);
-      final id = await addAccount(db, 'Cash');
-      final created = (await versionOf(db, 'accounts', id))!;
-      expect(created, greaterThan(before));
-      expect(created >> 16, closeTo(DateTime.now().millisecondsSinceEpoch, 60000));
-      await db.customStatement("UPDATE accounts SET name = 'Wallet'");
-      final edited = (await versionOf(db, 'accounts', id))!;
-      expect(edited, greaterThan(created));
+    test(
+      'stamps every change, newest last, and the upload carries it',
+      () async {
+        await SyncRepository(db).connect('a@example.com', 'subject');
+        final before = await clockOf(db);
+        final id = await addAccount(db, 'Cash');
+        final created = (await versionOf(db, 'accounts', id))!;
+        expect(created, greaterThan(before));
+        expect(
+          created >> 16,
+          closeTo(DateTime.now().millisecondsSinceEpoch, 60000),
+        );
+        await db.customStatement("UPDATE accounts SET name = 'Wallet'");
+        final edited = (await versionOf(db, 'accounts', id))!;
+        expect(edited, greaterThan(created));
 
-      final drive = MemoryDrive();
-      await SyncEngine(
-        SyncRepository(db),
-        openTransport: (_) async => drive,
-      ).run();
-      final versions = decode(
-        drive.files.values.singleWhere((f) => f.section == 'accounts'),
-      )['versions'] as Map;
-      expect((versions['accounts'] as Map)[jsonEncode([id])], edited);
-    });
+        final drive = MemoryDrive();
+        await SyncEngine(
+          SyncRepository(db),
+          openTransport: (_) async => drive,
+        ).run();
+        final versions =
+            decode(
+                  drive.files.values.singleWhere(
+                    (f) => f.section == 'accounts',
+                  ),
+                )['versions']
+                as Map;
+        expect((versions['accounts'] as Map)[jsonEncode([id])], edited);
+      },
+    );
 
     test('changes applied from elsewhere are not queued as edits', () async {
       await db.customStatement('UPDATE sync_state SET applying = 1');
@@ -178,67 +198,73 @@ void main() {
     });
   });
 
-  test('v46 upgrade keeps pending edits, versions them and stamps new ones', () async {
-    final directory = await Directory.systemTemp.createTemp('sync_v47_');
-    final file = File('${directory.path}/ledger.sqlite');
-    var disk = AppDatabase(NativeDatabase(file), false);
-    try {
-      // A v46 install with an account edit waiting to upload.
-      final old = await disk.customInsert(
-        "INSERT INTO accounts (name, currency, digits, balance_minor, "
-        "sort_order) VALUES ('Old', 'INR', 2, 0, 0)",
-      );
-      for (final table in syncTables.keys) {
-        for (final operation in ['insert', 'update', 'delete']) {
+  test(
+    'v46 upgrade keeps pending edits, versions them and stamps new ones',
+    () async {
+      final directory = await Directory.systemTemp.createTemp('sync_v47_');
+      final file = File('${directory.path}/ledger.sqlite');
+      var disk = AppDatabase(NativeDatabase(file), false);
+      try {
+        // A v46 install with an account edit waiting to upload.
+        final old = await disk.customInsert(
+          "INSERT INTO accounts (name, currency, digits, balance_minor, "
+          "sort_order) VALUES ('Old', 'INR', 2, 0, 0)",
+        );
+        for (final table in syncTables.keys) {
+          for (final operation in ['insert', 'update', 'delete']) {
+            await disk.customStatement('DROP TRIGGER sync_${table}_$operation');
+          }
+        }
+        await disk.customStatement('DROP TABLE sync_row_meta');
+        for (final column in ['id_slot', 'clock', 'applying']) {
           await disk.customStatement(
-            'DROP TRIGGER sync_${table}_$operation',
+            'ALTER TABLE sync_state DROP COLUMN $column',
           );
         }
-      }
-      await disk.customStatement('DROP TABLE sync_row_meta');
-      for (final column in ['id_slot', 'clock', 'applying']) {
-        await disk.customStatement('ALTER TABLE sync_state DROP COLUMN $column');
-      }
-      await disk.customStatement('ALTER TABLE sync_outbox DROP COLUMN hlc');
-      await disk.customStatement('DELETE FROM sync_outbox');
-      await disk.customStatement(
-        "INSERT INTO sync_outbox VALUES ('accounts', '[$old]', "
-        "'{\"id\":$old,\"name\":\"Old\"}', 1)",
-      );
-      await disk.customStatement('PRAGMA user_version = 46');
-      await disk.close();
+        await disk.customStatement('ALTER TABLE sync_outbox DROP COLUMN hlc');
+        await disk.customStatement('DELETE FROM sync_outbox');
+        await disk.customStatement(
+          "INSERT INTO sync_outbox VALUES ('accounts', '[$old]', "
+          "'{\"id\":$old,\"name\":\"Old\"}', 1)",
+        );
+        await disk.customStatement('PRAGMA user_version = 46');
+        await disk.close();
 
-      disk = AppDatabase(NativeDatabase(file), false);
-      expect(await slotOf(disk), inInclusiveRange(0, 2047));
-      final pending = await disk
-          .customSelect(
-            "SELECT hlc FROM sync_outbox WHERE table_name = 'accounts'",
-          )
-          .getSingle();
-      expect(pending.read<int>('hlc'), greaterThan(0));
-      expect(await versionOf(disk, 'accounts', old), pending.read<int>('hlc'));
+        disk = AppDatabase(NativeDatabase(file), false);
+        expect(await slotOf(disk), inInclusiveRange(0, 2047));
+        final pending = await disk
+            .customSelect(
+              "SELECT hlc FROM sync_outbox WHERE table_name = 'accounts'",
+            )
+            .getSingle();
+        expect(pending.read<int>('hlc'), greaterThan(0));
+        expect(
+          await versionOf(disk, 'accounts', old),
+          pending.read<int>('hlc'),
+        );
 
-      await disk.customStatement("UPDATE accounts SET name = 'Renamed'");
-      expect(
-        await versionOf(disk, 'accounts', old),
-        greaterThan(pending.read<int>('hlc')),
-      );
-      // Every synced table has its triggers again, new columns included.
-      final triggers = await disk
-          .customSelect(
-            "SELECT name FROM sqlite_master WHERE type = 'trigger' "
-            "AND name LIKE 'sync\\_%' ESCAPE '\\'",
-          )
-          .get();
-      expect(triggers, hasLength(syncTables.length * 3));
-      final added = await addAccount(disk, 'New');
-      expect(added, greaterThan(old));
-      expect(added & 2047, await slotOf(disk));
-    } finally {
-      await disk.close();
-      await directory.delete(recursive: true);
-    }
-  });
+        await disk.customStatement("UPDATE accounts SET name = 'Renamed'");
+        expect(
+          await versionOf(disk, 'accounts', old),
+          greaterThan(pending.read<int>('hlc')),
+        );
+        // Every synced table has its triggers again, new columns included.
+        final triggers = await disk
+            .customSelect(
+              "SELECT name FROM sqlite_master WHERE type = 'trigger' "
+              "AND name LIKE 'sync\\_%' ESCAPE '\\'",
+            )
+            .get();
+        expect(triggers, hasLength(syncTables.length * 3));
+        final added = await addAccount(disk, 'New');
+        expect(added, greaterThan(old));
+        expect(added & 2047, await slotOf(disk));
+      } finally {
+        await disk.close();
+        await directory.delete(recursive: true);
+      }
+    },
+  );
 
   test('every column of every synced table reaches the other phone', () async {
     // A change copies the whole row; a column a trigger doesn't know of
@@ -439,7 +465,11 @@ void main() {
                     'sort_order': 0,
                   },
                 },
-                {'table': 'accounts', 'key': [43], 'row': null},
+                {
+                  'table': 'accounts',
+                  'key': [43],
+                  'row': null,
+                },
               ],
             }),
           ),

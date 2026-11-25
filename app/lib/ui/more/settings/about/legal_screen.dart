@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../components/common.dart';
-import '../../components/feature_page.dart';
+import '../../../components/common.dart';
+import '../../../components/feature_page.dart';
 
 class LegalScreen extends StatelessWidget {
   const LegalScreen({super.key});

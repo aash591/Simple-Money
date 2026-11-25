@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_money/state/review_prompt.dart';
 import 'package:simple_money/ui/components/review_prompt_alert.dart';
-import 'package:simple_money/ui/more/help/report_issue_screen.dart';
+import 'package:simple_money/ui/more/settings/help/report_issue_screen.dart';
 import 'package:simple_money/ui/theme/app_theme.dart';
 
 void main() {

@@ -84,6 +84,25 @@ void main() {
       if (request.url.path.contains('AAPL')) {
         return http.Response(_chart(currency: 'USD', close: 190.5), 200);
       }
+      if (request.url.host == 'open.er-api.com') {
+        return http.Response(
+          jsonEncode({
+            'result': 'success',
+            'rates': {'INR': 1, 'USD': 0.0108, 'SAR': 0.0405},
+          }),
+          200,
+        );
+      }
+      // Every currency against the dollar: 2 of each, but 92.67 rupees.
+      final perDollar = RegExp(r'/USD([A-Z]{3})=X$')
+          .firstMatch(request.url.path);
+      if (perDollar != null) {
+        final close = perDollar[1] == 'INR' ? 92.67 : 2.0;
+        return http.Response(
+          _chart(currency: perDollar[1]!, close: close),
+          200,
+        );
+      }
       return http.Response('', 404);
     });
     store = HoldingStore(
@@ -189,8 +208,10 @@ void main() {
     await settleNetwork(tester);
 
     // Details are filled in and the price is looked up before saving.
-    expect(find.widgetWithText(TextField, 'Tata Consultancy Services'),
-        findsOneWidget);
+    expect(
+      find.widgetWithText(TextField, 'Tata Consultancy Services'),
+      findsOneWidget,
+    );
     expect(find.byKey(const Key('holding-price')), findsOneWidget);
     expect(find.textContaining('₹ 3,550.25'), findsOneWidget);
 
@@ -284,6 +305,63 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('What are you adding?'), findsNothing);
     expect(result, isNull);
+  });
+
+  testWidgets('every currency on screen gets its rate', (tester) async {
+    await mount(tester);
+    await tester.tap(find.byKey(const Key('holding-type-forex')));
+    await tester.pumpAndSettle();
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    // One request fills every row, and the source is named in a toast.
+    expect(find.text('Rates from Exchange Rate API'), findsOneWidget);
+    for (var i = 0; i < 4; i++) {
+      await settleNetwork(tester);
+    }
+    expect(requested.where((u) => u.host == 'open.er-api.com'), hasLength(1));
+    expect(requested.where((u) => u.path.contains('=X')), isEmpty);
+    for (final code in ['USD', 'SAR']) {
+      final row = find.byKey(Key('hit-$code'));
+      expect(
+        find.descendant(of: row, matching: find.textContaining('₹')),
+        findsOneWidget,
+        reason: '$code has no rate',
+      );
+    }
+  });
+
+  testWidgets('back from a currency keeps the list where it was', (
+    tester,
+  ) async {
+    await mount(tester);
+    await tester.tap(find.byKey(const Key('holding-type-forex')));
+    await tester.pumpAndSettle();
+    final list = find.byKey(const PageStorageKey('forex-list'));
+    await tester.drag(list, const Offset(0, -600));
+    await tester.pumpAndSettle();
+    final scrolled = tester
+        .state<ScrollableState>(
+          find.descendant(of: list, matching: find.byType(Scrollable)),
+        )
+        .position
+        .pixels;
+    expect(scrolled, greaterThan(0));
+
+    await tester.tap(find.byType(ListTile).hitTestable().at(1));
+    await tester.pumpAndSettle();
+    expect(find.text('Currency code'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    final back = tester
+        .state<ScrollableState>(
+          find.descendant(of: list, matching: find.byType(Scrollable)),
+        )
+        .position
+        .pixels;
+    expect(back, scrolled);
   });
 
   test('a ticker\'s market is read from its ending', () {

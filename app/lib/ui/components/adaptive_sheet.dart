@@ -54,7 +54,7 @@ Future<T?> showAdaptiveSheet<T>(
 /// (and above the keyboard), over a clear barrier. Content that outgrows
 /// it scrolls. It can be dragged down to close: past 72dp or on a fast
 /// fling it dismisses, otherwise it springs back into place.
-class AdaptiveSheetRoute<T> extends PopupRoute<T> {
+class AdaptiveSheetRoute<T> extends PopupRoute<T> with FrostBeforeOpening<T> {
   AdaptiveSheetRoute({
     required this.builder,
     this.entrance = SheetEntrance.slideUp,

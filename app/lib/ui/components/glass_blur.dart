@@ -1,4 +1,5 @@
 import '../../data/platform_info.dart';
+
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -125,16 +126,22 @@ ui.Image blurredCopy(ui.Image source, double ratio, double sigma) {
 }
 
 /// [source], a picture at [ratio] device pixels a logical one, blurred by
-/// [sigma] logical pixels, made in two plain steps: shrunk to one pixel a
-/// logical pixel first, then blurred at 1:1.
+/// [sigma] logical pixels, made in two plain steps: shrunk to [scale] pixels
+/// a logical pixel first, then blurred at that size.
 ///
 /// Blurring while shrinking ([blurredCopy]) leaves how the blur's size
 /// meets the shrink to the renderer, and on the phone it came out weaker
 /// than the live blur a sheet shows, so a frozen sheet looked hazy. Two
 /// steps leave nothing to interpret.
-ui.Image blurredCopyExact(ui.Image source, double ratio, double sigma) {
-  final width = (source.width / ratio).ceil();
-  final height = (source.height / ratio).ceil();
+ui.Image blurredCopyExact(
+  ui.Image source,
+  double ratio,
+  double sigma, {
+  double scale = 1,
+}) {
+  final width = (source.width / ratio * scale).ceil();
+  final height = (source.height / ratio * scale).ceil();
+  sigma *= scale;
   final small = () {
     final recorder = ui.PictureRecorder();
     Canvas(recorder).drawImageRect(
@@ -412,6 +419,14 @@ class ScreenAnchor extends StatelessWidget {
 /// so right after its first frame (when it is still out of sight) the screen
 /// is captured and blurred once, and that copy is shown pinned to the
 /// screen. The live blur stands in until then; both look the same.
+///
+/// The capture is shrunk to [_scale] pixels a logical pixel and blurred at
+/// that size: a blur this soft keeps no detail a quarter-size copy lacks,
+/// and blurring a sixteenth of the pixels eases the sheet's first frames on
+/// Adreno and low-end phones.
+///
+/// A sheet can have the copy made before it is even drawn ([prepare]), so
+/// none of this work falls in its slide.
 class ScreenFrost extends StatefulWidget {
   const ScreenFrost({
     super.key,
@@ -423,6 +438,58 @@ class ScreenFrost extends StatefulWidget {
   final double visibility;
   final Widget child;
 
+  /// Image pixels a logical pixel the screen is frosted at.
+  static const _scale = .25;
+
+  /// A copy [prepare] started, waiting for the next [ScreenFrost] to take.
+  static ({Future<(ui.Image, Size)?> copy, double sigma, DateTime at})?
+  _prepared;
+
+  /// Starts frosting the screen as it is now, blurred by [sigma], for the
+  /// popup about to open over it. Call it before the popup is first drawn;
+  /// the future completes once the copy is ready (null if it couldn't be
+  /// made), so the popup can wait for it before it moves. Null where the
+  /// screen can't be captured at all (widget tests): nothing to wait for.
+  static Future<void>? prepare(double sigma) {
+    if (!ScreenAnchor._enabled) return null;
+    // One nobody took (the popup closed at once) is let go.
+    _prepared?.copy.then((copy) => copy?.$1.dispose());
+    final copy = _frost(sigma);
+    _prepared = (copy: copy, sigma: sigma, at: DateTime.now());
+    return copy.then((_) {});
+  }
+
+  /// The copy [prepare] started, if it is for [sigma] and recent.
+  static Future<(ui.Image, Size)?>? _take(double sigma) {
+    final prepared = _prepared;
+    _prepared = null;
+    if (prepared == null) return null;
+    final fresh =
+        DateTime.now().difference(prepared.at) < const Duration(seconds: 1);
+    if (prepared.sigma != sigma || !fresh) {
+      prepared.copy.then((copy) => copy?.$1.dispose());
+      return null;
+    }
+    return prepared.copy;
+  }
+
+  /// The screen as last drawn, blurred by [sigma]; null where it can't be
+  /// had.
+  static Future<(ui.Image, Size)?> _frost(double sigma) async {
+    // Captured at full size: captured straight at a quarter, the copy came
+    // out empty on the phone and the sheet went see-through.
+    final shot = await ScreenAnchor.capture();
+    if (shot == null) return null;
+    final (screen, size, ratio) = shot;
+    try {
+      return (blurredCopyExact(screen, ratio, sigma, scale: _scale), size);
+    } catch (_) {
+      return null;
+    } finally {
+      screen.dispose();
+    }
+  }
+
   @override
   State<ScreenFrost> createState() => _ScreenFrostState();
 }
@@ -433,24 +500,30 @@ class _ScreenFrostState extends State<ScreenFrost> {
   @override
   void initState() {
     super.initState();
-    SchedulerBinding.instance.addPostFrameCallback((_) => _freeze());
+    final prepared = ScreenFrost._take(widget.sigma);
+    if (prepared != null) {
+      _use(prepared, fallBack: true);
+    } else {
+      // Right after the first frame, while the popup is still out of sight.
+      SchedulerBinding.instance.addPostFrameCallback(
+        (_) => _use(ScreenFrost._frost(widget.sigma)),
+      );
+    }
   }
 
-  Future<void> _freeze() async {
-    if (!mounted) return;
-    final shot = await ScreenAnchor.capture();
-    if (shot == null) return;
-    final (screen, size, ratio) = shot;
-    final ui.Image copy;
-    try {
-      copy = blurredCopyExact(screen, ratio, widget.sigma);
-    } catch (_) {
+  /// Shows [copy] once it is ready. A prepared one that failed is made again
+  /// here, as if none had been prepared.
+  Future<void> _use(
+    Future<(ui.Image, Size)?> copy, {
+    bool fallBack = false,
+  }) async {
+    final ready = await copy;
+    if (!mounted) return ready?.$1.dispose();
+    if (ready == null) {
+      if (fallBack) _use(ScreenFrost._frost(widget.sigma));
       return;
-    } finally {
-      screen.dispose();
     }
-    if (!mounted) return copy.dispose();
-    setState(() => _copy = (copy, size));
+    setState(() => _copy = ready);
   }
 
   @override
@@ -471,18 +544,10 @@ class _ScreenFrostState extends State<ScreenFrost> {
         Positioned.fill(
           child: copy == null
               ? const SizedBox.shrink()
-              : IgnorePointer(
-                  child: CompositedTransformFollower(
-                    link: ScreenAnchor.link,
-                    showWhenUnlinked: false,
-                    child: CustomPaint(
-                      painter: _FrostPainter(
-                        copy.$1,
-                        copy.$2,
-                        opacity: widget.visibility,
-                      ),
-                    ),
-                  ),
+              : _PinnedFrost(
+                  image: copy.$1,
+                  size: copy.$2,
+                  opacity: widget.visibility,
                 ),
         ),
         BackdropFilter(
@@ -540,18 +605,33 @@ class ShownBackdropFill extends StatelessWidget {
         valueListenable: ShownBackdrop.image,
         builder: (context, shown, _) => shown == null
             ? const SizedBox.shrink()
-            : IgnorePointer(
-                child: CompositedTransformFollower(
-                  link: ScreenAnchor.link,
-                  showWhenUnlinked: false,
-                  child: CustomPaint(
-                    painter: _FrostPainter(
-                      shown.$1,
-                      shown.$2,
-                      opacity: opacity,
-                    ),
-                  ),
-                ),
-              ),
+            : _PinnedFrost(image: shown.$1, size: shown.$2, opacity: opacity),
       );
+}
+
+/// A screen-sized [image] pinned to the screen through [ScreenAnchor], for a
+/// popup or sheet to show the part of it it sits over.
+///
+/// Laid out at the popup's size: drawn at the screen's size in a layer of
+/// its own instead, it showed nothing on the phone and the sheet went
+/// see-through. The frozen copy is small, so drawing it again as a sheet
+/// resizes is cheap.
+class _PinnedFrost extends StatelessWidget {
+  const _PinnedFrost({
+    required this.image,
+    required this.size,
+    required this.opacity,
+  });
+  final ui.Image image;
+  final Size size;
+  final double opacity;
+
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+    child: CompositedTransformFollower(
+      link: ScreenAnchor.link,
+      showWhenUnlinked: false,
+      child: CustomPaint(painter: _FrostPainter(image, size, opacity: opacity)),
+    ),
+  );
 }

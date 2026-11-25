@@ -178,12 +178,9 @@ void main() {
       await db.close();
     });
     await tester.runAsync(() async {
-      final cash = await AccountRepository(db).save(
-        name: 'Cash',
-        currency: 'INR',
-        digits: 2,
-        openingBalance: 100000,
-      );
+      final cash = await AccountRepository(
+        db,
+      ).save(name: 'Cash', currency: 'INR', digits: 2, openingBalance: 100000);
       final transactions = TransactionRepository(db);
       final id = await transactions.addExpenseOrIncome(
         type: TransactionType.expense,

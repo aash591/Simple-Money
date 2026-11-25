@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../data/agent/agent_suggestion_repository.dart';
 import '../../../data/community/community_fixes.dart';
+import '../../../data/user_sms_rules.dart';
 import '../../components/app_toast.dart';
 import '../../components/confirmation_alert.dart';
 
@@ -48,6 +49,53 @@ String? _ruleCategory(AgentSuggestion s) {
     }
   }
   return real(s.payload['savedCategory'] as String?);
+}
+
+/// A rule the user taught by hand, offered for sharing the way an AI-taught
+/// one is. Only the format goes, unless [withMessage]: then the message it
+/// was taught from is sent too, and the note says so. True when it was
+/// shared.
+Future<bool> offerToShareRule(
+  BuildContext context,
+  CommunitySync community,
+  UserSmsRule rule, {
+  String? category,
+  bool withMessage = false,
+}) async {
+  final fix = <String, Object?>{
+    'bankName': rule.bankName,
+    'senders': rule.senders,
+    'format': rule.format,
+    if (category != null &&
+        category.trim().isNotEmpty &&
+        category.trim().toLowerCase() != 'personal')
+      'resolved': {'category': category.trim()},
+  };
+  final share = await showConfirmationAlert(
+    context,
+    title: 'Share this fix?',
+    message: withMessage
+        ? 'Share it so others with ${rule.bankName} get it too. The format '
+              'goes with this message and its sender, so it can be checked. '
+              'No personal info is shared.'
+        : 'Share it so others with ${rule.bankName} get it too. Only the '
+              'format is shared, never your messages.',
+    confirmLabel: 'Share',
+    cancelLabel: 'Not now',
+    destructive: false,
+    autofocusCancel: false,
+  );
+  await CommunitySync.noteRules([fix], sent: share);
+  if (!share) return false;
+  unawaited(community.share([(CommunityKind.smsRule, fix)]));
+  if (context.mounted) {
+    showAppToast(
+      context,
+      'Thanks! You’re helping others.',
+      icon: Icons.favorite_rounded,
+    );
+  }
+  return true;
 }
 
 /// Right after fixes are approved: a well-done note that offers to share the
@@ -97,6 +145,12 @@ Future<void> offerToShareFixes(
     destructive: false,
     autofocusCancel: false,
   );
+  // Remembered either way, so a rule isn't sent later on its own: not after
+  // "Not now", nor a second time after Share.
+  await CommunitySync.noteRules([
+    for (final (kind, payload) in [for (final (_, fix) in shareable) fix])
+      if (kind == CommunityKind.smsRule) payload,
+  ], sent: share);
   if (!share) return;
   unawaited(community.share([for (final (_, fix) in shareable) fix]));
   if (context.mounted) {

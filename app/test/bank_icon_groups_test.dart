@@ -54,7 +54,10 @@ void main() {
       );
     }
     expect(matchingInstitutionIcon('Zerodha'), brandIconKey('zerodha'));
-    expect(matchingInstitutionIcon('Robinhood Gold'), brandIconKey('robinhood'));
+    expect(
+      matchingInstitutionIcon('Robinhood Gold'),
+      brandIconKey('robinhood'),
+    );
     expect(darkBrandIconKeys, contains('xp'));
     expect(
       File(brandIconAssetPath('xp', Brightness.dark)).existsSync(),
@@ -466,9 +469,7 @@ void main() {
 
   testWidgets('a broker icon reopens the picker on Services', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: SelectIconScreen(selectedKey: brandIconKey('zerodha')),
-      ),
+      MaterialApp(home: SelectIconScreen(selectedKey: brandIconKey('zerodha'))),
     );
     await tester.pumpAndSettle();
     expect(find.text('Services & subscriptions'), findsOneWidget);

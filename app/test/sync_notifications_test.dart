@@ -79,25 +79,28 @@ void main() {
     });
   });
 
-  test('leaving the app mid-upload shows it; one that fails says what waits', () {
-    fakeAsync((time) {
-      final plugin = FakePlugin();
-      final notes = SyncNotifications(plugin: plugin);
-      notes.started(3);
-      notes.leftApp(waiting: 3);
-      time.flushMicrotasks();
-      expect(plugin.showing?.$1, 'Saving to Google Drive');
-      notes.failed(3);
-      time.flushMicrotasks();
-      expect(plugin.showing?.$1, 'Changes waiting to upload');
-      expect(plugin.showing?.$2, startsWith('3 changes saved on this phone'));
-      // Back online later (e.g. the background job): it clears.
-      notes.started(1);
-      notes.finished();
-      time.flushMicrotasks();
-      expect(plugin.showing, isNull);
-    });
-  });
+  test(
+    'leaving the app mid-upload shows it; one that fails says what waits',
+    () {
+      fakeAsync((time) {
+        final plugin = FakePlugin();
+        final notes = SyncNotifications(plugin: plugin);
+        notes.started(3);
+        notes.leftApp(waiting: 3);
+        time.flushMicrotasks();
+        expect(plugin.showing?.$1, 'Saving to Google Drive');
+        notes.failed(3);
+        time.flushMicrotasks();
+        expect(plugin.showing?.$1, 'Changes waiting to upload');
+        expect(plugin.showing?.$2, startsWith('3 changes saved on this phone'));
+        // Back online later (e.g. the background job): it clears.
+        notes.started(1);
+        notes.finished();
+        time.flushMicrotasks();
+        expect(plugin.showing, isNull);
+      });
+    },
+  );
 
   test('back in the app, a waiting note goes (the Sync screen shows it)', () {
     fakeAsync((time) {

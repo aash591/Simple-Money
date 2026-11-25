@@ -1051,7 +1051,8 @@ class AgentTools {
   /// income, for suggest_transaction_edits to delete or join.
   Future<Object?> _findDuplicates(Map<String, Object?> args) async {
     final now = DateTime.now();
-    final to = _optionalDay(args, 'to') ?? DateTime(now.year, now.month, now.day);
+    final to =
+        _optionalDay(args, 'to') ?? DateTime(now.year, now.month, now.day);
     final from =
         _optionalDay(args, 'from') ?? DateTime(to.year, to.month, to.day - 90);
     final accountId = _int(args, 'account_id');
@@ -1071,12 +1072,13 @@ class AgentTools {
       for (final a in await AccountRepository(database).load()) a.id: a,
     };
     final fromSms = {
-      for (final r in await database
-          .customSelect(
-            'SELECT DISTINCT transaction_id FROM sms_imports '
-            'WHERE transaction_id IS NOT NULL',
-          )
-          .get())
+      for (final r
+          in await database
+              .customSelect(
+                'SELECT DISTINCT transaction_id FROM sms_imports '
+                'WHERE transaction_id IS NOT NULL',
+              )
+              .get())
         r.read<int>('transaction_id'),
     };
     Map<String, Object?> shown(LedgerCandidate t) {
@@ -1113,9 +1115,8 @@ class AgentTools {
     for (final list in same.values) {
       if (list.length < 2) continue;
       list.sort(
-        (a, b) => a.date != b.date
-            ? a.date.compareTo(b.date)
-            : a.id.compareTo(b.id),
+        (a, b) =>
+            a.date != b.date ? a.date.compareTo(b.date) : a.id.compareTo(b.id),
       );
       var run = [list.first];
       void close() {
@@ -1161,7 +1162,8 @@ class AgentTools {
       'duplicates': groups.take(100).toList(),
       if (groups.length > 100) 'more_duplicates': groups.length - 100,
       if (distinct > 0)
-        'left_out': '$distinct sets of equal amounts each quote their own '
+        'left_out':
+            '$distinct sets of equal amounts each quote their own '
             'UPI reference: separate payments, not duplicates.',
       'transfers_saved_twice': [
         for (final pair in legs.take(100))
@@ -1180,8 +1182,9 @@ class AgentTools {
   Future<Object?> _listBudgets(Map<String, Object?> args) async {
     final now = DateTime.now();
     final month = switch (_string(args, 'month')) {
-      final m? => DateTime.tryParse('$m-01') ??
-          (throw const _BadInput('month must look like 2026-11.')),
+      final m? =>
+        DateTime.tryParse('$m-01') ??
+            (throw const _BadInput('month must look like 2026-11.')),
       null => DateTime(now.year, now.month),
     };
     final categories = {
@@ -2615,18 +2618,15 @@ class AgentTools {
             'allow pictures.',
       };
     }
-    return AgentToolAnswer(
-      {
-        ...columns,
-        'pages': pictures.length,
-        'next':
-            'The pictures show the statement as printed. Check each printed '
-            'column against app_columns: where the app split one column in '
-            'two (wrapped text, an amount out of line), join them with '
-            'map_statement’s join. Then map date, description and amounts.',
-      },
-      pictures,
-    );
+    return AgentToolAnswer({
+      ...columns,
+      'pages': pictures.length,
+      'next':
+          'The pictures show the statement as printed. Check each printed '
+          'column against app_columns: where the app split one column in '
+          'two (wrapped text, an amount out of line), join them with '
+          'map_statement’s join. Then map date, description and amounts.',
+    }, pictures);
   }
 
   Future<Object?> _listStatementsToMap(Map<String, Object?> args) async {
@@ -2955,9 +2955,10 @@ class AgentTools {
     if (table == null || table.length < 2) return null;
     final header = table.first;
     bool has(List<String> row, TableField field) => switch (mapping[field]) {
-      final column? => mapping
-          .partsOf(column)
-          .any((c) => (row.elementAtOrNull(c) ?? '').trim().isNotEmpty),
+      final column? =>
+        mapping
+            .partsOf(column)
+            .any((c) => (row.elementAtOrNull(c) ?? '').trim().isNotEmpty),
       null => false,
     };
     final dateColumn = mapping[TableField.date]!;

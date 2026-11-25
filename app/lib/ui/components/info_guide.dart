@@ -40,7 +40,7 @@ class GuideStep {
   const GuideStep(this.title, this.text, {this.path = const [], this.example});
   final String title, text;
 
-  /// Where to tap, in order, e.g. ['More', 'AI assistant', 'Get pairing code'].
+  /// Where to tap, in order, e.g. ['More', 'Claude / ChatGPT', 'Get pairing code'].
   /// '⋮' stands for an options menu.
   final List<String> path;
 
@@ -74,7 +74,7 @@ class GuideTip {
   final List<String> path;
 }
 
-/// A tap path as chips: More › AI assistant › Get pairing code.
+/// A tap path as chips: More › Claude / ChatGPT › Get pairing code.
 class GuidePath extends StatelessWidget {
   const GuidePath(this.path, {super.key});
   final List<String> path;

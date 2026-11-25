@@ -241,10 +241,8 @@ class TableMapping {
   );
 
   /// [column] and the columns joined to it, left to right.
-  List<int> partsOf(int column) => {
-    column,
-    ...joins.keys.where((k) => joins[k] == column),
-  }.toList()..sort();
+  List<int> partsOf(int column) =>
+      {column, ...joins.keys.where((k) => joins[k] == column)}.toList()..sort();
 
   Map<String, Object> toJson() => {
     'columns': {for (final e in columns.entries) e.key.name: e.value},
