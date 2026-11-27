@@ -33,6 +33,57 @@
       rv.forEach(function (el) { io.observe(el); });
     }
   }
+
+  // Home: endless, draggable, pausable screens carousel.
+  (function () {
+    var track = document.querySelector('.tour-track');
+    if (!track) return;
+    var btn = document.querySelector('.tour-pause');
+    [].slice.call(track.children).forEach(function (f) {
+      var c = f.cloneNode(true); c.setAttribute('aria-hidden', 'true');
+      c.querySelector('img').setAttribute('alt', ''); track.appendChild(c);
+    });
+    var userPaused = false;
+    var hold = false, dragging = false, x0 = 0, s0 = 0, moved = 0, resumeAt = 0, pos = 0, last = 0;
+    var SPEED = 70; // px per second
+    function half() { return track.scrollWidth / 2; }
+    function wrap() { var h = half(); if (track.scrollLeft >= h) track.scrollLeft -= h; else if (track.scrollLeft <= 0) track.scrollLeft += h; }
+    function label() { if (btn) { btn.textContent = userPaused ? 'Play' : 'Pause'; btn.setAttribute('aria-pressed', userPaused); btn.setAttribute('aria-label', userPaused ? 'Resume scrolling' : 'Pause scrolling'); } }
+    label();
+    if (btn) btn.addEventListener('click', function () { userPaused = !userPaused; label(); });
+    var touching = false, lastExt = 0;
+    track.addEventListener('mouseenter', function () { hold = true; });
+    track.addEventListener('mouseleave', function () { hold = false; });
+    track.addEventListener('touchstart', function () { touching = true; }, { passive: true });
+    track.addEventListener('touchend', function () { touching = false; }, { passive: true });
+    track.addEventListener('touchcancel', function () { touching = false; }, { passive: true });
+    track.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      dragging = true; x0 = e.clientX; s0 = track.scrollLeft; track.classList.add('drag');
+      track.setPointerCapture(e.pointerId);
+    });
+    track.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      track.scrollLeft = s0 - (e.clientX - x0); wrap(); pos = track.scrollLeft;
+    });
+    function end() { dragging = false; track.classList.remove('drag'); pos = track.scrollLeft; }
+    track.addEventListener('pointerup', end); track.addEventListener('pointercancel', end);
+    track.addEventListener('scroll', function () { if (!dragging) wrap(); }, { passive: true });
+    document.addEventListener('visibilitychange', function () { last = 0; });
+    function tick(t) {
+      if (last) {
+        var dt = Math.min(t - last, 64) / 1000;
+        if (Math.abs(track.scrollLeft - pos) > 2) { pos = track.scrollLeft; lastExt = t; }
+        if (!userPaused && !hold && !dragging && !touching && t - lastExt > 120) {
+          pos += SPEED * dt; if (pos >= half()) pos -= half();
+          track.scrollLeft = pos;
+        }
+      }
+      last = t; requestAnimationFrame(tick);
+    }
+    track.scrollLeft = 1;
+    requestAnimationFrame(tick);
+  })();
   var hbar = document.querySelector('.home .bar');
   if (hbar) {
     var onScroll = function () { hbar.classList.toggle('scrolled', window.scrollY > 8); };
