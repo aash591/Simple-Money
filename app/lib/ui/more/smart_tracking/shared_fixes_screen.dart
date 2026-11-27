@@ -229,7 +229,7 @@ class _SharedFixesScreenState extends State<SharedFixesScreen> {
 
   @override
   Widget build(BuildContext context) =>
-      FeaturePage(title: 'Shared fixes', child: _body(context));
+      FeaturePage(title: 'Community rules', child: _body(context));
 
   Widget _body(BuildContext context) {
     final fixes = _fixes;

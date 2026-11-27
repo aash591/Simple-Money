@@ -42,7 +42,7 @@ void main() {
     // Pro is offered in one slim row under the profile card.
     expect(find.text('SimpleMoney Pro'), findsOneWidget);
     // Shared fixes now lives in Settings, not here.
-    expect(find.text('Shared fixes'), findsNothing);
+    expect(find.text('Community rules'), findsNothing);
   });
 
   testWidgets('a tab shows a dot only while something is waiting', (

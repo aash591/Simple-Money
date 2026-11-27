@@ -1,5 +1,6 @@
 import 'package:simple_money/state/vibration_settings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show PlatformException;
 
 import '../../domain/account.dart';
 import '../../domain/category.dart';
@@ -17,6 +18,7 @@ import '../components/transactions/review_pickers.dart';
 import '../more/loans/loan_action_sheet.dart';
 import '../more/loans/loan_detail_screen.dart';
 import '../../state/upi_settings.dart';
+import '../../data/reportable_sms.dart';
 import '../../data/repositories/transaction_repository.dart';
 import '../components/adaptive_sheet.dart';
 import '../components/transactions/transaction_review_sheet.dart';
@@ -1147,8 +1149,52 @@ class _TransactionSheetState extends State<TransactionSheet> {
     );
   }
 
+  /// Reports the SMS or notification [message] was read from, after asking.
+  /// It goes the way every SMS report does ([ReportableSmsRepository.report]).
+  Future<void> _reportSource(ReportableSms message) async {
+    final kind = message.fromNotification ? 'notification' : 'SMS';
+    if (!await showConfirmationAlert(
+          context,
+          title: 'Report this $kind?',
+          message:
+              'It goes to the developer, so the app can read it better. '
+              'Your account and other transactions stay private.',
+          confirmLabel: 'OK',
+          destructive: false,
+        ) ||
+        !mounted) {
+      return;
+    }
+    try {
+      await ReportableSmsRepository().report([
+        message,
+      ], note: 'Reported from a saved transaction.');
+      if (!mounted) return;
+      showAppToast(
+        context,
+        'Thanks for reporting',
+        icon: Icons.check_circle_rounded,
+      );
+    } on PlatformException catch (error) {
+      if (mounted) {
+        showAppToast(
+          context,
+          error.message ?? 'Couldn’t send. Try again later.',
+        );
+      }
+    } catch (_) {
+      if (mounted) showAppToast(context, 'Couldn’t send. Try again later.');
+    }
+  }
+
   Widget _buildViewPage() {
     final transaction = _current;
+    // Only a transaction read from an SMS or notification has one to report.
+    final source = ReportableSms.fromNote(
+      transaction.note,
+      transaction.date,
+      bank: _accountById(transaction.accountId)?.name,
+    );
     return TransactionViewPage(
       transaction: transaction,
       account: _accountById(transaction.accountId),
@@ -1158,6 +1204,10 @@ class _TransactionSheetState extends State<TransactionSheet> {
       onEdit: _deleting ? null : _editInReview,
       onDelete: _deleteTransaction,
       onOpenAccount: _openAccount,
+      onReport: source == null ? null : () => _reportSource(source),
+      reportLabel: source?.fromNotification == true
+          ? 'Report this notification'
+          : 'Report this SMS',
       busy: _deleting,
     );
   }

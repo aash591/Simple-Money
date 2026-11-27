@@ -210,7 +210,7 @@ class OverviewCard extends StatelessWidget {
         Semantics(
           label: 'Spent ${(spentShare * 100).round()}% of money in',
           child: SizedBox(
-            height: 6,
+            height: 4,
             // Stretched, or the colour boxes have no child to size them and
             // collapse to nothing.
             child: Row(
@@ -222,19 +222,25 @@ class OverviewCard extends StatelessWidget {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         // Ink while on track, coral only once it passes the income.
-                        color: spent > income ? coral : colors.onSurface,
-                        borderRadius: const BorderRadius.all(Radius.circular(3)),
+                        color: spent > income
+                            ? coral
+                            : colors.onSurface.withValues(alpha: .6),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(2),
+                        ),
                       ),
                     ),
                   ),
-                if (spentShare > 0 && spentShare < 1) const SizedBox(width: 3),
+                if (spentShare > 0 && spentShare < 1) const SizedBox(width: 2),
                 if (spentShare < 1)
                   Expanded(
                     flex: ((1 - spentShare) * 1000).round().clamp(1, 1000),
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: colors.onSurface.withValues(alpha: .10),
-                        borderRadius: const BorderRadius.all(Radius.circular(3)),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(2),
+                        ),
                       ),
                     ),
                   ),
@@ -382,7 +388,8 @@ class _Flow extends StatelessWidget {
             value: value,
             format: format,
             style: theme.textTheme.titleSmall?.copyWith(
-              fontSize: 20,
+              fontSize: 16,
+              color: theme.colorScheme.onSurface,
               fontWeight: FontWeight.w600,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),

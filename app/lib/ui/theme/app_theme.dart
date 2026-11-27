@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../components/page_motion.dart';
 import 'legible_color.dart';
 import 'surface_style.dart';
 import 'app_typography.dart';
@@ -136,6 +137,13 @@ ThemeData appTheme(
       );
   return ThemeData(
     useMaterial3: true,
+    // Every page route opens and closes with the app's one transition.
+    pageTransitionsTheme: PageTransitionsTheme(
+      builders: {
+        for (final platform in TargetPlatform.values)
+          platform: const PageMotionTransitionsBuilder(),
+      },
+    ),
     fontFamily: AppTypography.fontFamily,
     colorScheme: scheme,
     brightness: brightness,

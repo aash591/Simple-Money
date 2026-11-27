@@ -91,6 +91,7 @@ class SpendingCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SectionTitle(
+          compact: true,
           'Top expense categories',
           action: data.spent > 0 ? 'See all' : null,
           onTap: data.spent > 0 ? () => _details(context) : null,

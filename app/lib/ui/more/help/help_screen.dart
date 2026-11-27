@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../data/app_links.dart';
-import '../../../components/app_toast.dart';
-import '../../../components/feature_page.dart';
-import '../../../components/menu_list.dart';
+import '../../../data/app_links.dart';
+import '../../components/app_toast.dart';
+import '../../components/feature_page.dart';
+import '../../components/menu_list.dart';
+import 'about/about_screen.dart';
 import 'report_issue_screen.dart';
 
 final _faqUrl = Uri.parse('https://simplemoney.aashglobal.in/');
@@ -51,14 +52,6 @@ class HelpScreen extends StatelessWidget {
                   external: true,
                   onTap: () => _openFaq(context),
                 ),
-                MenuRow(
-                  icon: Icons.rate_review_outlined,
-                  title: 'Send feedback',
-                  subtitle: 'Report a problem or request a feature',
-                  onTap: () =>
-                      Navigator.of(context)
-                          .push(FeatureRoute<void>(const ReportIssueScreen())),
-                ),
                 if (communityUrl.isNotEmpty)
                   MenuRow(
                     icon: Icons.groups_rounded,
@@ -67,6 +60,26 @@ class HelpScreen extends StatelessWidget {
                     external: true,
                     onTap: () => _openCommunity(context),
                   ),
+                MenuRow(
+                  icon: Icons.rate_review_outlined,
+                  title: 'Send feedback',
+                  subtitle: 'Report a problem or request a feature',
+                  onTap: () =>
+                      Navigator.of(context)
+                          .push(FeatureRoute<void>(const ReportIssueScreen())),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            MenuGroup(
+              children: [
+                MenuRow(
+                  icon: Icons.info_rounded,
+                  title: 'About SimpleMoney',
+                  onTap: () =>
+                      Navigator.of(context)
+                          .push(FeatureRoute<void>(const AboutScreen())),
+                ),
               ],
             ),
           ],

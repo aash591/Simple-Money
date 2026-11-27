@@ -456,5 +456,131 @@
       }
     },
     "compareLegacy": true
+  },
+  {
+    "id": "indian-community-001",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Community report (Help > Report SMS), 2026-11; payee names kept, account masked",
+    "input": {
+      "sender": "AD-INDBNK-S",
+      "body": "Sent Rs.210.00 from A/c *9132 on 12-11-26 to Farhana S.RRN 631653016144.Avl Bal Rs.18.44.Not you?SMS BLOCK to 9289592895-Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template010",
+      "candidate": {
+        "amountMinor": 21000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "9132",
+        "reference": "631653016144",
+        "counterparty": "Farhana S",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "indian-community-002",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Community report (Help > Report SMS), 2026-11; payee names kept, account masked",
+    "input": {
+      "sender": "AD-INDBNK-S",
+      "body": "Sent Rs.6000.00 from A/c *9132 on 19-11-26 to saraswathyb10@okaxis.RRN 668922224311.Avl Bal Rs.718.60.Not you?SMS BLOCK to 9289592895-Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template010",
+      "candidate": {
+        "amountMinor": 600000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "9132",
+        "reference": "668922224311",
+        "counterparty": "saraswathyb10@okaxis",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
+  },
+  {
+    "id": "indian-community-003",
+    "country": "IN",
+    "bankId": "in.indian",
+    "provenance": "Community report (Help > Report SMS), 2026-11; payee names kept, account masked",
+    "input": {
+      "sender": "AD-INDBNK-S",
+      "body": "Sent Rs.40.00 from A/c *9132 on 23-11-26 to NIZAR AHAMMED KUNJU.RRN 632718636902.Avl Bal Rs.97.10.Not you?SMS BLOCK to 9289592895-Indian Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.indian.template010",
+      "candidate": {
+        "amountMinor": 4000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "upi",
+        "bankName": "Indian Bank",
+        "countryCode": "IN",
+        "accountLast4": "9132",
+        "reference": "632718636902",
+        "counterparty": "NIZAR AHAMMED KUNJU",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "personal",
+          "name": "Personal",
+          "type": "expense",
+          "ruleId": "in.category.personal",
+          "isFallback": true,
+          "aliases": [
+            "Other Expense",
+            "Other Income"
+          ]
+        }
+      }
+    },
+    "compareLegacy": false
   }
 ]

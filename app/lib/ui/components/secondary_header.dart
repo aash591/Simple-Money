@@ -21,7 +21,7 @@ class SecondaryHeader extends StatelessWidget {
   final Widget? titleIcon;
 
   // Keeps secondary page titles and actions comfortably separated from content.
-  static const double height = 56;
+  static const double height = 48;
 
   /// Puts a round button's disc on the page margin the cards keep.
   static const _roundInset = TabHeader.sideMargin - GlassCircleButton.edgeInset;
@@ -126,7 +126,7 @@ class SecondaryHeader extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleLarge
                           ?.copyWith(
-                            fontSize: centered ? 17 : 22,
+                            fontSize: centered ? 17 : 20,
                             fontWeight: FontWeight.w600,
                             letterSpacing: -0.3,
                             height: 1.2,

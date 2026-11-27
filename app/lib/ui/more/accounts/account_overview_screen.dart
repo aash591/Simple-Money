@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../domain/account.dart';
@@ -174,21 +176,64 @@ class _AccountOverviewScreenState extends State<AccountOverviewScreen> {
         ],
         // The account card scrolls away with the page; the period ribbon, which
         // heads the body, stops just under the header and stays there.
-        child: NestedScrollView(
-          headerSliverBuilder: (context, _) => [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(18, 12, 18, 8),
-                child: AccountTile(account: account, width: null, dense: true),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: NestedScrollView(
+                headerSliverBuilder: (context, _) => [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 12, 18, 8),
+                      child: AccountTile(
+                        account: account,
+                        width: null,
+                        dense: true,
+                      ),
+                    ),
+                  ),
+                ],
+                body: PeriodPager(
+                  controller: _period,
+                  onSelectRange: () => pickPeriod(context, _period),
+                  pageBuilder: (context, anchor) =>
+                      _page(context, account, _period.rangeAt(anchor), money),
+                ),
+              ),
+            ),
+            // Stays at the bottom while the page scrolls; the page fades out
+            // under it rather than ending in a hard edge.
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Theme.of(context).scaffoldBackgroundColor
+                          .withValues(alpha: 0),
+                      Theme.of(context).scaffoldBackgroundColor,
+                    ],
+                    stops: const [0, .45],
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 24, 18, 6),
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                      shape: const StadiumBorder(),
+                    ),
+                    onPressed: () => _seeTransactions(account),
+                    icon: const Icon(Icons.receipt_long_outlined, size: 20),
+                    label: const Text('See all transactions'),
+                  ),
+                ),
               ),
             ),
           ],
-          body: PeriodPager(
-            controller: _period,
-            onSelectRange: () => pickPeriod(context, _period),
-            pageBuilder: (context, anchor) =>
-                _page(context, account, _period.rangeAt(anchor), money),
-          ),
         ),
       );
     },
@@ -207,85 +252,84 @@ class _AccountOverviewScreenState extends State<AccountOverviewScreen> {
     int total(List<_Slice> s) => s.fold(0, (sum, x) => sum + x.amount);
     final palette = ChartPalette.of(context);
     final when = _period.kind == PeriodKind.all ? 'yet' : 'in this period';
-    return ListView(
-      padding: EdgeInsets.fromLTRB(
-        18,
-        8,
-        18,
-        32 + MediaQuery.paddingOf(context).bottom,
-      ),
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: _Figure(
-                label: 'Spent',
-                icon: Icons.south_east_rounded,
-                color: palette.expense,
-                value: total(expenses),
-                money: money,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _Figure(
-                label: 'Received',
-                icon: Icons.north_east_rounded,
-                color: palette.income,
-                value: total(incomes),
-                money: money,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        MoneyCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    return LayoutBuilder(
+      builder: (context, box) => ListView(
+        padding: EdgeInsets.fromLTRB(18, 8, 18, 96),
+        children: [
+          Row(
             children: [
-              SegmentedPill<TransactionType>(
-                segments: [
-                  PillSegment(
-                    TransactionType.expense,
-                    'Expense',
-                    icon: Icons.south_east_rounded,
-                    tone: palette.expense,
-                  ),
-                  PillSegment(
-                    TransactionType.income,
-                    'Income',
-                    icon: Icons.north_east_rounded,
-                    tone: palette.income,
-                  ),
-                ],
-                value: tab,
-                onChanged: (value) => setState(() => tab = value),
+              Expanded(
+                child: _Figure(
+                  label: 'Spent',
+                  icon: Icons.south_east_rounded,
+                  color: palette.expense,
+                  value: total(expenses),
+                  money: money,
+                ),
               ),
-              const SizedBox(height: 16),
-              _Breakdown(
-                key: ValueKey((tab, range)),
-                slices: shown,
-                total: total(shown),
-                money: money,
-                noun: tab == TransactionType.expense ? 'spending' : 'income',
-                empty: tab == TransactionType.expense
-                    ? 'Nothing spent from this account $when.'
-                    : 'Nothing received in this account $when.',
+              const SizedBox(width: 12),
+              Expanded(
+                child: _Figure(
+                  label: 'Received',
+                  icon: Icons.north_east_rounded,
+                  color: palette.income,
+                  value: total(incomes),
+                  money: money,
+                ),
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 20),
-        FilledButton.icon(
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(50),
-            shape: const StadiumBorder(),
+          const SizedBox(height: 16),
+          // A bare account's card fills the page down to the button, so it
+          // isn't a small card floating above empty space; one with a chart
+          // is as tall as its chart.
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: total(shown) <= 0
+                  ? math.max(0, box.maxHeight - 208)
+                  : 0,
+            ),
+            child: MoneyCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SegmentedPill<TransactionType>(
+                    segments: [
+                      PillSegment(
+                        TransactionType.expense,
+                        'Expense',
+                        icon: Icons.south_east_rounded,
+                        tone: palette.expense,
+                      ),
+                      PillSegment(
+                        TransactionType.income,
+                        'Income',
+                        icon: Icons.north_east_rounded,
+                        tone: palette.income,
+                      ),
+                    ],
+                    value: tab,
+                    onChanged: (value) => setState(() => tab = value),
+                  ),
+                  const SizedBox(height: 16),
+                  _Breakdown(
+                    key: ValueKey((tab, range)),
+                    slices: shown,
+                    total: total(shown),
+                    money: money,
+                    noun: tab == TransactionType.expense
+                        ? 'spending'
+                        : 'income',
+                    empty: tab == TransactionType.expense
+                        ? 'Nothing spent from this account $when.'
+                        : 'Nothing received in this account $when.',
+                  ),
+                ],
+              ),
+            ),
           ),
-          onPressed: () => _seeTransactions(account),
-          icon: const Icon(Icons.receipt_long_outlined, size: 20),
-          label: const Text('See all transactions'),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -12,17 +12,21 @@ import '../../../domain/holding.dart';
 import '../../../domain/markets.dart';
 import '../../../domain/metal.dart';
 import '../../../state/holding_store.dart';
+import '../../../state/pro_controller.dart';
 import '../../components/action_buttons.dart';
 import '../../components/app_icon.dart';
 import '../../components/common.dart';
+import '../../components/confirmation_alert.dart';
 import '../../components/app_toast.dart';
 import '../../components/currency_flag.dart';
 import '../../components/feature_page.dart';
+import '../../components/watch_ad.dart';
 import '../../components/search_field.dart';
 import '../../components/segmented_pill.dart';
 import '../../components/select_icon_screen.dart';
 import '../../theme/sheet_colors.dart';
 import '../../transactions/transaction_widgets.dart' show StepSlider;
+import '../pro/pro_screen.dart';
 import 'holding_logo.dart';
 import 'step_intro.dart';
 
@@ -317,7 +321,38 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
 
   // ---- Type -----------------------------------------------------------------
 
-  void _chooseKind(HoldingKind kind) {
+  /// What the free limit for [kind] is called in its prompt.
+  static String _limitName(HoldingKind kind) => switch (kind) {
+    HoldingKind.etf => 'ETFs',
+    HoldingKind.fund => 'mutual funds',
+    HoldingKind.crypto => 'crypto holdings',
+    HoldingKind.metal => 'metal holdings',
+    HoldingKind.forex => 'forex holdings',
+    _ => 'holdings',
+  };
+
+  /// A kind the free plan has used up its holdings of ends here, with the way
+  /// to Pro. What is already held stays; only adding more is held back.
+  Future<bool> _mayAdd(HoldingKind kind) async {
+    final held = widget.store.holdings.where((h) => h.kind == kind).length;
+    if (ProController.instance.mayAddHolding(kind, held)) return true;
+    final limit = ProController.freeHoldingsOf(kind)!;
+    if (await showConfirmationAlert(
+          context,
+          title: '$limit ${_limitName(kind)} is the free limit',
+          message: 'With Pro you can add as many as you like.',
+          confirmLabel: 'See Pro',
+          cancelLabel: 'Not now',
+          destructive: false,
+        ) &&
+        mounted) {
+      await Navigator.of(context).push(FeatureRoute<void>(const ProScreen()));
+    }
+    return false;
+  }
+
+  Future<void> _chooseKind(HoldingKind kind) async {
+    if (!await _mayAdd(kind) || !mounted) return;
     setState(() {
       _metalType = null;
       _kind = kind;
@@ -580,8 +615,38 @@ class _AddHoldingScreenState extends State<AddHoldingScreen> {
 
   // ---- Save -----------------------------------------------------------------
 
+  /// A new holding of the free plan may take a short ad, as budgets do: every
+  /// second one of its kind. True when it may be saved. A purchase on a
+  /// holding already held adds nothing new, so it never asks.
+  Future<bool> _mayAddNew() async {
+    if (_existing != null) return true;
+    final held = widget.store.holdings.where((h) => h.kind == _kind).length;
+    if (!ProController.instance.holdingTakesAd(held)) return true;
+    final limit = ProController.freeHoldingsOf(_kind);
+    void openPro() =>
+        Navigator.of(context).push(FeatureRoute<void>(const ProScreen()));
+    final watch = await showConfirmationAlert(
+      context,
+      title: 'Watch a short ad to add this holding',
+      message: limit == null
+          ? 'Every second one takes a short ad on the free plan. With Pro, '
+                'add as many as you like, with no ads.'
+          : '${_kind.label} ${held + 1} of $limit on the free plan. With Pro, '
+                'add as many as you like, with no ads.',
+      confirmLabel: 'Watch ad',
+      extraActionLabel: 'Get Pro instead',
+      onExtraAction: openPro,
+      destructive: false,
+    );
+    if (!watch || !mounted) return false;
+    // Offline, or the user declined: nothing is saved.
+    if (!await watchAd(context)) return false;
+    return mounted;
+  }
+
   Future<void> _save({required bool addPurchase}) async {
     if (_saving) return;
+    if (!await _mayAddNew()) return;
     setState(() {
       _saving = true;
       _error = null;

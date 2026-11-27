@@ -43,10 +43,12 @@ abstract final class MonetizationConfig {
   /// open to everyone; set AI_NEEDS_PRO=true in `.env` to hold it back.
   static const aiNeedsPro = bool.fromEnvironment('AI_NEEDS_PRO');
 
-  /// Treats a debug build as if Pro were bought, so every Pro feature can be
-  /// tried without buying. On unless DEBUG_PRO=false is given, and ignored
-  /// in profile and release builds.
-  static const debugPro = bool.fromEnvironment('DEBUG_PRO', defaultValue: true);
+  /// Whether a debug build (`flutter run`) is Pro. Off unless PRO_IN_DEBUG=true
+  /// is given, so a debug build is always the free plan, even on a Google
+  /// account that bought Pro. On, it acts as if Pro were bought, so every Pro
+  /// feature can be tried without buying. Ignored in profile and release
+  /// builds.
+  static const proInDebug = bool.fromEnvironment('PRO_IN_DEBUG');
 
   static const freeUses = int.fromEnvironment('AD_FREE_USES', defaultValue: 0);
   static const minGap = Duration(

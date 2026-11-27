@@ -304,6 +304,12 @@ void main() {
       )['isCreditCard'],
       isFalse,
     );
+    expect(
+      smsMetadata(
+        'Rs.3,000.00 withdrawn on UCO Bank Card XX1234 on 30-11-2025 at ATM. Avl Bal Rs.5000.00',
+      )['isCreditCard'],
+      isFalse,
+    );
   });
 
   test('restored-device SuperCard spending, repayments, and limits', () {

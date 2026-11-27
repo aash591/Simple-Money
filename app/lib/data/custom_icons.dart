@@ -141,10 +141,13 @@ class CustomIcons {
         ..filterQuality = ui.FilterQuality.high
         ..isAntiAlias = true,
     );
-    cropped.dispose();
     final picture = recorder.endRecording();
     final out = await picture.toImage(size, size);
+    // Only now: a release build rasterizes on the GPU after toImage, and an
+    // image freed before that can read back whatever the memory held (it
+    // showed the screen behind).
     picture.dispose();
+    cropped.dispose();
     final png = await out.toByteData(format: ui.ImageByteFormat.png);
     out.dispose();
     return png!.buffer.asUint8List();

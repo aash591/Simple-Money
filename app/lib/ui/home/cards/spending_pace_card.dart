@@ -63,8 +63,6 @@ class SpendingPaceCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Spending pace', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 14),
             EmptyChartPreview(
               title: 'No spending yet.',
               message:
@@ -101,8 +99,8 @@ class SpendingPaceCard extends StatelessWidget {
         : gap == 0
         ? ('Same as $previousName', theme.colorScheme.onSurfaceVariant)
         : gap > 0
-        ? ('Above $previousName', palette.expense)
-        : ('Below $previousName', palette.income);
+        ? ('${_money(gap)} more', palette.expense)
+        : ('${_money(-gap)} less', palette.income);
     final amountStyle = theme.textTheme.headlineMedium?.copyWith(
       fontWeight: FontWeight.w700,
       letterSpacing: -.5,
@@ -113,39 +111,41 @@ class SpendingPaceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
+              Flexible(
                 child: Text(
-                  'Spending pace',
-                  style: theme.textTheme.titleMedium,
+                  '$monthName vs $previousName',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall,
                 ),
               ),
               if (chip != null && chipColor != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: chipColor.withValues(alpha: .14),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    chip,
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: chipColor,
-                      fontWeight: FontWeight.w600,
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: chipColor.withValues(alpha: .14),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      chip,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: chipColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 14),
-          Text(
-            running ? 'Spent so far in $monthName' : 'Spent in $monthName',
-            style: theme.textTheme.bodySmall,
-          ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 8),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,

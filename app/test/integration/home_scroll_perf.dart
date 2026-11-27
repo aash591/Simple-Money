@@ -65,11 +65,18 @@ void main() {
     // too. Report them separately instead of discarding the first traversal.
     final cold = await _measureScroll(tester, list, passes: 1);
     final warm = await _measureScroll(tester, list, passes: 3);
+    final continuous = await _measureScroll(
+      tester,
+      list,
+      passes: 2,
+      through: _scrollContinuously,
+    );
     binding.reportData = {
       'big_ledger': const bool.fromEnvironment('BIG_LEDGER'),
       'ledger_rows': rows,
       'first_scroll': _report('first scroll', cold),
       'warm_scroll': _report('warm scroll', warm),
+      'continuous_scroll': _report('continuous scroll', continuous),
     };
   });
 }
@@ -117,6 +124,7 @@ Future<List<FrameTiming>> _measureScroll(
   WidgetTester tester,
   Finder list, {
   required int passes,
+  Future<void> Function(WidgetTester, Finder) through = _scrollThrough,
 }) async {
   final timings = <FrameTiming>[];
   // Flush the preceding phase's batched frame timings before subscribing.
@@ -125,7 +133,7 @@ Future<List<FrameTiming>> _measureScroll(
   SchedulerBinding.instance.addTimingsCallback(collect);
   try {
     for (var i = 0; i < passes; i++) {
-      await _scrollThrough(tester, list);
+      await through(tester, list);
     }
     await Future<void>.delayed(const Duration(seconds: 2));
   } finally {
@@ -151,6 +159,16 @@ Map<String, Object> _report(String phase, List<FrameTiming> timings) {
             t.rasterDuration.inMicroseconds / 1000 > budget,
       )
       .length;
+  // The screen reports its rate at rest; while a finger moves the page most
+  // phones step up to 90 or 120 Hz, where a frame has far less time.
+  int over(double ms) => timings
+      .where(
+        (t) =>
+            t.buildDuration.inMicroseconds / 1000 > ms ||
+            t.rasterDuration.inMicroseconds / 1000 > ms,
+      )
+      .length;
+  final over90 = over(1000 / 90), over120 = over(1000 / 120);
   String row(String name, List<double> v) =>
       '$name p50 ${pct(v, .5).toStringAsFixed(2)}  '
       'p90 ${pct(v, .9).toStringAsFixed(2)}  '
@@ -158,7 +176,8 @@ Map<String, Object> _report(String phase, List<FrameTiming> timings) {
       'max ${v.isEmpty ? 0 : v.last.toStringAsFixed(2)} ms';
   debugPrint(
     'PERF $phase: ${hz.round()}Hz, ${timings.length} frames, '
-    '$jank over the ${budget.toStringAsFixed(1)} ms budget',
+    '$jank over the ${budget.toStringAsFixed(1)} ms budget, '
+    '$over90 over 11.1 ms (90 Hz), $over120 over 8.3 ms (120 Hz)',
   );
   debugPrint('PERF ${row('build ', build)}');
   debugPrint('PERF ${row('raster', raster)}');
@@ -172,6 +191,8 @@ Map<String, Object> _report(String phase, List<FrameTiming> timings) {
     'refresh_rate_hz': hz,
     'frames': timings.length,
     'over_budget': jank,
+    'over_90hz_budget': over90,
+    'over_120hz_budget': over120,
     'build': stats(build),
     'raster': stats(raster),
   };
@@ -204,6 +225,23 @@ Future<void> _growLedger() async {
   } finally {
     await db.close();
   }
+}
+
+/// Never at rest: a finger dragging the page steadily down and back up, then
+/// flicks one straight after another, each catching the last mid-glide.
+Future<void> _scrollContinuously(WidgetTester tester, Finder list) async {
+  for (final speed in [
+    const Duration(seconds: 3),
+    const Duration(seconds: 1),
+  ]) {
+    await tester.timedDrag(list, const Offset(0, -2400), speed);
+    await tester.timedDrag(list, const Offset(0, 2400), speed);
+  }
+  for (var i = 0; i < 6; i++) {
+    await tester.fling(list, Offset(0, i < 3 ? -500 : 500), 3000);
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+  }
+  await Future<void>.delayed(const Duration(milliseconds: 1200));
 }
 
 Future<void> _scrollThrough(WidgetTester tester, Finder list) async {

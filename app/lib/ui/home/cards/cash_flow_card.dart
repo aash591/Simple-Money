@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../../data/repositories/insights_repository.dart';
 import '../../../domain/currency_scope.dart';
 import '../../components/charts/charts.dart';
-import '../../components/common.dart';
 import '../../components/empty_chart_preview.dart';
 import 'home_card.dart';
 
@@ -29,8 +28,6 @@ class CashFlowCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SectionTitle('Money in vs money out'),
-          const SizedBox(height: 14),
           if (empty)
             EmptyChartPreview(
               title: 'No money in or out yet.',

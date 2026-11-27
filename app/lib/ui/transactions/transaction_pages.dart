@@ -516,6 +516,8 @@ class TransactionViewPage extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     this.onOpenAccount,
+    this.onReport,
+    this.reportLabel = 'Report',
     this.busy = false,
   });
   final MoneyTransaction transaction;
@@ -533,6 +535,14 @@ class TransactionViewPage extends StatelessWidget {
 
   /// Null hides the Delete button.
   final VoidCallback? onDelete;
+
+  /// Reports the SMS or notification this was read from. Null hides the
+  /// Report pill: a transaction typed in by hand has nothing to report.
+  final VoidCallback? onReport;
+
+  /// What the pill says; names where the transaction came from for the screen
+  /// reader.
+  final String reportLabel;
 
   /// True while a delete is in flight: both buttons disable.
   final bool busy;
@@ -587,6 +597,10 @@ class TransactionViewPage extends StatelessWidget {
 
     return SheetPage(
       header: SheetHeader('Transaction', onBack: onClose),
+      // The Report pill ends the body: no extra gap before the buttons.
+      bodyPadding: onReport == null
+          ? const EdgeInsets.fromLTRB(16, 4, 16, 8)
+          : const EdgeInsets.fromLTRB(16, 4, 16, 0),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -679,17 +693,81 @@ class TransactionViewPage extends StatelessWidget {
                 ),
             ],
           ),
+          if (onReport != null) ...[
+            const SizedBox(height: 8),
+            Center(
+              child: ReportPill(
+                label: reportLabel,
+                onPressed: busy ? null : onReport,
+              ),
+            ),
+          ],
         ],
       ),
       actions: onEdit == null && onDelete == null
           ? null
           : ActionButtonBar(
+              // With the Report pill above, the same 8 below it as above it.
+              padding: onReport == null
+                  ? const EdgeInsets.all(16)
+                  : const EdgeInsets.fromLTRB(16, 8, 16, 16),
               secondaryLabel: onDelete == null ? null : 'Delete',
               onSecondary: busy ? null : onDelete,
               secondaryForegroundColor: colors.expense,
               primaryLabel: onEdit == null ? null : 'Edit',
               onPrimary: busy ? null : onEdit,
             ),
+    );
+  }
+}
+
+/// A small quiet pill under a transaction read from an SMS or notification,
+/// for telling the developer it was read wrongly. It stays low-key: most
+/// transactions are right.
+class ReportPill extends StatelessWidget {
+  const ReportPill({super.key, required this.label, required this.onPressed});
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = SheetColors.of(context);
+    final enabled = onPressed != null;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: label,
+      excludeSemantics: true,
+      child: Material(
+        color: colors.control,
+        shape: const StadiumBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onPressed,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.flag_outlined,
+                  size: 13,
+                  color: enabled ? colors.muted : colors.outline,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Report',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: enabled ? colors.muted : colors.outline,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -140,12 +140,22 @@ class _CalloutDonutChartState extends State<CalloutDonutChart>
         final width = constraints.maxWidth.isFinite
             ? constraints.maxWidth
             : 320.0;
+        final caption = measureChartText('100%', captionStyle, scaler);
         final g = _Geometry.of(
           size: Size(width, widget.height),
           slices: slices,
           thickness: widget.thickness,
-          caption: measureChartText('100%', captionStyle, scaler),
+          caption: caption,
         );
+        // Everything is placed from the top, so the chart can end where its
+        // lowest badge or the ring does, rather than leave room for badges
+        // that aren't there.
+        final bottom = [
+          g.center.dy + g.radius + 6,
+          for (final callout in g.callouts)
+            g.badgeCenter(callout).dy + _Geometry.below(caption),
+        ].reduce(math.max);
+        final height = math.min(widget.height, bottom + 8);
         // The sweep/pop only changes paint and opacity. Keep text, icons and
         // tap targets out of its per-frame build/layout work.
         final badges = {
@@ -173,7 +183,7 @@ class _CalloutDonutChartState extends State<CalloutDonutChart>
             onTapUp: (details) => _select(g.sliceAt(details.localPosition)),
             child: SizedBox(
               width: width,
-              height: widget.height,
+              height: height,
               // Its own layer, so the sweep repaints the donut alone.
               child: RepaintBoundary(
                 child: AnimatedBuilder(
@@ -438,6 +448,10 @@ class _Geometry {
 
   static const badge = 34.0, tagOverlap = 7.0, gap = 14.0;
 
+  /// Below a badge's centre: the rest of its circle, then the share tag.
+  static double below(Size caption) =>
+      badge / 2 - tagOverlap + caption.height + 2;
+
   factory _Geometry.of({
     required Size size,
     required List<ChartEntry> slices,
@@ -446,7 +460,7 @@ class _Geometry {
   }) {
     final boxWidth = math.max(badge, caption.width + 12);
     // Below a badge's centre: the rest of its circle, then the share tag.
-    final below = badge / 2 - tagOverlap + caption.height + 2;
+    final below = _Geometry.below(caption);
     final above = badge / 2;
     final center = Offset(
       size.width / 2,

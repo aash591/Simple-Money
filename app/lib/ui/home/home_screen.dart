@@ -22,6 +22,7 @@ import '../components/review_prompt_alert.dart';
 import '../../state/review_prompt.dart';
 import '../components/liquid_glass_nav_bar.dart';
 import '../components/nav_icon_motion.dart';
+import '../components/page_motion.dart';
 import '../../state/account_store.dart';
 import '../../state/holding_store.dart';
 import '../../state/budget_store.dart';
@@ -254,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen>
   final _transactions = GlobalKey<TransactionsScreenState>();
   late final _historySlide = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 320),
+    duration: PageMotion.tabDuration,
     value: 1,
   );
 
@@ -291,23 +292,50 @@ class _HomeScreenState extends State<HomeScreen>
   void _selectTab(int index) {
     if (_dragTarget != null) return;
     if (index == selectedTab || index < 0 || index > 3) return;
+    // Tapped again mid-switch: the page still mostly on screen is the one
+    // that leaves, so nothing on screen vanishes at once.
+    final from =
+        (_historySlide.isAnimating || _slidePending) &&
+            _historySlide.value < .5 &&
+            _slidingFromTab != null &&
+            _slidingFromTab != index
+        ? _slidingFromTab!
+        : selectedTab;
+    final firstVisit = !_visitedTabs.contains(index);
     setState(() {
-      _slidingFromTab = selectedTab;
-      _slideDirection = index > selectedTab ? 1 : -1;
+      _slidingFromTab = from;
+      _slideDirection = index > from ? 1 : -1;
       selectedTab = index;
     });
     if (MediaQuery.disableAnimationsOf(context)) {
       _historySlide.value = 1;
-    } else {
+    } else if (firstVisit) {
+      // A tab opened for the first time builds its whole page in the next
+      // frame. Starting the slide in that same long frame made it skip
+      // ahead, so the page builds unseen at the start of the slide and the
+      // slide begins on the frame after.
       _historySlide.value = 0;
-      _historySlide.animateTo(1, curve: Curves.easeInOutCubic);
+      _slidePending = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_slidePending) return;
+        _slidePending = false;
+        _historySlide.forward(from: 0);
+      });
+    } else {
+      // Linear here: each page applies its own curves from [PageMotion].
+      _slidePending = false;
+      _historySlide.forward(from: 0);
     }
   }
+
+  /// A slide waiting for its new page's first frame (see [_selectTab]).
+  bool _slidePending = false;
 
   void _startTabDrag(DragStartDetails details) {
     _tabDragDistance = 0;
     _tabDragAllowed =
         !_historySlide.isAnimating &&
+        !_slidePending &&
         (selectedTab != 1 ||
             (_transactions.currentState?.allowsTabSwipe ?? false));
   }
@@ -362,17 +390,26 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _tabBody(List<Widget> pages) => AnimatedBuilder(
     animation: _tabListenable,
     builder: (context, _) {
-      final sliding = _historySlide.isAnimating || _dragTarget != null;
+      final sliding =
+          _historySlide.isAnimating || _slidePending || _dragTarget != null;
       final progress = _historySlide.value;
       final visibleTab = _dragTarget ?? selectedTab;
       final previousTab = _slidingFromTab;
       _visitedTabs.add(visibleTab);
+      // The arriving page is drawn above the one leaving. Keys let the pages
+      // change order without losing their state.
+      final order = [
+        for (var i = 0; i < pages.length; i++)
+          if (i != visibleTab) i,
+        visibleTab,
+      ];
       return ClipRect(
         child: Stack(
           fit: StackFit.expand,
           children: [
-            for (var i = 0; i < pages.length; i++)
+            for (final i in order)
               Offstage(
+                key: ValueKey(i),
                 offstage: i != visibleTab && !(sliding && i == previousTab),
                 child: TickerMode(
                   enabled: i == visibleTab || (sliding && i == previousTab),
@@ -380,18 +417,12 @@ class _HomeScreenState extends State<HomeScreen>
                     excluding: i != selectedTab,
                     child: IgnorePointer(
                       ignoring: i != selectedTab || sliding,
-                      child: FractionalTranslation(
-                        translation: Offset(
-                          sliding
-                              ? _slideDirection *
-                                    (i == previousTab
-                                        ? -progress
-                                        : i == visibleTab
-                                        ? 1 - progress
-                                        : 0)
-                              : 0,
-                          0,
-                        ),
+                      child: _tabTransition(
+                        index: i,
+                        sliding: sliding,
+                        progress: progress,
+                        visibleTab: visibleTab,
+                        previousTab: previousTab,
                         // Its own layer, so sliding a page moves pixels already
                         // painted instead of repainting it on every frame —
                         // and scrolling one page doesn't repaint the others.
@@ -410,6 +441,45 @@ class _HomeScreenState extends State<HomeScreen>
       );
     },
   );
+
+  /// A finger drag slides whole pages so they track the finger; a tap plays
+  /// the app's page transition ([PageMotion]).
+  Widget _tabTransition({
+    required int index,
+    required bool sliding,
+    required double progress,
+    required int visibleTab,
+    required int? previousTab,
+    required Widget child,
+  }) {
+    var dx = 0.0;
+    var opacity = 1.0;
+    if (sliding) {
+      final leaving = index == previousTab;
+      final entering = index == visibleTab;
+      if (_dragTarget != null) {
+        dx = leaving ? -progress : (entering ? 1 - progress : 0);
+      } else if (leaving) {
+        // Tabs are see-through over one shared backdrop, so the old tab
+        // fades out too rather than showing through the new one.
+        dx =
+            -PageMotion.tabLeaveShift * PageMotion.tabSlide.transform(progress);
+        opacity = 1 - PageMotion.tabFadeOut.transform(progress);
+      } else if (entering) {
+        dx =
+            PageMotion.tabEnterShift *
+            (1 - PageMotion.tabSlide.transform(progress));
+        opacity = PageMotion.tabFadeIn.transform(progress);
+      }
+    }
+    return Opacity(
+      opacity: opacity,
+      child: FractionalTranslation(
+        translation: Offset(_slideDirection * dx, 0),
+        child: child,
+      ),
+    );
+  }
 
   AppUpdateStage _lastUpdateStage = AppUpdateStage.none;
 
@@ -470,60 +540,63 @@ class _HomeScreenState extends State<HomeScreen>
           onHorizontalDragUpdate: _updateTabDrag,
           onHorizontalDragEnd: _endTabDrag,
           onHorizontalDragCancel: () => _settleTabDrag(false),
-          child: _tabBody([
-            HomeDashboard(
-              smsStore: _sms,
-              onReviewSms: _openSms,
-              loanStore: widget.loanStore,
-              recurringPaymentStore: widget.recurringPaymentStore,
-              debtStore: widget.debtStore,
-              accountStore: widget.accountStore,
-              categoryStore: widget.categoryStore,
-              transactionStore: widget.transactionStore,
-              budgetStore: widget.budgetStore,
-              themeMode: widget.themeMode,
-              onChangeThemeMode: widget.onChangeThemeMode,
-              onOpenTransactions: _openTransactions,
-              onOpenBudgets: _openBudgets,
-            ),
-            TransactionsScreen(
-              key: _transactions,
-              parentHandlesBack: true,
-              initialMonth: transactionMonth,
-              monthRequest: transactionRequest,
-              accountStore: widget.accountStore,
-              categoryStore: widget.categoryStore,
-              transactionStore: widget.transactionStore,
-              onAddTransaction: _openMoneyEntry,
-              onSync: widget.syncController?.syncNow,
-            ),
-            BudgetsScreen(
-              key: _budgets,
-              initialMonth: budgetMonth,
-              initialCurrency: budgetCurrency,
-              monthRequest: budgetRequest,
-              accountStore: widget.accountStore,
-              categoryStore: widget.categoryStore,
-              transactionStore: widget.transactionStore,
-              budgetStore: widget.budgetStore,
-            ),
-            MoreScreen(
-              syncController: widget.syncController,
-              store: widget.accountStore,
-              categoryStore: widget.categoryStore,
-              transactionStore: widget.transactionStore,
-              debtStore: widget.debtStore,
-              loanStore: widget.loanStore,
-              recurringPaymentStore: widget.recurringPaymentStore,
-              // Approved suggestions can touch the ledger and the SMS queue,
-              // which reloads itself when the transactions do.
-              onLedgerChanged: _sms.onLedgerChanged,
-              onRulesChanged: _sms.rulesChanged,
-              smsStore: _sms,
-              aiSession: _ai,
-              community: widget.community,
-            ),
-          ]),
+          // Home's content fades back in as pages over it go back.
+          child: PageMotionContent(
+            child: _tabBody([
+              HomeDashboard(
+                smsStore: _sms,
+                onReviewSms: _openSms,
+                loanStore: widget.loanStore,
+                recurringPaymentStore: widget.recurringPaymentStore,
+                debtStore: widget.debtStore,
+                accountStore: widget.accountStore,
+                categoryStore: widget.categoryStore,
+                transactionStore: widget.transactionStore,
+                budgetStore: widget.budgetStore,
+                themeMode: widget.themeMode,
+                onChangeThemeMode: widget.onChangeThemeMode,
+                onOpenTransactions: _openTransactions,
+                onOpenBudgets: _openBudgets,
+              ),
+              TransactionsScreen(
+                key: _transactions,
+                parentHandlesBack: true,
+                initialMonth: transactionMonth,
+                monthRequest: transactionRequest,
+                accountStore: widget.accountStore,
+                categoryStore: widget.categoryStore,
+                transactionStore: widget.transactionStore,
+                onAddTransaction: _openMoneyEntry,
+                onSync: widget.syncController?.syncNow,
+              ),
+              BudgetsScreen(
+                key: _budgets,
+                initialMonth: budgetMonth,
+                initialCurrency: budgetCurrency,
+                monthRequest: budgetRequest,
+                accountStore: widget.accountStore,
+                categoryStore: widget.categoryStore,
+                transactionStore: widget.transactionStore,
+                budgetStore: widget.budgetStore,
+              ),
+              MoreScreen(
+                syncController: widget.syncController,
+                store: widget.accountStore,
+                categoryStore: widget.categoryStore,
+                transactionStore: widget.transactionStore,
+                debtStore: widget.debtStore,
+                loanStore: widget.loanStore,
+                recurringPaymentStore: widget.recurringPaymentStore,
+                // Approved suggestions can touch the ledger and the SMS queue,
+                // which reloads itself when the transactions do.
+                onLedgerChanged: _sms.onLedgerChanged,
+                onRulesChanged: _sms.rulesChanged,
+                smsStore: _sms,
+                aiSession: _ai,
+                community: widget.community,
+              ),
+            ]),
+          ),
         ),
       ),
       floatingActionButton: switch (selectedTab) {
@@ -582,22 +655,22 @@ class _HomeScreenState extends State<HomeScreen>
                 motion: NavIconMotion.home,
               ),
               const LiquidGlassDestination(
-                icon: Icons.list_alt_outlined,
-                selectedIcon: Icons.list_alt_rounded,
+                icon: Icons.receipt_long_outlined,
+                selectedIcon: Icons.receipt_long_rounded,
                 label: 'Transactions',
-                motion: NavIconMotion.list,
+                motion: NavIconMotion.transactions,
               ),
               const LiquidGlassDestination(
-                icon: Icons.bar_chart_rounded,
-                selectedIcon: Icons.bar_chart_rounded,
+                icon: Icons.pie_chart_outline_rounded,
+                selectedIcon: Icons.pie_chart_rounded,
                 label: 'Budgets',
-                motion: NavIconMotion.bars,
+                motion: NavIconMotion.budgets,
               ),
               LiquidGlassDestination(
                 icon: Icons.more_horiz_rounded,
                 selectedIcon: Icons.more_horiz_rounded,
                 label: 'More',
-                motion: NavIconMotion.dots,
+                motion: NavIconMotion.more,
                 dot: _ai.pendingSuggestions > 0,
               ),
             ],

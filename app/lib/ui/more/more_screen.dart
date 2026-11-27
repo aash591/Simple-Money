@@ -26,6 +26,7 @@ import '../../data/agent/ai_session.dart';
 import 'ai/ai_assistant_screen.dart';
 import 'ai/ai_suggestions_screen.dart';
 import 'pro/pro_screen.dart';
+import 'help/help_screen.dart';
 import 'settings/settings_screen.dart';
 import 'smart_tracking/smart_tracking_screen.dart';
 import '../../state/holding_store.dart';
@@ -322,6 +323,7 @@ class MoreScreen extends StatelessWidget {
                             upiSettings: upi,
                             homeLayout: homeLayout,
                             database: transactionStore.repository.database,
+                            onRulesChanged: onRulesChanged,
                           ),
                         ),
                       ),
@@ -341,6 +343,13 @@ class MoreScreen extends StatelessWidget {
                           ),
                         ),
                       ),
+                    ),
+                    MenuRow(
+                      icon: Icons.help_rounded,
+                      title: 'Help',
+                      onTap: () =>
+                          Navigator.of(context)
+                              .push(FeatureRoute<void>(const HelpScreen())),
                     ),
                   ],
                 ),

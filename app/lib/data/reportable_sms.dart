@@ -55,6 +55,40 @@ class ReportableSms {
   /// Read only because of a rule added on this phone (taught by hand, by AI
   /// or shared), not by the bundled packs. Can be taught again.
   final bool taught;
+
+  /// The message a saved transaction was read from. Its note keeps it as
+  /// "Sender: X", a blank line, then the text. Null for a transaction typed
+  /// in by hand, or whose note no longer holds one.
+  ///
+  /// [receivedAt] is the transaction's own time, as the original receive time
+  /// isn't kept. The report goes through [ReportableSmsRepository.report]
+  /// like any other.
+  static ReportableSms? fromNote(
+    String? note,
+    DateTime receivedAt, {
+    String? bank,
+  }) {
+    const prefix = 'Sender: ';
+    if (note == null || !note.startsWith(prefix)) return null;
+    final at = note.indexOf('\n\n');
+    if (at < 0) return null;
+    final sender = note.substring(prefix.length, at).trim();
+    final body = note.substring(at + 2).trim();
+    if (sender.isEmpty || body.isEmpty) return null;
+    final sms = BankSms(sender: sender, body: body, receivedAt: receivedAt);
+    return ReportableSms(
+      _fingerprint(sms),
+      sms,
+      ReportableKind.detected,
+      'savedTransaction',
+      null,
+      bank: bank,
+    );
+  }
+
+  /// Whether it came from an app's notification: those are saved under a
+  /// made-up sender that starts with APP_.
+  bool get fromNotification => sms.sender.startsWith('APP_');
 }
 
 String _fingerprint(BankSms sms) => sha256

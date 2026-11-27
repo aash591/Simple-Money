@@ -114,7 +114,7 @@ class NetWorthCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SectionTitle('Net worth'),
+              const SectionTitle('Net worth', compact: true),
               const SizedBox(height: 14),
               EmptyChartPreview(
                 title: 'No net worth yet.',

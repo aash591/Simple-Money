@@ -15,8 +15,12 @@ class PillButton extends StatelessWidget {
     this.color,
     this.backgroundColor,
     this.loading = false,
+    this.height = 48,
   });
   final String label;
+
+  /// The button's height; 48 unless the spot is tight.
+  final double height;
   final VoidCallback? onPressed;
 
   /// Shows a spinner beside [label] and ignores taps, keeping the button's
@@ -61,6 +65,7 @@ class PillButton extends StatelessWidget {
       foregroundColor: primary ? (raised ? Colors.white : null) : color,
       textStyle: _textStyle,
       busy: loading,
+      height: height,
       child: loading
           ? Builder(
               builder: (context) => Row(

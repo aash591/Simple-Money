@@ -66,7 +66,7 @@ class _ReminderSectionState extends State<ReminderSection>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 18),
-          Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
+          Text(widget.title, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 12),
           ...cards.take(3),
           if (cards.length > 3)

@@ -53,17 +53,25 @@ class MoneyCard extends StatelessWidget {
           )
         : null;
     if (!usesGlass(context)) {
-      return DecoratedBox(
+      final card = DecoratedBox(
         decoration: BoxDecoration(
           color: wash == null ? color ?? theme.colorScheme.surface : null,
           gradient: wash,
           borderRadius: radius,
           border: border == null ? null : Border.all(color: border),
-          // Plain light style: the same soft shadow as the white buttons.
-          boxShadow: SearchField.softShadow(context),
         ),
         child: _clipped(radius),
       );
+      // Plain light style: the same soft shadow as the white buttons, from
+      // a cached image like the glass cards' shadows. As a decoration it was
+      // a blur redrawn under every card on every frame of a scroll.
+      final shadows = SearchField.softShadow(context);
+      return shadows == null
+          ? card
+          : CustomPaint(
+              painter: BoxShadowPainter(radius: radius, shadows: shadows),
+              child: card,
+            );
     }
     var body = color != null
         ? _clipped(radius)
@@ -138,22 +146,42 @@ class MoneyCard extends StatelessWidget {
 }
 
 class SectionTitle extends StatelessWidget {
-  const SectionTitle(this.title, {super.key, this.action, this.onTap});
+  const SectionTitle(
+    this.title, {
+    super.key,
+    this.action,
+    this.onTap,
+    this.compact = false,
+  });
   final String title;
   final String? action;
   final VoidCallback? onTap;
+
+  /// A small muted label, like "Total balance" above its amount, instead of a
+  /// full section heading. What Home's cards use.
+  final bool compact;
   @override
   Widget build(BuildContext context) => Row(
     children: [
       Expanded(
-        child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+        child: Text(
+          title,
+          style: compact
+              ? Theme.of(context).textTheme.bodySmall
+              : Theme.of(context).textTheme.titleMedium,
+        ),
       ),
       if (action != null)
         TextButton(
           onPressed: onTap,
+          // As tall as the title line, no more: the usual 48 tap height made
+          // this row taller than the text and pushed the title down, so
+          // cards with a "See all" sat lower than the rest.
           style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: const Size(48, 32),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            minimumSize: const Size(48, 22),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            visualDensity: VisualDensity.compact,
           ),
           child: Text(action!),
         ),

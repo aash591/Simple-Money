@@ -27,6 +27,8 @@ import 'package:simple_money/data/rates/exchange_rates.dart';
 import 'package:simple_money/state/main_currency_controller.dart';
 import 'package:simple_money/ui/components/currency_notice.dart';
 import 'package:simple_money/ui/home/cards/currency_scope_bar.dart';
+import 'package:simple_money/ui/home/cards/spending_pace_card.dart';
+import 'package:simple_money/ui/home/cards/cash_flow_card.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
@@ -678,9 +680,9 @@ void main() {
       await tester.pumpAndSettle();
       // Every card and chart lays out at a narrow width and large text.
       for (final card in [
-        find.text('Spending pace'),
+        find.byType(SpendingPaceCard),
         find.byType(CalloutDonutChart),
-        find.text('Money in vs money out'),
+        find.byType(CashFlowCard),
         find.text('Net worth'),
       ]) {
         await tester.scrollUntilVisible(

@@ -39,6 +39,15 @@ class ElasticScrollPhysics extends BouncingScrollPhysics {
   @override
   double get minFlingVelocity => kMinFlingVelocity;
 
+  /// A speed limit on flings (Flutter allows 8000). However hard the flick,
+  /// the list moves no faster than this, so each frame only has a few new
+  /// rows and cards to build and draw, and a hard fling stays smooth
+  /// instead of jumping. Still quick enough to cross a long list.
+  static const maxFling = 3000.0;
+
+  @override
+  double get maxFlingVelocity => maxFling;
+
   @override
   double carriedMomentum(double existingVelocity) => 0;
 

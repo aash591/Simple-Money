@@ -242,4 +242,71 @@ void main() {
     expect(find.text('Undo · bring it back'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('the list loads older changes as it scrolls, with no button', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final db = AppDatabase(NativeDatabase.memory(), false);
+    final repository = SyncRepository(db);
+    final sync = SyncController(
+      repository,
+      engine: SyncEngine(repository, openTransport: (_) async => SharedDrive()),
+    );
+    final accounts = AccountStore(AccountRepository(db));
+    final categories = CategoryStore(CategoryRepository(db));
+    addTearDown(() async {
+      sync.dispose();
+      await db.close();
+    });
+    late ChangeHistoryRepository history;
+    await tester.runAsync(() async {
+      final cash = await AccountRepository(db)
+          .save(name: 'Cash', currency: 'INR', digits: 2, openingBalance: 0);
+      final transactions = TransactionRepository(db);
+      for (var i = 0; i < 150; i++) {
+        await transactions.addExpenseOrIncome(
+          type: TransactionType.expense,
+          amountMinor: 100 + i,
+          accountId: cash,
+          categoryId: 1,
+          title: 'Item $i',
+          date: DateTime(2026, 11, 18),
+        );
+      }
+      history = ChangeHistoryRepository(db);
+      await accounts.load();
+      await categories.load();
+    });
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ActivityLogScreen(
+          database: db,
+          accounts: accounts,
+          categories: categories,
+          sync: sync,
+        ),
+      ),
+    );
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await tester.pumpAndSettle();
+    expect(find.text('Show older changes'), findsNothing);
+    // The oldest change is not in the first page.
+    expect(find.text('Item 0'), findsNothing);
+    final scrollable = find.byType(Scrollable).last;
+    for (var i = 0; i < 40; i++) {
+      await tester.drag(scrollable, const Offset(0, -2000));
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pumpAndSettle();
+      if (find.text('Item 0').evaluate().isNotEmpty) break;
+    }
+    expect(find.text('Item 0'), findsOneWidget);
+    expect(
+      (await tester.runAsync(() => history.load(limit: 1000)))!.length,
+      150,
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

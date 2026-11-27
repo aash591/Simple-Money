@@ -104,6 +104,8 @@
             "any": [
               "bill has been generated",
               "ignore if already paid",
+              "Ignore if paid",
+              "is overdue",
               "converting your outstanding dues"
             ]
           }
@@ -319,6 +321,8 @@
             "any": [
               "bill has been generated",
               "ignore if already paid",
+              "Ignore if paid",
+              "is overdue",
               "converting your outstanding dues"
             ]
           }
@@ -516,6 +520,8 @@
             "any": [
               "bill has been generated",
               "ignore if already paid",
+              "Ignore if paid",
+              "is overdue",
               "converting your outstanding dues"
             ]
           }

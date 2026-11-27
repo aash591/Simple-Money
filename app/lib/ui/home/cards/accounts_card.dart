@@ -70,7 +70,9 @@ class AccountsCard extends StatelessWidget {
     // padding; everything else keeps the usual 20.
     const side = EdgeInsets.symmetric(horizontal: 20);
     return HomeCard(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      // The balance block brings its own 12 above its label, so 8 here
+      // puts the label at the same 20 from the top as every other card.
+      padding: const EdgeInsets.only(top: 8, bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

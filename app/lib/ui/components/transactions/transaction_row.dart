@@ -56,7 +56,7 @@ class TransactionRow extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final stacked =
-              constraints.maxWidth < 280 ||
+              constraints.maxWidth < 240 ||
               MediaQuery.textScalerOf(context).scale(16) > 21;
           final identity = Column(
             crossAxisAlignment: CrossAxisAlignment.start,

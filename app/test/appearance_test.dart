@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_money/state/appearance_controller.dart';
-import 'package:simple_money/ui/more/settings/customization_screen.dart';
+import 'package:simple_money/ui/more/settings/theme_screen.dart';
 import 'package:simple_money/ui/theme/app_theme.dart';
 import 'package:simple_money/ui/theme/sheet_colors.dart';
 import 'package:simple_money/ui/components/menu_list.dart';
@@ -93,7 +93,7 @@ void main() {
       MaterialApp(
         theme: appTheme(
           Brightness.dark,
-          accentColor: CustomizationScreen.colors['Teal']!,
+          accentColor: ThemeScreen.colors['Teal']!,
         ),
         home: Builder(
           builder: (context) {
@@ -103,9 +103,7 @@ void main() {
             expect(colors.card, Colors.white.withValues(alpha: .05));
             expect(colors.control, Colors.white.withValues(alpha: .09));
             // Lifted just enough to read on the sheet, but still the same hue.
-            final teal = HSLColor.fromColor(
-              CustomizationScreen.colors['Teal']!,
-            );
+            final teal = HSLColor.fromColor(ThemeScreen.colors['Teal']!);
             final shown = HSLColor.fromColor(colors.primary);
             expect((shown.hue - teal.hue).abs(), lessThan(8));
             return const SizedBox();
@@ -116,9 +114,7 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('Customization fits a narrow phone with large text', (
-    tester,
-  ) async {
+  testWidgets('Theme fits a narrow phone with large text', (tester) async {
     tester.view.reset();
     tester.view.physicalSize = const Size(320, 800);
     tester.view.devicePixelRatio = 1;
@@ -133,7 +129,7 @@ void main() {
               .copyWith(textScaler: const TextScaler.linear(1.5)),
           child: AppearanceScope(controller: settings, child: child!),
         ),
-        home: const CustomizationScreen(),
+        home: const ThemeScreen(),
       ),
     );
     await tester.pumpAndSettle();

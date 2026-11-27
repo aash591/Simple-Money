@@ -72,11 +72,11 @@ class LiquidGlassNavBar extends StatefulWidget {
 
 class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
     with TickerProviderStateMixin {
-  static const _height = 56.0;
+  static const _height = 53.0;
   // The gap between the bar's rim and the resting pill, the same on every
   // side: the pill's corners are then concentric with the bar's.
   static const _inset = 2.0;
-  static const _margin = EdgeInsets.fromLTRB(16, 8, 16, 10);
+  static const _margin = EdgeInsets.fromLTRB(16, 8, 16, 8);
   static const _maxWidth = 520.0;
   // Reference proportions: a close-fitting resting pill and a modest raised
   // lens on press. Keep these independent of the tabs' content padding.
@@ -88,11 +88,11 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
   static const _pressedHandleHeight = _height * 1.12;
   static const _pressedScaleX = 1.12;
   static const _pressedScaleY = _pressedHandleHeight / _handleHeight;
-  static final _spring = SpringDescription.withDampingRatio(
-    mass: 1,
-    stiffness: 420,
-    ratio: .78,
-  );
+
+  /// The pill eases in, glides and eases out, with the same timing as the
+  /// page it opens ([PageMotion.tabDuration]), so the two move as one. A
+  /// spring started at full speed and braked hard into place.
+  static const _glide = Duration(milliseconds: 400);
 
   static Future<ui.FragmentProgram>? _program;
 
@@ -127,9 +127,13 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
   double _trailVelocity = 0;
   Duration _trailTime = Duration.zero;
   final _lag = ValueNotifier<double>(0);
+  // Keeps the unlit tab row's animation state intact when `press` crosses 0.
+  final _unlitTabsKey = GlobalKey();
   // A small, quickly settling stretch keeps the raised lens feeling soft.
+  // Damped near 0.95 of critical, so the stretch eases back instead of
+  // wobbling past and back again as the pill stops.
   static const _trailStiffness = 240.0;
-  static const _trailDamping = 24.0;
+  static const _trailDamping = 29.0;
   ui.FragmentShader? _barShader;
   ui.FragmentShader? _pillShader;
 
@@ -193,13 +197,15 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
       _position.value = index.toDouble();
       return;
     }
-    _position.animateWith(
-      SpringSimulation(
-        _spring,
-        _position.value,
-        index.toDouble(),
-        _position.velocity,
-      ),
+    final distance = (index - _position.value).abs();
+    if (distance < .001) return;
+    // A short hop (letting go of a drag near a tab) takes less time; a
+    // pill already moving keeps its speed rather than starting from rest.
+    final moving = _position.isAnimating;
+    _position.animateTo(
+      index.toDouble(),
+      duration: _glide * (distance < 1 ? .55 + .45 * distance : 1),
+      curve: moving ? Curves.easeOutCubic : Curves.easeInOutCubic,
     );
   }
 
@@ -471,20 +477,23 @@ class _LiquidGlassNavBarState extends State<LiquidGlassNavBar>
                     _pillRadius * pillScaleY,
                   ),
                 );
-                Widget tabs({required bool lit}) => Padding(
-                  padding: const EdgeInsets.all(_inset),
-                  child: Row(
-                    children: [
-                      for (var i = 0; i < widget.destinations.length; i++)
-                        Expanded(
-                          child: _Tab(
-                            destination: widget.destinations[i],
-                            selected: i == widget.selectedIndex,
-                            lit: lit,
-                            onTap: () => _select(i),
+                Widget tabs({required bool lit}) => KeyedSubtree(
+                  key: lit ? null : _unlitTabsKey,
+                  child: Padding(
+                    padding: const EdgeInsets.all(_inset),
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < widget.destinations.length; i++)
+                          Expanded(
+                            child: _Tab(
+                              destination: widget.destinations[i],
+                              selected: i == widget.selectedIndex,
+                              lit: lit,
+                              onTap: () => _select(i),
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
                 Widget pill(Widget child, {bool shadow = false}) => Positioned(
@@ -697,11 +706,17 @@ class _Tab extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               if (destination.motion case final motion?)
-                NavIconMotionIcon(motion: motion, active: lit, color: color)
+                NavIconMotionIcon(
+                  motion: motion,
+                  active: selected,
+                  filled: lit,
+                  size: 22.5,
+                  color: color,
+                )
               else
                 Icon(
                   lit ? destination.selectedIcon : destination.icon,
-                  size: 24,
+                  size: 22.5,
                   color: color,
                 ),
               if (destination.dot)

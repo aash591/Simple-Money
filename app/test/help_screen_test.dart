@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:simple_money/ui/more/settings/help/help_screen.dart';
+import 'package:simple_money/ui/more/help/about/about_screen.dart';
+import 'package:simple_money/ui/more/help/help_screen.dart';
 import 'package:simple_money/ui/theme/app_theme.dart';
 
 void main() {
@@ -25,5 +26,13 @@ void main() {
     await open(tester, url: '');
     expect(find.text('Join community'), findsNothing);
     expect(find.text('FAQ'), findsOneWidget);
+  });
+
+  testWidgets('About SimpleMoney is inside Help', (tester) async {
+    await open(tester, url: '');
+    expect(find.text('About SimpleMoney'), findsOneWidget);
+    await tester.tap(find.text('About SimpleMoney'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AboutScreen), findsOneWidget);
   });
 }

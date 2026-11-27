@@ -182,8 +182,8 @@
         "IN"
       ],
       "path": "packs/india/airtel.json",
-      "sha256": "ac697e469bca3bf09fc8ac86353518b589558ed66f47c417711820577ea68fc2",
-      "sizeBytes": 49847
+      "sha256": "843c0e43b85f60c8fe928ef3ea5a809583b6aabb28a3d0a2f217d16b2901b65f",
+      "sizeBytes": 49907
     },
     {
       "id": "in.amazonpay",
@@ -191,8 +191,8 @@
         "IN"
       ],
       "path": "packs/india/amazonpay.json",
-      "sha256": "98baa084c79b3bec838458dbf1123e9b820932e81db20f2ca638287f236f02ee",
-      "sizeBytes": 53223
+      "sha256": "4d6876fd97c1f680015a2a440b411e6851197420bd7b2e96e4af30be48fda9dc",
+      "sizeBytes": 53343
     },
     {
       "id": "in.amex",
@@ -200,8 +200,8 @@
         "IN"
       ],
       "path": "packs/india/amex.json",
-      "sha256": "92e44be96273a064d53eddea123e177db7fcc4857f038e134cb0ddc73f50190e",
-      "sizeBytes": 50292
+      "sha256": "7d36a32bb79e75b94f31706eafef2f9dfdd7952e4bf3a881e346e878815856df",
+      "sizeBytes": 50352
     },
     {
       "id": "in.au",
@@ -209,8 +209,8 @@
         "IN"
       ],
       "path": "packs/india/au.json",
-      "sha256": "b74a4119479281900a9a2b7e4a554dbe5dbb298fcc862ee7f210e062272fa14c",
-      "sizeBytes": 71335
+      "sha256": "d9b09e7df9d534c409e8759fe92a4786aa7de84da8802d6011de9d717448ba91",
+      "sizeBytes": 71695
     },
     {
       "id": "in.axis",
@@ -218,8 +218,8 @@
         "IN"
       ],
       "path": "packs/india/axis.json",
-      "sha256": "5bcf04261d1c24e6778aca3ab56e0dfea2493e45b099ed3bda965d9756ef37f3",
-      "sizeBytes": 72733
+      "sha256": "648878b8cb441cfeaa64cd6bcacbc1391cb9c5ad7eaf4d2a3532031e22faeb8b",
+      "sizeBytes": 73093
     },
     {
       "id": "in.bandhan",
@@ -227,8 +227,8 @@
         "IN"
       ],
       "path": "packs/india/bandhan.json",
-      "sha256": "033a0a8f4d8667418a7e0a5c5056e43728f3bbeec74d3956d4bfca634a6c1a75",
-      "sizeBytes": 65824
+      "sha256": "c65e3dfd23c1de6d8b33fdab9afa95622200669b6c8cac26d6d711d65b1d88d4",
+      "sizeBytes": 66124
     },
     {
       "id": "in.baroda",
@@ -236,8 +236,8 @@
         "IN"
       ],
       "path": "packs/india/baroda.json",
-      "sha256": "39f0c4a09766170b43c748d4cb77de7f19085ca29b8523c804aaf3251095894a",
-      "sizeBytes": 91147
+      "sha256": "69298d0d556b8cbcb097e8db79f5a876e714013ca3f1237d63b514077ff13b48",
+      "sizeBytes": 91807
     },
     {
       "id": "in.boi",
@@ -245,8 +245,8 @@
         "IN"
       ],
       "path": "packs/india/boi.json",
-      "sha256": "79599ee473b27d5a24b17f8087a63dc9b451c709a444604c4b4baadecd5c7b40",
-      "sizeBytes": 62415
+      "sha256": "68aac8c832056143343e4082ad4e5c09f8cd887dde2e25ecddcf15c3ebaf67a6",
+      "sizeBytes": 62655
     },
     {
       "id": "in.canara",
@@ -254,8 +254,8 @@
         "IN"
       ],
       "path": "packs/india/canara.json",
-      "sha256": "66104601929afb3cf1c2ba7907277f3f82429dc345c1863cc6d2db4f634f173e",
-      "sizeBytes": 87466
+      "sha256": "c48c0865aa193bd849baaacd75ba780a3517d56b5b46c8bad6207d1d8f5bce42",
+      "sizeBytes": 88126
     },
     {
       "id": "in.cashfree",
@@ -263,8 +263,8 @@
         "IN"
       ],
       "path": "packs/india/cashfree.json",
-      "sha256": "1fe789d3a74b66a44b80667ec370442c2b16865d2f53f66287d2cf49fded488d",
-      "sizeBytes": 53275
+      "sha256": "eb0735573c0c1ff02d495aef8177fdcafac3dc6b4a1f9e299f8d7d9ce6bde48d",
+      "sizeBytes": 53395
     },
     {
       "id": "in.central",
@@ -272,8 +272,8 @@
         "IN"
       ],
       "path": "packs/india/central.json",
-      "sha256": "a9288231e7824073345d56f6d98296f54c26144c54deeb119251caa5fff1297b",
-      "sizeBytes": 50472
+      "sha256": "b2cd9d35ea35bf117fcae35955d949e16db559c4197609306267ac5f88e0f3cc",
+      "sizeBytes": 50532
     },
     {
       "id": "in.cityunion",
@@ -281,8 +281,8 @@
         "IN"
       ],
       "path": "packs/india/cityunion.json",
-      "sha256": "140f6cb70ca6b8a4c3258f3fae75c3e4ef86727c56f1e5f246d1b0ccd648a1d2",
-      "sizeBytes": 50163
+      "sha256": "b725c4437e6422d2b80aebbf1c457ebc1d7d0fbf802982664097045c71e99f41",
+      "sizeBytes": 50223
     },
     {
       "id": "in.cred",
@@ -290,8 +290,8 @@
         "IN"
       ],
       "path": "packs/india/cred.json",
-      "sha256": "33fc8896596d80d293164cf109a79a6a3d78862c936c0cc4790a5f8c3c2d810b",
-      "sizeBytes": 53004
+      "sha256": "e88024549ba770d59ed559ccdd9d7da1be691feade0a5b6944449750986e3a8f",
+      "sizeBytes": 53124
     },
     {
       "id": "in.dbs",
@@ -299,8 +299,8 @@
         "IN"
       ],
       "path": "packs/india/dbs.json",
-      "sha256": "78067ca7dda41b59526a46f6cd3ebc453fb659911b5e8106168e9206f2c13102",
-      "sizeBytes": 50087
+      "sha256": "5f9dbcb41fd97bc0f78c455c1b0ee91614bc04d638053c505ae21b2c8ca6e040",
+      "sizeBytes": 50147
     },
     {
       "id": "in.dhanlaxmi",
@@ -308,8 +308,8 @@
         "IN"
       ],
       "path": "packs/india/dhanlaxmi.json",
-      "sha256": "9a7fb6949704cc790ce335ed6c86622052c8bff7e24512a6e44a75453c86267f",
-      "sizeBytes": 69386
+      "sha256": "38fa74ee7ad253dba77b40598f7a83245ec7f9a9161b07a2126d778300129149",
+      "sizeBytes": 69686
     },
     {
       "id": "in.equitas",
@@ -317,8 +317,8 @@
         "IN"
       ],
       "path": "packs/india/equitas.json",
-      "sha256": "9f4eb22c5aab62e5b83cee4aed1d8cc797a36cb0ad93575f6a79db0b6b1f4ebc",
-      "sizeBytes": 59935
+      "sha256": "b41a8bacaf6799271bced689155cab033531386507aae12db4e4390009201c53",
+      "sizeBytes": 60115
     },
     {
       "id": "in.esaf",
@@ -326,8 +326,8 @@
         "IN"
       ],
       "path": "packs/india/esaf.json",
-      "sha256": "2dbe1df60e94c07adbdfde82d29488052f4b253a859de9608b9b6845dc225cdd",
-      "sizeBytes": 54405
+      "sha256": "b8927be5f4e720932de1ec6789d2a7d7d6aaf85e3320b2ce12562a83fd73a75f",
+      "sizeBytes": 54525
     },
     {
       "id": "in.federal",
@@ -335,8 +335,8 @@
         "IN"
       ],
       "path": "packs/india/federal.json",
-      "sha256": "e55f1e645fdb6d0e3e5f464c2e3580a8eed230e1f95521564be20fa6ec923c48",
-      "sizeBytes": 223027
+      "sha256": "ca68fad43248fd8b68a70c8fb8291e5195d2a1a07b1f21d2f2d60e0d20f3a8f5",
+      "sizeBytes": 225307
     },
     {
       "id": "in.greater",
@@ -344,8 +344,8 @@
         "IN"
       ],
       "path": "packs/india/greater.json",
-      "sha256": "be9a3e115f568bec3e34b6b193e491cd82d28775f8b7fbfb8d6505cf4a819b6c",
-      "sizeBytes": 54968
+      "sha256": "f7116079a43ac427fbd1320d3d1d0bffd8f92d662482e4cfa5487cfef3c9a19e",
+      "sizeBytes": 55088
     },
     {
       "id": "in.hdfc",
@@ -353,8 +353,8 @@
         "IN"
       ],
       "path": "packs/india/hdfc.json",
-      "sha256": "bd4fcd28484311a383ed81ef7e7d7dfb83531e26814f83f37982c0c1eed555e5",
-      "sizeBytes": 105634
+      "sha256": "c852a823f59f88ec1de237030ba55c48717834dd3c3eb60dce7e324d8ddb678c",
+      "sizeBytes": 106414
     },
     {
       "id": "in.hdfcmf",
@@ -362,8 +362,8 @@
         "IN"
       ],
       "path": "packs/india/hdfcmf.json",
-      "sha256": "6711fa815be30a838225abb2b380486785810601ce841a4d5334a10a58d3fc18",
-      "sizeBytes": 50838
+      "sha256": "65efce4088a05f2809f01d2aaf9a819189bdebe6cef72e4a06cd5c6d7d13ad28",
+      "sizeBytes": 50898
     },
     {
       "id": "in.hsbc",
@@ -371,8 +371,8 @@
         "IN"
       ],
       "path": "packs/india/hsbc.json",
-      "sha256": "a0bae51f7005f502efffeaede14c09df0f95d912b923ff465cdd535b743b07c5",
-      "sizeBytes": 61364
+      "sha256": "f8b60df409bc9bf953c7b1885bab5700579c56a9abed44f9efe57c036e314396",
+      "sizeBytes": 61604
     },
     {
       "id": "in.icici",
@@ -380,8 +380,8 @@
         "IN"
       ],
       "path": "packs/india/icici.json",
-      "sha256": "ea086b3f8b5a85ff4d380fca895c5e3fc19ca22ae903145deb337c21becf67b1",
-      "sizeBytes": 119678
+      "sha256": "87b61a7f5cee934d96e81b69e3415b928942520d192728bc0976b4a0d52468ec",
+      "sizeBytes": 120878
     },
     {
       "id": "in.idbi",
@@ -389,8 +389,8 @@
         "IN"
       ],
       "path": "packs/india/idbi.json",
-      "sha256": "01f0bf18b1aeedd006e05404ee4b50f9a4e09c770a51bca79a7579955a1a154d",
-      "sizeBytes": 53030
+      "sha256": "1587b679c4bc39103b68104bc77ebea1045b031691eafc809627a5dfd11fa382",
+      "sizeBytes": 53150
     },
     {
       "id": "in.idfc",
@@ -398,8 +398,8 @@
         "IN"
       ],
       "path": "packs/india/idfc.json",
-      "sha256": "222e15e3aea410fe42345b292d0313202c6191006ea8fbcfba1759f9f7eb610a",
-      "sizeBytes": 88284
+      "sha256": "b15ce134e279ebd0405534e11dabe5de648e257f66d5dacc84c68fb6eafd2240",
+      "sizeBytes": 88944
     },
     {
       "id": "in.indian",
@@ -407,8 +407,8 @@
         "IN"
       ],
       "path": "packs/india/indian.json",
-      "sha256": "f47afd24865706c5c5d93ef22560a9f9272f52102982c20c6d9bbbe18e1852f8",
-      "sizeBytes": 76459
+      "sha256": "a15143d1c57ee1a4852d88315caf5d780c7ed7fff60d78a45b2e4dbbd32637dd",
+      "sizeBytes": 81359
     },
     {
       "id": "in.indusind",
@@ -416,8 +416,8 @@
         "IN"
       ],
       "path": "packs/india/indusind.json",
-      "sha256": "43a640a3bb292711c81aa23c38d9832cadc16dace36fa59ad4903f813d70c568",
-      "sizeBytes": 97610
+      "sha256": "31ac20dd8a09a56b0705d8e4d5086c05ef12ee39fad669d3405b92884f9fe818",
+      "sizeBytes": 98390
     },
     {
       "id": "in.iob",
@@ -425,8 +425,8 @@
         "IN"
       ],
       "path": "packs/india/iob.json",
-      "sha256": "8eb781a158f32cf364cee543690c6bc22c4ed68fe4f101f521eef4150eb599be",
-      "sizeBytes": 50529
+      "sha256": "eb4b8ddbcb49a0a2f4d1fee493d13b3d75d98c511803b3c1d3a4bd513ac22c6b",
+      "sizeBytes": 50589
     },
     {
       "id": "in.ippb",
@@ -434,8 +434,8 @@
         "IN"
       ],
       "path": "packs/india/ippb.json",
-      "sha256": "121b47c4f13dd74af42192195eac6f51fb8002568ca4feb936d2db78b5b73ab4",
-      "sizeBytes": 54081
+      "sha256": "dc490be352e5da2dd25c67dc51ee1b95e43c1b8281d7e80e5758fc31a50bacf4",
+      "sizeBytes": 54201
     },
     {
       "id": "in.jana",
@@ -443,8 +443,8 @@
         "IN"
       ],
       "path": "packs/india/jana.json",
-      "sha256": "3c3e73079155c1547410e5f7def158b110af632e707e85caa6c2d22eaaff4348",
-      "sizeBytes": 54682
+      "sha256": "c347a896f15d51c974f2331d2b3577d02c28b24903116783a59cd6aab6d2d9e0",
+      "sizeBytes": 54802
     },
     {
       "id": "in.jiopay",
@@ -452,8 +452,8 @@
         "IN"
       ],
       "path": "packs/india/jiopay.json",
-      "sha256": "c4a4e8b34e8c367c9bf95bca0b0a1207520c0795bd5fdaab562168a01e12d00d",
-      "sizeBytes": 61467
+      "sha256": "5390c1e91295ae43c7c78b48a79ef404c482bab7599bdfff0d9686d6bee6ceba",
+      "sizeBytes": 61707
     },
     {
       "id": "in.jiopayments",
@@ -461,8 +461,8 @@
         "IN"
       ],
       "path": "packs/india/jiopayments.json",
-      "sha256": "c23d950dc57ff6728edf7e9225deac9e973dd9987329d67d58d22140be8bce4d",
-      "sizeBytes": 61441
+      "sha256": "362b9b05c44b9ee23b9a5fc45361b31d6b6f329443d68a1392ee52f4b65d4139",
+      "sizeBytes": 61681
     },
     {
       "id": "in.jk",
@@ -470,8 +470,8 @@
         "IN"
       ],
       "path": "packs/india/jk.json",
-      "sha256": "782aed88c83d1c78591ccda837a8b937054169974808ba832d1db4dd5b08629e",
-      "sizeBytes": 50409
+      "sha256": "924a4486035359f0ca89adc2db241fb65216fb5d9c804230fc1c06e7d9a08792",
+      "sizeBytes": 50469
     },
     {
       "id": "in.jupiter",
@@ -479,8 +479,8 @@
         "IN"
       ],
       "path": "packs/india/jupiter.json",
-      "sha256": "aa3249e71023c4b83d7663c524e3b3b2f569f42695e7f08e74dfa0e475cdfa3c",
-      "sizeBytes": 50556
+      "sha256": "8aeb809d40659aa4bb8d66723d559f22b4ee1150583cec5d1b7ca995c7bf8e6e",
+      "sizeBytes": 50616
     },
     {
       "id": "in.karnataka",
@@ -488,8 +488,8 @@
         "IN"
       ],
       "path": "packs/india/karnataka.json",
-      "sha256": "86d1fa968fc1e266222a41269eee445340a2c0461ec7a619efed9d71aefb0c6c",
-      "sizeBytes": 50300
+      "sha256": "2e81450cdb9e566ecdf0132f2ff21678e11f30bf48ebf9b08a516dfcfb40320f",
+      "sizeBytes": 50360
     },
     {
       "id": "in.kerala",
@@ -497,8 +497,8 @@
         "IN"
       ],
       "path": "packs/india/kerala.json",
-      "sha256": "739bb7388d03fe50359c3403e306e186295b5bd962a466b4b54954822e2a2550",
-      "sizeBytes": 57154
+      "sha256": "cf4ab7396bc43abe64ab6d604662a6a8ada1dd0cebb1ecafbfc7d61b1109df07",
+      "sizeBytes": 57334
     },
     {
       "id": "in.keralagramin",
@@ -506,8 +506,8 @@
         "IN"
       ],
       "path": "packs/india/keralagramin.json",
-      "sha256": "dbeead7a5140642cfbd3120ccc17a7752785367b24565943f64ac174c9b2bc78",
-      "sizeBytes": 58807
+      "sha256": "a36768405e900a683b379643f630817e346342bb7d5e6296c6e2134b7a71b311",
+      "sizeBytes": 58987
     },
     {
       "id": "in.kotak",
@@ -515,8 +515,8 @@
         "IN"
       ],
       "path": "packs/india/kotak.json",
-      "sha256": "54ea66418a5e00aa4e6e217926d6fc58c8c4ca8bc7e9b237ac386552244e580f",
-      "sizeBytes": 90304
+      "sha256": "81caf40cf2d76fe0717123c77f182a553ae7a82824934dd7a2d5fa3a3c034c09",
+      "sizeBytes": 90964
     },
     {
       "id": "in.lazypay",
@@ -524,8 +524,8 @@
         "IN"
       ],
       "path": "packs/india/lazypay.json",
-      "sha256": "2365e943dd9b8e364c7721800a091b4fe04cc1b334005c79e9ec14961c2b64d3",
-      "sizeBytes": 49847
+      "sha256": "6f4bd71c8081ce022e966c9965d416e9357dddde8b7d616b1d26cfe8407cf514",
+      "sizeBytes": 49907
     },
     {
       "id": "in.mmsccs",
@@ -533,8 +533,8 @@
         "IN"
       ],
       "path": "packs/india/mmsccs.json",
-      "sha256": "3f988c3473041078294b1aaa0b9c91246e89cca837cdb3e937cad59f9fa96488",
-      "sizeBytes": 49619
+      "sha256": "7ac8a7cb8791dd75bbe64bbc03043aea5e56b59bf77bd0c43fa11aaf48643967",
+      "sizeBytes": 49679
     },
     {
       "id": "in.navi",
@@ -542,8 +542,8 @@
         "IN"
       ],
       "path": "packs/india/navi.json",
-      "sha256": "ee46fd827badc07be8da4f65a1fa5186a21b980b18b2600cb255f32a444a3073",
-      "sizeBytes": 53692
+      "sha256": "d010721964872b7526db73961d8b082b6d3652c0bc4a4feb779eb48da4dfee06",
+      "sizeBytes": 53812
     },
     {
       "id": "in.nsdl",
@@ -551,8 +551,8 @@
         "IN"
       ],
       "path": "packs/india/nsdl.json",
-      "sha256": "339845cde617884eb973093be71ed275712087b36c1e29c2a88abf79aee838e0",
-      "sizeBytes": 54178
+      "sha256": "870bc89ea0a6936ee3382c1871964c4c547a23a881629947a10e6312627ebd40",
+      "sizeBytes": 54298
     },
     {
       "id": "in.onecard",
@@ -560,8 +560,8 @@
         "IN"
       ],
       "path": "packs/india/onecard.json",
-      "sha256": "9a69c0dea453391de6ce448b69ffcfa0a0a002f051c5e50ae42e3fd4af803208",
-      "sizeBytes": 69174
+      "sha256": "00cdfb2c7db848065fd204b7bb8e2ceefaac2f6e406258b2c9b4969015ddf560",
+      "sizeBytes": 69534
     },
     {
       "id": "in.pluxee",
@@ -569,8 +569,8 @@
         "IN"
       ],
       "path": "packs/india/pluxee.json",
-      "sha256": "b4d20d8bdf750f0f8b2d40961b6a7c1d7d93872d83bb7d1d379b194ff797e19d",
-      "sizeBytes": 50448
+      "sha256": "371e0af2e26e5cc6831720d113a0d602d7ade583a80b30088509d10af388be6d",
+      "sizeBytes": 50508
     },
     {
       "id": "in.pnb",
@@ -578,8 +578,8 @@
         "IN"
       ],
       "path": "packs/india/pnb.json",
-      "sha256": "c53350ca2f0ba953f2bd4458d8e8ad164598ee2d8347cc4686d13777b17f7a8c",
-      "sizeBytes": 76281
+      "sha256": "5e829741092a34cbe7b88f4b1614cd61e224decafac3a91017a836828f3cdaeb",
+      "sizeBytes": 76701
     },
     {
       "id": "in.post",
@@ -587,8 +587,8 @@
         "IN"
       ],
       "path": "packs/india/post.json",
-      "sha256": "f1665c7ecfd596dbf7feccf338091fb25f180403eda2319d9ab0fb275ca40b9f",
-      "sizeBytes": 54480
+      "sha256": "8d00910c07bbae059598c9053da88469d5383e5842b26dcd097d5e7a9adabb1d",
+      "sizeBytes": 54600
     },
     {
       "id": "in.protean",
@@ -596,8 +596,8 @@
         "IN"
       ],
       "path": "packs/india/protean.json",
-      "sha256": "d803ee8636454e8bcbce99b3b7262536be2ae48a587b04eb4622ca1cede074f7",
-      "sizeBytes": 49842
+      "sha256": "2a981fa79af51d794bb70db5555ac04ed17e08b7c84bc36d00d0b8a51fe8824a",
+      "sizeBytes": 49902
     },
     {
       "id": "in.psb",
@@ -605,8 +605,8 @@
         "IN"
       ],
       "path": "packs/india/psb.json",
-      "sha256": "ac8f92468a1720cbd6110816ca233b781e3e8ea685ce907303cb063b280af167",
-      "sizeBytes": 63397
+      "sha256": "bc13b75c1e4bfc1e9994b1c0018a2ce2b6a73c61ada70c43de6b81f6e396b437",
+      "sizeBytes": 63637
     },
     {
       "id": "in.saraswat",
@@ -614,8 +614,8 @@
         "IN"
       ],
       "path": "packs/india/saraswat.json",
-      "sha256": "5eaab1867c4cf4931b05bcfaf1c258147f037fd3edcd4f65e77502796690bb6d",
-      "sizeBytes": 69753
+      "sha256": "7530dffd5b06dcdc307b4b175c079d561da97f009602b758567e13d8ac59891e",
+      "sizeBytes": 70113
     },
     {
       "id": "in.sbi",
@@ -623,8 +623,8 @@
         "IN"
       ],
       "path": "packs/india/sbi.json",
-      "sha256": "ebdac12d64609542ca2c51b1c863df3b35c869eeefabf384c4408de63193a3c8",
-      "sizeBytes": 131715
+      "sha256": "24bee999b22823969202f143e6724310d91f1b378026ddd4028a74a31fc1b745",
+      "sizeBytes": 132855
     },
     {
       "id": "in.skpscb",
@@ -632,8 +632,8 @@
         "IN"
       ],
       "path": "packs/india/skpscb.json",
-      "sha256": "7f92e644e43e8f24107ee6707ee0a27637b675ae0ad02ba0cd7fe5e22a2244ff",
-      "sizeBytes": 52847
+      "sha256": "3f0a28440dfa7e8553bbacc02db053878533ccd51ff39085e101be565e807f55",
+      "sizeBytes": 52967
     },
     {
       "id": "in.slice",
@@ -641,8 +641,8 @@
         "IN"
       ],
       "path": "packs/india/slice.json",
-      "sha256": "d20c5e8fa8a3eeb5d10a7d0159ba2ccbe1abc37502884a18d71d077f3c2d23b7",
-      "sizeBytes": 92271
+      "sha256": "d6d252e4bd0751cebe1fcaa151b6a3955ad1093c2d77e107f163386bb9451b8c",
+      "sizeBytes": 93051
     },
     {
       "id": "in.southindian",
@@ -650,8 +650,8 @@
         "IN"
       ],
       "path": "packs/india/southindian.json",
-      "sha256": "bcf7f1282df1b76e23a17675dd0011835bca4c174d6e973a5253c1939d089d61",
-      "sizeBytes": 76709
+      "sha256": "7f9d7d6634691fe44f08fb1d26e87cd10cd2d5c5f91f2c074d2492dab10bb36b",
+      "sizeBytes": 77129
     },
     {
       "id": "in.standardchartered",
@@ -659,8 +659,8 @@
         "IN"
       ],
       "path": "packs/india/standardchartered.json",
-      "sha256": "4a85ec932346918a81bd240a5eed36800e2b658bd71a67e016ba398eccafef69",
-      "sizeBytes": 62212
+      "sha256": "3aff7de042bce8181788812b998559ceb7f9ff0e0de2222717ab81f760e13b00",
+      "sizeBytes": 62452
     },
     {
       "id": "in.uco",
@@ -668,8 +668,8 @@
         "IN"
       ],
       "path": "packs/india/uco.json",
-      "sha256": "2ea9b8b55310cbcefb23edaa5c74ad2a0c7747ba7bb7b845989261eaae06b145",
-      "sizeBytes": 65008
+      "sha256": "a39acf74a759dabab5c26da3dc25f05cacf92df1ef6670c654c3a240e347879c",
+      "sizeBytes": 69346
     },
     {
       "id": "in.union",
@@ -677,8 +677,8 @@
         "IN"
       ],
       "path": "packs/india/union.json",
-      "sha256": "9fffcaa487d21945e895301b0a016dc4ebb477d57e6da5accb28ebba522bf4d6",
-      "sizeBytes": 60787
+      "sha256": "d969aa210fc8f7a823be6d9060113122776f487798003eb1654b9ad64f43bf20",
+      "sizeBytes": 61027
     },
     {
       "id": "in.utkarsh",
@@ -686,8 +686,8 @@
         "IN"
       ],
       "path": "packs/india/utkarsh.json",
-      "sha256": "5f3fff66024ad411b0f2e95b7844c648ec297728bcc87f1595d46d60373510ba",
-      "sizeBytes": 49980
+      "sha256": "dd21aa0f269e923911d8fd68fe7572bb120b79dabc1463608ac2c41295b26a0f",
+      "sizeBytes": 50040
     },
     {
       "id": "in.yes",
@@ -695,8 +695,8 @@
         "IN"
       ],
       "path": "packs/india/yes.json",
-      "sha256": "db43bac73dc0dcc3b9ffc278ac1086ab905ef68337cc6e7c786e909a6422ad07",
-      "sizeBytes": 73239
+      "sha256": "44397434feaac7349d2823fcb5fc3ee5f3db64ecad84136aac0ec0388fdd91a8",
+      "sizeBytes": 73599
     },
     {
       "id": "ir.bankino",

@@ -2,24 +2,28 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// Which drawn icon a tab uses.
-enum NavIconMotion { home, list, bars, dots }
+/// Which tab glyph a [NavIconMotionIcon] draws.
+enum NavIconMotion { home, transactions, budgets, more }
 
-/// A tab icon drawn in code that plays a short animation when its tab gains
-/// focus: the door of the house rises, the list's lines draw in, the bars
-/// grow, the dots bounce. At rest, and for tabs that start selected, it is
-/// still. [active] also fills the shape in, as the Material "selected" icons
-/// do.
+/// A bottom-bar icon drawn in Flutter on a 24-unit grid with rounded strokes.
+/// It shows an outline when [filled] is false and a solid shape when true,
+/// and plays a short eased animation whenever [active] turns on. At rest, and
+/// for tabs that start selected, it is still.
 class NavIconMotionIcon extends StatefulWidget {
   const NavIconMotionIcon({
     super.key,
     required this.motion,
     required this.active,
     required this.color,
+    this.filled,
     this.size = 24,
   });
+
   final NavIconMotion motion;
   final bool active;
+
+  /// Solid when true, outline when false. Defaults to [active].
+  final bool? filled;
   final Color color;
   final double size;
 
@@ -31,7 +35,7 @@ class _NavIconMotionIconState extends State<NavIconMotionIcon>
     with SingleTickerProviderStateMixin {
   late final _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 650),
+    duration: const Duration(milliseconds: 760),
     value: 1,
   );
 
@@ -54,43 +58,47 @@ class _NavIconMotionIconState extends State<NavIconMotionIcon>
   }
 
   @override
-  Widget build(BuildContext context) => ExcludeSemantics(
-    child: RepaintBoundary(
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) => CustomPaint(
-          size: Size.square(widget.size),
-          painter: _NavIconPainter(
-            motion: widget.motion,
-            t: _controller.value,
-            filled: widget.active,
-            color: widget.color,
-          ),
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      // Only the parts inside the glyph move; the icon itself keeps its size
+      // and place.
+      builder: (context, _) => CustomPaint(
+        size: Size.square(widget.size),
+        painter: _NavGlyphPainter(
+          motion: widget.motion,
+          filled: widget.filled ?? widget.active,
+          color: widget.color,
+          t: _controller.value,
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
-class _NavIconPainter extends CustomPainter {
-  const _NavIconPainter({
+class _NavGlyphPainter extends CustomPainter {
+  _NavGlyphPainter({
     required this.motion,
-    required this.t,
     required this.filled,
     required this.color,
+    required this.t,
   });
-  final NavIconMotion motion;
 
-  /// 0 to 1 through the animation; 1 is the resting icon.
-  final double t;
+  final NavIconMotion motion;
   final bool filled;
   final Color color;
 
-  static const _stroke = 2.0;
+  /// Raw animation time, 0 → 1; 1 is the resting icon.
+  final double t;
 
-  /// [t] sliced into the part from [begin] to [end], eased.
-  double _part(double begin, double end, [Curve curve = Curves.easeOutCubic]) =>
-      curve.transform(((t - begin) / (end - begin)).clamp(0.0, 1.0));
+  static const _stroke = 1.8;
+  static const _box = Rect.fromLTWH(0, 0, 24, 24);
+
+  double _ease(
+    double begin,
+    double end, [
+    Curve curve = Curves.easeInOutCubic,
+  ]) => Interval(begin, end, curve: curve).transform(t);
 
   Paint get _line => Paint()
     ..color = color
@@ -99,144 +107,179 @@ class _NavIconPainter extends CustomPainter {
     ..strokeCap = StrokeCap.round
     ..strokeJoin = StrokeJoin.round;
 
-  Paint get _solid => Paint()..color = color;
+  Paint get _solid => Paint()
+    ..color = color
+    ..style = PaintingStyle.fill;
+
+  static final _cut = Paint()..blendMode = BlendMode.clear;
+
+  /// Fills [shape] and rounds its edges with a stroke of the same colour, so
+  /// the solid version is exactly as large as the outline one.
+  void _fillRounded(Canvas canvas, Path shape) {
+    canvas
+      ..drawPath(shape, _solid)
+      ..drawPath(shape, _line);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Drawn on a 24-unit grid.
-    canvas.scale(size.width / 24);
+    canvas.scale(size.width / 24, size.height / 24);
     switch (motion) {
       case NavIconMotion.home:
         _home(canvas);
-      case NavIconMotion.list:
-        _list(canvas);
-      case NavIconMotion.bars:
-        _bars(canvas);
-      case NavIconMotion.dots:
-        _dots(canvas);
+      case NavIconMotion.transactions:
+        _transactions(canvas);
+      case NavIconMotion.budgets:
+        _budgets(canvas);
+      case NavIconMotion.more:
+        _more(canvas);
     }
   }
 
   void _home(Canvas canvas) {
-    // A small pop, about the foot of the house.
-    final pop = 1 + .1 * math.sin(math.pi * _part(0, .6, Curves.easeOut));
-    canvas.translate(12, 20.5);
-    canvas.scale(pop);
-    canvas.translate(-12, -20.5);
-    final doorH = 7 * _part(.1, .7, Curves.easeOutBack);
-    final door = RRect.fromLTRBR(
-      9.8,
-      20.5 - doorH,
-      14.2,
-      20.5,
-      const Radius.circular(1),
-    );
+    final house = Path()
+      ..moveTo(10.6, 4.9)
+      ..quadraticBezierTo(12, 3.8, 13.4, 4.9)
+      ..lineTo(19.2, 9.4)
+      ..quadraticBezierTo(20, 10, 20, 11)
+      ..lineTo(20, 18)
+      ..arcToPoint(const Offset(17.6, 20.4), radius: const Radius.circular(2.4))
+      ..lineTo(6.4, 20.4)
+      ..arcToPoint(const Offset(4, 18), radius: const Radius.circular(2.4))
+      ..lineTo(4, 11)
+      ..quadraticBezierTo(4, 10, 4.8, 9.4)
+      ..close();
+    // The door rises into place.
+    final drop = 5 * (1 - _ease(0.05, 0.9, Curves.easeOutCubic));
     if (filled) {
-      final house = Path()
-        ..moveTo(12, 3.2)
-        ..lineTo(21, 11.2)
-        ..lineTo(18.5, 11.2)
-        ..lineTo(18.5, 20.5)
-        ..lineTo(5.5, 20.5)
-        ..lineTo(5.5, 11.2)
-        ..lineTo(3, 11.2)
-        ..close();
-      canvas.saveLayer(const Rect.fromLTWH(0, 0, 24, 24), Paint());
-      canvas.drawPath(
-        house,
-        _solid
-          ..strokeWidth = _stroke
-          ..style = PaintingStyle.fill,
-      );
-      canvas.drawPath(house, _line);
-      canvas.drawRRect(door, Paint()..blendMode = BlendMode.clear);
-      canvas.restore();
-    } else {
-      canvas.drawPath(
-        Path()
-          ..moveTo(3, 11.2)
-          ..lineTo(12, 3.2)
-          ..lineTo(21, 11.2),
-        _line,
-      );
-      canvas.drawPath(
-        Path()
-          ..moveTo(5.5, 9.6)
-          ..lineTo(5.5, 20.5)
-          ..lineTo(18.5, 20.5)
-          ..lineTo(18.5, 9.6),
-        _line,
-      );
-      canvas.drawRRect(door, _line);
-    }
-  }
-
-  void _list(Canvas canvas) {
-    final card = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(3.5, 3.5, 17, 17),
-      const Radius.circular(4),
-    );
-    // Each line draws in from the left, one after the other.
-    final lines = [
-      for (var i = 0; i < 3; i++)
-        (
-          Offset(7.5, 9 + i * 3.2),
-          Offset(
-            7.5 + (i == 2 ? 6 : 9) * _part(i * .14, .5 + i * .14),
-            9 + i * 3.2,
+      canvas.saveLayer(_box.inflate(2), Paint());
+      _fillRounded(canvas, house);
+      canvas
+        ..drawRRect(
+          RRect.fromLTRBAndCorners(
+            9.9,
+            14.9 + drop,
+            14.1,
+            23,
+            topLeft: const Radius.circular(2.1),
+            topRight: const Radius.circular(2.1),
           ),
-        ),
-    ];
-    if (filled) {
-      canvas.saveLayer(const Rect.fromLTWH(0, 0, 24, 24), Paint());
-      canvas.drawRRect(card, _solid);
-      final clear = Paint()
-        ..blendMode = BlendMode.clear
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = _stroke
-        ..strokeCap = StrokeCap.round;
-      for (final (a, b) in lines) {
-        canvas.drawLine(a, b, clear);
-      }
-      canvas.restore();
+          _cut,
+        )
+        ..restore();
     } else {
-      canvas.drawRRect(card, _line);
-      for (final (a, b) in lines) {
-        canvas.drawLine(a, b, _line);
+      canvas
+        ..drawPath(house, _line)
+        ..save()
+        ..clipRect(const Rect.fromLTRB(0, 0, 24, 20.4))
+        ..drawPath(
+          Path()
+            ..moveTo(9.8, 20.4 + drop)
+            ..lineTo(9.8, 16.8 + drop)
+            ..arcToPoint(
+              Offset(14.2, 16.8 + drop),
+              radius: const Radius.circular(2.2),
+            )
+            ..lineTo(14.2, 20.4 + drop),
+          _line,
+        )
+        ..restore();
+    }
+  }
+
+  void _transactions(Canvas canvas) {
+    // A bulleted list whose lines draw out one row after another.
+    final paint = _line..strokeWidth = filled ? 2.5 : _stroke;
+    final dotRadius = filled ? 1.6 : 1.3;
+    for (var i = 0; i < 3; i++) {
+      final y = 6.0 + 6 * i;
+      final delay = i * 0.16;
+      final line = _ease(delay, delay + 0.68);
+      canvas
+        ..drawCircle(Offset(4.6, y), dotRadius, _solid)
+        ..drawLine(Offset(9, y), Offset(9 + 11 * line, y), paint);
+    }
+  }
+
+  void _budgets(Canvas canvas) {
+    // A pie with one slice that sweeps open from twelve o'clock.
+    const center = Offset(12, 12);
+    const radius = 8.2;
+    final open = _ease(0, 0.9);
+    final sweep = math.pi / 2 * open;
+    const start = -math.pi / 2;
+    Path wedge(double r) => Path()
+      ..moveTo(center.dx, center.dy)
+      ..arcTo(Rect.fromCircle(center: center, radius: r), start, sweep, false)
+      ..close();
+
+    if (!filled) {
+      canvas.drawCircle(center, radius, _line);
+      if (sweep > 0) {
+        final end = center + Offset.fromDirection(start + sweep, radius);
+        canvas.drawPath(
+          Path()
+            ..moveTo(center.dx, center.dy - radius)
+            ..lineTo(center.dx, center.dy)
+            ..lineTo(end.dx, end.dy),
+          _line,
+        );
       }
+      return;
+    }
+
+    // Solid: the pie with the slice cut out, and the slice lifted slightly
+    // away in a lighter tone.
+    final outer = radius + _stroke / 2;
+    canvas
+      ..saveLayer(_box.inflate(2), Paint())
+      ..drawCircle(center, outer, _solid);
+    if (sweep > 0) {
+      final cutout = wedge(outer + 1);
+      canvas
+        ..drawPath(cutout, _cut)
+        ..drawPath(
+          cutout,
+          Paint()
+            ..blendMode = BlendMode.clear
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2.2
+            ..strokeJoin = StrokeJoin.round,
+        );
+    }
+    canvas.restore();
+    if (sweep > 0) {
+      final lift = Offset.fromDirection(start + sweep / 2, 1.1);
+      canvas
+        ..save()
+        ..translate(lift.dx, lift.dy)
+        ..drawPath(wedge(outer), _solid..color = color.withValues(alpha: .5))
+        ..restore();
     }
   }
 
-  void _bars(Canvas canvas) {
-    const xs = [6.5, 12.0, 17.5], heights = [8.0, 15.0, 11.0];
-    for (var i = 0; i < 3; i++) {
-      final h = heights[i] * _part(i * .12, .6 + i * .12, Curves.easeOutBack);
-      if (h <= 0) continue;
-      canvas.drawRRect(
-        RRect.fromLTRBR(
-          xs[i] - 1.9,
-          20 - h,
-          xs[i] + 1.9,
-          20,
-          const Radius.circular(1.9),
-        ),
-        _solid,
+  void _more(Canvas canvas) {
+    // Four tiles that fade up one after another, clockwise.
+    const tiles = [
+      Offset(4, 4),
+      Offset(13.6, 4),
+      Offset(13.6, 13.6),
+      Offset(4, 13.6),
+    ];
+    for (var i = 0; i < tiles.length; i++) {
+      final shown = _ease(i * 0.14, i * 0.14 + 0.58);
+      final tint = color.withValues(alpha: color.a * (0.25 + 0.75 * shown));
+      final tile = RRect.fromRectAndRadius(
+        tiles[i] & const Size.square(6.4),
+        const Radius.circular(2.2),
       );
-    }
-  }
-
-  void _dots(Canvas canvas) {
-    const xs = [5.0, 12.0, 19.0];
-    for (var i = 0; i < 3; i++) {
-      final hop = math.sin(
-        math.pi * _part(i * .12, .5 + i * .12, Curves.linear),
-      );
-      canvas.drawCircle(Offset(xs[i], 12 - 5 * hop), 2.1, _solid);
+      if (filled) canvas.drawRRect(tile, _solid..color = tint);
+      canvas.drawRRect(tile, _line..color = tint);
     }
   }
 
   @override
-  bool shouldRepaint(_NavIconPainter old) =>
+  bool shouldRepaint(_NavGlyphPainter old) =>
       old.t != t ||
       old.filled != filled ||
       old.color != color ||

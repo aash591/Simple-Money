@@ -165,6 +165,7 @@ class SmsPendingCard extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.only(top: 14),
         child: HomeCard(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
           child: store.scanning
               ? SmsScanCard(
                   store: store,

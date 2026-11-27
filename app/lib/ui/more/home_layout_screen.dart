@@ -8,6 +8,7 @@ import '../components/feature_page.dart';
 import '../components/more_popup_button.dart';
 import '../components/reorder_lift.dart';
 import '../home/home_cards.dart';
+import '../theme/surface_style.dart' show appCardRadius;
 import 'home_preview_data.dart';
 
 /// Arranges Home: each card is drawn as it really looks, on example data.
@@ -111,23 +112,25 @@ class _HomeLayoutScreenState extends State<HomeLayoutScreen> {
             onReorderItem: layout.move,
             itemBuilder: (context, index) {
               final id = order[index];
-              return ReorderableDelayedDragStartListener(
+              return _Kept(
                 key: ValueKey(id),
-                index: index,
-                child: Semantics(
-                  customSemanticsActions: {
-                    if (index > 0)
-                      const CustomSemanticsAction(label: 'Move up'): () =>
-                          layout.move(index, index - 1),
-                    if (index < order.length - 1)
-                      const CustomSemanticsAction(label: 'Move down'): () =>
-                          layout.move(index, index + 1),
-                  },
-                  child: _Item(
-                    id: id,
-                    visible: layout.isVisible(id),
-                    card: buildHomeCard(id, example),
-                    onVisible: (value) => layout.setVisible(id, value),
+                child: ReorderableDelayedDragStartListener(
+                  index: index,
+                  child: Semantics(
+                    customSemanticsActions: {
+                      if (index > 0)
+                        const CustomSemanticsAction(label: 'Move up'): () =>
+                            layout.move(index, index - 1),
+                      if (index < order.length - 1)
+                        const CustomSemanticsAction(label: 'Move down'): () =>
+                            layout.move(index, index + 1),
+                    },
+                    child: _Item(
+                      id: id,
+                      visible: layout.isVisible(id),
+                      card: buildHomeCard(id, example),
+                      onVisible: (value) => layout.setVisible(id, value),
+                    ),
                   ),
                 ),
               );
@@ -137,6 +140,27 @@ class _HomeLayoutScreenState extends State<HomeLayoutScreen> {
       ),
     ),
   );
+}
+
+/// Keeps a preview built while it is scrolled out of view, as Home does
+/// with its cards. Built again on the way back, each card replayed its
+/// fade-in and its charts measured and drew themselves afresh, mid-scroll.
+class _Kept extends StatefulWidget {
+  const _Kept({super.key, required this.child});
+  final Widget child;
+  @override
+  State<_Kept> createState() => _KeptState();
+}
+
+class _KeptState extends State<_Kept> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
+  }
 }
 
 /// One card as it looks on Home, under its name and an on/off switch.
@@ -194,8 +218,11 @@ class _Item extends StatelessWidget {
                 ],
               ),
             ),
-            AnimatedOpacity(
-              opacity: visible ? 1 : .4,
+            // A hidden card is dimmed by a veil of the page's colour laid
+            // over it. Making the card itself see-through drew it off-screen
+            // and blended it back on every frame of a scroll.
+            TweenAnimationBuilder<double>(
+              tween: Tween(end: visible ? 0 : .6),
               duration: MediaQuery.disableAnimationsOf(context)
                   ? Duration.zero
                   : const Duration(milliseconds: 150),
@@ -203,6 +230,18 @@ class _Item extends StatelessWidget {
               child: IgnorePointer(
                 child: ExcludeSemantics(child: card ?? const SizedBox.shrink()),
               ),
+              builder: (context, veil, child) => veil == 0
+                  ? child!
+                  : DecoratedBox(
+                      position: DecorationPosition.foreground,
+                      decoration: BoxDecoration(
+                        color: theme.scaffoldBackgroundColor.withValues(
+                          alpha: veil,
+                        ),
+                        borderRadius: BorderRadius.circular(appCardRadius),
+                      ),
+                      child: child,
+                    ),
             ),
           ],
         ),

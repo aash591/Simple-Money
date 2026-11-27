@@ -8,6 +8,7 @@ import '../../../state/main_currency_controller.dart';
 import '../../../state/transaction_store.dart';
 import '../../components/account_total.dart';
 import '../../components/app_toast.dart';
+import '../../components/dashed_outline.dart';
 import '../../components/empty_state.dart';
 import '../../components/feature_page.dart';
 import '../../components/more_popup_button.dart';
@@ -268,24 +269,8 @@ class _DashedBorder extends CustomPainter {
   const _DashedBorder(this.color);
   final Color color;
   @override
-  void paint(Canvas canvas, Size size) {
-    final path = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          (Offset.zero & size).deflate(1),
-          const Radius.circular(24),
-        ),
-      );
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1
-      ..style = PaintingStyle.stroke;
-    for (final metric in path.computeMetrics()) {
-      for (double offset = 0; offset < metric.length; offset += 11) {
-        canvas.drawPath(metric.extractPath(offset, offset + 5), paint);
-      }
-    }
-  }
+  void paint(Canvas canvas, Size size) =>
+      DashedOutline(color, radius: 24, strokeWidth: 1).paint(canvas, size);
 
   @override
   bool shouldRepaint(_DashedBorder oldDelegate) => oldDelegate.color != color;

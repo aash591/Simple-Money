@@ -15,6 +15,7 @@ import '../theme/app_theme.dart'
 import 'glass_blur.dart';
 import 'glass_button.dart' show GlassRim;
 import 'inner_glow.dart';
+import 'page_motion.dart';
 
 /// The app's calm glass look: a quiet, cool-grey page with frosted grey
 /// surfaces only a shade lighter than it, each set apart by a bright
@@ -241,7 +242,7 @@ class _SnapshotBackdropState extends State<_SnapshotBackdrop> {
   Future<void> _take((Object, Size, double) key, {int attempt = 0}) async {
     if (!mounted || _key != key || _image != null || !_ready) return;
     // Not drawn yet, typically because the page is hidden under another
-    // (the look was changed from Customization): try again later. Giving up
+    // (the look was changed from Theme): try again later. Giving up
     // left the page redrawing its full-screen blur on every frame for good.
     void retry() {
       if (mounted && _key == key && _image == null) {
@@ -551,26 +552,34 @@ class _WavesPainter extends CustomPainter {
 
 /// A [Scaffold] laid over a [GlassBackdrop], for pages that build their own.
 class GlassPage extends StatelessWidget {
-  const GlassPage({super.key, required this.child});
+  const GlassPage({super.key, this.fadeContent = true, required this.child});
   final Widget child;
 
+  /// Fades [child] in with the page's transition while the backdrop slides
+  /// in solid. Off for pages that fade their own content under a solid
+  /// header (`FeaturePage`).
+  final bool fadeContent;
+
   @override
-  Widget build(BuildContext context) => PageFrostHost(
-    child: Stack(
-      fit: StackFit.expand,
-      children: [
-        const GlassBackdrop(),
-        // Glass that blurs live over a picture shares one blur of it.
-        BackdropGroup(
-          child: Theme(
-            data: Theme.of(context)
-                .copyWith(scaffoldBackgroundColor: Colors.transparent),
-            child: child,
-          ),
-        ),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    // Glass that blurs live over a picture shares one blur of it.
+    final Widget content = BackdropGroup(
+      child: Theme(
+        data: Theme.of(context)
+            .copyWith(scaffoldBackgroundColor: Colors.transparent),
+        child: child,
+      ),
+    );
+    return PageFrostHost(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          const GlassBackdrop(),
+          fadeContent ? PageMotionContent(child: content) : content,
+        ],
+      ),
+    );
+  }
 }
 
 /// The card body: frosted grey glass, a shade lighter than the page and

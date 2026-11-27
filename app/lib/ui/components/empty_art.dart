@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 
 import '../../state/appearance_controller.dart' show AppearanceScope;
 import '../theme/app_theme.dart' show AppChrome, usesAurora, usesGlass;
+import 'dashed_outline.dart' show dashPath, paintCached;
 import 'glass_blur.dart';
 import 'glass_surface.dart' show glassCardFill;
 
@@ -1482,7 +1483,16 @@ class _DashedNotchPainter extends CustomPainter {
   static const _notch = 9.0;
 
   @override
-  void paint(Canvas canvas, Size size) {
+  void paint(Canvas canvas, Size size) => paintCached(
+    canvas,
+    size,
+    // A gradient's look is fixed by its value: its hash keys the image.
+    'notch:${stroke.toARGB32()}:${fill.toARGB32()}:${gradient?.hashCode}',
+    (canvas) => _draw(canvas, size),
+    overflow: _notch + 2,
+  );
+
+  void _draw(Canvas canvas, Size size) {
     final w = size.width, h = size.height, r = _radius;
     const corner = Radius.circular(_radius);
     final path = Path()
@@ -1510,11 +1520,7 @@ class _DashedNotchPainter extends CustomPainter {
       ..color = stroke
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-    for (final metric in path.computeMetrics()) {
-      for (var d = 0.0; d < metric.length; d += 11) {
-        canvas.drawPath(metric.extractPath(d, d + 6), dash);
-      }
-    }
+    canvas.drawPath(dashPath(path, dash: 6), dash);
   }
 
   @override

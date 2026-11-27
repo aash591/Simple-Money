@@ -473,25 +473,37 @@ Future<_ReviewData> _loadReviewData(
       }
       if (rebuild) await review.recordContext(signature);
     });
-    final links = await repository.accountLinks();
-    final page = await review.page();
-    return _ReviewData(
-      enabled,
-      page.map((row) => row.sms).toList(),
-      await repository.detectedAccounts(),
-      links,
-      await repository.latestBalances(backfill: false),
-      await repository.latestCreditLimits(),
-      await repository.latestTotalCreditLimits(),
-      await repository.detectedAccountMessageCounts(),
-      await review.count(),
-      await review.count(const SmsReviewFilter(ready: true)),
-      await review.cashCurrencies(),
-      await review.cashCurrencyMessageCounts(),
-      changed,
-    );
+    return _readReviewData(workerDb, changed: changed);
   },
 );
+
+/// The review list as it is saved, read as it stands: nothing is parsed or
+/// rebuilt, so it needs neither the SMS engine nor a worker.
+Future<_ReviewData> _readReviewData(
+  AppDatabase database, {
+  required bool changed,
+}) async {
+  final repository = SmsImportRepository(database);
+  final review = SmsReviewRepository(database);
+  final enabled = (await repository.state()).$1;
+  final links = await repository.accountLinks();
+  final page = await review.page();
+  return _ReviewData(
+    enabled,
+    page.map((row) => row.sms).toList(),
+    await repository.detectedAccounts(),
+    links,
+    await repository.latestBalances(backfill: false),
+    await repository.latestCreditLimits(),
+    await repository.latestTotalCreditLimits(),
+    await repository.detectedAccountMessageCounts(),
+    await review.count(),
+    await review.count(const SmsReviewFilter(ready: true)),
+    await review.cashCurrencies(),
+    await review.cashCurrencyMessageCounts(),
+    changed,
+  );
+}
 
 /// Rows queued since the last rebuild were parsed by this same rule context, so
 /// only a rebuild (rules, accounts or host version changed) parses them again.
@@ -662,6 +674,21 @@ class SmsImportStore extends ChangeNotifier {
       await _rulesSignature!,
     );
     if (_disposed || version != _reloadVersion) return;
+    _apply(data);
+  }
+
+  /// The review list saved last time, shown at once at launch so the Home
+  /// card arrives with the others. Starting the SMS engine and a worker to
+  /// bring it up to date takes a few seconds; [reload] follows and swaps in
+  /// anything that changed.
+  Future<void> _showSaved() async {
+    final version = _reloadVersion;
+    final data = await _readReviewData(repository.database, changed: false);
+    if (_disposed || version != _reloadVersion) return;
+    _apply(data);
+  }
+
+  void _apply(_ReviewData data) {
     final changed =
         data.changed || pendingCount != data.count || readyCount != data.ready;
     enabled = data.enabled;
@@ -706,8 +733,15 @@ class SmsImportStore extends ChangeNotifier {
       enabled = (await repository.state()).$1;
       // The waiting messages first: they are a local read, and the Home card
       // should not wait on the permission and realtime round trips below.
-      await reload();
+      // The saved list goes up at once; the refresh behind it can take
+      // seconds (the SMS engine and a worker start first).
+      try {
+        await _showSaved();
+      } catch (_) {
+        // Nothing saved to show yet: the refresh below fills it.
+      }
       _markLoaded();
+      await reload();
       if (enabled && supported && !await platform.hasPermission()) {
         enabled = false;
         await repository.enable(false);

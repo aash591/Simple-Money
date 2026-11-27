@@ -52,28 +52,27 @@ class SmsReviewCard extends StatelessWidget {
         Row(
           children: [
             Container(
-              width: 34,
-              height: 34,
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
                 color: orange.withValues(alpha: .14),
-                borderRadius: BorderRadius.circular(11),
+                borderRadius: BorderRadius.circular(9),
               ),
               child: const Icon(
                 Icons.mark_chat_unread_outlined,
-                size: 18,
+                size: 15,
                 color: orange,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             // The cause is the title: what is waiting, and what it needs.
             Expanded(
               child: Text(
                 title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                // The same small label as the other home cards' titles.
+                style: theme.textTheme.bodySmall,
               ),
             ),
           ],
@@ -101,6 +100,7 @@ class SmsReviewCard extends StatelessWidget {
                 primary: false,
                 onPressed: store.busy ? null : onScan,
                 label: 'Scan',
+                height: 40,
               ),
             ),
             const SizedBox(width: 10),
@@ -111,6 +111,7 @@ class SmsReviewCard extends StatelessWidget {
                 label: waiting > 0
                     ? 'Review ${number.format(waiting)}'
                     : 'Review',
+                height: 40,
               ),
             ),
           ],

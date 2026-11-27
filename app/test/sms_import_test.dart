@@ -1118,6 +1118,31 @@ void main() {
     expect(reopened.pendingCount, 1);
   });
 
+  test(
+    'reopening shows the saved review at once, before the SMS engine loads',
+    () async {
+      inbox.rows = [InboxSms(1, sms())];
+      await store.enable();
+      final engineReady = Completer<PortableSmsEngine>();
+      final reopened = SmsImportStore(
+        repo,
+        platform: inbox,
+        engineLoader: () => engineReady.future,
+        autoImport: false,
+      );
+      addTearDown(reopened.dispose);
+      final starting = reopened.initialize();
+      // The Home card can show with the others while the engine still loads.
+      await pumpEventQueue();
+      expect(reopened.loaded, isTrue);
+      expect(reopened.pendingCount, 1);
+      expect(reopened.pending, hasLength(1));
+      engineReady.complete(engine);
+      await starting;
+      expect(reopened.pendingCount, 1);
+    },
+  );
+
   test('completed empty scans do not restart when reopening', () async {
     await store.enable();
     final reads = inbox.reads;

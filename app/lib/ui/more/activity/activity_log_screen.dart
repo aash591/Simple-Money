@@ -70,67 +70,93 @@ class ActivityLogScreen extends StatefulWidget {
 }
 
 class _ActivityLogScreenState extends State<ActivityLogScreen> {
-  static const _page = 300;
+  /// How many changes the list takes at first, so it is up at once, and
+  /// with each page after.
+  static const _firstPage = 20;
+  static const _page = 60;
+
+  /// The next page is taken once the scroll reaches this many changes into
+  /// the loaded ones (40 of 60): 20 are still ahead when it starts.
+  static const _loadAt = 40;
   late final _history = ChangeHistoryRepository(widget.database);
   List<RecordChange>? _changes;
   List<SyncActivity> _events = const [];
   bool _more = false;
+  bool _loadingMore = false;
   _Sort _sort = _Sort.newest;
+
+  /// Whether the page has finished sliding in. The first rows are built at
+  /// once, but further pages wait for it: building dozens of rows while the
+  /// page is moving makes the slide stutter.
+  bool _settled = false;
+  bool _wantsMore = false;
+  Animation<double>? _routeAnimation;
+  AnimationStatusListener? _routeListener;
 
   @override
   void initState() {
     super.initState();
     widget.sync?.addListener(_load);
-    _loadAfterTransition();
-  }
-
-  Animation<double>? _routeAnimation;
-  AnimationStatusListener? _routeListener;
-
-  /// Reading the history and building its rows while the page is still
-  /// sliding in makes the slide stutter, so the first load waits for it.
-  void _loadAfterTransition() {
+    _load();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final animation = ModalRoute.of(context)?.animation;
       if (animation == null || animation.isCompleted) {
-        _load();
+        _settle();
         return;
       }
       _routeAnimation = animation;
       _routeListener = (status) {
         if (status == AnimationStatus.completed ||
             status == AnimationStatus.dismissed) {
-          animation.removeStatusListener(_routeListener!);
-          _routeListener = null;
-          if (mounted) _load();
+          _stopListening();
+          if (mounted) _settle();
         }
       };
       animation.addStatusListener(_routeListener!);
     });
   }
 
-  @override
-  void dispose() {
-    widget.sync?.removeListener(_load);
+  void _settle() {
+    _settled = true;
+    if (_wantsMore) {
+      _wantsMore = false;
+      _loadOlder();
+    }
+  }
+
+  void _stopListening() {
     if (_routeListener != null) {
       _routeAnimation?.removeStatusListener(_routeListener!);
     }
+    _routeListener = null;
+  }
+
+  @override
+  void dispose() {
+    widget.sync?.removeListener(_load);
+    _stopListening();
     super.dispose();
   }
 
-  Future<void> _load() async {
-    await _history.prune();
-    final changes = await _history.load(
-      limit: _changes == null ? _page : _changes!.length.clamp(_page, 5000),
-    );
+  /// The changes to show, and the sync events between them. A reload keeps
+  /// as many changes as are already shown.
+  Future<(List<RecordChange>, List<SyncActivity>, int)> _fetch() async {
+    final limit = _changes == null
+        ? _firstPage
+        : _changes!.length.clamp(_firstPage, ChangeHistoryRepository.keep);
+    final changes = await _history.load(limit: limit);
     final events = await widget.sync?.repository.activity(limit: 200);
-    if (!mounted) return;
+    return (changes, events ?? const <SyncActivity>[], limit);
+  }
+
+  void _apply((List<RecordChange>, List<SyncActivity>, int) read) {
+    final (changes, events, limit) = read;
     setState(() {
       _changes = changes;
-      _more = changes.length >= _page;
+      _more = changes.length >= limit;
       _events = [
-        for (final event in events ?? const <SyncActivity>[])
+        for (final event in events)
           // What was sent and received shows as the changes themselves.
           if (event.kind != SyncActivityKind.sent &&
               event.kind != SyncActivityKind.received)
@@ -139,14 +165,39 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
     });
   }
 
-  Future<void> _loadOlder() async {
-    final changes = _changes;
-    if (changes == null || changes.isEmpty) return;
-    final older = await _history.load(limit: _page, olderThan: changes.last.id);
+  Future<void> _load() async {
+    final read = await _fetch();
     if (!mounted) return;
-    setState(() {
-      _changes = [...changes, ...older];
-      _more = older.length >= _page;
+    _apply(read);
+    unawaited(_history.prune());
+  }
+
+  /// The next page, once the list scrolls near its end. Also asked for when a
+  /// list is too short to scroll at all (a tab with few matches), so it keeps
+  /// filling until it runs out.
+  void _loadOlder() {
+    if (!_settled) {
+      _wantsMore = true;
+      return;
+    }
+    if (_loadingMore) return;
+    _loadingMore = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final changes = _changes;
+        if (!mounted || changes == null || changes.isEmpty) return;
+        final older = await _history.load(
+          limit: _page,
+          olderThan: changes.last.id,
+        );
+        if (!mounted) return;
+        setState(() {
+          _changes = [...changes, ...older];
+          _more = older.length >= _page;
+        });
+      } finally {
+        _loadingMore = false;
+      }
     });
   }
 
@@ -366,63 +417,90 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
     final empty = cards.isEmpty ? 1 : 0;
     // Built lazily: a long history would otherwise build every row on
     // opening the page, and stutter the transition.
-    return ListView.builder(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
-      itemCount: empty + cards.length + (_more ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (empty == 1 && index == 0) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 48),
-            child: Text(
-              filter == _Filter.all
-                  ? 'Nothing here yet.'
-                  : 'Nothing ${filter.name} yet.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          );
+    // Rows still ahead at which the next page starts: the page less where it
+    // is taken, as pixels by the average row. Not by the rows built: a day's
+    // changes are one card, so a busy day would load everything at once.
+    final ahead = (_page - _loadAt) * 1.0;
+    return NotificationListener<Notification>(
+      onNotification: (notification) {
+        final metrics = switch (notification) {
+          ScrollNotification(:final metrics) => metrics,
+          ScrollMetricsNotification(:final metrics) => metrics,
+          _ => null,
+        };
+        if (_more &&
+            metrics != null &&
+            metrics.axis == Axis.vertical &&
+            shown.isNotEmpty &&
+            metrics.extentAfter <=
+                ahead *
+                    (metrics.maxScrollExtent + metrics.viewportDimension) /
+                    shown.length) {
+          _loadOlder();
         }
-        final at = index - empty;
-        if (at >= cards.length) {
-          return Center(
-            child: TextButton(
-              onPressed: _loadOlder,
-              child: const Text('Show older changes'),
-            ),
-          );
-        }
-        final (day, items) = cards[at];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 22),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (day != null) TransactionDayHeader(date: day),
-              MoneyCard(
-                padding: EdgeInsets.zero,
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: Column(
-                    children: [
-                      for (final (i, item) in items.indexed) ...[
-                        if (i > 0) const Divider(height: 1),
-                        switch (item) {
-                          RecordChange change => _changeRow(change),
-                          SyncActivity event => _EventRow(event: event),
-                          _ => const SizedBox.shrink(),
-                        },
-                      ],
-                    ],
-                  ),
+        return false;
+      },
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+        itemCount: empty + cards.length + (_more ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (empty == 1 && index == 0) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 48),
+              child: Text(
+                filter == _Filter.all
+                    ? 'Nothing here yet.'
+                    : 'Nothing ${filter.name} yet.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-            ],
-          ),
-        );
-      },
+            );
+          }
+          final at = index - empty;
+          if (at >= cards.length) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: SizedBox.square(
+                  dimension: 22,
+                  child: CircularProgressIndicator(strokeWidth: 2.5),
+                ),
+              ),
+            );
+          }
+          final (day, items) = cards[at];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (day != null) TransactionDayHeader(date: day),
+                MoneyCard(
+                  padding: EdgeInsets.zero,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Column(
+                      children: [
+                        for (final (i, item) in items.indexed) ...[
+                          if (i > 0) const Divider(height: 1),
+                          switch (item) {
+                            RecordChange change => _changeRow(change),
+                            SyncActivity event => _EventRow(event: event),
+                            _ => const SizedBox.shrink(),
+                          },
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:simple_money/ui/components/glass_button.dart';
 import 'package:simple_money/app.dart';
-import 'package:simple_money/ui/more/settings/customization_screen.dart';
+import 'package:simple_money/ui/more/settings/theme_screen.dart';
 import 'package:simple_money/state/appearance_controller.dart';
 import 'package:drift/native.dart';
 import 'package:simple_money/data/db/app_database.dart';
@@ -37,9 +37,7 @@ void main() {
     transactionStore.dispose();
     await database.close();
   });
-  testWidgets('Customization updates the app and persists choices', (
-    tester,
-  ) async {
+  testWidgets('Theme updates the app and persists choices', (tester) async {
     await tester.pumpWidget(
       SimpleMoneyApp(
         accountStore: store,
@@ -54,30 +52,27 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Customization'));
+    await tester.ensureVisible(find.text('Theme'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Customization'));
+    await tester.tap(find.text('Theme'));
     await tester.pumpAndSettle();
-    expect(find.byType(CustomizationScreen), findsOneWidget);
+    expect(find.byType(ThemeScreen), findsOneWidget);
     await tester.ensureVisible(find.text('Black'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Black'));
     await tester.pumpAndSettle();
-    final context = tester.element(find.byType(CustomizationScreen));
+    final context = tester.element(find.byType(ThemeScreen));
     expect(Theme.of(context).brightness, Brightness.dark);
     expect(Theme.of(context).scaffoldBackgroundColor, Colors.black);
     await tester.ensureVisible(find.byTooltip('Purple'));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Purple'));
     await tester.pumpAndSettle();
-    expect(
-      Theme.of(context).colorScheme.primary,
-      CustomizationScreen.colors['Purple'],
-    );
+    expect(Theme.of(context).colorScheme.primary, ThemeScreen.colors['Purple']);
     final restored = AppearanceController();
     await restored.restore();
     expect(restored.value, ThemeMode.dark);
-    expect(restored.accentColor, CustomizationScreen.colors['Purple']);
+    expect(restored.accentColor, ThemeScreen.colors['Purple']);
     restored.dispose();
     expect(tester.takeException(), isNull);
   });

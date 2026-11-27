@@ -3,22 +3,21 @@ import 'package:flutter/material.dart';
 import '../../../data/community/community_fixes.dart';
 import '../../../data/db/app_database.dart';
 import '../../../data/keep_alive_platform.dart';
-import '../../../data/notification_access_platform.dart';
 import '../../../state/sms_import_store.dart';
 import '../../components/feature_page.dart';
 import '../../components/menu_list.dart';
 import '../../welcome/onboarding_screen.dart';
 import 'keep_working/keep_working_card.dart';
-import 'notifications/notifications_row.dart';
 import 'sms/teach_missed_sms_screen.dart';
 import 'shared_fixes_screen.dart';
 
 /// More › Smart tracking: everything about SimpleMoney adding transactions
 /// from bank messages, in one place. From the top: keeping it running in the
 /// background (only while there is something to do there: once every step is
-/// done it moves to the bottom), SMS (the switch, teaching a missed one),
-/// notifications from apps, and the ways to teach it more: with an AI, or
-/// fixes other people shared.
+/// done it moves to the bottom), SMS (the switch, teaching a missed one), and
+/// the ways to teach it more: with an AI, or fixes other people shared.
+/// Transactions from app notifications are experimental, so they are under
+/// Settings › Experimental.
 class SmartTrackingScreen extends StatefulWidget {
   const SmartTrackingScreen({
     super.key,
@@ -132,9 +131,8 @@ class _SmartTrackingScreenState extends State<SmartTrackingScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'SimpleMoney reads bank SMS and app notifications right '
-                        'on this phone to add transactions for you. They never '
-                        'leave it.',
+                        'SimpleMoney reads bank SMS right on this phone to add '
+                        'transactions for you. They never leave it.',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                           height: 1.4,
@@ -181,19 +179,6 @@ class _SmartTrackingScreenState extends State<SmartTrackingScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-              // Banks and payment apps that send a notification, not an SMS.
-              if (NotificationAccessPlatform().supported) ...[
-                MenuGroup(
-                  label: 'App notifications',
-                  children: [
-                    NotificationsRow(
-                      database: database,
-                      onRulesChanged: onRulesChanged,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-              ],
               // The ways to fix what was missed: ask an AI, or use what
               // other people shared.
               if (teach != null || shared != null)
@@ -211,8 +196,8 @@ class _SmartTrackingScreenState extends State<SmartTrackingScreen> {
                     if (shared != null)
                       MenuRow(
                         icon: Icons.groups_rounded,
-                        title: 'Shared fixes',
-                        subtitle: 'From other people, used here',
+                        title: 'Community rules',
+                        subtitle: 'Shared by other users, used here',
                         onTap: () => Navigator.of(context).push(
                           FeatureRoute<void>(
                             SharedFixesScreen(

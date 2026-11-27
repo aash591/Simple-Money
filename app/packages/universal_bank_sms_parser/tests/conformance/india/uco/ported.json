@@ -205,5 +205,47 @@
       }
     },
     "compareLegacy": true
+  },
+  {
+    "id": "uco-community-card-withdrawal",
+    "country": "IN",
+    "bankId": "in.uco",
+    "provenance": "Community report 2026-11: ATM withdrawal with the debit card number",
+    "input": {
+      "sender": "JD-UCOBNK-S",
+      "body": "Rs.3,000.00 withdrawn on UCO Bank Card XX1234 on 30-11-2025,11:43:17 at SASTHAMKOTA KARUNAGAPA, Sasthamkotta ATM ID- NFUC0000.Avl Bal Rs.5562.34.For dispute https://spgrs.ucoonline.in/Home_Page.jsp For feedback https://customerservice.ucoonline.in/CustFeedback/ATM.jsp  ",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "completed",
+      "decision": "review",
+      "reason": "completedNeedsReview",
+      "packVersion": 1,
+      "ruleId": "in.uco.card_withdrawal",
+      "candidate": {
+        "amountMinor": 300000,
+        "currencyCode": "INR",
+        "direction": "debit",
+        "channel": "card",
+        "bankName": "UCO Bank",
+        "countryCode": "IN",
+        "accountLast4": "1234",
+        "reference": null,
+        "counterparty": "SASTHAMKOTA KARUNAGAPA, Sasthamkotta ATM ID- NFUC0000",
+        "occurredAt": "2026-10-07T00:00:00.000Z",
+        "category": {
+          "id": "atm_withdrawal",
+          "name": "ATM Withdrawal",
+          "type": "expense",
+          "ruleId": "in.category.atm_withdrawal",
+          "isFallback": false,
+          "aliases": [
+            "Cash Withdrawal"
+          ]
+        },
+        "accountingTreatment": "transfer"
+      }
+    },
+    "compareLegacy": false
   }
 ]

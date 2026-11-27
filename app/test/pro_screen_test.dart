@@ -67,7 +67,13 @@ void main() {
       find.text('Track spending, accounts, loans and debts'),
       findsOneWidget,
     );
-    expect(find.text('Unlimited'), findsOneWidget);
+    // Budgets, and each limited asset type on its own row.
+    expect(find.text('Unlimited'), findsNWidgets(6));
+    expect(find.text('Up to 7'), findsNWidgets(3)); // budgets, funds, ETFs
+    expect(find.text('Up to 3'), findsNWidgets(3)); // crypto, metal, forex
+    for (final label in ['Mutual funds', 'ETFs', 'Crypto', 'Metal', 'Forex']) {
+      expect(find.text(label), findsOneWidget);
+    }
     expect(
       find.text('Google Play isn’t available on this device.'),
       findsOneWidget,

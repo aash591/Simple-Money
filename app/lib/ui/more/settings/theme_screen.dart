@@ -15,8 +15,8 @@ import '../../components/menu_list.dart';
 import '../../theme/app_theme.dart';
 import '../pro/pro_screen.dart';
 
-class CustomizationScreen extends StatelessWidget {
-  const CustomizationScreen({super.key});
+class ThemeScreen extends StatelessWidget {
+  const ThemeScreen({super.key});
 
   /// The first row: free, a short ad each time one is picked (Purple, the
   /// default, never takes one).
@@ -40,7 +40,7 @@ class CustomizationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = AppearanceScope.of(context);
     return FeaturePage(
-      title: 'Customization',
+      title: 'Theme',
       child: ListenableBuilder(
         listenable: ProController.instance,
         builder: (context, _) {
@@ -652,7 +652,7 @@ class _AuroraBackground extends StatelessWidget {
     final previous = settings.wallpaperPath;
     final path = await AuroraWallpaper.choose();
     if (path == null || !context.mounted) return;
-    if (!await CustomizationScreen._watchFor(
+    if (!await ThemeScreen._watchFor(
       context,
       what: 'background',
       preview: true,

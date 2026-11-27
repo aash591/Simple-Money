@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_money/data/reportable_sms.dart';
 import 'package:simple_money/ui/more/smart_tracking/sms/teach_missed_sms_screen.dart';
+import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart'
+    show BankSms;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -44,13 +47,15 @@ void main() {
     messenger.setMockMethodCallHandler(sms, null);
     messenger.setMockMethodCallHandler(improve, null);
   });
-  void mockInbox({required bool allowed}) => messenger.setMockMethodCallHandler(
-    sms,
-    (call) async => switch (call.method) {
-      'readPage' => (call.arguments as Map)['afterId'] == 0 ? inbox : const [],
-      _ => allowed,
-    },
-  );
+  void mockInbox({required bool allowed, List<Map<String, Object>>? rows}) =>
+      messenger.setMockMethodCallHandler(
+        sms,
+        (call) async => switch (call.method) {
+          'readPage' =>
+            (call.arguments as Map)['afterId'] == 0 ? rows ?? inbox : const [],
+          _ => allowed,
+        },
+      );
 
   testWidgets('without SMS access nothing is read or sent', (tester) async {
     var reports = 0;
@@ -133,4 +138,44 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('debited from A/c XX4321'), findsOneWidget);
   }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
+  test('Teach is offered for what is not read, and for what was reported', () {
+    ReportableSms message(ReportableKind kind, {bool taught = false}) =>
+        ReportableSms(
+          'id',
+          BankSms(
+            sender: 'VM-TESTBK-S',
+            body: 'Rs.10 debited',
+            receivedAt: DateTime(2026),
+          ),
+          kind,
+          '',
+          null,
+          taught: taught,
+        );
+    bool can(
+      ReportableSms m, {
+      bool reported = false,
+      bool database = true,
+      bool busy = false,
+    }) => TeachMissedSmsScreen.canTeach(
+      hasDatabase: database,
+      message: m,
+      reported: reported,
+      busy: busy,
+    );
+
+    // Not read yet: always.
+    expect(can(message(ReportableKind.missed)), isTrue);
+    expect(can(message(ReportableKind.other)), isTrue);
+    // Read right by the bundled rules: nothing to teach...
+    expect(can(message(ReportableKind.detected)), isFalse);
+    // ...unless it was reported, which says it may have been read wrongly.
+    expect(can(message(ReportableKind.detected), reported: true), isTrue);
+    // Taught by hand before: it can be taught again, reported or not.
+    expect(can(message(ReportableKind.detected, taught: true)), isTrue);
+    // Never without a database to save to, or while a report is sending.
+    expect(can(message(ReportableKind.missed), database: false), isFalse);
+    expect(can(message(ReportableKind.missed), busy: true), isFalse);
+  });
 }

@@ -1,4 +1,5 @@
 import '../data/platform_info.dart';
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -8,6 +9,7 @@ import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/monetization_config.dart';
+import '../domain/holding.dart';
 
 enum ProPlanKind { yearly, monthly, lifetime }
 
@@ -62,20 +64,32 @@ class ProController extends ChangeNotifier {
   bool subscribed = false;
 
   ///
-  /// A debug build is Pro, which also turns ads off as Pro does; build with
-  /// `--dart-define=DEBUG_PRO=false` to see the free plan
-  /// ([MonetizationConfig.debugPro]). Profile and release builds never are.
-  bool get isPro => ownsLifetime || subscribed || debugPro;
+  /// A debug build is the free plan: a purchase on its Google account does
+  /// not make it Pro, unless PRO_IN_DEBUG=true is given
+  /// ([MonetizationConfig.proInDebug]), which makes it Pro (and turns ads off,
+  /// as Pro does). Profile and release builds follow what was bought.
+  bool get isPro =>
+      debugPro ||
+      ((ownsLifetime || subscribed) &&
+          purchaseCounts(
+            debug: kDebugMode && !isFlutterTest,
+            proInDebug: MonetizationConfig.proInDebug,
+          ));
 
-  /// Pro given to a debug build. Widget tests run in debug mode too, but
-  /// test the free plan unless they set this.
+  /// Whether a purchase on the Google account counts. A debug build ignores
+  /// it unless it is meant to be Pro, so the free plan can always be tried
+  /// on a phone whose account bought Pro.
+  @visibleForTesting
+  static bool purchaseCounts({required bool debug, required bool proInDebug}) =>
+      !debug || proInDebug;
+
+  /// Pro given to a debug build when PRO_IN_DEBUG=true. Widget tests run in
+  /// debug mode too, but test the free plan unless they set this.
   @visibleForTesting
   static bool debugPro =
-      kDebugMode &&
-      MonetizationConfig.debugPro &&
-      !isFlutterTest;
+      kDebugMode && MonetizationConfig.proInDebug && !isFlutterTest;
 
-  /// Whether the free plan's limits (budgets, accent colours) are open: for
+  /// Whether the free plan's limits (budgets, holdings, accent colours) are open: for
   /// Pro, and for everyone while [enforceLimits] is off. [isPro] stays the
   /// truth about what was bought (it also turns ads off).
   bool get featuresUnlocked => isPro || !enforceLimits;
@@ -96,6 +110,31 @@ class ProController extends ChangeNotifier {
 
   /// Budgets a free user may keep; each after the first takes a short ad.
   static const freeBudgets = 7;
+
+  /// How many holdings of [kind] a free user may keep, or null for no limit.
+  /// Stocks are unlimited; funds and ETFs take 7 each; crypto, metal and
+  /// forex 3 each.
+  static int? freeHoldingsOf(HoldingKind kind) => switch (kind) {
+    HoldingKind.stock || HoldingKind.other => null,
+    HoldingKind.etf || HoldingKind.fund => 7,
+    HoldingKind.crypto || HoldingKind.metal || HoldingKind.forex => 3,
+  };
+
+  /// Every this-many'th holding of a kind a free user adds takes a short ad.
+  static const holdingAdEvery = 2;
+
+  /// Whether adding one more holding of a kind, when [held] of it are already
+  /// kept, takes a short ad: the 2nd, 4th, 6th and so on, on the free plan.
+  bool holdingTakesAd(int held) =>
+      !featuresUnlocked && (held + 1) % holdingAdEvery == 0;
+
+  /// Whether one more holding of [kind] may be added when [held] of that kind
+  /// are already kept. Only adding is held back: what a free user already has
+  /// stays, whatever its number.
+  bool mayAddHolding(HoldingKind kind, int held) {
+    final limit = freeHoldingsOf(kind);
+    return featuresUnlocked || limit == null || held < limit;
+  }
 
   bool storeAvailable = false;
   bool loadingPlans = false;

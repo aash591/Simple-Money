@@ -73,7 +73,7 @@ class HomeChartHeader extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      SectionTitle(title, action: action, onTap: onTap),
+      SectionTitle(title, action: action, onTap: onTap, compact: true),
       const SizedBox(height: 6),
       Text(
         headline,

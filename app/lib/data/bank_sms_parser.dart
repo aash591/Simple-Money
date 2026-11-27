@@ -52,7 +52,10 @@ final _reference = RegExp(
   caseSensitive: false,
 );
 final _digit = RegExp(r'\d');
+// "Bank Card" is how some banks (UCO) name the debit card; a bare "card"
+// could be a credit card.
 final _debitCard = RegExp(r'\bdebit\s*card\b', caseSensitive: false);
+final _bankCard = RegExp(r'\bbank\s*card\b', caseSensitive: false);
 final _card = RegExp(r'\bcard\b', caseSensitive: false);
 final _merchantPayment = RegExp(
   r'\bpayment\s+of\s+(?:INR|Rs\.?|₹)\s*\d[\d,.]*\s+at\b',
@@ -98,6 +101,13 @@ Map<String, dynamic> smsMetadata(String body, {String? sender}) {
   return _lastMetadata = metadata;
 }
 
+/// "Debit Card", or "Bank Card" (how UCO names it) with no credit limit. A
+/// bare "card" could be a credit card, and "Axis Bank Card" with an available
+/// limit is one.
+bool _isDebitCard(String body) =>
+    _debitCard.hasMatch(body) ||
+    (_bankCard.hasMatch(body) && !_availableLimit.hasMatch(body));
+
 Map<String, dynamic> _metadata(String body, String? sender) {
   final references = _reference
       .allMatches(body)
@@ -106,7 +116,7 @@ Map<String, dynamic> _metadata(String body, String? sender) {
       .toSet();
   final card =
       _creditCard.hasMatch(body) ||
-      (!_debitCard.hasMatch(body) &&
+      (!_isDebitCard(body) &&
           ({
                 'ONECRD',
                 'ONECARD',
@@ -330,6 +340,9 @@ class BankSmsParser extends PortableSmsEngine {
       'countryCode': 'IN',
       'currencyCode': 'INR',
       'accountLast4': account.substring(account.length - 4),
+      // A debit card's number is merged into the bank's one account.
+      if (metadata['isCreditCard'] != true && _isDebitCard(sms.body))
+        'channel': 'card',
     };
   }
 
@@ -413,7 +426,7 @@ class BankSmsParser extends PortableSmsEngine {
           amountMinor: amount,
           currencyCode: 'INR',
           direction: credit ? SmsDirection.credit : SmsDirection.debit,
-          channel: card
+          channel: card || _isDebitCard(sms.body)
               ? SmsPaymentChannel.card
               : _upi.hasMatch(sms.body)
               ? SmsPaymentChannel.upi

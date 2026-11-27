@@ -173,7 +173,7 @@ class CommittedCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SectionTitle('Coming up'),
+            const SectionTitle('Coming up', compact: true),
             const SizedBox(height: 12),
             CurrencyNotice(scope: currency, missing: totals.missing),
             _Plan(

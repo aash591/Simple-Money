@@ -51,10 +51,10 @@ abstract final class AppTypography {
   /// Display scale for the home summary, separate from compact balances.
   static const heroAmount = TextStyle(
     fontFamily: fontFamily,
-    fontSize: 48,
+    fontSize: 30,
     height: 1.08,
     fontWeight: FontWeight.w700,
-    letterSpacing: -1.6,
+    letterSpacing: -1,
     fontFeatures: [FontFeature.tabularFigures()],
   );
 

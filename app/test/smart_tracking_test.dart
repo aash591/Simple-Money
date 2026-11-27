@@ -31,9 +31,7 @@ class _FakeKeepAlive extends KeepAlivePlatform {
 }
 
 void main() {
-  testWidgets('Smart tracking groups SMS, notifications, and teaching', (
-    tester,
-  ) async {
+  testWidgets('Smart tracking groups SMS and teaching', (tester) async {
     // Tall enough that the whole list is on screen.
     tester.view
       ..physicalSize = const Size(800, 2400)
@@ -44,15 +42,16 @@ void main() {
       MaterialApp(home: SmartTrackingScreen(onTeach: () => taught++)),
     );
     expect(find.textContaining('right on this phone'), findsOneWidget);
-    // Keeping it running first, then SMS, notifications, and teaching.
+    // Keeping it running first, then SMS, and teaching.
     expect(find.text('Keep it working'), findsOneWidget);
     expect(find.text('SMS'), findsOneWidget);
     expect(find.text('Teach a missed SMS'), findsOneWidget);
-    expect(find.text('APP NOTIFICATIONS'), findsOneWidget);
-    expect(find.text('Transactions from notifications'), findsOneWidget);
+    // Notifications are experimental: they live under Settings.
+    expect(find.text('APP NOTIFICATIONS'), findsNothing);
+    expect(find.text('Transactions from notifications'), findsNothing);
     expect(find.text('TEACH AND SHARE'), findsOneWidget);
     // Nothing shared to list without the community, nor a switch off Android.
-    expect(find.text('Shared fixes'), findsNothing);
+    expect(find.text('Community rules'), findsNothing);
     expect(find.text('Transactions from SMS'), findsNothing);
 
     await tester.tap(find.text('Teach with AI'));
@@ -89,7 +88,6 @@ void main() {
     expect(find.text('3 left'), findsNothing);
     expect(find.textContaining('All set'), findsOneWidget);
     expect(top('Keep it working'), greaterThan(top('TEACH AND SHARE')));
-    expect(top('Keep it working'), greaterThan(top('APP NOTIFICATIONS')));
 
     // And back to the top if a step comes undone (access taken away).
     fake.access = false;

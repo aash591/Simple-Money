@@ -3,45 +3,16 @@ import 'package:flutter/material.dart';
 import 'app_back_button.dart';
 import 'glass_blur.dart';
 import 'glass_surface.dart';
+import 'page_motion.dart';
 
 import 'secondary_header.dart';
 
-/// Both pages slide together; reduced-motion settings skip the transition.
-/// The slide moves off quickly and glides to a stop, going in and coming back.
-class FeatureRoute<T> extends PageRouteBuilder<T> {
-  static const _curve = Curves.fastEaseInToSlowEaseOut;
-  static final _reverseCurve = Curves.fastEaseInToSlowEaseOut.flipped;
-
-  FeatureRoute(Widget page)
-    : super(
-        transitionDuration: const Duration(milliseconds: 420),
-        reverseTransitionDuration: const Duration(milliseconds: 360),
-        pageBuilder: (_, animation, secondaryAnimation) => page,
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          if (MediaQuery.disableAnimationsOf(context)) return child;
-          return SlideTransition(
-            position: Tween(begin: Offset.zero, end: const Offset(-1, 0))
-                .animate(
-                  CurvedAnimation(
-                    parent: secondaryAnimation,
-                    curve: _curve,
-                    reverseCurve: _reverseCurve,
-                  ),
-                ),
-            child: SlideTransition(
-              position: Tween(begin: const Offset(1, 0), end: Offset.zero)
-                  .animate(
-                    CurvedAnimation(
-                      parent: animation,
-                      curve: _curve,
-                      reverseCurve: _reverseCurve,
-                    ),
-                  ),
-              child: child,
-            ),
-          );
-        },
-      );
+/// Opens a page with the app's one page transition (see `page_motion.dart`),
+/// which the app theme sets for every page route. Being a [MaterialPageRoute], it also
+/// animates the page it covers (and is animated by pages opened over it)
+/// whatever kind of page route that is.
+class FeatureRoute<T> extends MaterialPageRoute<T> {
+  FeatureRoute(Widget page) : super(builder: (_) => page);
 }
 
 class FeaturePage extends StatelessWidget {
@@ -67,7 +38,8 @@ class FeaturePage extends StatelessWidget {
   final PreferredSizeWidget? bottom;
   final Widget? floatingActionButton;
   @override
-  Widget build(BuildContext context) => GlassPage(child: _scaffold(context));
+  Widget build(BuildContext context) =>
+      GlassPage(fadeContent: false, child: _scaffold(context));
 
   Widget _scaffold(BuildContext context) => Scaffold(
     appBar: !showHeader
@@ -76,36 +48,43 @@ class FeaturePage extends StatelessWidget {
             preferredSize: Size.fromHeight(
               SecondaryHeader.height + (bottom?.preferredSize.height ?? 0),
             ),
-            child: SafeArea(
-              bottom: false,
-              // The page's body starts below the bar, never under it.
-              child: OnPageBackdrop(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    header ??
-                        SecondaryHeader(
-                          title: title,
-                          titleIcon: titleIcon,
-                          leading: Navigator.of(context).canPop()
-                              ? const AppBackButton()
-                              : null,
-                          actions: actions ?? const [],
-                        ),
-                    ?bottom,
-                  ],
+            // The header moves with the content, but less far.
+            child: PageMotionContent(
+              travel: 0.4,
+              child: SafeArea(
+                bottom: false,
+                // The page's body starts below the bar, never under it.
+                child: OnPageBackdrop(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      header ??
+                          SecondaryHeader(
+                            title: title,
+                            titleIcon: titleIcon,
+                            leading: Navigator.of(context).canPop()
+                                ? const AppBackButton()
+                                : null,
+                            actions: actions ?? const [],
+                          ),
+                      ?bottom,
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
     floatingActionButton: floatingActionButton,
-    body: SafeArea(
-      top: !showHeader,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 620),
-          child: child,
+    // The header comes in solid with the page; the content fades in.
+    body: PageMotionContent(
+      child: SafeArea(
+        top: !showHeader,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 620),
+            child: child,
+          ),
         ),
       ),
     ),

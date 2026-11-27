@@ -38,6 +38,7 @@ class RecentTransactionsCard extends StatelessWidget {
     child: Column(
       children: [
         SectionTitle(
+          compact: true,
           'Recent transactions',
           action: transactions.isEmpty ? null : 'See all',
           onTap: onSeeAll,

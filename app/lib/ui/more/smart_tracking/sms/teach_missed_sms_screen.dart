@@ -42,6 +42,20 @@ class TeachMissedSmsScreen extends StatefulWidget {
   /// Reads the SMS inbox again after a message was taught by hand.
   final VoidCallback? onRulesChanged;
 
+  /// Whether [message] gets a Teach button. What the app already reads right
+  /// needs no teaching. But a message that was sent as a report may well have
+  /// been read wrongly, so it can always be taught.
+  @visibleForTesting
+  static bool canTeach({
+    required bool hasDatabase,
+    required ReportableSms message,
+    required bool reported,
+    required bool busy,
+  }) =>
+      hasDatabase &&
+      !busy &&
+      (reported || message.kind != ReportableKind.detected || message.taught);
+
   @override
   State<TeachMissedSmsScreen> createState() => _TeachMissedSmsScreenState();
 }
@@ -410,14 +424,15 @@ class _TeachMissedSmsScreenState extends State<TeachMissedSmsScreen>
                 reported: _reported.contains(message.id),
                 sending: _sending.contains(message.id),
                 onReport: _busy ? null : () => _report([message]),
-                // Only what the app doesn't read yet can be taught.
                 onTeach:
-                    widget.database == null ||
-                        (message.kind == ReportableKind.detected &&
-                            !message.taught) ||
-                        _busy
-                    ? null
-                    : () => _teach(message),
+                    TeachMissedSmsScreen.canTeach(
+                      hasDatabase: widget.database != null,
+                      message: message,
+                      reported: _reported.contains(message.id),
+                      busy: _busy,
+                    )
+                    ? () => _teach(message)
+                    : null,
               ),
             );
           },

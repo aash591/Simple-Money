@@ -1,11 +1,17 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:simple_money/data/bank_sms_parser.dart';
 import 'package:simple_money/data/db/app_database.dart';
 import 'package:simple_money/data/repositories/account_repository.dart';
 import 'package:simple_money/data/repositories/sms_import_repository.dart';
 import 'package:simple_money/domain/account.dart';
+import 'package:universal_bank_sms_parser/universal_bank_sms_parser.dart';
 
 void main() {
+  ucoCardTests();
   final at = DateTime(2026, 5, 8, 10);
 
   PendingSmsImport sms(
@@ -183,4 +189,52 @@ void main() {
       expect((await accounts()).single.hasDebitCard, isTrue);
     });
   });
+}
+
+// "UCO Bank Card XX1523" and "UCO Debit Card XX1523" are the one UCO account
+// the phone already knows from other messages.
+void ucoCardTests() {
+  final at = DateTime(2026, 11, 30, 12);
+  final parser = BankSmsParser(
+    const RuleCompiler().loadRuntime(
+      jsonDecode(
+            File(
+              'packages/universal_bank_sms_parser/distribution/packs/india/uco.json',
+            ).readAsStringSync(),
+          )
+          as Map<String, dynamic>,
+    ),
+  );
+  for (final wording in ['Bank Card', 'Debit Card']) {
+    test('UCO $wording joins the bank\'s one account', () {
+      final body =
+          'Rs.3,000.00 withdrawn on UCO $wording XX1523 on 30-11-2025,11:43:17 at ATM. Avl Bal Rs.5562.34.';
+      final snapshot = parser.balanceSnapshot(
+        BankSms(sender: 'JD-UCOBNK-S', body: body, receivedAt: at),
+      );
+      expect(snapshot?['channel'], 'card');
+      final card = PendingSmsImport(
+        id: 'c',
+        sender: 'JD-UCOBNK-S',
+        body: body,
+        receivedAt: at,
+        data: {...?snapshot, 'amountMinor': 300000},
+      );
+      final account = PendingSmsImport(
+        id: 'a',
+        sender: 'JD-UCOBNK-S',
+        body: '',
+        receivedAt: at,
+        data: {
+          'bankName': 'UCO Bank',
+          'countryCode': 'IN',
+          'currencyCode': 'INR',
+          'accountLast4': '1234',
+          'channel': 'upi',
+          'isCreditCard': false,
+        },
+      );
+      expect(canonicalAccountLast4(card, [account, card]), '1234');
+    });
+  }
 }

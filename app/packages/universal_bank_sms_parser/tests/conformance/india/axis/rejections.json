@@ -218,5 +218,25 @@
       "candidate": null
     },
     "compareLegacy": false
+  },
+  {
+    "id": "axis-community-overdue-reminder",
+    "country": "IN",
+    "bankId": "in.axis",
+    "provenance": "Community report 2026-11: an overdue-bill reminder, not a debit",
+    "input": {
+      "sender": "JD-AXISBK-S",
+      "body": "Your Samsung Axis Bank Signature Credit Card XX2556 bill of INR 1180 is overdue. Pls make min payment of INR -1180 to continue using your Credit Card. Ignore if paid - Axis Bank",
+      "receivedAt": "2026-10-07T00:00:00.000Z"
+    },
+    "expected": {
+      "classification": "notice",
+      "decision": "ignored",
+      "reason": "notice",
+      "packVersion": 1,
+      "ruleId": null,
+      "candidate": null
+    },
+    "compareLegacy": false
   }
 ]

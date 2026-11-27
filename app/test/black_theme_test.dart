@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_money/state/appearance_controller.dart';
 import 'package:simple_money/ui/components/common.dart';
 import 'package:simple_money/ui/components/menu_list.dart';
-import 'package:simple_money/ui/more/settings/customization_screen.dart';
+import 'package:simple_money/ui/more/settings/theme_screen.dart';
 import 'package:simple_money/ui/theme/app_theme.dart';
 
 void main() {
@@ -90,7 +90,7 @@ void main() {
     expect((box.decoration as BoxDecoration).border, isNotNull);
   });
 
-  testWidgets('Customization lists Black and picking it selects only it', (
+  testWidgets('Theme lists Black and picking it selects only it', (
     tester,
   ) async {
     final controller = AppearanceController();
@@ -104,7 +104,7 @@ void main() {
           themeMode: mode,
           builder: (context, child) =>
               AppearanceScope(controller: controller, child: child!),
-          home: const CustomizationScreen(),
+          home: const ThemeScreen(),
         ),
       ),
     );
@@ -129,7 +129,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(controller.value, ThemeMode.dark);
     expect(controller.black, isTrue);
-    final context = tester.element(find.byType(CustomizationScreen));
+    final context = tester.element(find.byType(ThemeScreen));
     expect(Theme.of(context).colorScheme.surface, blackSurface);
     // Check the brightness selection within its row; style is independent.
     final blackRow = find.ancestor(
@@ -153,9 +153,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(controller.black, isFalse);
     expect(
-      Theme.of(tester.element(find.byType(CustomizationScreen)))
-          .colorScheme
-          .surface,
+      Theme.of(tester.element(find.byType(ThemeScreen))).colorScheme.surface,
       darkSurface,
     );
   });

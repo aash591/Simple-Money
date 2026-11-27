@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../dashed_outline.dart' show dashPath;
 import 'chart_data.dart';
 import 'chart_frame.dart';
 import 'chart_legend.dart';
@@ -317,16 +318,9 @@ class _LinePainter extends CustomPainter {
     canvas.drawCircle(at, 4.5, Paint()..color = color);
   }
 
-  void _dashed(Canvas canvas, Path path, Paint paint) {
-    for (final metric in path.computeMetrics()) {
-      for (var start = 0.0; start < metric.length; start += 9) {
-        canvas.drawPath(
-          metric.extractPath(start, math.min(start + 5, metric.length)),
-          paint,
-        );
-      }
-    }
-  }
+  // One path for all the dashes: one stroke to draw rather than dozens.
+  void _dashed(Canvas canvas, Path path, Paint paint) =>
+      canvas.drawPath(dashPath(path, every: 9), paint);
 
   @override
   bool shouldRepaint(_LinePainter old) =>

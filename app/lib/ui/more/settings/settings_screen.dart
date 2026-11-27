@@ -15,10 +15,9 @@ import '../../components/app_toast.dart';
 import '../../components/menu_list.dart';
 import '../../components/feature_page.dart';
 import '../home_layout_screen.dart';
-import 'about/about_screen.dart';
-import 'customization_screen.dart';
+import 'theme_screen.dart';
 import 'data/data_screen.dart';
-import 'help/help_screen.dart';
+import 'experimental/experimental_screen.dart';
 import 'security_screen.dart';
 import 'sync/sync_screen.dart';
 
@@ -29,6 +28,7 @@ class SettingsScreen extends StatelessWidget {
     this.upiSettings,
     this.homeLayout,
     this.database,
+    this.onRulesChanged,
   });
   final SyncController? syncController;
   final UpiSettings? upiSettings;
@@ -36,6 +36,9 @@ class SettingsScreen extends StatelessWidget {
 
   /// The app's database, for screens that read messages with the saved rules.
   final AppDatabase? database;
+
+  /// Reads messages again with a new rule, after something was taught.
+  final VoidCallback? onRulesChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +81,8 @@ class SettingsScreen extends StatelessWidget {
                 ),
               MenuRow(
                 icon: Icons.palette_rounded,
-                title: 'Customization',
-                onTap: () => _openCustomization(context),
+                title: 'Theme',
+                onTap: () => _openTheme(context),
               ),
             ],
           ),
@@ -187,26 +190,28 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          MenuGroup(
-            label: 'Help & about',
-            children: [
-              MenuRow(
-                icon: Icons.help_rounded,
-                title: 'Help',
-                onTap: () =>
-                    Navigator.of(context)
-                        .push(FeatureRoute<void>(const HelpScreen())),
-              ),
-              MenuRow(
-                icon: Icons.info_rounded,
-                title: 'About SimpleMoney',
-                onTap: () =>
-                    Navigator.of(context)
-                        .push(FeatureRoute<void>(const AboutScreen())),
-              ),
-            ],
-          ),
+          // Early features; only shown when this phone has any to try.
+          if (ExperimentalScreen.offered()) ...[
+            const SizedBox(height: 24),
+            MenuGroup(
+              label: 'Experimental',
+              children: [
+                MenuRow(
+                  icon: Icons.science_rounded,
+                  title: 'Experimental features',
+                  subtitle: 'Early features we are still trying out',
+                  onTap: () => Navigator.of(context).push(
+                    FeatureRoute<void>(
+                      ExperimentalScreen(
+                        database: database,
+                        onRulesChanged: onRulesChanged,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -215,11 +220,10 @@ class SettingsScreen extends StatelessWidget {
 
 /// A theme mode change counts as one ad moment, judged once the screen
 /// closes. Accent colours take their own ad as they're picked.
-Future<void> _openCustomization(BuildContext context) async {
+Future<void> _openTheme(BuildContext context) async {
   final appearance = AppearanceScope.maybeOf(context);
   final before = appearance?.value;
-  await Navigator.of(context)
-      .push(FeatureRoute<void>(const CustomizationScreen()));
+  await Navigator.of(context).push(FeatureRoute<void>(const ThemeScreen()));
   if (appearance != null && appearance.value != before) {
     await AdGate.instance.after(AdMoment.theme);
   }

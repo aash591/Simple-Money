@@ -199,9 +199,8 @@ class _Header extends StatelessWidget {
                 SmsScanCard.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                // The same small label as the other home cards' titles.
+                style: theme.textTheme.bodySmall,
               ),
               const SizedBox(height: 2),
               // Always two lines tall, so a longer status never moves the

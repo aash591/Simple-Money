@@ -12,6 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/monetization_config.dart';
 import '../../../data/play_store.dart';
+import '../../../domain/holding.dart';
 import '../../../state/ad_gate.dart';
 import '../../../state/pro_controller.dart';
 import '../../components/action_buttons.dart';
@@ -591,6 +592,25 @@ class _Compare extends StatelessWidget {
       ('Track spending, accounts, loans and debts', true, true),
       ('Backups to Google Drive', true, true),
       ('Budgets', 'Up to ${ProController.freeBudgets}', 'Unlimited'),
+      // Each asset type on its own row, with its own free number.
+      for (final kind in [
+        HoldingKind.fund,
+        HoldingKind.etf,
+        HoldingKind.crypto,
+        HoldingKind.metal,
+        HoldingKind.forex,
+      ])
+        (
+          switch (kind) {
+            HoldingKind.fund => 'Mutual funds',
+            HoldingKind.etf => 'ETFs',
+            HoldingKind.crypto => 'Crypto',
+            HoldingKind.metal => 'Metal',
+            _ => 'Forex',
+          },
+          'Up to ${ProController.freeHoldingsOf(kind)}',
+          'Unlimited',
+        ),
       ('Looks', 'Simple, 4 colors', 'Every look'),
       ('AI assistant', aiFree ? 'Free for now' : false, true),
       ('Ads', 'A few, short', 'None'),

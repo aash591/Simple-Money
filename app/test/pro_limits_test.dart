@@ -13,7 +13,7 @@ import 'package:simple_money/state/pro_controller.dart';
 import 'package:simple_money/ui/budgets/set_budget_screen.dart';
 import 'package:simple_money/ui/components/glass_button.dart';
 import 'package:simple_money/ui/components/number_keypad.dart';
-import 'package:simple_money/ui/more/settings/customization_screen.dart';
+import 'package:simple_money/ui/more/settings/theme_screen.dart';
 import 'package:simple_money/ui/theme/app_theme.dart';
 
 void main() {
@@ -138,7 +138,7 @@ void main() {
           theme: appTheme(Brightness.light),
           builder: (context, child) =>
               AppearanceScope(controller: settings, child: child!),
-          home: const CustomizationScreen(),
+          home: const ThemeScreen(),
         ),
       );
       await tester.pumpAndSettle();
@@ -155,10 +155,10 @@ void main() {
       // Every change asks first, so nothing waits on an ad out of sight.
       expect(find.text('Watch a short ad to change color'), findsOneWidget);
       expect(find.text('Get Pro instead'), findsOneWidget);
-      expect(settings.accentColor, isNot(CustomizationScreen.colors['Pink']));
+      expect(settings.accentColor, isNot(ThemeScreen.colors['Pink']));
       await tester.tap(find.text('Watch ad'));
       await tester.pumpAndSettle();
-      expect(settings.accentColor, CustomizationScreen.colors['Pink']);
+      expect(settings.accentColor, ThemeScreen.colors['Pink']);
       expect(settings.nextPreviewEnd, isNull);
 
       var now = DateTime(2026, 1, 1, 9);
@@ -168,7 +168,7 @@ void main() {
       expect(find.textContaining('use it for an hour'), findsOneWidget);
       await tester.tap(find.text('Watch ad'));
       await tester.pumpAndSettle();
-      expect(settings.accentColor, CustomizationScreen.colors['Teal']);
+      expect(settings.accentColor, ThemeScreen.colors['Teal']);
       expect(
         settings.nextPreviewEnd,
         now.add(AppearanceController.previewLength),
@@ -179,7 +179,7 @@ void main() {
       now = now.add(const Duration(hours: 1, minutes: 1));
       await settings.expirePreviews();
       await tester.pumpAndSettle();
-      expect(settings.accentColor, CustomizationScreen.colors['Pink']);
+      expect(settings.accentColor, ThemeScreen.colors['Pink']);
       expect(settings.nextPreviewEnd, isNull);
       expect(find.textContaining('Trying a Pro look'), findsNothing);
     });

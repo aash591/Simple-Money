@@ -37,7 +37,7 @@ class SmsLabels {
 
 /// Teaches the app one SMS by hand: builds a rule from what the person
 /// marked, checks it reads that message (and others like it), and saves it
-/// as an approved suggestion, so More â€º AI suggestions keeps it with Undo.
+/// as an approved suggestion, so More › AI suggestions keeps it with Undo.
 /// The same path an AI app's `label_sms` takes, without the AI.
 class ManualSmsTeacher {
   ManualSmsTeacher(this.database);
@@ -77,7 +77,7 @@ class ManualSmsTeacher {
     final sender = normalizeRuleSender(message.sender);
     if (sender == null) {
       throw const SmsTeachException(
-        'This sender canâ€™t be taught. It needs a sender ID, like HDFCBK.',
+        'This sender can’t be taught. It needs a sender ID, like HDFCBK.',
       );
     }
     // A rule the person taught before already reads this message: marking it
@@ -93,7 +93,7 @@ class ManualSmsTeacher {
         ? SmsSenderRole.bank
         : SmsSenderRole.merchant;
     // A bank the app doesn't know needs a name: its SMS usually signs off
-    // with one ("â€¦ -Zyx Bank"). A shop's rule is named after the shop.
+    // with one ("… -Zyx Bank"). A shop's rule is named after the shop.
     // [appName] is given for an app's notification: the rule is the app's,
     // whoever each payment was to.
     final bankName =
@@ -141,8 +141,15 @@ class ManualSmsTeacher {
       throw SmsTeachException(_plain('${e.message}'));
     }
     if (!trial.results.first.matched) {
+      // Another rule already reads it, so the marked words can't win.
+      if (trial.results.first.result.ruleId != null) {
+        throw const SmsTeachException(
+          'This message is already read by the app, so there is nothing to '
+          'teach. If a value looks wrong, report it from the transaction.',
+        );
+      }
       throw const SmsTeachException(
-        'The marked words didnâ€™t read this message. Try marking them again.',
+        'The marked words didn’t read this message. Try marking them again.',
       );
     }
     final read = [
@@ -230,9 +237,9 @@ class ManualSmsTeacher {
     return null;
   }
 
-  /// The name an SMS ends with, as in "â€¦ -Fincare SFB".
+  /// The name an SMS ends with, as in "… -Fincare SFB".
   static String? _signOff(String body) =>
-      RegExp(r'[-â€“]\s*([A-Za-z][A-Za-z .&]{1,38}?)\.?\s*$')
+      RegExp(r'[-–]\s*([A-Za-z][A-Za-z .&]{1,38}?)\.?\s*$')
           .firstMatch(body)
           ?.group(1)
           ?.trim();
@@ -270,8 +277,8 @@ class ManualSmsTeacher {
     if (reason.contains('never gives the account')) {
       // A shop's or biller's message: no account to mark, and nothing in it
       // says what the money was for.
-      return 'This message doesnâ€™t say what the money was for, and a shop '
-          'never gives your account. Teach the bankâ€™s own SMS for this '
+      return 'This message doesn’t say what the money was for, and a shop '
+          'never gives your account. Teach the bank’s own SMS for this '
           'payment instead.';
     }
     if (reason.contains('names no account') ||
@@ -280,8 +287,8 @@ class ManualSmsTeacher {
       return 'Mark the account number too, so the app knows where the money '
           'went.';
     }
-    if (reason.contains('isnâ€™t in the message')) {
-      return 'That value isnâ€™t in the message. Tap the words again.';
+    if (reason.contains('isn’t in the message')) {
+      return 'That value isn’t in the message. Tap the words again.';
     }
     if (reason.contains('overlap')) {
       return 'Two marks overlap. Tap a word again to clear it.';
@@ -299,10 +306,8 @@ class ManualSmsTeacher {
     // Not one of the known cases: say what the rule builder said, so it
     // can be fixed, rather than a line that tells nothing.
     developer.log('teach: $reason', name: 'sms');
-    final short = reason.length > 160
-        ? '${reason.substring(0, 160)}â€¦'
-        : reason;
-    return 'This message canâ€™t be taught this way. $short';
+    final short = reason.length > 160 ? '${reason.substring(0, 160)}…' : reason;
+    return 'This message can’t be taught this way. $short';
   }
 }
 

@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_money/data/aurora_wallpaper.dart';
 import 'package:simple_money/state/appearance_controller.dart';
 import 'package:simple_money/ui/components/glass_surface.dart';
-import 'package:simple_money/ui/more/settings/customization_screen.dart';
+import 'package:simple_money/ui/more/settings/theme_screen.dart';
 import 'package:simple_money/ui/theme/app_theme.dart';
 
 /// A 1x1 PNG.
@@ -84,7 +84,7 @@ void main() {
           theme: appTheme(Brightness.dark, style: settings.style),
           builder: (context, child) =>
               AppearanceScope(controller: settings, child: child!),
-          home: const CustomizationScreen(),
+          home: const ThemeScreen(),
         ),
       );
       await tester.pumpAndSettle();
