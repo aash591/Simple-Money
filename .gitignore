@@ -94,3 +94,7 @@ SetupEnvironment.bat
 /.gitignore
 
 __pycache__/
+
+# Leftover test output.
+/app/test/failures/
+/app/test/_tmp/
