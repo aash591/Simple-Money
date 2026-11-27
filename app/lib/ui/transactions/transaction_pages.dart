@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../domain/account.dart';
 import '../../domain/category.dart';
+import '../../domain/debt.dart';
 import '../../domain/transaction.dart';
 import '../components/action_buttons.dart';
 import '../components/adaptive_sheet.dart';
@@ -10,6 +11,7 @@ import '../components/date_picker_sheet.dart';
 import '../components/transactions/transaction_review_content.dart'
     show TransactionReviewHeader;
 import '../components/number_keypad.dart';
+import '../more/debts/debt_widgets.dart';
 import '../theme/sheet_colors.dart';
 import 'amount_typing.dart';
 import 'transaction_widgets.dart';
@@ -22,48 +24,74 @@ class TransactionTypePage extends StatelessWidget {
   const TransactionTypePage({
     super.key,
     required this.onChoose,
+    required this.onBack,
     required this.onCancel,
+    required this.amount,
     this.onTransfer,
-    this.onUpi,
+    this.onDebt,
   });
   final ValueChanged<TransactionType> onChoose;
-  final VoidCallback onCancel;
+  final VoidCallback onBack, onCancel;
+
+  /// The amount already typed, shown above the choices.
+  final String amount;
 
   /// Shows a matching transfer choice when transfers are available.
   final VoidCallback? onTransfer;
-  final VoidCallback? onUpi;
+
+  /// Shows Lend and Borrow side by side when the option is on in Settings.
+  final ValueChanged<DebtKind>? onDebt;
 
   @override
   Widget build(BuildContext context) {
     final colors = SheetColors.of(context);
     return SheetPage(
-      header: const SheetHeader('Add a transaction', centered: true),
+      header: SheetHeader.flow('Add a transaction', onBack: onBack),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TypeChoiceCard(
-            icon: Icons.arrow_upward_rounded,
-            color: colors.expense,
-            title: 'Add expense',
-            subtitle: 'Record money you spent',
-            onTap: () => onChoose(TransactionType.expense),
+          SheetStepHeading('What is this $amount for?'),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: TypeChoiceCard(
+                  compact: true,
+                  icon: Icons.arrow_upward_rounded,
+                  color: colors.expense,
+                  title: 'Expense',
+                  onTap: () => onChoose(TransactionType.expense),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TypeChoiceCard(
+                  compact: true,
+                  icon: Icons.arrow_downward_rounded,
+                  color: colors.income,
+                  title: 'Income',
+                  onTap: () => onChoose(TransactionType.income),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          TypeChoiceCard(
-            icon: Icons.arrow_downward_rounded,
-            color: colors.income,
-            title: 'Add income',
-            subtitle: 'Record money you received',
-            onTap: () => onChoose(TransactionType.income),
-          ),
-          if (onUpi != null) ...[
+          if (onDebt != null) ...[
             const SizedBox(height: 12),
-            TypeChoiceCard(
-              icon: Icons.qr_code_scanner_rounded,
-              color: colors.primary,
-              title: 'Pay with UPI',
-              subtitle: 'Scan, pay and record your expense',
-              onTap: onUpi!,
+            Row(
+              children: [
+                for (final kind in const [DebtKind.lend, DebtKind.borrow]) ...[
+                  if (kind == DebtKind.borrow) const SizedBox(width: 12),
+                  Expanded(
+                    child: TypeChoiceCard(
+                      compact: true,
+                      icon: kind.icon,
+                      color: debtKindColor(context, kind),
+                      title: kind == DebtKind.lend ? 'Lend' : 'Borrow',
+                      onTap: () => onDebt!(kind),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
           if (onTransfer != null) ...[
@@ -82,7 +110,7 @@ class TransactionTypePage extends StatelessWidget {
   }
 }
 
-/// Step 2: the amount, typed on the custom keypad.
+/// Step 1: the amount, typed on the custom keypad.
 class AmountPage extends StatelessWidget {
   const AmountPage({
     super.key,
@@ -560,7 +588,9 @@ class TransactionViewPage extends StatelessWidget {
     final colors = SheetColors.of(context);
     final type = transaction.type;
     final isTransfer = type == TransactionType.transfer;
+    final isAdjustment = transaction.isBalanceAdjustment;
     final (color, caption) = switch (type) {
+      _ when isAdjustment => (colors.primary, balanceAdjustmentCategory),
       TransactionType.income => (colors.income, 'Income'),
       TransactionType.expense => (colors.expense, 'Expense'),
       TransactionType.transfer => (colors.primary, 'Transfer'),
@@ -608,17 +638,24 @@ class TransactionViewPage extends StatelessWidget {
           // The same top as the review sheets: kind, amount, title, date.
           TransactionReviewHeader(
             badge: switch (type) {
+              _ when isAdjustment => 'Balance adjusted',
               TransactionType.income => 'Money received',
               TransactionType.expense => 'Money paid',
               TransactionType.transfer => 'Between your accounts',
             },
             color: color,
             badgeIcon: switch (type) {
+              _ when isAdjustment => Icons.check_rounded,
               TransactionType.income => Icons.south_west_rounded,
               TransactionType.expense => Icons.north_east_rounded,
               TransactionType.transfer => Icons.swap_horiz_rounded,
             },
-            amount: split ? '$sent  →  $received' : sent,
+            // Which way the balance moved, which no badge says here.
+            amount: split
+                ? '$sent  →  $received'
+                : isAdjustment
+                ? '${type == TransactionType.income ? '+' : '−'} $sent'
+                : sent,
             title: title,
             date: DateFormat('MMM d, yyyy · h:mm a').format(transaction.date),
           ),
@@ -628,12 +665,16 @@ class TransactionViewPage extends StatelessWidget {
               if (!isTransfer)
                 TransactionDetailRow(
                   leading: EntityIconTile(
-                    chosen: category != null,
-                    iconKey: category?.icon,
+                    chosen: isAdjustment || category != null,
+                    iconKey: isAdjustment
+                        ? balanceAdjustmentIcon
+                        : category?.icon,
                     fallback: Icons.category_outlined,
                   ),
-                  label: 'Category',
-                  value: category?.name ?? 'Deleted category',
+                  label: isAdjustment ? 'Type' : 'Category',
+                  value: isAdjustment
+                      ? balanceAdjustmentCategory
+                      : category?.name ?? 'Deleted category',
                 ),
               TransactionDetailRow(
                 leading: EntityIconTile(

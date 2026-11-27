@@ -68,8 +68,11 @@ class TransactionListRow extends StatelessWidget {
         : category?.name ?? (isIncome ? 'Income' : 'Expense');
     // With a custom title the category reads as the subtitle; otherwise the
     // category is already the title, so fall back to its parent or account.
+    final isAdjustment = transaction.isBalanceAdjustment;
     final subtitle = isTransfer
         ? '${account?.name ?? 'Account'} → ${toAccount?.name ?? 'Account'}'
+        : isAdjustment
+        ? account?.name ?? ''
         : (hasTitle ? category?.name : parentCategory?.name) ??
               account?.name ??
               '';
@@ -78,6 +81,8 @@ class TransactionListRow extends StatelessWidget {
           icon ??
           (isTransfer
               ? Icon(Icons.swap_horiz_rounded, color: scheme.primary, size: 28)
+              : isAdjustment
+              ? const BadgedAppIcon(balanceAdjustmentIcon)
               : BadgedAppIcon(
                   transactionIcon(transaction, category),
                   badgeKey: transaction.badgeIcon,
@@ -90,10 +95,10 @@ class TransactionListRow extends StatelessWidget {
       amount: formattedAmount,
       amountColor:
           amountColor ??
-          (isIncome
-              ? green
-              : isTransfer
+          (isTransfer || isAdjustment
               ? scheme.onSurface
+              : isIncome
+              ? green
               : transaction.isCreditCard ||
                     account?.type == AccountType.creditCard
               ? Colors.orange

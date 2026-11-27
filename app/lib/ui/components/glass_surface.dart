@@ -748,23 +748,8 @@ class _WashPainter extends CustomPainter {
       radius != old.radius || alpha != old.alpha;
 }
 
-/// A wide, soft lift under a glass card, plus a tight contact shadow.
-List<BoxShadow> glassCardShadows(Brightness brightness) {
-  final dark = brightness == Brightness.dark;
-  return [
-    BoxShadow(
-      color: Colors.black.withValues(alpha: dark ? .16 : .025),
-      blurRadius: 28,
-      offset: const Offset(0, 10),
-      spreadRadius: -6,
-    ),
-    BoxShadow(
-      color: Colors.black.withValues(alpha: dark ? .12 : .015),
-      blurRadius: 3,
-      offset: const Offset(0, 1),
-    ),
-  ];
-}
+/// Glass cards cast no shadow; the rim and fill set them apart.
+List<BoxShadow> glassCardShadows(Brightness brightness) => const [];
 
 /// A glass card's edge: a hairline bright along the top-left and fading
 /// towards the bottom-right, over a thin inner glow.

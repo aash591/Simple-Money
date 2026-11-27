@@ -100,7 +100,8 @@ CREATE TABLE IF NOT EXISTS agent_suggestions (
   kind TEXT NOT NULL
     CHECK(kind IN ('new_category', 'sms_correction', 'transaction_edit',
       'parser_rule', 'statement_layout', 'new_loan', 'debt_entry',
-      'transaction_add', 'recurring_payment', 'account', 'portfolio')),
+      'transaction_add', 'recurring_payment', 'account', 'portfolio',
+      'developer_feedback')),
   target TEXT NOT NULL,
   payload TEXT NOT NULL,
   before TEXT,

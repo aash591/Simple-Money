@@ -415,7 +415,13 @@ class _TransactionReviewSheetState extends State<TransactionReviewSheet> {
     final colors = SheetColors.of(context);
     final picked = category(d.categoryId);
     final from = account(d.accountId), to = account(d.toAccountId);
+    final adjustment =
+        !d.transfer &&
+        d.loanId == null &&
+        (picked?.isDebtLoan ?? false) &&
+        picked?.name == balanceAdjustmentCategory;
     final color = switch (d.type) {
+      _ when adjustment => colors.primary,
       TransactionType.income => green,
       TransactionType.expense => colors.expense,
       TransactionType.transfer => colors.primary,
@@ -432,12 +438,14 @@ class _TransactionReviewSheetState extends State<TransactionReviewSheet> {
         ),
         body: TransactionReviewContent<TransactionType>(
           badge: switch (d.type) {
+            _ when adjustment => 'Balance adjusted',
             TransactionType.income => 'Money received',
             TransactionType.expense => 'Money paid',
             TransactionType.transfer => 'Between your accounts',
           },
           color: color,
           badgeIcon: switch (d.type) {
+            _ when adjustment => Icons.check_rounded,
             TransactionType.income => Icons.south_west_rounded,
             TransactionType.expense => Icons.north_east_rounded,
             TransactionType.transfer => Icons.swap_horiz_rounded,
@@ -491,7 +499,12 @@ class _TransactionReviewSheetState extends State<TransactionReviewSheet> {
               ReviewChoiceRow(
                 label: 'Category',
                 value: _loan?.title ?? picked?.name ?? 'Choose category',
-                icon: AppIcon(_loan?.icon ?? picked?.icon, size: 30),
+                icon: AppIcon(
+                  adjustment
+                      ? balanceAdjustmentIcon
+                      : _loan?.icon ?? picked?.icon,
+                  size: 30,
+                ),
                 locked: locks.category,
                 onTap: unless(locks.category, pickCategory),
               ),

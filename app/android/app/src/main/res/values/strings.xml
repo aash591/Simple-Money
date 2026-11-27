@@ -11,6 +11,9 @@
     <string name="shortcut_scan">Scan UPI</string>
     <string name="sms_channel_name">Bank transactions</string>
     <string name="sms_channel_description">Debits and credits detected from bank SMS</string>
+    <string name="balance_channel_name">Balance checks</string>
+    <string name="balance_channel_description">When your bank reports a different balance</string>
+    <string name="balance_public_title">Check an account balance</string>
     <string name="upi_action_not_paid">Not paid</string>
     <string name="upi_public_title">Payment pending</string>
     <string name="sms_action_more">More…</string>

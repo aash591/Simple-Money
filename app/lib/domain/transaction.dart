@@ -8,6 +8,13 @@ library;
 /// README's "core idea" for why categories and accounts stay separate.
 enum TransactionType { expense, income, transfer }
 
+/// The title and category of an entry that corrects an account's balance.
+/// The category is a debt_loan one, so reports leave it out.
+const balanceAdjustmentCategory = 'Balance adjustment';
+
+/// Its artwork, from the app's icon pack.
+const balanceAdjustmentIcon = 'credit';
+
 extension TransactionTypeStorage on TransactionType {
   String get storageValue => switch (this) {
     TransactionType.expense => 'expense',
@@ -37,10 +44,15 @@ class MoneyTransaction {
     this.icon,
     this.badgeIcon,
     this.isCreditCard = false,
+    this.isBalanceAdjustment = false,
   });
   final int id;
   final TransactionType type;
   final bool isCreditCard;
+
+  /// Corrects a balance: stored as money in or out so the balance moves,
+  /// but it is neither income nor an expense.
+  final bool isBalanceAdjustment;
 
   /// Always positive; direction is implied by [type].
   final int amountMinor;

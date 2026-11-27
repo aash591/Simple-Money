@@ -231,6 +231,13 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
       date: DateTime.fromMillisecondsSinceEpoch(date),
       icon: live?.icon,
       badgeIcon: live?.badgeIcon,
+      isBalanceAdjustment:
+          live?.isBalanceAdjustment ??
+          // A deleted one is known by its category.
+          switch (_category(row['category_id'])) {
+            final c? => c.isDebtLoan && c.name == balanceAdjustmentCategory,
+            null => false,
+          },
     );
   }
 

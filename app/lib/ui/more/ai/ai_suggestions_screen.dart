@@ -293,6 +293,44 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen>
       icon: t.icon,
       badgeIcon: t.badgeIcon,
       isCreditCard: t.isCreditCard,
+      isBalanceAdjustment: t.isBalanceAdjustment,
+    );
+  }
+
+  /// The entry a new balance records: the saved one once approved, until
+  /// then the one approving would add.
+  Widget? _adjustmentEntry(AgentSuggestion s, Account account) {
+    final Widget row;
+    if (s.status == AgentSuggestionStatus.applied) {
+      final saved = _transactions.transactions
+          .where((t) => t.id == s.before?['transactionId'])
+          .firstOrNull;
+      if (saved == null) return null;
+      row = _row(saved);
+    } else {
+      final difference =
+          (s.payload['balance'] as int? ?? account.balanceMinor) -
+          account.balanceMinor;
+      if (difference == 0) return null;
+      row = _row(
+        MoneyTransaction(
+          id: -1,
+          type: difference > 0
+              ? TransactionType.income
+              : TransactionType.expense,
+          amountMinor: difference.abs(),
+          accountId: account.id,
+          title: balanceAdjustmentCategory,
+          date: s.createdAt,
+          isBalanceAdjustment: true,
+        ),
+        // Nothing saved to open yet.
+        onTap: () {},
+      );
+    }
+    return MoneyCard(
+      padding: EdgeInsets.zero,
+      child: Material(type: MaterialType.transparency, child: row),
     );
   }
 
@@ -510,6 +548,7 @@ class _AiSuggestionsScreenState extends State<AiSuggestionsScreen>
         payload: s.payload,
         detail: s.detail,
         accountOf: _accounts.byId,
+        adjustmentEntry: (account) => _adjustmentEntry(s, account),
       );
     }
     if (s.kind == AgentSuggestionKind.recurringPayment) {
@@ -950,6 +989,7 @@ class _SuggestionCard extends StatelessWidget {
     AgentSuggestionKind.recurringPayment => Icons.autorenew_rounded,
     AgentSuggestionKind.account => Icons.account_balance_wallet_outlined,
     AgentSuggestionKind.portfolio => Icons.show_chart_rounded,
+    AgentSuggestionKind.developerFeedback => Icons.forum_outlined,
   };
 
   @override

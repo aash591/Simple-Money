@@ -115,6 +115,7 @@ class _AccountOverviewScreenState extends State<AccountOverviewScreen> {
     for (final t in widget.transactionStore.transactions) {
       final day = DateUtils.dateOnly(t.date);
       if (t.type != type ||
+          t.isBalanceAdjustment ||
           t.accountId != account.id ||
           day.isBefore(range.start) ||
           day.isAfter(range.end)) {

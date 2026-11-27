@@ -12,6 +12,7 @@ import '../../components/common.dart';
 import '../../components/app_toast.dart';
 import '../../components/more_popup_button.dart';
 import '../../components/segmented_pill.dart';
+import '../../theme/app_theme.dart' show usesGlass;
 import '../../theme/sheet_colors.dart';
 import '../../components/confirmation_alert.dart';
 import '../../components/detail_page.dart';
@@ -267,7 +268,12 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
                 pinned: true,
                 delegate: _ActivityTabsHeader(
                   controller: _tabs,
-                  background: theme.scaffoldBackgroundColor,
+                  // Glassy and Aurora paint their glow behind the page, so a
+                  // solid band would show as black (and darken the first row
+                  // through its blur).
+                  background: usesGlass(context)
+                      ? Colors.transparent
+                      : theme.scaffoldBackgroundColor,
                   textScaler: MediaQuery.textScalerOf(context),
                 ),
               ),
@@ -441,9 +447,10 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
           trailing: latest == null ? null : '${money(left[latest.id]!)} left',
         ),
       );
+      final tiles = <Widget>[];
       for (final (i, event) in items.indexed) {
         final rateChange = event.kind == LoanEventKind.rateChange;
-        rows.add(
+        tiles.add(
           _LoanEntryRow(
             icon: switch (event.kind) {
               LoanEventKind.rateChange => Icons.percent_rounded,
@@ -492,6 +499,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
           ),
         );
       }
+      rows.add(_entryGroup(tiles));
     }
     if (paidEvents.isNotEmpty) {
       rows.add(
@@ -565,6 +573,15 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
     );
   }
 
+  /// A run of entries as one card. Glassy and Aurora draw it like every other
+  /// card on the page; Simple keeps each entry's own surface.
+  Widget _entryGroup(List<Widget> tiles) => usesGlass(context)
+      ? MoneyCard(
+          padding: EdgeInsets.zero,
+          child: Column(children: [for (final tile in tiles) tile]),
+        )
+      : Column(children: tiles);
+
   List<Widget> _scheduleRows(Loan loan) {
     String installment(int number) =>
         loan.terms.mode.amortises ? 'EMI $number' : 'Payment $number';
@@ -594,28 +611,31 @@ class _LoanDetailScreenState extends State<LoanDetailScreen>
           'Upcoming · ${upcoming.length}',
           trailing: money(upcoming.fold(0, (n, r) => n + r.amount)),
         ),
-      for (final (i, row) in upcoming.indexed)
-        _LoanEntryRow(
-          icon: i == 0 ? Icons.schedule_rounded : Icons.event_outlined,
-          tone: i == 0 ? _RowTone.accent : _RowTone.neutral,
-          title: installment(row.number),
-          badge: i == 0 ? 'Next' : null,
-          subtitle: 'Due ${loanDate(row.due)}',
-          amount: money(row.amount),
-          caption: '${money(row.balance)} left',
-          first: i == 0,
-          last: i == upcoming.length - 1,
-          onTap: () => _showSplit(
-            loan,
-            installment(row.number),
-            row.principal,
-            row.interest,
-            0,
-            date: row.due,
-            balance: row.balance,
-            estimated: true,
-          ),
-        ),
+      if (upcoming.isNotEmpty)
+        _entryGroup([
+          for (final (i, row) in upcoming.indexed)
+            _LoanEntryRow(
+              icon: i == 0 ? Icons.schedule_rounded : Icons.event_outlined,
+              tone: i == 0 ? _RowTone.accent : _RowTone.neutral,
+              title: installment(row.number),
+              badge: i == 0 ? 'Next' : null,
+              subtitle: 'Due ${loanDate(row.due)}',
+              amount: money(row.amount),
+              caption: '${money(row.balance)} left',
+              first: i == 0,
+              last: i == upcoming.length - 1,
+              onTap: () => _showSplit(
+                loan,
+                installment(row.number),
+                row.principal,
+                row.interest,
+                0,
+                date: row.due,
+                balance: row.balance,
+                estimated: true,
+              ),
+            ),
+        ]),
     ];
   }
 
@@ -884,7 +904,7 @@ class _LoanEntryRow extends StatelessWidget {
         amountCaption: caption,
         onTap: onTap,
       ),
-      grouped: true,
+      grouped: !usesGlass(context),
       first: first,
       last: last,
     );

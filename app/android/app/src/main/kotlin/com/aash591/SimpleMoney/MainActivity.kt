@@ -76,6 +76,10 @@ open class MainActivity : FlutterFragmentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (this !is QuickEntryActivity) openQuickAction(intent)
+        // A cold start is on Home already; a running app may be anywhere.
+        if (intent.getBooleanExtra("open_home", false)) {
+            smsChanges?.invokeMethod("openHome", null)
+        }
     }
 
     override fun onResume() {

@@ -12,6 +12,7 @@ import '../state/sms_import_store.dart';
 import 'db/app_database.dart';
 import 'notification_access_platform.dart';
 import 'repositories/account_repository.dart';
+import 'repositories/balance_report_repository.dart';
 import 'repositories/category_repository.dart';
 import 'repositories/realtime_sms_repository.dart';
 import 'repositories/sms_import_repository.dart';
@@ -137,6 +138,38 @@ Future<void> _showSingleNotification(AppDatabase db, LiveSms live) async {
   });
 }
 
+/// Tells the user when the message received at [receivedAt] reported a balance
+/// the ledger doesn't agree with. Nothing is changed until they answer on Home.
+Future<void> showBalanceNotifications(
+  AppDatabase db,
+  DateTime receivedAt,
+) async {
+  try {
+    for (final mismatch in await BalanceReportRepository(db).mismatches()) {
+      if (mismatch.reportedAt.millisecondsSinceEpoch !=
+          receivedAt.millisecondsSinceEpoch) {
+        continue;
+      }
+      final account = mismatch.account;
+      String money(int minor) => formatAccountMoney(
+        minor,
+        currency: account.currency,
+        digits: account.digits,
+      );
+      await smsNotificationChannel.invokeMethod<void>('balance', {
+        'id': 'balance-${account.id}',
+        'title': 'Check ${account.name} balance',
+        'text':
+            'Bank ${money(mismatch.reportedMinor)} · App '
+            '${money(mismatch.appMinor)}. Transaction saved, balance not '
+            'updated.',
+      });
+    }
+  } catch (_) {
+    // Home asks the same question; the message itself is already handled.
+  }
+}
+
 /// When [message] was the bank's SMS for a UPI payment already saved in the
 /// scan flow, it joined that expense without a notification of its own. Say
 /// so, rather than nothing: the bank confirmed the payment.
@@ -257,6 +290,7 @@ Future<void> processBackgroundSms() async {
       } else {
         await _showUpiConfirmed(db, message);
       }
+      await showBalanceNotifications(db, message.receivedAt);
     }
     success = true;
   } finally {

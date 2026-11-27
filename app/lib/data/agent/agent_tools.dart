@@ -124,6 +124,7 @@ class AgentTools {
     'get_parser_rules',
     'test_parser_rule',
     'suggest_parser_rule',
+    'suggest_developer_feedback',
   };
 
   static const proNeeded =
@@ -212,7 +213,15 @@ class AgentTools {
       'paths, not the only ones: combine any tools, e.g. '
       'suggest_transaction_edits for many transactions in one call, or write '
       'a full SMS format with get_parser_rules, test_parser_rule and '
-      'suggest_parser_rule.';
+      'suggest_parser_rule. '
+      'When the user needs something no tool here can do, the app may still '
+      'do it by hand. Say so, and ask whether they want you to check the '
+      'guides at https://simplemoney.aashglobal.in/guides for the steps '
+      '(reading them uses time and tokens, and you may have no web access: '
+      'never open them without a yes). If the tools should have covered it, '
+      'ask whether they want you to send feedback to the developer; if yes, '
+      'show them the text and call suggest_developer_feedback, which they '
+      'approve in the app before it is sent.';
 
   static const _maxItems = 200;
 
@@ -380,6 +389,8 @@ class AgentTools {
       '''SELECT t.type, a.currency, a.digits, COUNT(*) AS n,
             SUM(t.amount_minor) AS total
           $joins WHERE ${where.join(' AND ')}
+            AND NOT (coalesce(c.type, '') = 'debt_loan'
+              AND c.name = '$balanceAdjustmentCategory')
           GROUP BY t.type, a.currency, a.digits''',
       variables: variables,
     ).get();
@@ -912,6 +923,25 @@ class AgentTools {
       reason: _string(item, 'reason'),
     ),
   );
+
+  Future<Object?> _suggestDeveloperFeedback(Map<String, Object?> args) =>
+      _suggest(
+        {
+          'items': [args],
+        },
+        (item) async => suggestions.prepareDeveloperFeedback(
+          message: _rawString(item, 'message') ?? '',
+          title: _string(item, 'title'),
+          kind:
+              _enum(item, 'kind', const [
+                'missing_tool',
+                'feature_request',
+                'bug',
+              ]) ??
+              'missing_tool',
+          reason: _string(item, 'reason'),
+        ),
+      );
 
   Future<Object?> _suggestSmsCorrections(Map<String, Object?> args) => _suggest(
     args,

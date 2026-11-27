@@ -18,6 +18,7 @@ import '../theme/surface_style.dart';
 import 'cards/accounts_card.dart';
 import 'cards/cash_flow_card.dart';
 import 'cards/committed_card.dart';
+import 'cards/debts_card.dart';
 import 'cards/loan_payoff_card.dart';
 import 'cards/net_worth_card.dart';
 import 'cards/overview_card.dart';
@@ -162,6 +163,10 @@ Widget? buildHomeCard(HomeCardId id, HomeCardContext c) {
     // Hides itself, spacing included, while there are no open loans.
     HomeCardId.loanPayoff when c.loanStore != null && data != null =>
       LoanPayoffCard(store: c.loanStore!, currency: currency),
+    HomeCardId.debts when c.debtStore != null && data != null => DebtsCard(
+      store: c.debtStore!,
+      currency: currency,
+    ),
     HomeCardId.recentTransactions when data != null => spaced(
       RecentTransactionsCard(
         transactions: data.recent,

@@ -27,6 +27,11 @@ typedef ChartBadgeBuilder = Widget Function(BuildContext context, int index);
 /// ring. When more slices than badges fit, the smallest go unlabelled (they
 /// stay tappable). Like every chart here it is unit-agnostic: pass
 /// [formatValue] for the value shown on selection.
+/// Where the first slice starts, in canvas radians (0 is 3 o'clock, clockwise).
+/// Slices run biggest first, so the small ones end up just before this point:
+/// bottom right, out of the way of the title above and the big slice's badge.
+const _donutStart = math.pi / 4;
+
 class CalloutDonutChart extends StatefulWidget {
   const CalloutDonutChart({
     super.key,
@@ -480,7 +485,7 @@ class _Geometry {
 
     final total = slices.fold<double>(0, (s, e) => s + math.max(0, e.value));
     final starts = <double>[], sweeps = <double>[];
-    var angle = -math.pi / 2;
+    var angle = _donutStart;
     for (final slice in slices) {
       final sweep = total <= 0 || slice.value <= 0
           ? 0.0
@@ -584,7 +589,7 @@ class _Geometry {
     if (total <= 0 || distance > radius + slop) return null;
     if (distance < radius - thickness - slop) return null;
     var angle = math.atan2(offset.dy, offset.dx);
-    if (angle < -math.pi / 2) angle += math.pi * 2;
+    if (angle < _donutStart) angle += math.pi * 2;
     for (var i = 0; i < sweeps.length; i++) {
       if (sweeps[i] > 0 &&
           angle >= starts[i] &&
@@ -628,7 +633,7 @@ class _CalloutDonutPainter extends CustomPainter {
     canvas.drawArc(rect, 0, math.pi * 2, false, ring..color = track);
     if (g.total <= 0) return;
 
-    final limit = -math.pi / 2 + reveal * math.pi * 2;
+    final limit = _donutStart + reveal * math.pi * 2;
     // A 2px separator where the eye reads the boundary: the ring's middle.
     final gap = 2 / rect.width * 2;
     for (var i = 0; i < slices.length; i++) {

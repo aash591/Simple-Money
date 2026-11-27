@@ -17,7 +17,6 @@ import 'package:simple_money/state/transaction_store.dart';
 import 'package:simple_money/ui/components/number_keypad.dart';
 import 'package:simple_money/ui/transactions/transaction_sheet.dart';
 import 'package:simple_money/ui/transactions/transaction_widgets.dart';
-import 'package:simple_money/ui/transactions/transfer_sheet.dart';
 
 void main() {
   late AppDatabase database;
@@ -141,10 +140,10 @@ void main() {
   Future<void> walkToDateStep(WidgetTester tester) async {
     await tester.tap(find.byTooltip('Add transaction'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Add expense'));
-    await tester.pumpAndSettle();
     await tapDigits(tester, '50');
     await tester.tap(continueButton());
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TypeChoiceCard, 'Expense'));
     await tester.pumpAndSettle();
     await tapChoice(tester, 'Food & Beverage');
     await tapChoice(tester, 'Cafe');
@@ -159,10 +158,10 @@ void main() {
       await pumpApp(tester);
       await tester.tap(find.byTooltip('Add transaction'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Add expense'));
-      await tester.pumpAndSettle();
       await tapDigits(tester, '50');
       await tester.tap(continueButton());
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TypeChoiceCard, 'Expense'));
       await tester.pumpAndSettle();
       await tapChoice(tester, 'Food & Beverage');
       await tester.ensureVisible(find.text('Add subcategory'));
@@ -268,16 +267,18 @@ void main() {
           .dy;
       await tester.tap(find.byTooltip('Add transaction'));
       await tester.pumpAndSettle();
-      expect(find.text('Add a transaction'), findsOneWidget);
-      await tester.tap(find.text('Add expense'));
-      await tester.pumpAndSettle();
-
+      // The keypad comes first; what it was for is asked afterwards.
       expect(find.text('Amount'), findsOneWidget);
       expect(find.text('0.00'), findsOneWidget);
       expect(tester.widget<GlassButton>(continueButton()).onPressed, isNull);
       await tapDigits(tester, '50');
       expect(find.text('50'), findsOneWidget);
       await tester.tap(continueButton());
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(TypeChoiceCard, 'Expense'), findsOneWidget);
+      expect(find.widgetWithText(TypeChoiceCard, 'Income'), findsOneWidget);
+      expect(find.text('Transfer between accounts'), findsOneWidget);
+      await tester.tap(find.widgetWithText(TypeChoiceCard, 'Expense'));
       await tester.pumpAndSettle();
 
       // Category fills the sheet up to just below Home's header, with
@@ -395,22 +396,26 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tapAt(const Offset(20, 20));
       await tester.pumpAndSettle();
-      expect(find.text('Add a transaction'), findsOneWidget);
+      expect(find.text('Amount'), findsOneWidget);
 
-      await tester.tap(find.text('Add income'));
+      await tapDigits(tester, '5');
+      await tester.tap(continueButton());
       await tester.pumpAndSettle();
-      expect(find.text('Amount received'), findsOneWidget);
+      await tester.tap(find.widgetWithText(TypeChoiceCard, 'Income'));
+      await tester.pumpAndSettle();
+      expect(find.text('Choose source'), findsOneWidget);
       await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle();
-      expect(find.text('Add a transaction'), findsOneWidget);
+      expect(find.widgetWithText(TypeChoiceCard, 'Expense'), findsOneWidget);
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+      expect(find.text('Amount'), findsOneWidget);
 
       await tester.tap(find.widgetWithText(GlassButton, 'Cancel'));
       await tester.pumpAndSettle();
       expect(find.byType(TransactionSheet), findsNothing);
 
       await tester.tap(find.byTooltip('Add transaction'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Add expense'));
       await tester.pumpAndSettle();
       await tester.drag(find.text('0.00'), const Offset(0, 300));
       await tester.pumpAndSettle();
@@ -421,7 +426,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byType(TransactionSheet), findsOneWidget);
-      await tester.drag(find.text('Add expense'), const Offset(0, 300));
+      await tester.drag(find.text('Add a transaction'), const Offset(0, 300));
       await tester.pumpAndSettle();
       expect(find.byType(TransactionSheet), findsNothing);
       expect(transactionStore.transactions, isEmpty);
@@ -592,6 +597,33 @@ void main() {
     },
   );
 
+  testWidgets('Lend and Borrow sit beside Transfer; Transfer is not a category', (
+    tester,
+  ) async {
+    useTallSurface(tester);
+    await saveCash();
+    await pumpApp(tester);
+    await tester.tap(find.byTooltip('Add transaction'));
+    await tester.pumpAndSettle();
+    await tapDigits(tester, '40');
+    await tester.tap(continueButton());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Lend'), findsOneWidget);
+    expect(find.text('Borrow'), findsOneWidget);
+    await tester.tap(find.text('Lend'));
+    await tester.pumpAndSettle();
+    expect(find.text('Add a transaction'), findsNothing);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('Lend'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(TypeChoiceCard, 'Expense'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(ListTile, 'Transfer'), findsNothing);
+    expect(find.text('Lend to someone'), findsNothing);
+  });
+
   testWidgets(
     'Transfer: one account per step, and the source is not offered as the destination',
     (tester) async {
@@ -608,25 +640,15 @@ void main() {
       await tester.tap(find.byTooltip('Add transaction'));
       await tester.pumpAndSettle();
       expect(find.text('Move money between your accounts'), findsNothing);
+      await tapDigits(tester, '20');
+      await tester.tap(continueButton());
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Transfer between accounts'));
       await tester.pumpAndSettle();
 
-      // The source comes first, so the keypad already knows the currency.
+      // The amount is already typed, so the transfer asks only for accounts.
       expect(find.text('Transferred from'), findsOneWidget);
       await tester.tap(find.widgetWithText(ListTile, 'Cash').hitTestable());
-      await tester.pumpAndSettle();
-
-      // The Add-type sheet stays mounted underneath, so scope past its own
-      // Cancel button to the transfer flow's.
-      expect(
-        find.descendant(
-          of: find.byType(TransferSheet),
-          matching: find.widgetWithText(GlassButton, 'Cancel'),
-        ),
-        findsOneWidget,
-      );
-      await tapDigits(tester, '20');
-      await tester.tap(find.widgetWithText(GlassButton, 'Continue'));
       await tester.pumpAndSettle();
 
       // Cash is the source, so it is not among the destinations at all.
@@ -659,7 +681,7 @@ void main() {
   );
 
   testWidgets(
-    'Adjust balance (Transactions ⋮ menu): adding an amount updates the account without logging a transaction',
+    'Adjust balance (Transactions ⋮ menu): adding an amount updates the account and logs an adjustment',
     (tester) async {
       useTallSurface(tester);
       await saveCash();
@@ -694,7 +716,23 @@ void main() {
 
       expect(find.textContaining('Balance updated'), findsOneWidget);
       expect(accountStore.accounts.single.balanceMinor, 105000);
-      expect(transactionStore.transactions, isEmpty);
+      final entry = transactionStore.transactions.single;
+      expect(entry.isBalanceAdjustment, isTrue);
+      expect(entry.amountMinor, 5000);
+
+      // Its view says what it is, and can still be edited.
+      await tester.tap(find.text('Balance adjustment').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Balance adjusted'), findsOneWidget);
+      expect(find.text('Money received'), findsNothing);
+      await tester.tap(find.text('Edit'));
+      await tester.pumpAndSettle();
+      expect(find.text('Balance adjusted'), findsWidgets);
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      final saved = transactionStore.transactions.single;
+      expect(saved.isBalanceAdjustment, isTrue);
+      expect(saved.title, 'Balance adjustment');
     },
   );
 }

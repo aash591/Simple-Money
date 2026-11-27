@@ -323,10 +323,9 @@ void main() {
     );
   });
 
-  testUpiWidgets('More opt-in controls UPI visibility in Add transaction', (
-    tester,
-  ) async {
+  testUpiWidgets('Settings opt-in turns the UPI option on', (tester) async {
     await upiSettings.setEnabled(false);
+    // Add transaction opens on the keypad; UPI has its own scan button.
     await pump(tester, fullSheet: true);
     expect(find.text('Pay with UPI'), findsNothing);
     expect(find.text('Add a transaction'), findsOneWidget);
@@ -368,11 +367,6 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(upiSettings.enabled, isTrue);
-    await pump(tester, fullSheet: true);
-    expect(find.text('Pay with UPI'), findsOneWidget);
-    await upiSettings.setEnabled(false);
-    await tester.pumpAndSettle();
-    expect(find.text('Pay with UPI'), findsNothing);
   });
 
   Future<void> preparePayment(WidgetTester tester) async {
@@ -735,26 +729,6 @@ void main() {
     await tester.tap(find.text('Save expense'));
     await tester.pumpAndSettle();
   }
-
-  testUpiWidgets(
-    'UPI button is below income; scanner grows and system back returns to type',
-    (tester) async {
-      await pump(tester, fullSheet: true);
-      expect(
-        tester.getTopLeft(find.text('Pay with UPI')).dy,
-        greaterThan(tester.getTopLeft(find.text('Add income')).dy),
-      );
-      await tester.tap(find.text('Pay with UPI'));
-      await tester.pumpAndSettle();
-      expect(find.text('Scan a UPI QR code'), findsOneWidget);
-      expect(tester.getTopLeft(find.text('Pay with UPI')).dy, lessThan(160));
-      expect(tester.takeException(), isNull);
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
-      expect(find.text('Add income'), findsOneWidget);
-      expect(find.text('Add a transaction'), findsOneWidget);
-    },
-  );
 
   testUpiWidgets(
     'handoff keeps balance unchanged until user confirms success',

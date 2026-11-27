@@ -410,6 +410,7 @@ class _DebtSheetState extends State<DebtSheet> {
           ChoiceItem(
             value: account.id,
             icon: AppIcon(account.icon, size: 28),
+            subtitle: account.maskedDigits,
             label: account.name,
           ),
       ],

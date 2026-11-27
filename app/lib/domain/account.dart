@@ -88,6 +88,11 @@ class Account {
 
   bool get isArchived => archivedAt != null;
 
+  /// "•• 1234", which tells two accounts of one bank apart; null
+  /// when the account has no number.
+  String? get maskedDigits =>
+      lastDigits?.isNotEmpty == true ? '•• $lastDigits' : null;
+
   String get formattedBalance =>
       formatAccountAmount(balanceMinor, digits: digits, currency: currency);
 }

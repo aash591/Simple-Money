@@ -119,9 +119,18 @@ void main() {
     final balance = await latest();
     await tools.suggestions.apply(balance);
     expect((await account(bank))!.balanceMinor, 725050);
+    final entry = (await TransactionRepository(db).load())
+        .where((t) => t.isBalanceAdjustment)
+        .single;
+    expect(entry.isBalanceAdjustment, isTrue);
+    expect(entry.amountMinor, 225050);
 
     expect(await tools.suggestions.undo(balance), isNull);
     expect((await account(bank))!.balanceMinor, 500000);
+    expect(
+      (await TransactionRepository(db).load()).any((t) => t.isBalanceAdjustment),
+      isFalse,
+    );
     expect(await tools.suggestions.undo(rename), isNull);
     expect((await account(bank))!.name, 'HDFC');
   });

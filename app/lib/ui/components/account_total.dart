@@ -165,28 +165,32 @@ class AccountTotal extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Total balance · ${scope.code}',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 4),
                 Row(
                   children: [
                     Expanded(
-                      child: PrivateAmount(
-                        label: 'Total balance',
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerLeft,
-                          child: rolling(
-                            Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(fontWeight: FontWeight.w700),
-                          ),
-                        ),
+                      child: Text(
+                        'Total balance · ${scope.code}',
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
-                    const Icon(Icons.chevron_right_rounded, size: 20),
+                    // In the card's top-right corner, like the other cards'.
+                    Transform.translate(
+                      offset: const Offset(6, -3),
+                      child: const Icon(Icons.chevron_right_rounded, size: 20),
+                    ),
                   ],
+                ),
+                const SizedBox(height: 4),
+                PrivateAmount(
+                  label: 'Total balance',
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: rolling(
+                      Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                  ),
                 ),
                 CurrencyNotice(scope: scope, missing: totals.missing),
               ],

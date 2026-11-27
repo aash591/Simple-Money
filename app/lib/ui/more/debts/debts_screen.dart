@@ -419,13 +419,6 @@ class _TotalCard extends StatelessWidget {
             color: selected ? color.withValues(alpha: .5) : Colors.transparent,
             width: 1.5,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: .025),
-              blurRadius: 22,
-              offset: const Offset(0, 5),
-            ),
-          ],
         ),
         child: Material(
           color: Colors.transparent,

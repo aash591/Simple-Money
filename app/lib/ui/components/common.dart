@@ -7,7 +7,6 @@ import 'cached_shadow.dart';
 import 'empty_art.dart' show EmptyArtwork, menuArtFor;
 import 'glass_blur.dart';
 import 'glass_surface.dart';
-import 'search_field.dart' show SearchField;
 
 export '../theme/surface_style.dart'
     show appCardGap, appCardRadius, homeCardGap;
@@ -53,7 +52,8 @@ class MoneyCard extends StatelessWidget {
           )
         : null;
     if (!usesGlass(context)) {
-      final card = DecoratedBox(
+      // No shadow: the card is set apart by its fill and border alone.
+      return DecoratedBox(
         decoration: BoxDecoration(
           color: wash == null ? color ?? theme.colorScheme.surface : null,
           gradient: wash,
@@ -62,16 +62,6 @@ class MoneyCard extends StatelessWidget {
         ),
         child: _clipped(radius),
       );
-      // Plain light style: the same soft shadow as the white buttons, from
-      // a cached image like the glass cards' shadows. As a decoration it was
-      // a blur redrawn under every card on every frame of a scroll.
-      final shadows = SearchField.softShadow(context);
-      return shadows == null
-          ? card
-          : CustomPaint(
-              painter: BoxShadowPainter(radius: radius, shadows: shadows),
-              child: card,
-            );
     }
     var body = color != null
         ? _clipped(radius)
@@ -172,18 +162,32 @@ class SectionTitle extends StatelessWidget {
         ),
       ),
       if (action != null)
-        TextButton(
-          onPressed: onTap,
-          // As tall as the title line, no more: the usual 48 tap height made
-          // this row taller than the text and pushed the title down, so
-          // cards with a "See all" sat lower than the rest.
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            minimumSize: const Size(48, 22),
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            visualDensity: VisualDensity.compact,
+        // A chevron rather than words; the action text is its label for
+        // screen readers. As tall as the title line, no more, so cards with
+        // one don't sit lower than the rest.
+        Semantics(
+          button: true,
+          label: action,
+          excludeSemantics: true,
+          child: InkResponse(
+            onTap: onTap,
+            radius: 20,
+            child: SizedBox(
+              width: 40,
+              height: 22,
+              // Flush with the card's right padding, where Month overview's
+              // chevron sits.
+              // Nudged out into the card's padding so it sits in the top-right
+              // corner rather than inset from it.
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Transform.translate(
+                  offset: const Offset(6, -3),
+                  child: const Icon(Icons.chevron_right_rounded, size: 20),
+                ),
+              ),
+            ),
           ),
-          child: Text(action!),
         ),
     ],
   );

@@ -72,15 +72,44 @@ Future<TransactionTypeFilter?> pickTypeFilter(
   ),
 );
 
+/// A configured loan, person owed or owing, or recurring payment, offered in
+/// the category list as if it were a subcategory. Picking one returns its
+/// negative [key], which no category id can be.
+class CategoryLink {
+  const CategoryLink({
+    required this.key,
+    required this.label,
+    required this.subtitle,
+    required this.icon,
+    required this.type,
+    this.under,
+    this.header = false,
+  });
+  final int key;
+  final String label;
+  final String? subtitle;
+
+  /// A group of other links, listed at the end of its tab and not indented.
+  final bool header;
+  final Widget icon;
+  final CategoryType type;
+
+  /// The category or header it is listed beneath; at the end of its tab when
+  /// none.
+  final String? under;
+}
+
 /// Expense and income tabs of [categories], parents with their children
 /// indented, plus All categories. Returns a record so "All" (null) can be
-/// told apart from a dismissed sheet (null record).
+/// told apart from a dismissed sheet (null record). [links] are listed as
+/// subcategories of the category they name.
 Future<(int?,)?> pickCategoryFilter(
   BuildContext context, {
   required List<Category> categories,
   required int? selected,
   String title = 'Filter by category',
   bool startOnIncome = false,
+  List<CategoryLink> links = const [],
 }) {
   final ordered = [
     for (final type in CategoryType.values)
@@ -89,6 +118,13 @@ Future<(int?,)?> pickCategoryFilter(
       )) ...[parent, ...categories.where((c) => c.parentId == parent.id)],
   ];
   final current = categories.where((c) => c.id == selected).firstOrNull;
+  ChoiceItem<(int?,)> linkItem(CategoryLink link) => ChoiceItem<(int?,)>(
+    value: (link.key,),
+    label: link.label,
+    subtitle: link.subtitle,
+    icon: link.icon,
+    indent: !link.header,
+  );
   return showAdaptiveSheet<(int?,)>(
     context,
     floating: true,
@@ -135,13 +171,33 @@ Future<(int?,)?> pickCategoryFilter(
                       ),
                       for (final category in ordered.where(
                         (c) => c.type == type,
-                      ))
+                      )) ...[
                         ChoiceItem<(int?,)>(
                           value: (category.id,),
                           label: category.name,
                           icon: AppIcon(category.icon, size: 28),
                           indent: category.parentId != null,
                         ),
+                        for (final link in links.where(
+                          (l) => l.type == type && l.under == category.name,
+                        ))
+                          linkItem(link),
+                      ],
+                      for (final link in links.where(
+                        (l) =>
+                            l.type == type &&
+                            !ordered.any(
+                              (c) => c.type == type && c.name == l.under,
+                            ) &&
+                            !links.any((h) => h.header && h.label == l.under),
+                      )) ...[
+                        linkItem(link),
+                        if (link.header)
+                          for (final child in links.where(
+                            (l) => l.type == type && l.under == link.label,
+                          ))
+                            linkItem(child),
+                      ],
                     ],
                   ),
               ],
@@ -294,8 +350,10 @@ class AccountSheet extends StatelessWidget {
                       ),
                       _AccountOption(
                         title: account.name,
-                        subtitle:
-                            '${account.currency}  ${account.formattedBalance}',
+                        subtitle: [
+                          ?account.maskedDigits,
+                          '${account.currency}  ${account.formattedBalance}',
+                        ].join(' · '),
                         icon: AppIcon(account.icon, size: 34),
                         selected: selectedId == account.id,
                         onTap: () => Navigator.pop(

@@ -38,7 +38,7 @@ class AppDatabase extends GeneratedDatabase {
   /// solely so the profile-seed behavior can be verified in tests.
   final bool _seedProfileData;
   @override
-  int get schemaVersion => 56;
+  int get schemaVersion => 57;
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => const [];
   @override
@@ -324,9 +324,9 @@ class AppDatabase extends GeneratedDatabase {
         await customStatement(_createAgentSuggestionsTable);
         await customStatement(_createUserSmsRulesTable);
       }
-      if (from >= 34 && from < 56) {
+      if (from >= 34 && from < 57) {
         // New suggestion kinds (v45 recurring payments and accounts, v56
-        // portfolio): SQLite can't change a CHECK, so the table
+        // portfolio, v57 developer feedback): SQLite can't change a CHECK, so the table
         // is rebuilt with its rows. A database without the table (a
         // partial one) just gets the current one.
         final hasTable = (await customSelect(

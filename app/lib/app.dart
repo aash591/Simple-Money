@@ -162,12 +162,17 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     const MethodChannel('simple_money/sms_changes')
         .setMethodCallHandler((call) async {
           if (call.method == 'changed' && mounted) _reloadLedger();
+          if (call.method == 'openHome' && mounted) {
+            _reloadLedger();
+            HomeScreen.openRequests.value++;
+          }
         });
     if (_accounts.loading) {
       _accounts.load(initializeDefault: widget.accountStore == null);
     }
     if (_categories.loading) _categories.load();
     if (_transactions.loading) _transactions.load();
+    _transactions.addListener(_loadAdjustmentCategory);
     _debts.load();
     _loans.load();
     _loadHoldings();
@@ -180,6 +185,17 @@ class _SimpleMoneyAppState extends State<SimpleMoneyApp>
     if (widget.accountStore == null) {
       DailyReminders.instance.restore().then((_) => _syncDailyReminders());
       _transactions.addListener(_syncDailyReminders);
+    }
+  }
+
+  /// The first balance adjustment makes its own category.
+  void _loadAdjustmentCategory() {
+    if (_categories.loading) return;
+    final known = {for (final c in _categories.categories) c.id};
+    if (_transactions.transactions.any(
+      (t) => t.isBalanceAdjustment && !known.contains(t.categoryId),
+    )) {
+      _categories.load();
     }
   }
 

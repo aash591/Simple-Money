@@ -303,12 +303,16 @@ class TypeChoiceCard extends StatelessWidget {
     required this.color,
     required this.title,
     this.subtitle,
+    this.compact = false,
     required this.onTap,
   });
   final IconData icon;
   final Color color;
   final String title;
   final String? subtitle;
+
+  /// Icon and title only, for a pair sharing one row.
+  final bool compact;
   final VoidCallback onTap;
 
   @override
@@ -353,19 +357,19 @@ class TypeChoiceCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(compact ? 12 : 16),
             child: Row(
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: compact ? 40 : 48,
+                  height: compact ? 40 : 48,
                   decoration: BoxDecoration(
                     color: dark ? color.withValues(alpha: .14) : colors.card,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(icon, color: color, size: 24),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: compact ? 10 : 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,8 +401,10 @@ class TypeChoiceCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                Icon(Icons.chevron_right_rounded, color: color),
+                if (!compact) ...[
+                  const SizedBox(width: 8),
+                  Icon(Icons.chevron_right_rounded, color: color),
+                ],
               ],
             ),
           ),

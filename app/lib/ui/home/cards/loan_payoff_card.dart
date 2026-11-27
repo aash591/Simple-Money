@@ -3,9 +3,9 @@ import 'package:intl/intl.dart';
 
 import '../../../domain/currency_scope.dart';
 import '../../../state/loan_store.dart';
+import '../../components/common.dart';
 import '../../components/currency_notice.dart';
 import '../../components/feature_page.dart';
-import '../../theme/surface_style.dart';
 import '../../more/loans/loan_payoff_chart.dart';
 import '../../more/loans/loans_screen.dart';
 import 'home_card.dart';
@@ -77,30 +77,37 @@ class LoanPayoffCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              HomeChartHeader(
-                title: 'Loan payoff',
-                headline:
-                    '${conversion.missing.isNotEmpty || unprojected > 0
-                        ? '$count included loans paid off'
-                        : count == 1
-                        ? 'Debt-free'
-                        : 'All $count loans paid off'} '
-                    'by ${DateFormat.yMMM().format(payoff.debtFree)}',
+              SectionTitle(
+                'Loan payoff',
+                compact: true,
                 action: 'See loans',
                 onTap: () => Navigator.push(
                   context,
                   FeatureRoute<void>(LoansScreen(store: store)),
                 ),
               ),
+              const SizedBox(height: 16),
+              LoanPayoffChart(payoff: payoff, currency: code, digits: digits),
+              const SizedBox(height: 16),
+              Text(
+                '${conversion.missing.isNotEmpty || unprojected > 0
+                    ? '$count included loans paid off'
+                    : count == 1
+                    ? 'Debt-free'
+                    : 'All $count loans paid off'} '
+                'by ${DateFormat.yMMM().format(payoff.debtFree)}',
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(fontSize: 14, height: 1.45),
+              ),
               CurrencyNotice(scope: currency, missing: conversion.missing),
               if (unprojected > 0)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     '$unprojected ${unprojected == 1 ? 'loan has' : 'loans have'} no projected repayment schedule and ${unprojected == 1 ? 'is' : 'are'} not included in this chart.',
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
-              LoanPayoffChart(payoff: payoff, currency: code, digits: digits),
             ],
           ),
         ),

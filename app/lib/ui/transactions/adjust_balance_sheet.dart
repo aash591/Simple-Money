@@ -113,6 +113,7 @@ class _AdjustBalanceSheetState extends State<AdjustBalanceSheet> {
             value: a.id,
             icon: AppIcon(a.icon, size: 28),
             label: a.name,
+            subtitle: a.maskedDigits,
           ),
         )
         .toList();
@@ -280,7 +281,9 @@ class _AccountField extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      account?.name ?? 'Choose an account',
+                      account == null
+                          ? 'Choose an account'
+                          : [account!.name, ?account!.maskedDigits].join('  '),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(

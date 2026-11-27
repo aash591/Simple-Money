@@ -653,6 +653,48 @@ void main() {
     expect((await row(id))['category_id'], streaming.id);
   });
 
+  test('Developer feedback is sent as plain text only once approved', () async {
+    final sent = <String>[];
+    var offline = true;
+    final repository = AgentSuggestionRepository(
+      db,
+      sendFeedback: (text) async {
+        if (offline) throw StateError('Couldn’t send. Check your connection.');
+        sent.add(text);
+      },
+    );
+    final result = await call('suggest_developer_feedback', {
+      'kind': 'feature_request',
+      'title': 'Export budgets',
+      'message': 'The user wanted budgets exported.\nThe app has Export.',
+    });
+    expect(result['suggested'], 1);
+    expect(changes, 1);
+    expect(sent, isEmpty);
+
+    final pending = (await repository.load()).single;
+    expect(pending.kind, AgentSuggestionKind.developerFeedback);
+    expect(pending.detail, contains('The app has Export.'));
+
+    // A failed send keeps it pending, with the reason.
+    expect(await repository.apply(pending.id), contains('connection'));
+    expect(
+      (await repository.load()).single.status,
+      AgentSuggestionStatus.pending,
+    );
+
+    offline = false;
+    expect(await repository.apply(pending.id), isNull);
+    expect(sent.single, startsWith('AI assistant · Feature request: Export'));
+    expect(sent.single, contains('The user wanted budgets exported.'));
+    final done = (await repository.load()).single;
+    expect(done.status, AgentSuggestionStatus.applied);
+    expect(done.canUndo, isFalse);
+
+    final bad = await call('suggest_developer_feedback', {'message': 'short'});
+    expect(bad['suggested'], 0);
+  });
+
   group('Pending SMS', () {
     const smsId = 'abc';
 

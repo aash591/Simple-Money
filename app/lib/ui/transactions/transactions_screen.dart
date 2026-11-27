@@ -15,10 +15,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/account.dart';
 import '../../domain/category.dart';
+import '../../domain/debt.dart';
+import '../../domain/loan.dart';
+import '../../domain/recurring_payment.dart';
+import '../more/debts/debt_widgets.dart';
 import '../../domain/transaction.dart';
 import '../../domain/transaction_preview.dart';
 import '../../state/account_store.dart';
 import '../../state/category_store.dart';
+import '../../state/debt_store.dart';
+import '../../state/loan_store.dart';
+import '../../state/recurring_payment_store.dart';
 import '../../state/transaction_store.dart';
 import '../../state/main_currency_controller.dart';
 import 'transaction_currency_sheet.dart';
@@ -118,7 +125,16 @@ class TransactionsScreen extends StatefulWidget {
     this.parentHandlesBack = false,
     this.preview,
     this.onSync,
+    this.loanStore,
+    this.debtStore,
+    this.recurringPaymentStore,
   });
+
+  /// Loans, people owed or owing, and recurring payments, offered as
+  /// subcategories when viewing by category.
+  final LoanStore? loanStore;
+  final DebtStore? debtStore;
+  final RecurringPaymentStore? recurringPaymentStore;
 
   /// Pulling the list down runs this first (Sync now), so it shows what
   /// the other phones changed too.
@@ -175,6 +191,10 @@ class TransactionsScreenState extends State<TransactionsScreen>
   _TransactionFilter _filter = _TransactionFilter.all;
   int? _accountId;
   int? _categoryId;
+
+  /// A loan, person or recurring payment picked from the category list: the
+  /// transactions it is linked to, shown instead of a category's.
+  ({String label, String kind, Widget icon, Set<int> ids})? _linked;
   _Grouping _grouping = _Grouping.date;
 
   /// The category groups the user has expanded past [_categoryPreviewCount].
@@ -404,6 +424,7 @@ class TransactionsScreenState extends State<TransactionsScreen>
       _filter = _TransactionFilter.all;
       _accountId = null;
       _categoryId = null;
+      _linked = null;
       _grouping = _Grouping.date;
       _expandedGroups.clear();
       _query = '';
@@ -584,8 +605,12 @@ class TransactionsScreenState extends State<TransactionsScreen>
 
   bool _matchesFilter(MoneyTransaction transaction) => switch (_filter) {
     _TransactionFilter.all => true,
-    _TransactionFilter.expense => transaction.type == TransactionType.expense,
-    _TransactionFilter.income => transaction.type == TransactionType.income,
+    _TransactionFilter.expense =>
+      transaction.type == TransactionType.expense &&
+          !transaction.isBalanceAdjustment,
+    _TransactionFilter.income =>
+      transaction.type == TransactionType.income &&
+          !transaction.isBalanceAdjustment,
     _TransactionFilter.transfer => transaction.type == TransactionType.transfer,
   };
 
@@ -629,6 +654,7 @@ class TransactionsScreenState extends State<TransactionsScreen>
                 !(widget.preview?.needsAttentionIds.contains(transaction.id) ??
                     false)) &&
             _matchesFilter(transaction) &&
+            (_linked == null || _linked!.ids.contains(transaction.id)) &&
             (_categoryId == null ||
                 transaction.categoryId == _categoryId ||
                 _categoryById(transaction.categoryId)?.parentId ==
@@ -790,6 +816,7 @@ class TransactionsScreenState extends State<TransactionsScreen>
   }
 
   Future<void> _selectCategory() async {
+    final links = _categoryLinks;
     final selection = await pickCategoryFilter(
       context,
       categories: _displayCategories.toList(),
@@ -798,14 +825,191 @@ class TransactionsScreenState extends State<TransactionsScreen>
           ? 'Filter by category'
           : 'View by category',
       startOnIncome: _filter == _TransactionFilter.income,
+      links: [for (final entry in links) entry.link],
     );
-    if (selection != null && mounted) {
+    if (selection == null || !mounted) return;
+    final key = selection.$1;
+    if (key != null && key < 0) {
+      final entry = links.firstWhere((e) => e.link.key == key);
+      final ids = await entry.ids();
+      if (!mounted) return;
       setState(() {
-        _categoryId = selection.$1;
-        _grouping = _Grouping.category;
+        _linked = (
+          label: entry.link.label,
+          kind: entry.kind,
+          icon: entry.link.icon,
+          ids: ids,
+        );
+        _categoryId = null;
+        _grouping = _Grouping.date;
         _expandedGroups.clear();
       });
+      return;
     }
+    setState(() {
+      _linked = null;
+      _categoryId = key;
+      _grouping = _Grouping.category;
+      _expandedGroups.clear();
+    });
+  }
+
+  /// Configured loans, people and recurring payments, with the ledger
+  /// entries each one is linked to.
+  List<({CategoryLink link, String kind, Future<Set<int>> Function() ids})>
+  get _categoryLinks {
+    if (widget.preview != null) return const [];
+    final scheme = Theme.of(context).colorScheme;
+    // Keys are spread over three residues so the kinds can't collide.
+    return [
+      for (final loan in widget.loanStore?.loans ?? const <Loan>[])
+        (
+          link: CategoryLink(
+            key: -(loan.id * 3 + 1),
+            label: loan.title,
+            subtitle: 'Loan',
+            icon: AppIcon(loan.icon, size: 28),
+            type: CategoryType.expense,
+            under: 'Loan EMI',
+          ),
+          kind: 'loan',
+          ids: () async => {
+            ...loan.events.map((e) => e.transactionId).nonNulls,
+            ?loan.disbursalId,
+            ?loan.chargesId,
+          },
+        ),
+      if (widget.debtStore?.people.isNotEmpty ?? false)
+        (
+          link: CategoryLink(
+            key: -1,
+            label: 'Debts',
+            subtitle: null,
+            icon: Icon(Icons.handshake_outlined, color: scheme.primary),
+            type: CategoryType.expense,
+            header: true,
+          ),
+          kind: 'debts',
+          ids: () async => {
+            for (final debts in widget.debtStore!.people)
+              ...debts.entries.map((e) => e.transactionId).nonNulls,
+          },
+        ),
+      for (final debts in widget.debtStore?.people ?? const <PersonDebts>[])
+        (
+          link: CategoryLink(
+            key: -(debts.person.id * 3 + 2),
+            label: debts.person.name,
+            subtitle: null,
+            icon: PersonAvatar(debts.person.name, size: 28),
+            type: CategoryType.expense,
+            under: 'Debts',
+          ),
+          kind: 'person',
+          ids: () async => {
+            ...debts.entries.map((e) => e.transactionId).nonNulls,
+          },
+        ),
+      for (final incoming in const [false, true])
+        if (widget.recurringPaymentStore?.recurringPayments.any(
+              (p) => p.incoming == incoming,
+            ) ??
+            false)
+          (
+            link: CategoryLink(
+              key: incoming ? -3 : -2,
+              label: 'Recurring',
+              subtitle: null,
+              icon: Icon(Icons.autorenew_rounded, color: scheme.primary),
+              type: incoming ? CategoryType.income : CategoryType.expense,
+              header: true,
+            ),
+            kind: 'recurring payments',
+            ids: () async => {
+              for (final payment
+                  in widget.recurringPaymentStore!.recurringPayments.where(
+                    (p) => p.incoming == incoming,
+                  ))
+                for (final record
+                    in await widget.recurringPaymentStore!.repository.payments(
+                      payment.id,
+                    ))
+                  record.transactionId,
+            },
+          ),
+      for (final payment
+          in widget.recurringPaymentStore?.recurringPayments ??
+              const <RecurringPayment>[])
+        (
+          link: CategoryLink(
+            key: -(payment.id * 3 + 3),
+            label: payment.name,
+            subtitle: null,
+            under: 'Recurring',
+            icon: payment.icon == null
+                ? Icon(Icons.autorenew_rounded, color: scheme.primary)
+                : AppIcon(payment.icon!, size: 28),
+            type: payment.incoming ? CategoryType.income : CategoryType.expense,
+          ),
+          kind: 'recurring payment',
+          ids: () async => {
+            for (final record
+                in await widget.recurringPaymentStore!.repository.payments(
+                  payment.id,
+                ))
+              record.transactionId,
+          },
+        ),
+    ];
+  }
+
+  Widget _buildLinkedHeader(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final linked = _linked!;
+    return Material(
+      color: scheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: scheme.primary.withValues(alpha: .16)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+        child: Row(
+          children: [
+            SizedBox(width: 32, height: 32, child: Center(child: linked.icon)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Viewing ${linked.kind}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Text(
+                    linked.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ],
+              ),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: const Size(64, 48),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+              ),
+              onPressed: () => setState(() => _linked = null),
+              child: const Text('Clear'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _onMenuAction(_MenuAction action) async {
@@ -1458,7 +1662,10 @@ class TransactionsScreenState extends State<TransactionsScreen>
                       range,
                       _isSearch ? visible : periodTransactions,
                     ),
-                    if (_categoryId != null) ...[
+                    if (_linked != null) ...[
+                      const SizedBox(height: 14),
+                      _buildLinkedHeader(context),
+                    ] else if (_categoryId != null) ...[
                       const SizedBox(height: 14),
                       _buildCategoryHeader(
                         context,
@@ -1498,6 +1705,7 @@ class TransactionsScreenState extends State<TransactionsScreen>
                   filtered:
                       _query.isNotEmpty ||
                       _filter != _TransactionFilter.all ||
+                      _linked != null ||
                       _categoryId != null,
                 ),
               )
@@ -1800,10 +2008,8 @@ class TransactionsScreenState extends State<TransactionsScreen>
                 const nameMin = 72.0, between = 10.0;
                 // A long balance shrinks a little more rather than leaving
                 // the card stuck on two rows when folded.
-                final foldedScale = ((avail - between - nameMin) / blockW).clamp(
-                  minFoldedScale,
-                  baseFoldedScale,
-                );
+                final foldedScale = ((avail - between - nameMin) / blockW)
+                    .clamp(minFoldedScale, baseFoldedScale);
                 final foldedW = blockW * foldedScale;
                 final rowMode = foldedW + between + nameMin <= avail;
                 // Two phases, so it never looks half-way between two

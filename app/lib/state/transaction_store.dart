@@ -203,7 +203,7 @@ class TransactionStore extends ChangeNotifier {
         mode: mode,
         amountMinor: amountMinor,
       );
-      await accountStore.load();
+      await Future.wait([_reload(), accountStore.load()]);
     } finally {
       saving = false;
       notifyListeners();

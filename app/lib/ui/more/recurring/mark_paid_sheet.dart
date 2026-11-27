@@ -92,6 +92,7 @@ class _MarkPaidSheetState extends State<MarkPaidSheet> {
           ChoiceItem(
             value: account.id,
             icon: AppIcon(account.icon, size: 28),
+            subtitle: account.maskedDigits,
             label: _fits(account)
                 ? account.name
                 : '${account.name} · ${account.currency}',

@@ -143,6 +143,7 @@ class SettingsScreen extends StatelessWidget {
                   builder: (context, _) => MenuSwitchRow(
                     icon: Icons.qr_code_scanner_rounded,
                     title: 'Google Pay option',
+                    subtitle: 'Scan a QR and pay with a UPI app',
                     value: currentUpiSettings.enabled,
                     onChanged:
                         currentUpiSettings.loading || currentUpiSettings.saving

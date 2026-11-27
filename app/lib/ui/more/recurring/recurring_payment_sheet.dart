@@ -194,6 +194,7 @@ class _RecurringPaymentSheetState extends State<RecurringPaymentSheet> {
           ChoiceItem(
             value: account.id,
             icon: AppIcon(account.icon, size: 28),
+            subtitle: account.maskedDigits,
             label: account.name,
           ),
       ],

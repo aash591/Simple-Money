@@ -67,6 +67,9 @@ class HomeScreen extends StatefulWidget {
 
   /// Shared fixes from other users; null in tests and launcher sheets.
   final CommunitySync? community;
+
+  /// Bumped to bring Home to the front, as a notification tap does.
+  static final openRequests = ValueNotifier<int>(0);
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -117,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    HomeScreen.openRequests.addListener(_showHome);
     // A scan adds accounts and saves transactions on its own.
     _sms.onLedgerChanged = () {
       widget.accountStore.load();
@@ -262,6 +266,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    HomeScreen.openRequests.removeListener(_showHome);
     AppUpdate.instance.removeListener(_onUpdateChanged);
     _network?.cancel();
     _historySlide.dispose();
@@ -505,6 +510,11 @@ class _HomeScreenState extends State<HomeScreen>
 
   void _backToHome() => _selectTab(0);
 
+  void _showHome() {
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    _selectTab(0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -568,6 +578,9 @@ class _HomeScreenState extends State<HomeScreen>
                 transactionStore: widget.transactionStore,
                 onAddTransaction: _openMoneyEntry,
                 onSync: widget.syncController?.syncNow,
+                loanStore: widget.loanStore,
+                debtStore: widget.debtStore,
+                recurringPaymentStore: widget.recurringPaymentStore,
               ),
               BudgetsScreen(
                 key: _budgets,

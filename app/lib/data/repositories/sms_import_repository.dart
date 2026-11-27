@@ -455,17 +455,8 @@ class SmsImportRepository {
       WHERE excluded.received_at > sms_balances.received_at''',
       [key, balance, receivedAt.millisecondsSinceEpoch],
     );
-    await database.customStatement(
-      '''UPDATE accounts SET balance_minor=?,balance_reported_at=?
-      WHERE id IN (SELECT account_id FROM sms_account_links WHERE bank_key=?) AND institution IS NOT NULL
-      AND (balance_reported_at IS NULL OR balance_reported_at < ?)''',
-      [
-        balance,
-        receivedAt.millisecondsSinceEpoch,
-        key,
-        receivedAt.millisecondsSinceEpoch,
-      ],
-    );
+    // The account's own balance is left alone: a bank's figure that differs
+    // from the ledger is offered to the user (see BalanceReportRepository).
   }
 
   Future<Map<String, int>> latestBalances({bool backfill = true}) async {

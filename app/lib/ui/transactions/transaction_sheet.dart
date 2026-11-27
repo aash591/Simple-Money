@@ -13,11 +13,9 @@ import '../../state/debt_store.dart';
 import '../../domain/debt.dart';
 import '../../domain/loan.dart';
 import '../more/debts/debt_sheet.dart';
-import '../more/debts/debt_widgets.dart';
 import '../components/transactions/review_pickers.dart';
 import '../more/loans/loan_action_sheet.dart';
 import '../more/loans/loan_detail_screen.dart';
-import '../../state/upi_settings.dart';
 import '../../data/reportable_sms.dart';
 import '../../data/repositories/transaction_repository.dart';
 import '../components/adaptive_sheet.dart';
@@ -34,30 +32,24 @@ import 'quick_add_helpers.dart';
 import 'transaction_pages.dart';
 import 'transaction_widgets.dart';
 import 'transfer_sheet.dart';
-import '../upi/upi_payment_flow.dart';
 
 /// Which page of the transaction sheet is showing. Declared in visual
 /// order, so comparing indexes tells which way to slide, and the entry
 /// steps from [amount] to [confirm] follow one another in this order.
 enum TransactionStep {
   view,
-  type,
   amount,
+  type,
   category,
   subcategory,
   account,
   date,
   confirm,
-  upi,
   transfer,
   debt,
   loanPick,
   loanPay,
 }
-
-/// A row at the end of Choose category that is not a category: it carries on
-/// into the debt flow instead.
-const _debtChoice = -1;
 
 /// Steps with a text field of their own (the pickers' search bars, and the
 /// title and note on Confirm), where the sheet lifts above the keyboard.
@@ -253,9 +245,7 @@ class _TransactionSheetState extends State<TransactionSheet> {
   late TransactionStep _step = widget.initialDraft != null
       ? TransactionStep.confirm
       : widget.transaction == null
-      ? (widget.initialType == null
-            ? TransactionStep.type
-            : TransactionStep.amount)
+      ? TransactionStep.amount
       : TransactionStep.view;
   var _forward = true;
   late final TransactionDraft _draft = _freshDraft();
@@ -332,12 +322,12 @@ class _TransactionSheetState extends State<TransactionSheet> {
     if (transaction == null) {
       return TransactionDraft(
         type: widget.initialType ?? TransactionType.expense,
-        accountId: widget.initialType == null
-            ? null
-            : widget.accountStore.accounts
-                  .where((a) => !a.isBroker)
-                  .firstOrNull
-                  ?.id,
+        // The amount comes first, so the account (and its decimals) is
+        // already set by the time it is typed.
+        accountId: widget.accountStore.accounts
+            .where((a) => !a.isBroker)
+            .firstOrNull
+            ?.id,
       );
     }
     return TransactionDraft.fromTransaction(
@@ -375,6 +365,11 @@ class _TransactionSheetState extends State<TransactionSheet> {
       _categoryById(transaction.categoryId)?.isDebtLoan ?? false;
 
   bool get _isIncome => _draft.type == TransactionType.income;
+
+  /// False only while typing the first amount of a new transaction, before
+  /// Expense, Income or Transfer has been asked.
+  bool get _kindChosen =>
+      _reviewing || _isEditFlow || widget.initialType != null;
 
   /// Named in the header of every step, so the flow being followed stays
   /// on screen while each step's own question leads its content.
@@ -424,8 +419,9 @@ class _TransactionSheetState extends State<TransactionSheet> {
     if (_busy) return;
     switch (_step) {
       case TransactionStep.view:
-      case TransactionStep.type:
         _close();
+      case TransactionStep.type:
+        _goTo(TransactionStep.amount);
       case TransactionStep.confirm:
         if (widget.initialDraft != null) {
           Navigator.pop(context);
@@ -448,18 +444,16 @@ class _TransactionSheetState extends State<TransactionSheet> {
               ? TransactionStep.category
               : TransactionStep.type,
         );
-      case TransactionStep.debt || TransactionStep.loanPick:
+      case TransactionStep.debt:
+        _goTo(TransactionStep.type);
+      case TransactionStep.loanPick:
         _goTo(TransactionStep.category);
       case TransactionStep.loanPay:
         _goTo(TransactionStep.loanPick);
       case _ when _reviewing:
         _goTo(TransactionStep.confirm);
       case TransactionStep.amount:
-        if (!_isEditFlow && widget.initialType != null) {
-          _close();
-        } else {
-          _goTo(_isEditFlow ? TransactionStep.view : TransactionStep.type);
-        }
+        _isEditFlow ? _goTo(TransactionStep.view) : _close();
       default:
         _goTo(TransactionStep.values[_step.index - 1]);
     }
@@ -519,6 +513,8 @@ class _TransactionSheetState extends State<TransactionSheet> {
       title: 'Delete this transaction?',
       message: isTransfer
           ? 'Deletes this transfer for good. Both balances update to match.'
+          : transaction.isBalanceAdjustment
+          ? 'Deletes this adjustment. The balance goes back to what it was.'
           : _isDebt(transaction)
           ? 'Deletes this transaction for good. The balance updates and it leaves Debts.'
           : 'Deletes this transaction for good. The balance updates to match.',
@@ -547,17 +543,10 @@ class _TransactionSheetState extends State<TransactionSheet> {
 
   void _chooseType(TransactionType type) {
     _draft.type = type;
-    _calculator.clear();
-    final accounts = widget.accountStore.accounts
-        .where((a) => !a.isBroker)
-        .toList();
-    if (_account == null && accounts.isNotEmpty) {
-      _draft.accountId = accounts.first.id;
-    }
     // The category has a step of its own, so none is picked in advance.
     if (_category?.type != _categoryType) _draft.categoryId = null;
     _reviewing = false;
-    _goTo(TransactionStep.amount);
+    _goTo(TransactionStep.category);
   }
 
   /// Edit opens the same review sheet as SMS and statement rows, where any
@@ -605,7 +594,8 @@ class _TransactionSheetState extends State<TransactionSheet> {
         currency: account.currency,
         digits: account.digits,
         date: transaction.date,
-        title: transaction.title ?? '',
+        // An adjustment's own title isn't carried into what it becomes.
+        title: transaction.isBalanceAdjustment ? '' : transaction.title ?? '',
         categoryId: transaction.categoryId,
         accountId: transaction.accountId,
         toAccountId: transaction.toAccountId,
@@ -637,7 +627,15 @@ class _TransactionSheetState extends State<TransactionSheet> {
                   : null,
             ),
       onSave: (draft) async {
-        final title = draft.title.trim();
+        // Still an adjustment while its category stands; picking a real one,
+        // a transfer or a loan makes it an ordinary entry.
+        final stillAdjustment =
+            transaction.isBalanceAdjustment &&
+            draft.type != TransactionType.transfer &&
+            draft.loanId == null &&
+            draft.categoryId == transaction.categoryId;
+        var title = draft.title.trim();
+        if (stillAdjustment && title.isEmpty) title = balanceAdjustmentCategory;
         if ((draft.loanId, loans) case (final int loan, final store?)) {
           // Together: a payment the loan refuses leaves the edit unsaved too.
           final repository = store.repository;
@@ -715,7 +713,13 @@ class _TransactionSheetState extends State<TransactionSheet> {
 
   void _continueAmount() {
     _calculate('=');
-    if (_calculator.error == null && _amountValid) _advance();
+    if (_calculator.error != null || !_amountValid) return;
+    // Opened with a type already chosen: nothing to ask, go to the category.
+    if (!_reviewing && widget.initialType != null) {
+      _goTo(TransactionStep.category);
+    } else {
+      _advance();
+    }
   }
 
   /// Trimmed [text], or null when it's blank (title and note are optional).
@@ -738,6 +742,9 @@ class _TransactionSheetState extends State<TransactionSheet> {
 
   int? _loanId;
 
+  /// Lend or borrow, as picked on the type page.
+  DebtKind _debtKind = DebtKind.lend;
+
   /// How Transfer was reached: from Choose category it keeps what was typed
   /// and backs out to there, and may be a card repayment.
   bool _transferFromCategory = false, _cardRepayment = false;
@@ -745,7 +752,6 @@ class _TransactionSheetState extends State<TransactionSheet> {
   CategoryShortcuts get _shortcuts => !_offersDebtAndLoan
       ? const CategoryShortcuts()
       : CategoryShortcuts(
-          transfer: true,
           cardRepayment:
               !_isIncome &&
               widget.accountStore.accounts.any(
@@ -754,28 +760,7 @@ class _TransactionSheetState extends State<TransactionSheet> {
           loans: _isIncome ? const [] : _activeLoans,
         );
 
-  List<ChoiceItem<int>> get _debtItems {
-    final debtKind = _isIncome ? DebtKind.borrow : DebtKind.lend;
-    return [
-      if (_offersDebtAndLoan && _debtStore != null)
-        ChoiceItem(
-          value: _debtChoice,
-          icon: Icon(
-            debtKind.icon,
-            size: 24,
-            color: debtKindColor(context, debtKind),
-          ),
-          label: _isIncome ? 'Borrowed from someone' : 'Lend to someone',
-          chevron: true,
-        ),
-    ];
-  }
-
   void _chooseCategory(int id) {
-    if (id == _debtChoice) {
-      _goTo(TransactionStep.debt);
-      return;
-    }
     if (id == loanChoice) {
       _goTo(TransactionStep.loanPick);
       return;
@@ -891,13 +876,12 @@ class _TransactionSheetState extends State<TransactionSheet> {
     canPop:
         !_busy &&
         (_step == TransactionStep.view ||
-            _step == TransactionStep.type ||
+            (_step == TransactionStep.amount && !_reviewing && !_isEditFlow) ||
             (widget.initialDraft != null && _step == TransactionStep.confirm)),
     // UPI, Transfer, debts and loan payments own their nested steps and
     // their own PopScope.
     onPopInvokedWithResult:
         const {
-          TransactionStep.upi,
           TransactionStep.transfer,
           TransactionStep.debt,
           TransactionStep.loanPay,
@@ -918,27 +902,24 @@ class _TransactionSheetState extends State<TransactionSheet> {
     TransactionStep.view => _buildViewPage(),
     TransactionStep.type => TransactionTypePage(
       onChoose: _chooseType,
+      onBack: _back,
       onCancel: _close,
+      amount: _amountLabel,
       onTransfer: () {
         _transferFromCategory = _cardRepayment = false;
         _goTo(TransactionStep.transfer);
       },
-      onUpi: (UpiSettingsScope.maybeOf(context)?.enabled ?? false)
-          ? () => _goTo(TransactionStep.upi)
+      onDebt: _debtStore != null
+          ? (kind) {
+              _debtKind = kind;
+              _goTo(TransactionStep.debt);
+            }
           : null,
-    ),
-    TransactionStep.upi => UpiPaymentFlow(
-      isActive: () => mounted && _step == TransactionStep.upi,
-      accountStore: widget.accountStore,
-      categoryStore: widget.categoryStore,
-      transactionStore: widget.transactionStore,
-      onBack: () => _goTo(TransactionStep.type),
-      onClose: _close,
     ),
     TransactionStep.transfer => TransferSheet(
       accountStore: widget.accountStore,
       transactionStore: widget.transactionStore,
-      initialAmountText: _transferFromCategory ? _draft.amountText : null,
+      initialAmountText: _draft.amountText,
       cardRepayment: _cardRepayment,
       // Backing out of its first step returns to where it was chosen; Cancel
       // or a saved transfer closes the whole sheet.
@@ -947,10 +928,10 @@ class _TransactionSheetState extends State<TransactionSheet> {
     ),
     TransactionStep.debt => DebtSheet(
       store: _debtStore!,
-      kind: _isIncome ? DebtKind.borrow : DebtKind.lend,
+      kind: _debtKind,
       // The amount is already typed; only who it was with is left to ask.
       initialAmountText: _draft.amountText,
-      onLeave: () => _goTo(TransactionStep.category),
+      onLeave: _back,
       onClose: _close,
     ),
     TransactionStep.loanPick => ChoicePickerPage<int>(
@@ -967,7 +948,9 @@ class _TransactionSheetState extends State<TransactionSheet> {
     ),
     TransactionStep.loanPay => _buildLoanPayPage(),
     TransactionStep.amount => AmountPage(
-      type: _draft.type,
+      // Until the kind is chosen, nothing here can name it.
+      type: _kindChosen ? _draft.type : TransactionType.expense,
+      headerTitle: _kindChosen ? null : 'Add a transaction',
       amountText: _draft.amountText,
       calculatedAmount: _calculator.resultFor(_draft.amountText, _digits),
       digits: _digits,
@@ -995,10 +978,7 @@ class _TransactionSheetState extends State<TransactionSheet> {
       summary: _summary(),
       fillHeight: true,
       items: [
-        // Lend / borrow sits second, right after Transfer.
-        ..._shortcuts.items.take(1),
-        ..._debtItems,
-        ..._shortcuts.items.skip(1),
+        ..._shortcuts.items,
         for (final category in _shortcuts.topLevel(
           _categoriesOf(_categoryType),
         )) ...[

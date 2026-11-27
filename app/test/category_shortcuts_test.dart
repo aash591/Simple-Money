@@ -323,7 +323,7 @@ void main() {
       await settle(tester);
     }
 
-    testWidgets('leads with the three shortcuts, then categories', (
+    testWidgets('leads with the two shortcuts, then categories', (
       tester,
     ) async {
       await toCategories(tester);
@@ -332,30 +332,12 @@ void main() {
       final first = categories.categories
           .where((c) => c.type == CategoryType.expense && c.parentId == null)
           .firstWhere((c) => c.name != 'Credit Card Repayment');
-      expect(top('Transfer'), lessThan(top('Loan repayment')));
+      // Transfer has its own button on the type page, not a row here.
+      expect(find.widgetWithText(ListTile, 'Transfer'), findsNothing);
       expect(top('Loan repayment'), lessThan(top('Credit card repayment')));
       expect(top('Credit card repayment'), lessThan(top(first.name)));
       // The row stands in for the category of that name.
       expect(find.text('Credit Card Repayment'), findsNothing);
-    });
-
-    testWidgets('Transfer carries on with the amount typed', (tester) async {
-      await toCategories(tester);
-      await choose(tester, 'Transfer');
-      expect(find.byType(TransferSheet), findsOneWidget);
-      expect(find.text('Transferred from'), findsOneWidget);
-      await choose(tester, 'SBI');
-      expect(find.text('Transferred to'), findsOneWidget);
-    });
-
-    testWidgets('backing out of Transfer returns to the categories', (
-      tester,
-    ) async {
-      await toCategories(tester);
-      await choose(tester, 'Transfer');
-      await tester.tap(find.byType(AppBackButton).last);
-      await settle(tester);
-      expect(find.text('Choose category'), findsOneWidget);
     });
 
     testWidgets('Credit card repayment saves a transfer to the card', (

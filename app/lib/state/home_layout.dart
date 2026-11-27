@@ -15,6 +15,7 @@ enum HomeCardId {
   accounts,
   netWorth,
   loanPayoff,
+  debts,
   recentTransactions,
 }
 
@@ -32,6 +33,7 @@ extension HomeCardInfo on HomeCardId {
     HomeCardId.accounts => 'Accounts',
     HomeCardId.netWorth => 'Net worth',
     HomeCardId.loanPayoff => 'Loan payoff',
+    HomeCardId.debts => 'Debts',
     HomeCardId.recentTransactions => 'Recent transactions',
   };
 
@@ -49,6 +51,7 @@ extension HomeCardInfo on HomeCardId {
     HomeCardId.accounts => 'Your first few balances',
     HomeCardId.netWorth => 'What you own minus what you owe',
     HomeCardId.loanPayoff => 'Balance left and when you’ll be debt-free',
+    HomeCardId.debts => 'What people owe you and what you owe',
     HomeCardId.recentTransactions => 'The month’s latest entries',
   };
 
@@ -65,6 +68,7 @@ extension HomeCardInfo on HomeCardId {
     HomeCardId.accounts => Icons.account_balance_wallet_outlined,
     HomeCardId.netWorth => Icons.trending_up_rounded,
     HomeCardId.loanPayoff => Icons.flag_outlined,
+    HomeCardId.debts => Icons.handshake_outlined,
     HomeCardId.recentTransactions => Icons.receipt_long_outlined,
   };
 
@@ -74,6 +78,7 @@ extension HomeCardInfo on HomeCardId {
     HomeCardId.spending ||
     HomeCardId.cashFlow ||
     HomeCardId.netWorth ||
+    HomeCardId.debts ||
     HomeCardId.loanPayoff => true,
     _ => false,
   };

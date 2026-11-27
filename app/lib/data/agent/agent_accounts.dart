@@ -6,6 +6,8 @@ import '../../domain/bank_institution_icon.dart';
 import '../../domain/currency_digits.dart';
 import '../db/app_database.dart';
 import '../repositories/account_repository.dart';
+import '../repositories/balance_report_repository.dart';
+import '../repositories/transaction_repository.dart';
 import 'agent_loans.dart' show isKnownIcon;
 import 'agent_suggestion_repository.dart';
 
@@ -329,8 +331,22 @@ class AgentAccounts {
 
       case AgentAccountAction.adjustBalance:
         final before = account();
-        await _setBalance(before.id, p['balance'] as int);
-        return {'accountId': before.id, 'balance': before.balanceMinor};
+        final difference = (p['balance'] as int) - before.balanceMinor;
+        final reports = BalanceReportRepository(database);
+        final entry = difference == 0
+            ? null
+            : await reports.record(
+                before.id,
+                difference,
+                DateTime.now(),
+                note: 'Set by an approved AI suggestion',
+              );
+        await reports.settleLatest(before.id);
+        return {
+          'accountId': before.id,
+          'balance': before.balanceMinor,
+          'transactionId': ?entry,
+        };
 
       case AgentAccountAction.archive:
         await _accounts.archive(account().id);
@@ -385,7 +401,17 @@ class AgentAccounts {
           replaceLimits: true,
         );
       case AgentAccountAction.adjustBalance:
-        await _setBalance(id, before['balance'] as int);
+        // Taking the entry out puts the balance back. One the user already
+        // deleted has done that.
+        if (before['transactionId'] case final int entry) {
+          final transactions = TransactionRepository(database);
+          if ((await transactions.load(id: entry)).isNotEmpty) {
+            await transactions.delete(entry);
+          }
+        } else {
+          // Approved before adjustments had entries.
+          await _setBalance(id, before['balance'] as int);
+        }
       case AgentAccountAction.archive:
         await _accounts.restore(id);
       case AgentAccountAction.restore:
@@ -446,7 +472,7 @@ class AgentAccounts {
     'availableCredit': a.availableCreditLimitMinor,
   };
 
-  /// Like "Adjust balance → Set to", but a card's balance may be negative.
+  /// Puts a balance back without an entry.
   Future<void> _setBalance(int id, int minor) => database.customUpdate(
     'UPDATE accounts SET balance_minor = ? WHERE id = ?',
     variables: [Variable(minor), Variable(id)],

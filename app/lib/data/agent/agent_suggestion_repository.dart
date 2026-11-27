@@ -14,6 +14,7 @@ import '../../domain/recurring_suggestions.dart';
 import '../../domain/service_icon.dart';
 import '../../domain/transaction.dart';
 import '../db/app_database.dart';
+import '../issue_report.dart';
 import '../repositories/account_repository.dart';
 import '../repositories/category_repository.dart';
 import '../repositories/loan_repository.dart';
@@ -43,7 +44,8 @@ enum AgentSuggestionKind {
   transactionAdd('transaction_add'),
   recurringPayment('recurring_payment'),
   account('account'),
-  portfolio('portfolio');
+  portfolio('portfolio'),
+  developerFeedback('developer_feedback');
 
   const AgentSuggestionKind(this.storageValue);
   final String storageValue;
@@ -153,8 +155,71 @@ String describeAgentError(Object error) => switch (error) {
 };
 
 class AgentSuggestionRepository {
-  AgentSuggestionRepository(this.database);
+  AgentSuggestionRepository(this.database, {this.sendFeedback});
   final AppDatabase database;
+
+  /// Delivers approved developer feedback as plain text; null sends it to the
+  /// developer's Telegram channel, as Help › Send feedback does. Replaced in
+  /// tests so nothing goes out to the network.
+  final Future<void> Function(String text)? sendFeedback;
+
+  static const _feedbackKinds = {
+    'missing_tool': 'AI tool missing',
+    'feature_request': 'Feature request',
+    'bug': 'Problem',
+  };
+
+  /// A message for the developer, written by the AI app and sent only after
+  /// the user reads and approves it.
+  AgentSuggestionDraft prepareDeveloperFeedback({
+    required String message,
+    String? title,
+    String kind = 'missing_tool',
+    String? reason,
+  }) {
+    final text = message.trim();
+    final heading = title?.trim() ?? '';
+    if (text.length < 10 || text.length > 1500) {
+      throw ArgumentError('The message must be 10–1500 characters.');
+    }
+    if (heading.length > 80) {
+      throw ArgumentError('The title can be at most 80 characters.');
+    }
+    final label = _feedbackKinds[kind];
+    if (label == null) {
+      throw ArgumentError('kind must be ${_feedbackKinds.keys.join(', ')}.');
+    }
+    return AgentSuggestionDraft(
+      kind: AgentSuggestionKind.developerFeedback,
+      target: jsonEncode([kind, text.toLowerCase()]),
+      payload: {'kind': kind, 'title': heading, 'message': text},
+      summary: 'Send feedback to the developer',
+      detail: [
+        if (heading.isNotEmpty) '$label: $heading' else label,
+        ...text.split('\n'),
+      ],
+      reason: _reason(reason),
+    );
+  }
+
+  /// The plain text the developer receives.
+  static String feedbackText(Map<String, Object?> payload) {
+    final heading = (payload['title'] as String?) ?? '';
+    final label = _feedbackKinds[payload['kind']] ?? 'Feedback';
+    final source = payload['source'] as String?;
+    return '${source == null ? 'AI assistant' : 'AI assistant ($source)'} · '
+        '$label${heading.isEmpty ? '' : ': $heading'}\n\n'
+        '${payload['message']}';
+  }
+
+  Future<void> _sendFeedback(Map<String, Object?> payload) async {
+    final text = feedbackText(payload);
+    try {
+      await (sendFeedback ?? IssueReporter().send)(text);
+    } on IssueReportException catch (error) {
+      throw StateError(error.message);
+    }
+  }
 
   /// How long approved and rejected suggestions stay visible.
   static const _history = Duration(days: 30);
@@ -1426,6 +1491,12 @@ class AgentSuggestionRepository {
   /// stays as it was, with its error.
   Future<String?> apply(int id) async {
     try {
+      // The network is used before the transaction opens, so a slow send
+      // never holds the database. A failed send leaves it pending.
+      final first = await _pending(id);
+      if (first.kind == AgentSuggestionKind.developerFeedback) {
+        await _sendFeedback(first.payload);
+      }
       await database.transaction(() async {
         final suggestion = await _pending(id);
         switch (suggestion.kind) {
@@ -1501,6 +1572,8 @@ class AgentSuggestionRepository {
               'action': suggestion.payload['action'],
               ...await AgentPortfolio(database).apply(suggestion.payload),
             });
+          case AgentSuggestionKind.developerFeedback:
+            break; // Already sent; there is nothing to change or undo.
         }
         await _decide(id, AgentSuggestionStatus.applied);
       });

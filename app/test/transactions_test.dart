@@ -358,7 +358,7 @@ void main() {
     }
   });
 
-  test('Adjusting a balance sets, adds to, or subtracts from it directly without logging a transaction', () async {
+  test('Adjusting a balance logs the difference as a balance adjustment entry', () async {
     final db = AppDatabase(NativeDatabase.memory());
     final accounts = AccountRepository(db);
     final transactions = TransactionRepository(db);
@@ -392,8 +392,16 @@ void main() {
       );
       final after = await accounts.load();
       expect(after.single.balanceMinor, 999900);
-      expect(after.single.transactionCount, 0);
-      expect(await transactions.load(), isEmpty);
+      final entries = await transactions.load();
+      expect(after.single.transactionCount, 3);
+      expect(entries.every((t) => t.isBalanceAdjustment), isTrue);
+      // Setting the same figure changes nothing, so adds nothing.
+      await transactions.adjustBalance(
+        accountId: cash.id,
+        mode: BalanceAdjustmentMode.setTo,
+        amountMinor: 999900,
+      );
+      expect(await transactions.load(), hasLength(3));
     } finally {
       await db.close();
     }

@@ -25,6 +25,7 @@ import '../../components/menu_list.dart';
 import '../../components/more_popup_button.dart';
 import '../../components/transactions/transaction_day_group.dart';
 import '../../components/transactions/transaction_list_row.dart';
+import '../../theme/app_theme.dart' show usesGlass;
 import '../../theme/sheet_colors.dart';
 import '../../transactions/adjust_balance_sheet.dart';
 import '../../transactions/transaction_sheet.dart';
@@ -605,10 +606,7 @@ class _BrokerView extends StatelessWidget {
             items: [
               // The balance is the Funds figure, so only a place that keeps cash.
               if (broker.place?.holdsCash ?? true)
-                const MorePopupItem(
-                  value: 'adjust',
-                  label: 'Adjust balance',
-                ),
+                const MorePopupItem(value: 'adjust', label: 'Adjust balance'),
               const MorePopupItem(value: 'delete', label: 'Delete account'),
             ],
             onSelected: (action) {
@@ -651,7 +649,9 @@ class _BrokerView extends StatelessWidget {
                   onSearch: onSearch,
                   hint: holdingsTab ? 'Search holdings' : 'Search transfers',
                   showTabs: tabs.length == 2,
-                  background: Theme.of(context).scaffoldBackgroundColor,
+                  background: usesGlass(context)
+                      ? Colors.transparent
+                      : Theme.of(context).scaffoldBackgroundColor,
                   textScaler: textScaler,
                 ),
               ),

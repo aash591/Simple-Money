@@ -63,6 +63,7 @@ class RecentTransactionsCard extends StatelessWidget {
         .where((c) => c.id == transaction.categoryId)
         .firstOrNull;
     final transfer = transaction.type == TransactionType.transfer;
+    final adjustment = transaction.isBalanceAdjustment;
     final income = transaction.type == TransactionType.income;
     final title =
         transaction.title ??
@@ -76,6 +77,8 @@ class RecentTransactionsCard extends StatelessWidget {
       subtitleTextStyle: Theme.of(context).textTheme.bodySmall,
       leading: transfer
           ? const Icon(Icons.swap_horiz)
+          : adjustment
+          ? const BadgedAppIcon(balanceAdjustmentIcon, size: 36)
           : BadgedAppIcon(
               transactionIcon(transaction, category),
               badgeKey: transaction.badgeIcon,
@@ -96,7 +99,7 @@ class RecentTransactionsCard extends StatelessWidget {
                 ? '+ '
                 : '- '}${homeMoney(transaction.amountMinor, SingleCurrency(account?.currency ?? currency.code, account?.digits ?? currency.digits))}',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: income ? green : null,
+              color: income && !adjustment ? green : null,
               fontWeight: FontWeight.w600,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),

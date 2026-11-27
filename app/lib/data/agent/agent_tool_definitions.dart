@@ -203,6 +203,50 @@ extension _AgentToolDefinitions on AgentTools {
       handler: _suggestNewCategories,
     ),
     AgentTool(
+      name: 'suggest_developer_feedback',
+      title: 'Suggest feedback for the developer',
+      description:
+          'Drafts a message to the SimpleMoney developer for the user to '
+          'read and approve; once they approve it in the app, it is sent as '
+          'plain text. Use it when the user needs something no tool here '
+          'can do (a missing tool, a feature request or a problem). If the '
+          'app may already do it by hand, offer to check '
+          'https://simplemoney.aashglobal.in/guides for the steps, and read '
+          'it only if the user says yes and you can browse. Then say what is '
+          'missing and ask whether they want you to send it to the '
+          'developer, and call this only after they say yes. Describe the '
+          'need in general words: never include names, amounts, account '
+          'numbers, phone numbers or SMS text. Changes nothing until '
+          'approved.',
+      readOnly: false,
+      inputSchema: AgentTools._schema(
+        {
+          'kind': {
+            'type': 'string',
+            'enum': ['missing_tool', 'feature_request', 'bug'],
+            'default': 'missing_tool',
+          },
+          'title': {
+            'type': 'string',
+            'maxLength': 80,
+            'description': 'A few words naming it',
+          },
+          'message': {
+            'type': 'string',
+            'minLength': 10,
+            'maxLength': 1500,
+            'description':
+                'What the user tried to do, what the tools could not do, '
+                'and the screen of the app that already does it (if any), '
+                'in plain text',
+          },
+          'reason': AgentTools._reasonField,
+        },
+        required: ['message'],
+      ),
+      handler: _suggestDeveloperFeedback,
+    ),
+    AgentTool(
       name: 'suggest_sms_corrections',
       title: 'Suggest SMS corrections',
       description:
@@ -845,7 +889,8 @@ extension _AgentToolDefinitions on AgentTools {
           'balance as the opening balance, credit_limit and available_credit '
           'for a card); update (account_id and only the fields to change); '
           'adjust_balance (account_id and balance: what it holds now, e.g. '
-          'from a bank SMS or statement; no transaction is logged); archive '
+          'from a bank SMS or statement; the difference is recorded as a '
+          'balance adjustment entry, neither income nor expense); archive '
           'or restore (account_id); merge (account_id is removed, its '
           'transactions, balance and SMS links move into merge_into_id: for '
           'one real account SMS scanning split in two, such as a bank '

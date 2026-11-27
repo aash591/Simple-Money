@@ -6,6 +6,7 @@ import '../../domain/account.dart';
 import '../../domain/loan.dart';
 import '../../domain/transaction.dart';
 import '../db/app_database.dart';
+import 'balance_report_repository.dart';
 
 class TransactionRepository {
   TransactionRepository(this.database);
@@ -39,7 +40,10 @@ class TransactionRepository {
                   (SELECT coalesce(s.icon, 'subscriptions')
                    FROM recurring_payment_history p
                    JOIN recurring_payments s ON s.id = p.recurring_payment_id
-                   WHERE p.transaction_id = t.id) AS subscription_icon
+                   WHERE p.transaction_id = t.id) AS subscription_icon,
+                  EXISTS(SELECT 1 FROM categories c
+                   WHERE c.id = t.category_id AND c.type = 'debt_loan'
+                   AND c.name = '$balanceAdjustmentCategory') AS is_adjustment
                 FROM transactions t JOIN accounts a ON a.id = t.account_id
                 WHERE 1 = 1
                 ${id != null ? 'AND t.id = ?' : ''}
@@ -78,6 +82,7 @@ class TransactionRepository {
             id: r.read<int>('id'),
             type: TransactionTypeStorage.fromStorage(r.read<String>('type')),
             isCreditCard: r.read<int>('is_credit_card') == 1,
+            isBalanceAdjustment: r.read<int>('is_adjustment') == 1,
             amountMinor: r.read<int>('amount_minor'),
             accountId: r.read<int>('account_id'),
             toAccountId: r.readNullable<int>('to_account_id'),
@@ -676,8 +681,8 @@ class TransactionRepository {
     );
   });
 
-  /// Sets, adds to, or subtracts from an account's balance directly — see
-  /// [BalanceAdjustmentMode] for why this isn't logged as a transaction.
+  /// Sets, adds to, or subtracts from an account's balance, recording the
+  /// difference as a balance adjustment entry; deleting it undoes the change.
   Future<void> adjustBalance({
     required int accountId,
     required BalanceAdjustmentMode mode,
@@ -686,18 +691,25 @@ class TransactionRepository {
     if (amountMinor < 0) {
       throw ArgumentError('Enter a valid amount.');
     }
-    final sql = switch (mode) {
-      BalanceAdjustmentMode.setTo =>
-        'UPDATE accounts SET balance_minor = ? WHERE id = ?',
-      BalanceAdjustmentMode.add =>
-        'UPDATE accounts SET balance_minor = balance_minor + ? WHERE id = ?',
-      BalanceAdjustmentMode.subtract =>
-        'UPDATE accounts SET balance_minor = balance_minor - ? WHERE id = ?',
-    };
-    await database.customUpdate(
-      sql,
-      variables: [Variable(amountMinor), Variable(accountId)],
-    );
+    await database.transaction(() async {
+      final row = await database
+          .customSelect(
+            'SELECT balance_minor FROM accounts WHERE id = ?',
+            variables: [Variable(accountId)],
+          )
+          .getSingle();
+      final difference = switch (mode) {
+        BalanceAdjustmentMode.setTo =>
+          amountMinor - row.read<int>('balance_minor'),
+        BalanceAdjustmentMode.add => amountMinor,
+        BalanceAdjustmentMode.subtract => -amountMinor,
+      };
+      final reports = BalanceReportRepository(database);
+      if (difference != 0) {
+        await reports.record(accountId, difference, DateTime.now());
+      }
+      await reports.settleLatest(accountId);
+    });
   }
 }
 

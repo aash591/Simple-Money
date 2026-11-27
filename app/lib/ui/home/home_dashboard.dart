@@ -26,6 +26,7 @@ import 'cards/currency_scope_bar.dart';
 import 'cards/home_card.dart';
 import 'cards/home_skeleton.dart';
 import 'home_cards.dart';
+import '../sms/balance_mismatch_card.dart';
 import 'cards/home_header.dart';
 
 class HomeDashboard extends StatefulWidget {
@@ -324,6 +325,18 @@ class _HomeDashboardState extends State<HomeDashboard> {
           ),
         );
 
+  Widget? _balanceCards() {
+    final sms = widget.smsStore;
+    if (sms == null) return null;
+    return BalanceMismatchCards(
+      key: const ValueKey('balance-mismatches'),
+      accountStore: widget.accountStore,
+      categoryStore: widget.categoryStore,
+      transactionStore: widget.transactionStore,
+      smsStore: sms,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final layout = HomeLayoutScope.maybeOf(context) ?? _defaultLayout;
@@ -377,11 +390,17 @@ class _HomeDashboardState extends State<HomeDashboard> {
                     ..._missingCurrencies(),
                   },
                 ),
+                // Balance questions sit under Net savings, or lead the
+                // page when that card is turned off.
+                if (!layout.visible.contains(HomeCardId.overview))
+                  ?_balanceCards(),
                 // Every store change reloads the summary; keep the last one
                 // up meanwhile rather than tearing the page down to a spinner.
-                for (final id in layout.visible)
+                for (final id in layout.visible) ...[
                   if (_card(id, viewingPast, scope) case final card?)
                     _KeptCard(key: ValueKey(id), child: card),
+                  if (id == HomeCardId.overview) ?_balanceCards(),
+                ],
                 if (error != null)
                   Padding(
                     padding: const EdgeInsets.only(top: homeCardGap),

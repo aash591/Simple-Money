@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../data/agent/agent_accounts.dart';
 import '../../../domain/account.dart';
+import '../../../domain/transaction.dart';
+import '../../components/app_icon.dart';
 import '../accounts/account_card.dart';
 
 /// A suggested account change drawn with the same [AccountCard] the Accounts
@@ -15,12 +17,14 @@ class AccountSuggestionPreview extends StatelessWidget {
     required this.action,
     required this.cards,
     required this.changes,
+    this.entry,
   });
 
   static AccountSuggestionPreview? maybe({
     required Map<String, Object?> payload,
     required List<String> detail,
     required Account? Function(int? id) accountOf,
+    Widget? Function(Account account)? adjustmentEntry,
   }) {
     final action = AgentAccountAction.fromToolName(
       payload['action'] as String?,
@@ -103,6 +107,7 @@ class AccountSuggestionPreview extends StatelessWidget {
           action: action,
           changes: detail,
           cards: [(_withBalance(current, minor('balance') ?? 0), null)],
+          entry: adjustmentEntry?.call(current),
         );
       case AgentAccountAction.archive ||
           AgentAccountAction.restore ||
@@ -142,6 +147,10 @@ class AccountSuggestionPreview extends StatelessWidget {
   /// The lines naming what changes, under the card.
   final List<String> changes;
 
+  /// For a new balance, the adjustment entry it records, as the Transactions
+  /// list shows it.
+  final Widget? entry;
+
   static Account _withBalance(Account a, int balance, {int? count}) => Account(
     id: a.id,
     name: a.name,
@@ -166,7 +175,7 @@ class AccountSuggestionPreview extends StatelessWidget {
   IconData get _icon => switch (action) {
     AgentAccountAction.create => Icons.add_card_rounded,
     AgentAccountAction.update => Icons.edit_outlined,
-    AgentAccountAction.adjustBalance => Icons.account_balance_wallet_outlined,
+    AgentAccountAction.adjustBalance => Icons.balance_rounded,
     AgentAccountAction.archive => Icons.archive_outlined,
     AgentAccountAction.restore => Icons.unarchive_outlined,
     AgentAccountAction.merge => Icons.merge_rounded,
@@ -189,7 +198,10 @@ class AccountSuggestionPreview extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(10, 4, 10, 10),
           child: Row(
             children: [
-              Icon(_icon, size: 20, color: accent),
+              if (action == AgentAccountAction.adjustBalance)
+                const AppIcon(balanceAdjustmentIcon, size: 22)
+              else
+                Icon(_icon, size: 20, color: accent),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -236,6 +248,7 @@ class AccountSuggestionPreview extends StatelessWidget {
               child: Text(line, style: theme.textTheme.bodyMedium),
             ),
         ],
+        if (entry case final row?) ...[const SizedBox(height: 10), row],
       ],
     );
   }

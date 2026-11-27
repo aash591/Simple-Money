@@ -156,6 +156,13 @@ class _LoanActionSheetState extends State<LoanActionSheet> {
       (loan.terms.tracked
           ? math.min(_value ?? 0, loan.unpaidInterestAt(_date) ?? 0)
           : loan.schedule.firstOrNull?.interest ?? 0);
+
+  /// A payment whose split the user types can't say what went to principal
+  /// until the interest is in.
+  bool get waitingForInterest => _manualAllocation && _interest.text.isEmpty;
+
+  int get principalPaid => math.max(0, (_value ?? 0) - _interestShown);
+
   ({List<LoanInstallment> schedule, int emi}) _preview(bool reduceEmi) {
     final amount = _value ?? 0;
     final balance = kind == LoanEventKind.partPayment
@@ -264,6 +271,7 @@ class _LoanActionSheetState extends State<LoanActionSheet> {
           ChoiceItem(
             value: account.id,
             icon: AppIcon(account.icon, size: 28),
+            subtitle: account.maskedDigits,
             label: account.name,
           ),
       ],
@@ -304,58 +312,48 @@ class _LoanActionSheetState extends State<LoanActionSheet> {
             if (kind == LoanEventKind.emi && loan.terms.tracked) ...[
               const SizedBox(height: 16),
               LoanSection(
-                title: _manualAllocation
-                    ? 'How was this payment applied?'
-                    : 'Estimated allocation',
+                title: 'What this payment covers',
                 children: [
                   if (_manualAllocation || _extras)
                     LoanField(
                       _interest,
-                      'Interest paid',
+                      'Interest in this payment',
                       prefix: _prefix,
-                      placeholder: 'From the lender’s statement',
-                      hint: 'Enter 0 if it all went to principal.',
+                      placeholder: '0',
+                      hint:
+                          'Check your lender’s statement. '
+                          'Enter 0 if it was all principal.',
                       onChanged: () => setState(() {}),
                     )
-                  else ...[
+                  else
                     LoanValue('Interest', _money(_interestShown)),
-                    TextButton(
-                      onPressed: () => setState(() => _extras = true),
-                      child: const Text('Edit allocation'),
+                  LoanValue(
+                    'Reduces your loan',
+                    waitingForInterest ? '—' : _money(principalPaid),
+                  ),
+                  LoanValue(
+                    'Loan balance',
+                    waitingForInterest
+                        ? _money(loan.outstanding)
+                        : '${_money(loan.outstanding)} → '
+                              '${_money(loan.outstanding - principalPaid)}',
+                  ),
+                  if (_manualAllocation || _extras)
+                    LoanField(
+                      _interestAfter,
+                      'Interest still pending after this (optional)',
+                      prefix: _prefix,
+                      placeholder: 'Skip unless your statement shows it',
+                      onChanged: () => setState(() {}),
+                    )
+                  else
+                    Align(
+                      alignment: Alignment.center,
+                      child: TextButton(
+                        onPressed: () => setState(() => _extras = true),
+                        child: const Text('Interest different? Edit it'),
+                      ),
                     ),
-                  ],
-                  LoanValue(
-                    'Principal',
-                    _manualAllocation && _interest.text.isEmpty
-                        ? 'Enter interest first'
-                        : _money(math.max(0, (_value ?? 0) - _interestShown)),
-                  ),
-                  LoanValue(
-                    'Outstanding before payment',
-                    _money(loan.outstanding),
-                  ),
-                  LoanValue(
-                    'Outstanding principal after',
-                    _manualAllocation && _interest.text.isEmpty
-                        ? 'Not calculated'
-                        : _money(
-                            loan.outstanding -
-                                math.max(0, (_value ?? 0) - _interestShown),
-                          ),
-                  ),
-                  LoanValue('Estimated unpaid interest before', switch (loan
-                      .unpaidInterestAt(_date)) {
-                    final int interest => _money(interest),
-                    _ => 'Unknown',
-                  }),
-                  LoanField(
-                    _interestAfter,
-                    'Unpaid interest after payment',
-                    prefix: _prefix,
-                    placeholder: 'Estimated',
-                    hint: 'Optional, if your statement shows it.',
-                    onChanged: () => setState(() {}),
-                  ),
                 ],
               ),
             ],

@@ -375,8 +375,8 @@ void main() {
           expect(find.byType(LoanActionSheet), findsOneWidget);
           await tester.enterText(find.byType(TextField).first, '5000');
           await tester.pumpAndSettle();
-          await field('Interest paid', '1250');
-          await field('Unpaid interest after payment', '0');
+          await field('Interest in this payment', '1250');
+          await field('Interest still pending after this (optional)', '0');
           await shot('payment-allocation');
           await tap('Save payment');
           final updated = (await repo.load()).single;

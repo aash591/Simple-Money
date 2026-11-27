@@ -156,9 +156,47 @@ object RealtimeSmsNotifications {
                             result.success(null)
                         } catch (_: Exception) { result.error("notification", "Could not update notification", null) }
                     }
+                    "balance" -> {
+                        try {
+                            @Suppress("UNCHECKED_CAST")
+                            showBalance(context, call.arguments as Map<String, Any>)
+                            result.success(null)
+                        } catch (_: Exception) { result.error("notification", "Could not show notification", null) }
+                    }
                     else -> result.notImplemented()
                 }
             }
+    }
+
+    /** The bank's balance differs from the app's; the question is answered on Home. */
+    private fun showBalance(context: Context, data: Map<String, Any>) {
+        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(context,
+                Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
+        val manager = context.getSystemService(NotificationManager::class.java)
+        val channel = "bank_balance"
+        if (Build.VERSION.SDK_INT >= 26) manager.createNotificationChannel(
+            NotificationChannel(channel, context.getString(R.string.balance_channel_name),
+                NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = context.getString(R.string.balance_channel_description)
+            })
+        val open = context.packageManager.getLaunchIntentForPackage(context.packageName) ?: return
+        open.putExtra("open_home", true)
+        val text = data["text"] as String
+        // One per account: a newer report replaces the last.
+        manager.notify(data["id"] as String, 1, NotificationCompat.Builder(context, channel)
+            .setSmallIcon(R.drawable.ic_sms_transaction)
+            .setContentTitle(data["title"] as String)
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setContentIntent(PendingIntent.getActivity(context, 0, open,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
+            .setAutoCancel(true)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+            .setPublicVersion(NotificationCompat.Builder(context, channel)
+                .setSmallIcon(R.drawable.ic_sms_transaction)
+                .setContentTitle(context.getString(R.string.balance_public_title))
+                .build())
+            .build())
     }
 
     // TEMPORARY: transaction notifications are hidden in every build. Set to true to restore.

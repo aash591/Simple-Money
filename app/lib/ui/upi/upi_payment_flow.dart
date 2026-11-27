@@ -1379,6 +1379,7 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
           ChoiceItem(
             value: account.id,
             icon: AppIcon(account.icon, size: 28),
+            subtitle: account.maskedDigits,
             label: account.name,
             chevron: true,
           ),
@@ -1412,6 +1413,7 @@ class _UpiPaymentFlowState extends State<UpiPaymentFlow> {
           ChoiceItem(
             value: account.id,
             icon: AppIcon(account.icon, size: 28),
+            subtitle: account.maskedDigits,
             label: account.name,
             chevron: true,
           ),
