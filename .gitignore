@@ -78,9 +78,8 @@ app.*.map.json
 # Raw/unprocessed assets (large binary source files).
 /assets_raw/
 
-# Community content, relay server, and SMS tooling directories.
+# Community server and SMS tooling directories.
 /community/
-/relay/
 /sms/
 
 /tool/
