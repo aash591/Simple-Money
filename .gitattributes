@@ -1,0 +1,3 @@
+# The SMS rule packs are checked against SHA-256 hashes of their LF text.
+# Checking them out with CRLF breaks that check and stops the inbox scan.
+app/packages/universal_bank_sms_parser/distribution/** text eol=lf
